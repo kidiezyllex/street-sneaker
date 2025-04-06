@@ -1,21 +1,27 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
   typescript: {
     ignoreBuildErrors: true,
   },
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // Điều chỉnh cấu hình experimental
   experimental: {
-    outputFileTracingRoot: process.cwd(),
-    outputFileTracingExcludes: {
-      '*': [
-        'node_modules/**/*',
-      ],
-    },
+    // outputFileTracingRoot: process.cwd(),
+    // outputFileTracingExcludes: {
+    //   '*': [
+    //     'node_modules/**/*',
+    //   ],
+    // },
   },
-  webpack: (config) => {
+  webpack: (config, { dev, isServer }) => {
+    // Bỏ qua các cảnh báo về gói phụ thuộc nền tảng cụ thể
+    config.infrastructureLogging = {
+      level: 'error', // Chỉ hiển thị lỗi, ẩn các cảnh báo
+    };
+    
+    // Giữ lại cấu hình hiện có
     config.module.rules.push({
       test: /flag-icons.*\.css$/,
       type: "asset/resource",
