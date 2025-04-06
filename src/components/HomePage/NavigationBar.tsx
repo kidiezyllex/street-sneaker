@@ -29,7 +29,7 @@ const Tab = ({ text, selected, setSelected }: TabProps) => {
         <motion.span
           layoutId="tab"
           transition={{ type: 'spring', duration: 0.4 }}
-          className="absolute inset-0 z-0 rounded-md bg-primary"
+          className="absolute inset-0 z-0 rounded-sm bg-primary/80"
         ></motion.span>
       )}
     </button>
@@ -64,10 +64,10 @@ export const NavigationBar = () => {
         {/* User Actions */}
         <div className="flex items-center gap-3">
           <div className="hidden md:flex items-center gap-2">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className='border border-primary text-primary hover:text-primary/80 rounded-sm'>
               Đăng nhập
             </Button>
-            <Button size="sm">Đăng ký</Button>
+            <Button size="sm" className='rounded-sm bg-primary/80'>Đăng ký</Button>
           </div>
           
           <div className="flex items-center">
