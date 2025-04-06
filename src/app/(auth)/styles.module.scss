@@ -1,0 +1,57 @@
+.root {
+  :global{
+    .form{
+      border: 0.05em solid #bcbcbc;
+      border-radius: 0.25em;
+      max-width: 21.5em;
+      padding: 0.75em 1.5em 1.5em;
+    }
+    .register_account{
+      background: #e7e9ec;
+      border-radius: 3px;
+      border-color: #adb1b8 #a2a6ac #8d9096;
+      border-style: solid;
+      border-width: 1px;
+      cursor: pointer;
+      display: inline-block;
+      padding: 0;
+      text-align: center;
+      text-decoration: none !important;
+      vertical-align: middle;
+      width: 344px;
+      margin-top: 35px;
+      height: 29px;
+      font-size: 14px;
+    }
+    .login_account{
+      background: #e7e9ec;
+      border-radius: 3px;
+      border-color: #adb1b8 #a2a6ac #8d9096;
+      border-style: solid;
+      border-width: 1px;
+      cursor: pointer;
+      display: inline-block;
+      padding: 0;
+      text-align: center;
+      text-decoration: none !important;
+      vertical-align: middle;
+      width: 344px;
+      margin-top: 35px;
+      height: 29px;
+      font-size: 14px;
+    }
+    .login_register{
+      background: #e7e9ec;
+    border-radius: 3px;
+    border-color: #adb1b8 #a2a6ac #8d9096;
+    border-style: solid;
+    border-width: 1px;
+    cursor: pointer;
+    display: inline-block;
+    padding: 0;
+    text-align: center;
+    text-decoration: none !important;
+    vertical-align: middle;
+    }
+  }
+}
