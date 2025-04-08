@@ -102,7 +102,7 @@ export const HotDeals = () => {
             <motion.div variants={itemVariants} className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-2xl font-bold text-primary">1.300.000₫</span>
-                <span className="text-lg text-gray-500 line-through">3.000.000₫</span>
+                <span className="text-lg text-gray-400 line-through">3.000.000₫</span>
               </div>
               
               <div className="flex items-center">

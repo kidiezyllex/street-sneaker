@@ -70,7 +70,7 @@ export const TopProducts = () => {
                       {formatCurrency(product.revenue)}
                     </span>
                   </div>
-                  <div className="flex items-center text-sm text-gray-500">
+                  <div className="flex items-center text-sm text-gray-400">
                     <span>{product.sold} đã bán</span>
                     <div className="mx-2 h-1 w-1 rounded-full bg-gray-300"></div>
                     <span>{formatCurrency(product.revenue / product.sold)}/sản phẩm</span>

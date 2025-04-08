@@ -392,7 +392,7 @@ export default function OrdersPage() {
                       setSelectedPaymentStatus('all');
                       setDateRange(undefined);
                     }}
-                    className="flex items-center text-gray-500"
+                    className="flex items-center text-gray-400"
                   >
                     <Icon path={mdiClose} size={0.7} className="mr-1" />
                     Đặt lại bộ lọc
@@ -472,7 +472,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
   if (orders.length === 0) {
     return (
       <div className="text-center py-10">
-        <p className="text-gray-500">Không tìm thấy đơn hàng nào phù hợp.</p>
+        <p className="text-gray-400">Không tìm thấy đơn hàng nào phù hợp.</p>
       </div>
     );
   }
@@ -482,14 +482,14 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b">
-            <th className="px-4 py-3 text-left font-medium text-gray-500">Mã đơn</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-500">Khách hàng</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-500">Ngày tạo</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-500">Loại đơn</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-500">Trạng thái</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-500">Thanh toán</th>
-            <th className="px-4 py-3 text-right font-medium text-gray-500">Tổng tiền</th>
-            <th className="px-4 py-3 text-center font-medium text-gray-500">Thao tác</th>
+            <th className="px-4 py-3 text-left font-medium text-gray-400">Mã đơn</th>
+            <th className="px-4 py-3 text-left font-medium text-gray-400">Khách hàng</th>
+            <th className="px-4 py-3 text-left font-medium text-gray-400">Ngày tạo</th>
+            <th className="px-4 py-3 text-left font-medium text-gray-400">Loại đơn</th>
+            <th className="px-4 py-3 text-left font-medium text-gray-400">Trạng thái</th>
+            <th className="px-4 py-3 text-left font-medium text-gray-400">Thanh toán</th>
+            <th className="px-4 py-3 text-right font-medium text-gray-400">Tổng tiền</th>
+            <th className="px-4 py-3 text-center font-medium text-gray-400">Thao tác</th>
           </tr>
         </thead>
         <tbody className="divide-y">
@@ -499,7 +499,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
               <td className="px-4 py-4">
                 <div>
                   <div className="font-medium">{order.customer.fullName}</div>
-                  <div className="text-gray-500 text-xs">{order.customer.phone}</div>
+                  <div className="text-gray-400 text-xs">{order.customer.phone}</div>
                 </div>
               </td>
               <td className="px-4 py-4">
@@ -513,7 +513,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
                 <div className="mb-1">
                   <OrderPaymentStatusBadge status={order.paymentStatus} />
                 </div>
-                <div className="text-xs text-gray-500">{getPaymentMethodName(order.paymentMethod)}</div>
+                <div className="text-xs text-gray-400">{getPaymentMethodName(order.paymentMethod)}</div>
               </td>
               <td className="px-4 py-4 text-right font-medium">
                 {formatCurrency(order.finalAmount)}
@@ -524,26 +524,26 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
                     size="icon"
                     variant="ghost"
                     onClick={() => onViewDetail(order)}
-                    className="h-8 w-8"
+                    className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 bg-gray-100"
                     title="Xem chi tiết"
                   >
-                    <Icon path={mdiEye} size={0.8} />
+                    <Icon path={mdiEye} size={0.8} className='text-gray-400' />
                   </Button>
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="h-8 w-8"
+                    className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 bg-gray-100"
                     title="In hóa đơn"
                   >
-                    <Icon path={mdiPrinter} size={0.8} />
+                    <Icon path={mdiPrinter} size={0.8} className='text-gray-400' />
                   </Button>
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="h-8 w-8 text-red-500"
+                    className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 bg-gray-100 text-red-500"
                     title="Xóa đơn hàng"
                   >
-                    <Icon path={mdiDelete} size={0.8} />
+                    <Icon path={mdiDelete} size={0.8} className='text-gray-400' />
                   </Button>
                 </div>
               </td>

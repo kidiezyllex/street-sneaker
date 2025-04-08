@@ -93,7 +93,7 @@ export default function SidebarLayout({
                             size={0.8}
                             className={cn(
                               'mr-2',
-                              isMenuActive(menu) ? 'text-primary' : 'text-gray-500'
+                              isMenuActive(menu) ? 'text-primary' : 'text-gray-400'
                             )}
                           />
                           <span>{menu.name}</span>
@@ -101,7 +101,7 @@ export default function SidebarLayout({
                         <Icon
                           path={openMenus[menu.id] ? mdiChevronUp : mdiChevronDown}
                           size={0.8}
-                          className="text-gray-500"
+                          className="text-gray-400"
                         />
                       </button>
                       <AnimatePresence>
@@ -133,7 +133,7 @@ export default function SidebarLayout({
                                       <Icon
                                         path={subItem.icon}
                                         size={0.8}
-                                        className="mr-2 text-gray-500"
+                                        className="mr-2 text-gray-400"
                                       />
                                     )}
                                     <span>{subItem.name}</span>
@@ -166,7 +166,7 @@ export default function SidebarLayout({
                             size={0.8}
                             className={cn(
                               isOpen ? 'mr-2' : 'mr-0',
-                              isMenuActive(menu) ? 'text-primary' : 'text-gray-500'
+                              isMenuActive(menu) ? 'text-primary' : 'text-gray-400'
                             )}
                           />
                           {isOpen && <span>{menu.name}</span>}

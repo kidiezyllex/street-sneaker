@@ -94,10 +94,10 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onClose }) => {
             <div className="ml-4 min-h-[6rem]">
               <div className="flex items-center text-sm">
                 <OrderStatusBadge status={item.status} />
-                <span className="ml-2 text-gray-500">
+                <span className="ml-2 text-gray-400">
                   {formatDate(item.timestamp)}
                 </span>
-                <span className="ml-2 text-gray-500 text-xs">
+                <span className="ml-2 text-gray-400 text-xs">
                   ({formatDistanceToNow(new Date(item.timestamp), { addSuffix: true, locale: vi })})
                 </span>
               </div>
@@ -122,19 +122,19 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onClose }) => {
         <div className="flex items-center justify-between px-6 py-4 border-b bg-gray-50">
           <div>
             <h2 className="text-xl font-semibold">Chi tiết đơn hàng #{order.code}</h2>
-            <p className="text-gray-500 text-sm">Ngày tạo: {formatDate(order.createdAt)}</p>
+            <p className="text-gray-400 text-sm">Ngày tạo: {formatDate(order.createdAt)}</p>
           </div>
           <div className="flex items-center space-x-2">
             <button
               onClick={() => window.print()}
-              className="p-2 text-gray-500 hover:text-primary rounded-full hover:bg-gray-100 transition-colors"
+              className="p-2 text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors"
               title="In hóa đơn"
             >
               <Icon path={mdiPrinter} size={1} />
             </button>
             <button
               onClick={onClose}
-              className="p-2 text-gray-500 hover:text-red-500 rounded-full hover:bg-gray-100 transition-colors"
+              className="p-2 text-gray-400 hover:text-red-500 rounded-full hover:bg-gray-100 transition-colors"
               title="Đóng"
             >
               <Icon path={mdiClose} size={1} />
@@ -149,7 +149,7 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onClose }) => {
                 'px-4 py-2 text-sm font-medium border-b-2 transition-colors',
                 activeTab === 'details'
                   ? 'border-primary text-primary'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-400 hover:text-gray-700 hover:border-gray-300'
               )}
               onClick={() => setActiveTab('details')}
             >
@@ -160,7 +160,7 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onClose }) => {
                 'px-4 py-2 text-sm font-medium border-b-2 transition-colors',
                 activeTab === 'history'
                   ? 'border-primary text-primary'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-400 hover:text-gray-700 hover:border-gray-300'
               )}
               onClick={() => setActiveTab('history')}
             >
@@ -179,28 +179,28 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onClose }) => {
                   </CardHeader>
                   <CardContent className="space-y-4 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Mã đơn hàng:</span>
+                      <span className="text-gray-400">Mã đơn hàng:</span>
                       <span className="font-medium">{order.code}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Trạng thái:</span>
+                      <span className="text-gray-400">Trạng thái:</span>
                       <OrderStatusBadge status={order.status} />
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Loại đơn hàng:</span>
+                      <span className="text-gray-400">Loại đơn hàng:</span>
                       <span>{getOrderTypeName(order.type)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Ngày đặt hàng:</span>
+                      <span className="text-gray-400">Ngày đặt hàng:</span>
                       <span>{formatDate(order.createdAt)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Cập nhật lần cuối:</span>
+                      <span className="text-gray-400">Cập nhật lần cuối:</span>
                       <span>{formatDate(order.updatedAt)}</span>
                     </div>
                     {order.note && (
                       <div className="pt-2 border-t">
-                        <span className="text-gray-500 block mb-1">Ghi chú:</span>
+                        <span className="text-gray-400 block mb-1">Ghi chú:</span>
                         <p className="text-gray-700">{order.note}</p>
                       </div>
                     )}
@@ -213,22 +213,22 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onClose }) => {
                   </CardHeader>
                   <CardContent className="space-y-4 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Tên khách hàng:</span>
+                      <span className="text-gray-400">Tên khách hàng:</span>
                       <span className="font-medium">{order.customer.fullName}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Số điện thoại:</span>
+                      <span className="text-gray-400">Số điện thoại:</span>
                       <span>{order.customer.phone}</span>
                     </div>
                     {order.customer.email && (
                       <div className="flex justify-between">
-                        <span className="text-gray-500">Email:</span>
+                        <span className="text-gray-400">Email:</span>
                         <span>{order.customer.email}</span>
                       </div>
                     )}
                     {order.type === 'online' && order.deliveryAddress && (
                       <div className="pt-2 border-t">
-                        <span className="text-gray-500 block mb-1">Địa chỉ giao hàng:</span>
+                        <span className="text-gray-400 block mb-1">Địa chỉ giao hàng:</span>
                         <p className="text-gray-700">
                           {order.deliveryAddress.fullName}, {order.deliveryAddress.phone}
                         </p>
@@ -272,10 +272,10 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onClose }) => {
                                 </div>
                                 <div>
                                   <p className="font-medium">{item.productName}</p>
-                                  <p className="text-gray-500 text-xs">
+                                  <p className="text-gray-400 text-xs">
                                     Size: {item.size}, Màu: {item.color}
                                   </p>
-                                  <p className="text-gray-500 text-xs">SKU: {item.sku}</p>
+                                  <p className="text-gray-400 text-xs">SKU: {item.sku}</p>
                                 </div>
                               </div>
                             </td>
@@ -332,15 +332,15 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onClose }) => {
                 </CardHeader>
                 <CardContent className="space-y-4 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Phương thức thanh toán:</span>
+                    <span className="text-gray-400">Phương thức thanh toán:</span>
                     <span>{getPaymentMethodName(order.paymentMethod)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Trạng thái thanh toán:</span>
+                    <span className="text-gray-400">Trạng thái thanh toán:</span>
                     <OrderPaymentStatusBadge status={order.paymentStatus} />
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Số tiền:</span>
+                    <span className="text-gray-400">Số tiền:</span>
                     <span className="font-medium text-primary">
                       {formatCurrency(order.finalAmount)}
                     </span>

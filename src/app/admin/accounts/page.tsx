@@ -364,7 +364,7 @@ export default function AccountsPage() {
                     setSelectedRole('all');
                     setSelectedStatus('all');
                   }}
-                  className="flex items-center text-gray-500"
+                  className="flex items-center text-gray-400"
                 >
                   <Icon path={mdiClose} size={0.7} className="mr-1" />
                   Đặt lại bộ lọc
@@ -390,7 +390,7 @@ export default function AccountsPage() {
                 {filteredAccounts.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} className="text-center h-24">
-                      <p className="text-gray-500">Không tìm thấy tài khoản nào phù hợp.</p>
+                      <p className="text-gray-400">Không tìm thấy tài khoản nào phù hợp.</p>
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -404,19 +404,19 @@ export default function AccountsPage() {
                           </Avatar>
                           <div>
                             <div className="font-medium">{account.fullName}</div>
-                            <div className="text-xs text-gray-500">@{account.username}</div>
+                            <div className="text-xs text-gray-400">@{account.username}</div>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col">
                           <div className="flex items-center text-sm">
-                            <Icon path={mdiEmail} size={0.5} className="mr-1.5 text-gray-500" />
+                            <Icon path={mdiEmail} size={0.5} className="mr-1.5 text-gray-400" />
                             <span>{account.email}</span>
                           </div>
                           {account.phone && (
                             <div className="flex items-center text-sm mt-1">
-                              <Icon path={mdiPhone} size={0.5} className="mr-1.5 text-gray-500" />
+                              <Icon path={mdiPhone} size={0.5} className="mr-1.5 text-gray-400" />
                               <span>{account.phone}</span>
                             </div>
                           )}

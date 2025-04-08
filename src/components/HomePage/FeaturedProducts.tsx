@@ -108,7 +108,7 @@ const ProductCard = ({ product, index }: { product: typeof featuredProducts[0], 
       </div>
       
       <div className="p-5">
-        <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">{product.category}</div>
+        <div className="text-sm text-gray-400 dark:text-gray-400 mb-2">{product.category}</div>
         <h3 className="font-semibold text-gray-900 dark:text-white text-lg mb-3 group-hover:text-primary transition-colors duration-300">
           {product.name}
         </h3>
@@ -117,7 +117,7 @@ const ProductCard = ({ product, index }: { product: typeof featuredProducts[0], 
           <div className="space-y-1">
             <span className="font-bold text-primary text-lg">{formatPrice(discountedPrice)}</span>
             {product.discount > 0 && (
-              <span className="text-sm text-gray-500 dark:text-gray-400 line-through block">
+              <span className="text-sm text-gray-400 dark:text-gray-400 line-through block">
                 {formatPrice(product.price)}
               </span>
             )}

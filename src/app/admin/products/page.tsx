@@ -158,14 +158,14 @@ export default function ProductsPage() {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-4 text-left text-sm font-medium text-gray-500">Hình ảnh</th>
-                <th className="px-4 py-4 text-left text-sm font-medium text-gray-500">Sản phẩm</th>
-                <th className="px-4 py-4 text-left text-sm font-medium text-gray-500">SKU</th>
-                <th className="px-4 py-4 text-left text-sm font-medium text-gray-500">Thương hiệu</th>
-                <th className="px-4 py-4 text-left text-sm font-medium text-gray-500">Loại</th>
-                <th className="px-4 py-4 text-left text-sm font-medium text-gray-500">Giá</th>
-                <th className="px-4 py-4 text-left text-sm font-medium text-gray-500">Ngày cập nhật</th>
-                <th className="px-4 py-4 text-right text-sm font-medium text-gray-500">Thao tác</th>
+                <th className="px-4 py-4 text-left text-sm font-medium text-gray-400">Hình ảnh</th>
+                <th className="px-4 py-4 text-left text-sm font-medium text-gray-400">Sản phẩm</th>
+                <th className="px-4 py-4 text-left text-sm font-medium text-gray-400">SKU</th>
+                <th className="px-4 py-4 text-left text-sm font-medium text-gray-400">Thương hiệu</th>
+                <th className="px-4 py-4 text-left text-sm font-medium text-gray-400">Loại</th>
+                <th className="px-4 py-4 text-left text-sm font-medium text-gray-400">Giá</th>
+                <th className="px-4 py-4 text-left text-sm font-medium text-gray-400">Ngày cập nhật</th>
+                <th className="px-4 py-4 text-right text-sm font-medium text-gray-400">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -184,26 +184,26 @@ export default function ProductsPage() {
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{product.name}</div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-gray-400">
                         {product.colors.length} màu, {product.colors.reduce(
                           (sum, color) => sum + color.sizes.length,
                           0
                         )} kích thước
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-400">
                       {product.sku}
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-400">
                       {getBrandName(product.brandId)}
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-400">
                       {getShoeTypeName(product.shoeTypeId)}
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-400">
                       {formatCurrency(product.colors[0].sizes[0].price)}
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-400">
                       {formatDate(product.updatedAt)}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-right space-x-2">
@@ -224,7 +224,7 @@ export default function ProductsPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={8} className="px-4 py-8 text-center text-gray-400">
                     Không tìm thấy sản phẩm nào
                   </td>
                 </tr>

@@ -119,7 +119,7 @@ export default function BrandsPage() {
                 {filteredBrands.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={5} className="text-center h-24">
-                      <p className="text-gray-500">Không tìm thấy thương hiệu nào phù hợp.</p>
+                      <p className="text-gray-400">Không tìm thấy thương hiệu nào phù hợp.</p>
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -161,7 +161,7 @@ export default function BrandsPage() {
                             </span>
                           </a>
                         ) : (
-                          <span className="text-gray-500">Không có website</span>
+                          <span className="text-gray-400">Không có website</span>
                         )}
                       </TableCell>
                       <TableCell className="text-right">

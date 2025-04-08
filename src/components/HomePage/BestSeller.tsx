@@ -146,7 +146,7 @@ const RatingStars = ({ rating }: { rating: number }) => {
           className={i < rating ? "text-amber-500" : "text-gray-300"}
         />
       ))}
-      <span className="text-xs text-gray-500 ml-1">({rating}.0)</span>
+      <span className="text-xs text-gray-400 ml-1">({rating}.0)</span>
     </div>
   );
 };
@@ -285,7 +285,7 @@ const ProductCard = ({ product, index }: { product: typeof bestSellerData[0], in
             {formatPrice(product.price)}
           </span>
           {product.discount > 0 && (
-            <span className="text-sm text-gray-500 line-through">
+            <span className="text-sm text-gray-400 line-through">
               {formatPrice(product.originalPrice)}
             </span>
           )}

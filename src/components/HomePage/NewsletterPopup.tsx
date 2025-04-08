@@ -63,7 +63,7 @@ export const NewsletterPopup = () => {
           >
             {/* Nút đóng */}
             <button 
-              className="absolute top-3 right-3 z-10 text-gray-500 hover:text-gray-900"
+              className="absolute top-3 right-3 z-10 text-gray-400 hover:text-gray-900"
               onClick={handleClose}
             >
               <Icon path={mdiClose} size={1} />
@@ -116,7 +116,7 @@ export const NewsletterPopup = () => {
                     </form>
                   )}
                   
-                  <p className="text-xs text-gray-500 mt-4">
+                  <p className="text-xs text-gray-400 mt-4">
                     Chúng tôi cam kết bảo mật thông tin của bạn. Bằng cách đăng ký, bạn đồng ý với Chính sách bảo mật của chúng tôi.
                   </p>
                 </div>

@@ -1,179 +1,163 @@
-"use client"
+import React from 'react';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { Icon } from '@mdi/react';
+import { mdiFacebook, mdiInstagram, mdiTwitter, mdiYoutube, mdiMapMarker, mdiPhone, mdiEmail, mdiArrowRight } from '@mdi/js';
 
-import { Icon } from "@mdi/react"
-import {
-  mdiFacebook,
-  mdiInstagram,
-  mdiTwitter,
-  mdiYoutube,
-  mdiEmailOutline,
-  mdiPhoneOutline,
-  mdiMapMarkerOutline,
-} from "@mdi/js"
-import Link from "next/link"
-import Image from "next/image"
-import { useUser } from "@/context/useUserContext"
-import { logout } from "@/api/axios"
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+// Component cho social media links
+const SocialLink = ({ href, icon, color }: { href: string; icon: string; color: string }) => (
+  <motion.div
+    whileHover={{ y: -5 }}
+    whileTap={{ scale: 0.95 }}
+  >
+    <Link 
+      href={href} 
+      className={`block p-2 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-${color} group transition-all duration-300`}
+    >
+      <Icon 
+        path={icon} 
+        size={1} 
+        className={`text-gray-600 dark:text-gray-400 group-hover:text-white transition-colors duration-300`}
+      />
+    </Link>
+  </motion.div>
+);
 
-export function Footer() {
-  const { user } = useUser()
-  const router = useRouter()
-  const [isClient, setIsClient] = useState(false)
+// Component cho footer links
+const FooterLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
+  <motion.li
+    whileHover={{ x: 5 }}
+    transition={{ type: "spring", stiffness: 300 }}
+  >
+    <Link 
+      href={href} 
+      className="flex items-center text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors group"
+    >
+      <Icon 
+        path={mdiArrowRight} 
+        size={0.8} 
+        className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300"
+      />
+      <span>{children}</span>
+    </Link>
+  </motion.li>
+);
 
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
-
+export const Footer = () => {
   return (
-    <footer className="bg-main-dark-blue text-sm">
-      <div className="mx-auto pt-8 px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div>
-            <Link href="/">
-              <Image
-                src="/images/logo.png"
-                alt="Amazon"
-                width={80}
-                height={34}
-                className="cursor-pointer mb-3"
-                quality={100}
-                style={{ height: "auto" }} // Fix the image warning
-              />
-            </Link>
-            <p className="text-gray-400 mb-4">
-              Cửa hàng trực tuyến với đa dạng sản phẩm chất lượng cao và dịch vụ khách hàng tuyệt vời.
-            </p>
-            <div className="flex space-x-4">
-              <Link href="#" className="text-gray-400 hover:!text-white/80">
-                <Icon path={mdiFacebook} size={1} />
-              </Link>
-              <Link href="#" className="text-gray-400 hover:!text-white/80">
-                <Icon path={mdiInstagram} size={1} />
-              </Link>
-              <Link href="#" className="text-gray-400 hover:!text-white/80">
-                <Icon path={mdiTwitter} size={1} />
-              </Link>
-              <Link href="#" className="text-gray-400 hover:!text-white/80">
-                <Icon path={mdiYoutube} size={1} />
-              </Link>
+    <footer className="bg-white dark:bg-gray-900 pt-20 pb-10 border-t border-gray-100 dark:border-gray-800">
+      <div className="container mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+          {/* Thông tin liên hệ */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">StreetSneaker</h3>
+            <ul className="space-y-4">
+              <motion.li 
+                className="flex items-start space-x-3 text-gray-600 dark:text-gray-400"
+                whileHover={{ x: 5 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <Icon path={mdiMapMarker} size={1} className="text-primary mt-1" />
+                <span>123 Đường ABC, Quận 1, TP. Hồ Chí Minh</span>
+              </motion.li>
+              <motion.li 
+                className="flex items-center space-x-3 text-gray-600 dark:text-gray-400"
+                whileHover={{ x: 5 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <Icon path={mdiPhone} size={1} className="text-primary" />
+                <span>0123 456 789</span>
+              </motion.li>
+              <motion.li 
+                className="flex items-center space-x-3 text-gray-600 dark:text-gray-400"
+                whileHover={{ x: 5 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <Icon path={mdiEmail} size={1} className="text-primary" />
+                <span>info@streetsneaker.com</span>
+              </motion.li>
+            </ul>
+            
+            <div className="mt-8 flex space-x-3">
+              <SocialLink href="#" icon={mdiFacebook} color="blue-500" />
+              <SocialLink href="#" icon={mdiInstagram} color="pink-500" />
+              <SocialLink href="#" icon={mdiTwitter} color="blue-400" />
+              <SocialLink href="#" icon={mdiYoutube} color="red-500" />
             </div>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-bold mb-4 !text-white/80">Thông tin</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/support-policy" className="text-gray-400 hover:!text-white/80 ">
-                  Chính sách hỗ trợ
-                </Link>
-              </li>
-              <li>
-                <Link href="/return-policy" className="text-gray-400 hover:!text-white/80">
-                  Chính sách hoàn trả
-                </Link>
-              </li>
-              <li>
-                <Link href="/privacy-policy" className="text-gray-400 hover:!text-white/80">
-                  Chính sách bảo mật
-                </Link>
-              </li>
-              <li>
-                <Link href="/seller-policy" className="text-gray-400 hover:!text-white/80">
-                  Chính sách người bán
-                </Link>
-              </li>
-              <li>
-                <Link href="/terms" className="text-gray-400 hover:!text-white/80">
-                  Điều khoản và điều kiện
-                </Link>
-              </li>
+          </motion.div>
+          
+          {/* Sản phẩm */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Sản phẩm</h3>
+            <ul className="space-y-3">
+              <FooterLink href="#">Giày nam</FooterLink>
+              <FooterLink href="#">Giày nữ</FooterLink>
+              <FooterLink href="#">Giày trẻ em</FooterLink>
+              <FooterLink href="#">Phụ kiện</FooterLink>
+              <FooterLink href="#">Sản phẩm mới</FooterLink>
+              <FooterLink href="#">Khuyến mãi</FooterLink>
             </ul>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-bold mb-4 !text-white/80">Tài khoản của tôi</h3>
-            <ul className="space-y-2">
-              {/* Only render user-dependent content on the client side */}
-              {isClient ? (
-                user ? (
-                  <li className="text-gray-400 hover:!text-white/80 cursor-pointer" onClick={() => logout()}>
-                    Đăng xuất
-                  </li>
-                ) : (
-                  <li className="text-gray-400 hover:!text-white/80 cursor-pointer" onClick={() => router.push("/sign-in")}>
-                    Đăng nhập
-                  </li>
-                )
-              ) : (
-                <li className="text-gray-400">
-                  {/* Placeholder during server rendering */}
-                  <span className="opacity-0">Loading...</span>
-                </li>
-              )}
-              <li>
-                <Link href="/orders" className="text-gray-400 hover:!text-white/80">
-                  Đơn hàng
-                </Link>
-              </li>
-              <li>
-                <Link href="/wishlist" className="text-gray-400 hover:!text-white/80">
-                  Danh sách yêu thích
-                </Link>
-              </li>
-              <li>
-                <Link href="/returns" className="text-gray-400 hover:!text-white/80">
-                  Theo dõi thứ tự
-                </Link>
-              </li>
-              <li>
-                <Link href="/notifications" className="text-gray-400 hover:!text-white/80">
-                  Thông báo
-                </Link>
-              </li>
+          </motion.div>
+          
+          {/* Hỗ trợ khách hàng */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Hỗ trợ</h3>
+            <ul className="space-y-3">
+              <FooterLink href="#">Trung tâm hỗ trợ</FooterLink>
+              <FooterLink href="#">Hướng dẫn mua hàng</FooterLink>
+              <FooterLink href="#">Chính sách vận chuyển</FooterLink>
+              <FooterLink href="#">Chính sách đổi trả</FooterLink>
+              <FooterLink href="#">Câu hỏi thường gặp</FooterLink>
+              <FooterLink href="#">Liên hệ</FooterLink>
             </ul>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-bold mb-4 !text-white/80">Liên hệ</h3>
-            <ul className="space-y-2">
-              <li className="flex items-center gap-2">
-                <Icon path={mdiMapMarkerOutline} size={0.8} className="flex-shrink-0 text-gray-400" />
-                <span className="text-gray-400">
-                  Amazon Web Services Singapore 23 Church St, #10-01, Singapore 049481
-                </span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Icon path={mdiPhoneOutline} size={0.8} className="flex-shrink-0 text-gray-400" />
-                <span className="text-gray-400">+84 333273472</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Icon path={mdiEmailOutline} size={0.8} className="flex-shrink-0 text-gray-400" />
-                <span className="text-gray-400 text-wrap max-w-[150px] break-words">sellercentralamazon.index@gmail.com</span>
-              </li>
+          </motion.div>
+          
+          {/* Chính sách */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Chính sách</h3>
+            <ul className="space-y-3">
+              <FooterLink href="#">Điều khoản sử dụng</FooterLink>
+              <FooterLink href="#">Chính sách bảo mật</FooterLink>
+              <FooterLink href="#">Chính sách thanh toán</FooterLink>
+              <FooterLink href="#">Chính sách bảo hành</FooterLink>
+              <FooterLink href="#">Chính sách vận chuyển</FooterLink>
+              <FooterLink href="#">Chính sách đổi trả</FooterLink>
             </ul>
-          </div>
+          </motion.div>
         </div>
-
-        <div className="flex flex-col md:flex-row justify-between items-center py-8">
-          <p className="text-gray-400 text-sm">
-            &copy; {new Date().getFullYear()} Amazon Shop. Tất cả các quyền được bảo lưu.
-          </p>
-          <div className="relative h-[30px] w-[216px]">
-            <Image
-              src="/images/payments.png"
-              alt="Visa"
-              width={500}
-              height={500}
-              className="object-contain"
-              draggable={false}
-              quality={100}
-            />
-          </div>
-        </div>
+        
+        <motion.div 
+          className="mt-16 pt-8 border-t border-gray-100 dark:border-gray-800 text-center text-gray-600 dark:text-gray-400"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <p>© 2024 StreetSneaker. Tất cả quyền được bảo lưu.</p>
+        </motion.div>
       </div>
     </footer>
-  )
-}
+  );
+};
 
+export default Footer; 

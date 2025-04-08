@@ -136,13 +136,13 @@ export default function NotificationDropdown() {
                   <span className={cn("text-sm font-medium px-2 py-0.5 rounded", getTypeStyles(notification.type))}>
                     {notification.title}
                   </span>
-                  <span className="text-xs text-gray-500">{notification.time}</span>
+                  <span className="text-xs text-gray-400">{notification.time}</span>
                 </div>
                 <p className="text-sm text-gray-700 mt-1">{notification.content}</p>
               </DropdownMenuItem>
             ))
           ) : (
-            <div className="p-4 text-center text-gray-500">
+            <div className="p-4 text-center text-gray-400">
               Không có thông báo nào
             </div>
           )}

@@ -41,7 +41,7 @@ export default function UserMenu() {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{mockUser.name}</p>
-            <p className="text-xs leading-none text-gray-500">{mockUser.email}</p>
+            <p className="text-xs leading-none text-gray-400">{mockUser.email}</p>
             <p className="text-xs leading-none text-primary mt-1">{mockUser.role}</p>
           </div>
         </DropdownMenuLabel>

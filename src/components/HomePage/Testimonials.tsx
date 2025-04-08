@@ -99,7 +99,7 @@ const TestimonialCard = ({ testimonial, index }: { testimonial: typeof testimoni
         </div>
         <div>
           <h4 className="font-semibold text-gray-900 dark:text-white text-lg">{testimonial.name}</h4>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{testimonial.role}</p>
+          <p className="text-sm text-gray-400 dark:text-gray-400">{testimonial.role}</p>
         </div>
       </div>
       

@@ -256,7 +256,7 @@ export default function ReturnsPage() {
                       setSelectedStatus('all');
                       setSelectedReason('all');
                     }}
-                    className="flex items-center text-gray-500"
+                    className="flex items-center text-gray-400"
                   >
                     <Icon path={mdiClose} size={0.7} className="mr-1" />
                     Đặt lại bộ lọc
@@ -345,7 +345,7 @@ const ReturnsTable: React.FC<ReturnsTableProps> = ({
   if (returns.length === 0) {
     return (
       <div className="text-center py-10">
-        <p className="text-gray-500">Không tìm thấy đơn trả hàng nào phù hợp.</p>
+        <p className="text-gray-400">Không tìm thấy đơn trả hàng nào phù hợp.</p>
       </div>
     );
   }
@@ -356,35 +356,35 @@ const ReturnsTable: React.FC<ReturnsTableProps> = ({
       <div className="p-4 space-y-6 max-h-[80vh] overflow-y-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h3 className="text-sm font-medium text-gray-500 mb-2">Thông tin đơn trả</h3>
+            <h3 className="text-sm font-medium text-gray-400 mb-2">Thông tin đơn trả</h3>
             <div className="bg-white rounded-md shadow p-4 space-y-3">
               <div className="flex justify-between">
-                <span className="text-gray-500">Mã đơn trả:</span>
+                <span className="text-gray-400">Mã đơn trả:</span>
                 <span className="font-medium">{returnItem.code}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Mã đơn hàng:</span>
+                <span className="text-gray-400">Mã đơn hàng:</span>
                 <span className="font-medium">{returnItem.orderCode}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Trạng thái:</span>
+                <span className="text-gray-400">Trạng thái:</span>
                 <ReturnStatusBadge status={returnItem.status} />
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Lý do:</span>
+                <span className="text-gray-400">Lý do:</span>
                 <ReturnReasonBadge reason={returnItem.reason} />
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Ngày tạo:</span>
+                <span className="text-gray-400">Ngày tạo:</span>
                 <span>{formatDate(returnItem.createdAt)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Cập nhật lần cuối:</span>
+                <span className="text-gray-400">Cập nhật lần cuối:</span>
                 <span>{formatDate(returnItem.updatedAt)}</span>
               </div>
               {returnItem.staffName && (
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Nhân viên xử lý:</span>
+                  <span className="text-gray-400">Nhân viên xử lý:</span>
                   <span>{returnItem.staffName}</span>
                 </div>
               )}
@@ -392,19 +392,19 @@ const ReturnsTable: React.FC<ReturnsTableProps> = ({
           </div>
           
           <div>
-            <h3 className="text-sm font-medium text-gray-500 mb-2">Thông tin khách hàng</h3>
+            <h3 className="text-sm font-medium text-gray-400 mb-2">Thông tin khách hàng</h3>
             <div className="bg-white rounded-md shadow p-4 space-y-3">
               <div className="flex justify-between">
-                <span className="text-gray-500">Khách hàng:</span>
+                <span className="text-gray-400">Khách hàng:</span>
                 <span className="font-medium">{returnItem.customerName}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Số điện thoại:</span>
+                <span className="text-gray-400">Số điện thoại:</span>
                 <span>{returnItem.customerPhone}</span>
               </div>
               {returnItem.customerEmail && (
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Email:</span>
+                  <span className="text-gray-400">Email:</span>
                   <span>{returnItem.customerEmail}</span>
                 </div>
               )}
@@ -413,17 +413,17 @@ const ReturnsTable: React.FC<ReturnsTableProps> = ({
         </div>
 
         <div>
-          <h3 className="text-sm font-medium text-gray-500 mb-2">Sản phẩm trả lại</h3>
+          <h3 className="text-sm font-medium text-gray-400 mb-2">Sản phẩm trả lại</h3>
           <div className="bg-white rounded-md shadow overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-gray-50 border-b">
-                  <th className="px-4 py-3 text-left font-medium text-gray-500">Sản phẩm</th>
-                  <th className="px-4 py-3 text-center font-medium text-gray-500">Size</th>
-                  <th className="px-4 py-3 text-center font-medium text-gray-500">Màu</th>
-                  <th className="px-4 py-3 text-center font-medium text-gray-500">SL</th>
-                  <th className="px-4 py-3 text-right font-medium text-gray-500">Đơn giá</th>
-                  <th className="px-4 py-3 text-right font-medium text-gray-500">Thành tiền</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-400">Sản phẩm</th>
+                  <th className="px-4 py-3 text-center font-medium text-gray-400">Size</th>
+                  <th className="px-4 py-3 text-center font-medium text-gray-400">Màu</th>
+                  <th className="px-4 py-3 text-center font-medium text-gray-400">SL</th>
+                  <th className="px-4 py-3 text-right font-medium text-gray-400">Đơn giá</th>
+                  <th className="px-4 py-3 text-right font-medium text-gray-400">Thành tiền</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
@@ -441,7 +441,7 @@ const ReturnsTable: React.FC<ReturnsTableProps> = ({
                         </div>
                         <div>
                           <p className="font-medium">{item.productName}</p>
-                          <p className="text-gray-500 text-xs">SKU: {item.sku}</p>
+                          <p className="text-gray-400 text-xs">SKU: {item.sku}</p>
                         </div>
                       </div>
                     </td>
@@ -471,7 +471,7 @@ const ReturnsTable: React.FC<ReturnsTableProps> = ({
 
         {returnItem.reasonDetail && (
           <div>
-            <h3 className="text-sm font-medium text-gray-500 mb-2">Chi tiết lý do</h3>
+            <h3 className="text-sm font-medium text-gray-400 mb-2">Chi tiết lý do</h3>
             <div className="bg-white rounded-md shadow p-4">
               <p className="text-gray-700">{returnItem.reasonDetail}</p>
             </div>
@@ -479,18 +479,18 @@ const ReturnsTable: React.FC<ReturnsTableProps> = ({
         )}
 
         <div>
-          <h3 className="text-sm font-medium text-gray-500 mb-2">Thông tin hoàn tiền</h3>
+          <h3 className="text-sm font-medium text-gray-400 mb-2">Thông tin hoàn tiền</h3>
           <div className="bg-white rounded-md shadow p-4 space-y-3">
             <div className="flex justify-between">
-              <span className="text-gray-500">Trạng thái:</span>
+              <span className="text-gray-400">Trạng thái:</span>
               <RefundStatusBadge status={returnItem.refundStatus} />
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">Phương thức:</span>
+              <span className="text-gray-400">Phương thức:</span>
               <span>{getPaymentMethodName(returnItem.refundMethod)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">Số tiền:</span>
+              <span className="text-gray-400">Số tiền:</span>
               <span className="font-medium text-primary">{formatCurrency(returnItem.refundAmount)}</span>
             </div>
           </div>
@@ -498,7 +498,7 @@ const ReturnsTable: React.FC<ReturnsTableProps> = ({
 
         {returnItem.images && returnItem.images.length > 0 && (
           <div>
-            <h3 className="text-sm font-medium text-gray-500 mb-2">Hình ảnh đính kèm</h3>
+            <h3 className="text-sm font-medium text-gray-400 mb-2">Hình ảnh đính kèm</h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
               {returnItem.images.map((image, index) => (
                 <div 
@@ -539,14 +539,14 @@ const ReturnsTable: React.FC<ReturnsTableProps> = ({
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b">
-            <th className="px-4 py-3 text-left font-medium text-gray-500">Mã đơn trả</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-500">Mã đơn hàng</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-500">Khách hàng</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-500">Ngày tạo</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-500">Trạng thái</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-500">Lý do</th>
-            <th className="px-4 py-3 text-right font-medium text-gray-500">Tiền hoàn</th>
-            <th className="px-4 py-3 text-center font-medium text-gray-500">Thao tác</th>
+            <th className="px-4 py-3 text-left font-medium text-gray-400">Mã đơn trả</th>
+            <th className="px-4 py-3 text-left font-medium text-gray-400">Mã đơn hàng</th>
+            <th className="px-4 py-3 text-left font-medium text-gray-400">Khách hàng</th>
+            <th className="px-4 py-3 text-left font-medium text-gray-400">Ngày tạo</th>
+            <th className="px-4 py-3 text-left font-medium text-gray-400">Trạng thái</th>
+            <th className="px-4 py-3 text-left font-medium text-gray-400">Lý do</th>
+            <th className="px-4 py-3 text-right font-medium text-gray-400">Tiền hoàn</th>
+            <th className="px-4 py-3 text-center font-medium text-gray-400">Thao tác</th>
           </tr>
         </thead>
         <tbody className="divide-y">
@@ -557,7 +557,7 @@ const ReturnsTable: React.FC<ReturnsTableProps> = ({
               <td className="px-4 py-4">
                 <div>
                   <div className="font-medium">{returnItem.customerName}</div>
-                  <div className="text-gray-500 text-xs">{returnItem.customerPhone}</div>
+                  <div className="text-gray-400 text-xs">{returnItem.customerPhone}</div>
                 </div>
               </td>
               <td className="px-4 py-4">

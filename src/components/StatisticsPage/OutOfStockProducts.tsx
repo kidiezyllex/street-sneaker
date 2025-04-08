@@ -38,7 +38,7 @@ export const OutOfStockProducts = () => {
         <CardContent>
           {outOfStockProducts.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-6 text-center">
-              <p className="text-gray-500">Không có sản phẩm nào hết hàng</p>
+              <p className="text-gray-400">Không có sản phẩm nào hết hàng</p>
             </div>
           ) : (
             <div className="space-y-4">
