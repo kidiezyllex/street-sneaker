@@ -152,6 +152,9 @@ importers:
       sonner:
         specifier: ^2.0.3
         version: 2.0.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      swiper:
+        specifier: ^11.2.6
+        version: 11.2.6
       tailwind-merge:
         specifier: ^3.1.0
         version: 3.1.0
@@ -3199,6 +3202,10 @@ packages:
 
   svg-path-parser@1.1.0:
     resolution: {integrity: sha512-jGCUqcQyXpfe38R7RFfhrMyfXcBmpMNJI/B+4CE9/Unkh98UporAc461GTthv+TVDuZXsBx7/WiwJb1Oh4tt4A==}
+
+  swiper@11.2.6:
+    resolution: {integrity: sha512-8aXpYKtjy3DjcbzZfz+/OX/GhcU5h+looA6PbAzHMZT6ESSycSp9nAjPCenczgJyslV+rUGse64LMGpWE3PX9Q==}
+    engines: {node: '>= 4.7.0'}
 
   tailwind-merge@3.1.0:
     resolution: {integrity: sha512-aV27Oj8B7U/tAOMhJsSGdWqelfmudnGMdXIlMnk1JfsjwSjts6o8HyfN7SFH3EztzH4YH8kk6GbLTHzITJO39Q==}
@@ -6906,6 +6913,8 @@ snapshots:
   supports-preserve-symlinks-flag@1.0.0: {}
 
   svg-path-parser@1.1.0: {}
+
+  swiper@11.2.6: {}
 
   tailwind-merge@3.1.0: {}
 

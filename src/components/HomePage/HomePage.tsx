@@ -9,6 +9,10 @@ import { Testimonials } from './Testimonials';
 import { Newsletter } from './Newsletter';
 import { Footer } from './Footer';
 import { NewsletterPopup } from './NewsletterPopup';
+import { Collections } from './Collections';
+import { NewArrivals } from './NewArrivals';
+import { BestSeller } from './BestSeller';
+import { HotDeals } from './HotDeals';
 
 export const HomePage = () => {
     return (
@@ -18,7 +22,11 @@ export const HomePage = () => {
                 <HeroBanner />
                 <BrandLogos />
                 <Categories />
-                <FeaturedProducts />
+                <Collections />
+                <NewArrivals />
+                {/* <FeaturedProducts /> */}
+                <BestSeller />
+                <HotDeals />
                 <Testimonials />
                 <Newsletter />
                 <Footer />

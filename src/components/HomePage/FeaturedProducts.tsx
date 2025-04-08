@@ -1,9 +1,10 @@
 import React from 'react';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@mdi/react';
-import { mdiCartOutline, mdiHeartOutline } from '@mdi/js';
+import { mdiCartOutline, mdiHeartOutline, mdiArrowRight } from '@mdi/js';
+import { useRef } from 'react';
 
 // Dữ liệu mẫu cho sản phẩm
 const featuredProducts = [
@@ -50,57 +51,77 @@ const formatPrice = (price: number) => {
 };
 
 // Component thẻ sản phẩm
-const ProductCard = ({ product }: { product: typeof featuredProducts[0] }) => {
+const ProductCard = ({ product, index }: { product: typeof featuredProducts[0], index: number }) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
   const discountedPrice = product.discount 
     ? product.price * (1 - product.discount / 100) 
     : product.price;
 
   return (
     <motion.div 
-      whileHover={{ y: -5 }}
-      className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden"
+      ref={ref}
+      initial={{ opacity: 0, y: 50 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+      whileHover={{ y: -10 }}
+      className="group bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
     >
-      <div className="relative group">
-        <div className="overflow-hidden">
+      <div className="relative">
+        <div className="overflow-hidden aspect-square">
           <Image 
             src={product.image} 
             alt={product.name} 
             width={400} 
             height={400}
-            className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
           />
         </div>
         
         {product.discount > 0 && (
-          <div className="absolute top-2 left-2 bg-extra text-white text-xs font-semibold px-2 py-1 rounded">
+          <motion.div 
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className="absolute top-3 left-3 bg-extra text-white text-sm font-semibold px-3 py-1.5 rounded-full shadow-lg"
+          >
             -{product.discount}%
-          </div>
+          </motion.div>
         )}
         
-        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <Button size="icon" variant="secondary" className="rounded-full w-8 h-8 p-0">
-            <Icon path={mdiHeartOutline} size={0.8} />
+        <div className="absolute top-3 right-3 space-y-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+          <Button 
+            size="icon" 
+            variant="secondary" 
+            className="rounded-full w-10 h-10 bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 shadow-lg"
+          >
+            <Icon path={mdiHeartOutline} size={1} className="text-gray-700 dark:text-gray-300" />
+          </Button>
+          <Button 
+            size="icon" 
+            variant="secondary" 
+            className="rounded-full w-10 h-10 bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 shadow-lg"
+          >
+            <Icon path={mdiCartOutline} size={1} className="text-gray-700 dark:text-gray-300" />
           </Button>
         </div>
       </div>
       
-      <div className="p-4">
-        <div className="text-xs text-gray-500 mb-1">{product.category}</div>
-        <h3 className="font-semibold text-gray-900 mb-2 truncate">{product.name}</h3>
+      <div className="p-5">
+        <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">{product.category}</div>
+        <h3 className="font-semibold text-gray-900 dark:text-white text-lg mb-3 group-hover:text-primary transition-colors duration-300">
+          {product.name}
+        </h3>
         
         <div className="flex items-baseline justify-between">
-          <div>
-            <span className="font-bold text-primary">{formatPrice(discountedPrice)}</span>
+          <div className="space-y-1">
+            <span className="font-bold text-primary text-lg">{formatPrice(discountedPrice)}</span>
             {product.discount > 0 && (
-              <span className="text-xs text-gray-500 line-through ml-2">
+              <span className="text-sm text-gray-500 dark:text-gray-400 line-through block">
                 {formatPrice(product.price)}
               </span>
             )}
           </div>
-          
-          <Button size="sm" variant="ghost" className="text-primary p-1 h-8">
-            <Icon path={mdiCartOutline} size={0.9} />
-          </Button>
         </div>
       </div>
     </motion.div>
@@ -108,29 +129,47 @@ const ProductCard = ({ product }: { product: typeof featuredProducts[0] }) => {
 };
 
 export const FeaturedProducts = () => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
+
   return (
-    <section className="py-16 bg-white">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between mb-10">
-          <div>
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Sản phẩm nổi bật</h2>
-            <p className="text-gray-600 mt-2">Khám phá những mẫu giày mới nhất và bán chạy nhất</p>
-          </div>
-          
-          <Button variant="outline" className="hidden md:flex">
-            Xem tất cả
-          </Button>
-        </div>
+    <section className="py-20 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
+      <div className="container mx-auto">
+        <motion.div 
+          ref={ref}
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-8"
+        >
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            Sản phẩm nổi bật
+          </h2>
+          <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            Khám phá những mẫu giày mới nhất và bán chạy nhất từ các thương hiệu hàng đầu
+          </p>
+        </motion.div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {featuredProducts.map((product, index) => (
+            <ProductCard key={product.id} product={product} index={index} />
           ))}
         </div>
         
-        <div className="mt-8 flex justify-center md:hidden">
-          <Button variant="outline">Xem tất cả</Button>
-        </div>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="mt-8 text-center"
+        >
+          <Button 
+            variant="outline" 
+            className="group border-2 border-primary text-primary hover:bg-primary hover:text-white transition-all duration-300"
+          >
+            Xem tất cả sản phẩm
+            <Icon path={mdiArrowRight} size={1} className="ml-2 group-hover:translate-x-1 transition-transform" />
+          </Button>
+        </motion.div>
       </div>
     </section>
   );

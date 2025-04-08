@@ -41,7 +41,7 @@ export const NavigationBar = () => {
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm py-4">
-      <div className="container mx-auto px-4 flex items-center justify-between">
+      <div className="container mx-auto flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center">
           <h1 className="text-2xl font-bold text-primary select-none cursor-pointer">

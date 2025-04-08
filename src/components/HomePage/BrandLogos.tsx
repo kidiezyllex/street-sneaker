@@ -50,26 +50,39 @@ const logos = [
 
 export const BrandLogos = () => {
   return (
-    <section className="py-12 bg-zinc-50">
-      <div className="container mx-auto px-4">
-        <h2 className="text-2xl md:text-3xl font-bold text-center mb-16 relative">
-          <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent drop-shadow-sm ">
+    <section className="py-12 bg-gradient-to-br from-white via-zinc-50 to-zinc-100 relative overflow-hidden">
+         <h2 className="text-2xl font-bold text-center mb-8 relative">
+          <span className="uppercase bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent drop-shadow-sm ">
             Các thương hiệu nổi tiếng
           </span>
           <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-primary to-secondary rounded-full"></div>
         </h2>
-        
+      {/* Hiệu ứng bong bóng trang trí */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute h-20 w-20 rounded-full bg-primary/70 top-12 left-[10%]"></div>
+        <div className="absolute h-24 w-24 rounded-full bg-secondary/80 top-36 right-[15%]"></div>
+        <div className="absolute h-16 w-16 rounded-full bg-primary/40 bottom-10 left-[20%]"></div>
+        <div className="absolute h-32 w-32 rounded-full bg-secondary/70 -bottom-10 right-[25%]"></div>
+        <div className="absolute h-28 w-28 rounded-full bg-primary/70 -top-10 left-[40%]"></div>
+        <div className="absolute h-12 w-12 rounded-full bg-secondary/40 top-1/2 left-[5%]"></div>
+        <div className="absolute h-14 w-14 rounded-full bg-primary/80 bottom-1/3 right-[10%]"></div>
+        <div className="absolute h-10 w-10 rounded-full bg-secondary/70 top-1/4 right-[30%]"></div>
+        <div className="absolute h-36 w-36 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 -bottom-16 left-[30%] blur-sm"></div>
+        <div className="absolute h-40 w-40 rounded-full bg-gradient-to-r from-secondary/20 to-primary/20 -top-20 right-[20%] blur-sm"></div>
+      </div>
+      <div className="container mx-auto relative z-10">
         <div className="w-full inline-flex flex-nowrap overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]">
           {/* First set of logos */}
           <ul className="flex items-center justify-center md:justify-start [&_li]:mx-8 [&_img]:max-w-none animate-logo-cloud">
             {logos.map((logo) => (
               <li key={logo.name} className="flex items-center justify-center w-[150px]">
                 <Image
+                  draggable={false}
                   src={logo.url}
                   alt={logo.name}
                   width={120}
                   height={60}
-                  className="max-h-12 object-contain"
+                  className="max-h-12 object-contain select-none"
                 />
               </li>
             ))}
@@ -80,11 +93,12 @@ export const BrandLogos = () => {
             {logos.map((logo) => (
               <li key={logo.name} className="flex items-center justify-center w-[150px]">
                 <Image
+                  draggable={false}
                   src={logo.url}
                   alt={logo.name}
                   width={120}
                   height={60}
-                  className="max-h-12 object-contain"
+                  className="max-h-12 object-contain select-none"
                 />
               </li>
             ))}
