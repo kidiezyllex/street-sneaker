@@ -61,11 +61,11 @@ export const Footer = () => {
   ];
   
   const socialLinks = [
-    { name: 'linkedin', href: 'https://www.linkedin.com/company/widogame/', src: '/images/linkedin.png', width: 60, height: 60 },
+    { name: 'linkedin', href: 'https://www.linkedin.com/company/street-sneakers/', src: '/images/linkedin.png', width: 60, height: 60 },
     { name: 'google-play', href: 'https://play.google.com/store/apps/dev?id=8799588644277179294&hl', src: '/images/google-play.png', width: 60, height: 60 },
     { name: 'app-store', href: 'https://apps.apple.com/us/developer/commandoo-joint-stock-company/id1561328863', src: '/images/app-store.png', width: 60, height: 60 },
-    { name: 'facebook', href: 'https://www.facebook.com/widogamestudio', src: '/images/facebook.png', width: 60, height: 60 },
-    { name: 'tiktok', href: 'https://www.tiktok.com/@widogame.studio', src: '/images/tiktok.png', width: 60, height: 60 },
+    { name: 'facebook', href: 'https://www.facebook.com/street-sneakers', src: '/images/facebook.png', width: 60, height: 60 },
+    { name: 'tiktok', href: 'https://www.tiktok.com/@street-sneakers', src: '/images/tiktok.png', width: 60, height: 60 },
   ];
 
   return (
@@ -108,7 +108,7 @@ export const Footer = () => {
             <p className="text-center mb-3">D29, Pham Van Bach Street, Cau Giay District, Ha Noi, Vietnam</p>
             
             <Icon path={mdiEmail} size={1.5} className="mb-3" />
-            <p className="text-center mb-3">contact@widogame.com</p>
+            <p className="text-center mb-3">streetstore@gmail.com</p>
           </div>
 
           {/* Desktop view */}
@@ -123,7 +123,7 @@ export const Footer = () => {
                 quality={100}
                 draggable={false}
               />
-              <p className="text-sm mb-6 lg:mb-10 lg:text-lg">©2023 Widogame. All Rights Reserved.</p>
+              <p className="text-sm mb-6 lg:mb-10 lg:text-lg">©2023 Street Sneakers. All Rights Reserved.</p>
               
               <div className="gap-5 flex justify-start items-center">
                 {socialLinks.map((link, index) => (
@@ -152,7 +152,7 @@ export const Footer = () => {
               </p>
               <p className="flex justify-start items-start text-lg lg:text-lg">
                 <Icon path={mdiEmail} size={1.2} className="mr-3" />
-                <span className="overflow-hidden flex-1">contact@widogame.com</span>
+                <span className="overflow-hidden flex-1">streetstore@gmail.com</span>
               </p>
             </div>
           </div>

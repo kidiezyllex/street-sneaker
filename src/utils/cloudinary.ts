@@ -48,7 +48,7 @@ export const createUniqueFileName = (originalName: string): string => {
  * Tạo đường dẫn thư mục lưu trữ
  */
 export const createFolderPath = (userId: string, categoryId: string): string => {
-  return `widofile/${userId}/${categoryId}`;
+  return `street-sneakers/${userId}/${categoryId}`;
 };
 
 /**

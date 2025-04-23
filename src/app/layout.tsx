@@ -16,8 +16,8 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: 'WidoFile',
-  description: 'WidoFile - Hệ thống quản lý tài liệu thiết kế game',
+  title: 'Street Sneakers',
+  description: 'Street Sneakers',
   icons: {
     icon: '/images/faviconV2.png',
   },

@@ -79,11 +79,11 @@ export default function DashboardLayout({
             <div className={cn("p-4 border-b !max-h-16", isOpen ? "" : "justify-center")}>
               {isOpen ? (
                 <h1 className="text-2xl font-bold text-[#2C8B3D] select-none cursor-pointer">
-                  Wido<span className="text-[#F2A024]">File</span>
+                  Street<span className="text-[#F2A024]">Sneakers</span>
                 </h1>
               ) : (
                 <h1 className="text-2xl font-bold text-[#2C8B3D] select-none cursor-pointer text-center">
-                  W<span className="text-[#F2A024]">F</span>
+                  S<span className="text-[#F2A024]">T</span>
                 </h1>
               )}
             </div>
