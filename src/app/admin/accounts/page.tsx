@@ -256,8 +256,6 @@ export default function AccountsPage() {
 
   //                                                                                                                     Confirm delete account
   const confirmDeleteAccount = () => {
-    //                                                                                                                     Add logic to delete account here
-    console.log(`Deleted account: ${accountToDelete?.username}`);
     setIsDeleteDialogOpen(false);
     setAccountToDelete(null);
   };
@@ -270,8 +268,6 @@ export default function AccountsPage() {
 
   //                                                                                                                     Confirm reset password
   const confirmResetPassword = () => {
-    //                                                                                                                     Add logic to reset password here
-    console.log(`Reset password for: ${accountToResetPassword?.username}`);
     setIsResetPasswordDialogOpen(false);
     setAccountToResetPassword(null);
   };

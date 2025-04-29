@@ -45,13 +45,6 @@ const Tab = ({ text, selected, setSelected }: TabProps) => {
 export const NavigationBar = () => {
     const [selected, setSelected] = useState<string>(tabs[0].text);
     const {isAuthenticated, profile, user} = useUser();
-    
-    //                                                                                                                     Log chi tiết thông tin đăng nhập
-    console.log("User data:", user);
-    console.log("Profile data:", profile);
-    console.log("Token from localStorage:", typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null);
-    console.log("Is authenticated:", isAuthenticated);
-    
     const checkPath = () => {
         const currentPath = window.location.pathname;
         const activeTab = tabs.find(tab => tab.href === currentPath);

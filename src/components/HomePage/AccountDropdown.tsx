@@ -8,9 +8,7 @@ import { Icon } from '@mdi/react';
 import {
     mdiAccount,
     mdiLogout,
-    mdiCog,
-    mdiAccountEdit,
-    mdiLock
+    mdiViewDashboard
 } from '@mdi/js';
 
 import {
@@ -23,7 +21,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useUser } from '@/context/useUserContext';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from '../ui/button';
 
 const dropdownAnimation = {
     hidden: { opacity: 0, y: -5 },
@@ -38,8 +35,7 @@ const itemAnimation = {
 
 const AccountDropdown = () => {
     const { isAuthenticated, logoutUser, profile } = useUser();
-    const router = useRouter();
-
+    console.log(profile);
     const handleLogout = () => {
         logoutUser();
     };
@@ -94,6 +90,17 @@ const AccountDropdown = () => {
                             </Link>
                         </DropdownMenuItem>
                     </motion.div>
+
+                    {profile?.data?.role === "ADMIN" && (
+                        <motion.div variants={itemAnimation} transition={{ delay: 0.07 }}>
+                            <DropdownMenuItem asChild>
+                                <Link href="/dashboard" className="flex items-center cursor-pointer">
+                                    <Icon path={mdiViewDashboard} size={0.7} className="mr-2" />
+                                    Dashboard
+                                </Link>
+                            </DropdownMenuItem>
+                        </motion.div>
+                    )}
 
                     <DropdownMenuSeparator />
 

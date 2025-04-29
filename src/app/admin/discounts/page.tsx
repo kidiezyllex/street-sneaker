@@ -241,8 +241,6 @@ export default function DiscountsPage() {
 
   //                                                                                                                     Confirm delete discount
   const confirmDeleteDiscount = () => {
-    //                                                                                                                     Add logic to delete discount here
-    console.log(`Deleted discount: ${discountToDelete?.code}`);
     setIsDeleteDialogOpen(false);
     setDiscountToDelete(null);
   };

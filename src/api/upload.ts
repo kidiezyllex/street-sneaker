@@ -7,6 +7,6 @@ export interface IUploadImageResponseData {
 
 export const uploadImage = async (payload: FormData): Promise<IUploadImageResponseData> => {
   const res = await sendPost("/upload/image", payload);
-  const data: IUploadImageResponseData = res.data; //                                                                                                                     Assuming res has a data property containing the payload
+  const data: IUploadImageResponseData = res.data;
   return data;
 };

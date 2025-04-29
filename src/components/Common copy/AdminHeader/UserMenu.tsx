@@ -23,8 +23,6 @@ const mockUser = {
 
 export default function UserMenu() {
   const handleLogout = () => {
-    //                                                                                                                     Logic xử lý đăng xuất ở đây
-    console.log('Đăng xuất');
   };
 
   return (

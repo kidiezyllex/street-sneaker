@@ -1,83 +1,78 @@
-import { IBaseResponse } from './authentication';
+import { IProductVariant } from "../request/product";
 
-export interface IProductImage {
+export interface IBrand {
   _id: string;
-  url: string;
-  defaultImage: boolean;
-  status: 'HOAT_DONG' | 'KHONG_HOAT_DONG';
+  name: string;
 }
 
-export interface IProductPromotion {
+export interface ICategory {
   _id: string;
-  promotionId: string;
-  pricePromotion: number;
+  name: string;
 }
 
-export interface IProductVariant {
+export interface IMaterial {
   _id: string;
+  name: string;
+}
+
+export interface IColor {
+  _id: string;
+  name: string;
   code: string;
+}
+
+export interface ISize {
+  _id: string;
+  name: string;
+  code: string;
+}
+
+export interface IPopulatedProductVariant {
+  _id: string;
+  colorId: IColor;
+  sizeId: ISize;
   price: number;
-  weight: number;
-  amount: number;
-  quantityReturn: number;
-  description: string;
-  status: 'HOAT_DONG' | 'KHONG_HOAT_DONG';
-  brand: IBrand;
-  sole: ISole;
-  material: IMaterial;
-  category: ICategory;
-  size: ISize;
-  color: IColor;
-  images: IProductImage[];
-  promotions: IProductPromotion[];
+  stock: number;
+  images: string[];
 }
 
 export interface IProduct {
   _id: string;
-  name: string;
-  description: string;
-  status: 'HOAT_DONG' | 'KHONG_HOAT_DONG';
-  createdAt: string;
-  updatedAt: string;
-  variants: IProductVariant[];
-}
-
-export interface IAttribute {
-  _id: string;
-  name: string;
-  description?: string;
-  status: 'HOAT_DONG' | 'KHONG_HOAT_DONG';
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface IBrand extends IAttribute {}
-export interface ICategory extends IAttribute {}
-export interface IMaterial extends IAttribute {}
-export interface ISole extends IAttribute {}
-
-export interface ISize extends IAttribute {
-  size: number;
-}
-
-export interface IColor extends IAttribute {
   code: string;
+  name: string;
+  brand: string | IBrand;
+  category: string | ICategory;
+  material: string | IMaterial;
+  description: string;
+  weight: number;
+  variants: IPopulatedProductVariant[];
+  status: 'HOAT_DONG' | 'KHONG_HOAT_DONG';
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface IProductResponse extends IBaseResponse<IProduct> {}
-export interface IProductsResponse extends IBaseResponse<{
-  products: IProduct[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}> {}
+export interface IProductResponse {
+  success: boolean;
+  message: string;
+  data: IProduct;
+}
 
-export interface IBrandsResponse extends IBaseResponse<IBrand[]> {}
-export interface ICategoriesResponse extends IBaseResponse<ICategory[]> {}
-export interface IColorsResponse extends IBaseResponse<IColor[]> {}
-export interface IMaterialsResponse extends IBaseResponse<IMaterial[]> {}
-export interface ISizesResponse extends IBaseResponse<ISize[]> {}
-export interface ISolesResponse extends IBaseResponse<ISole[]> {} 
+export interface IProductsResponse {
+  success: boolean;
+  message: string;
+  data: {
+    products: IProduct[];
+    pagination: {
+      totalItems: number;
+      totalPages: number;
+      currentPage: number;
+      limit: number;
+    };
+  };
+}
+
+export interface IActionResponse {
+  success: boolean;
+  message: string;
+  data?: any;
+} 

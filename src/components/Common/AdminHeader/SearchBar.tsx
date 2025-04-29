@@ -8,8 +8,6 @@ export default function SearchBar() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    //                                                                                                                     Xử lý tìm kiếm với giá trị query
-    console.log('Tìm kiếm:', query);
   };
 
   return (

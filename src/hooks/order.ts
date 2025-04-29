@@ -1,95 +1,82 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { 
-  getOrders, 
-  getOrderById, 
-  updateOrderStatus, 
-  updateShippingInfo, 
-  updateOrderItems 
+import {
+  useQuery,
+  useMutation,
+  UseQueryResult,
+  UseMutationResult,
+} from "@tanstack/react-query";
+import {
+  getAllOrders,
+  getOrderById,
+  createOrder,
+  updateOrder,
+  updateOrderStatus,
+  cancelOrder,
+  getMyOrders
 } from "@/api/order";
-
-import { 
-  IOrderFilter, 
-  IOrderStatusUpdate, 
-  IShippingInfoUpdate, 
-  IOrderItemsUpdate 
+import {
+  IOrderFilter,
+  IOrderCreate,
+  IOrderUpdate,
+  IOrderStatusUpdate
 } from "@/interface/request/order";
+import {
+  IOrdersResponse,
+  IOrderResponse,
+  IActionResponse
+} from "@/interface/response/order";
 
-//                                                                                                                     Hook lấy danh sách đơn hàng
-export const useOrders = (params: IOrderFilter = {}) => {
-  const {
-    data,
-    isLoading,
-    isFetching,
-    refetch
-  } = useQuery({
+export const useOrders = (params: IOrderFilter = {}): UseQueryResult<IOrdersResponse, Error> => {
+  return useQuery<IOrdersResponse, Error>({
     queryKey: ["orders", params],
-    queryFn: () => getOrders(params),
-    staleTime: 30000 //                                                                                                                     30 giây
+    queryFn: () => getAllOrders(params),
   });
-
-  return {
-    ordersData: data,
-    isLoading,
-    isFetching,
-    refetch
-  };
 };
 
-//                                                                                                                     Hook lấy chi tiết đơn hàng
-export const useOrderDetail = (orderId: string | undefined) => {
-  const {
-    data,
-    isLoading,
-    isFetching,
-    refetch
-  } = useQuery({
+export const useOrderDetail = (orderId: string): UseQueryResult<IOrderResponse, Error> => {
+  return useQuery<IOrderResponse, Error>({
     queryKey: ["order", orderId],
-    queryFn: () => getOrderById(orderId as string),
-    enabled: !!orderId,
-    staleTime: 30000
-  });
-
-  return {
-    orderData: data,
-    isLoading,
-    isFetching,
-    refetch
-  };
-};
-
-//                                                                                                                     Hook cập nhật trạng thái đơn hàng
-export const useUpdateOrderStatus = (orderId: string) => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: (payload: IOrderStatusUpdate) => updateOrderStatus(orderId, payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["order", orderId] });
-      queryClient.invalidateQueries({ queryKey: ["orders"] });
-    }
+    queryFn: () => getOrderById(orderId),
+    enabled: !!orderId, // Chỉ fetch khi có orderId
   });
 };
 
-//                                                                                                                     Hook cập nhật thông tin vận chuyển
-export const useUpdateShippingInfo = (orderId: string) => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: (payload: IShippingInfoUpdate) => updateShippingInfo(orderId, payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["order", orderId] });
-    }
+export const useCreateOrder = (): UseMutationResult<IOrderResponse, Error, IOrderCreate> => {
+  return useMutation<IOrderResponse, Error, IOrderCreate>({
+    mutationFn: (payload) => createOrder(payload),
   });
 };
 
-//                                                                                                                     Hook cập nhật sản phẩm trong đơn hàng
-export const useUpdateOrderItems = (orderId: string) => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: (payload: IOrderItemsUpdate) => updateOrderItems(orderId, payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["order", orderId] });
-    }
+export const useUpdateOrder = (): UseMutationResult<
+  IOrderResponse,
+  Error,
+  { orderId: string; payload: IOrderUpdate }
+> => {
+  return useMutation<IOrderResponse, Error, { orderId: string; payload: IOrderUpdate }>({
+    mutationFn: ({ orderId, payload }) => updateOrder(orderId, payload),
+  });
+};
+
+export const useUpdateOrderStatus = (): UseMutationResult<
+  IOrderResponse,
+  Error,
+  { orderId: string; payload: IOrderStatusUpdate }
+> => {
+  return useMutation<IOrderResponse, Error, { orderId: string; payload: IOrderStatusUpdate }>({
+    mutationFn: ({ orderId, payload }) => updateOrderStatus(orderId, payload),
+  });
+};
+
+export const useCancelOrder = (): UseMutationResult<IOrderResponse, Error, string> => {
+  return useMutation<IOrderResponse, Error, string>({
+    mutationFn: (orderId) => cancelOrder(orderId),
+  });
+};
+
+// === User Order Hooks ===
+
+export const useMyOrders = (params: IOrderFilter = {}): UseQueryResult<IOrdersResponse, Error> => {
+  return useQuery<IOrdersResponse, Error>({
+    queryKey: ["myOrders", params],
+    queryFn: () => getMyOrders(params),
   });
 }; 
