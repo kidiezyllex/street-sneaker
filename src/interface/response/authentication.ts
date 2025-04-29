@@ -1,3 +1,5 @@
+import { IAddress } from "../request/account"
+
 export interface IBaseResponse<T> {
   success: boolean
   message: string
@@ -27,6 +29,8 @@ export interface IProfileData {
   email: string
   role: string
   avatar: string
+  phoneNumber?: string
+  addresses: IAddress[]
 }
 
 export interface IProfileResponse extends IBaseResponse<IProfileData> {}

@@ -250,27 +250,8 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
 
 export default function AuthPage() {
   const router = useRouter()
-  const [redirect, setRedirect] = useState(false)
-  const { profile } = useUser()
-
-  useEffect(() => {
-    if (profile) {
-      setRedirect(true)
-    }
-  }, [profile])
-
-  useEffect(() => {
-    if (redirect) {
-      router.push("/dashboard")
-    }
-  }, [redirect, router])
-
-  if (redirect) {
-    return null
-  }
-
   const handleSuccess = () => {
-    router.push("/auth/login")
+    router.push("/")
   }
 
   return (

@@ -17,6 +17,8 @@ type UserContextType = {
   logoutUser: () => void
   fetchUserProfile: () => Promise<void>
   isLoadingProfile: boolean
+  isAuthenticated: boolean
+  updateUserProfile?: (data: any) => void
 }
 
 const UserContext = createContext<UserContextType | null>(null)
@@ -47,18 +49,38 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const loginUser = (userInfo: any, token: string) => {
     setUser(userInfo)
     setTokenToLocalStorage(token)
+    if (typeof window !== "undefined") {
+      localStorage.setItem("accessToken", token)
+    }
     setCookie("accessToken", token)
-    // Fetch profile after login
     fetchUserProfile()
+  }
+
+  const updateUserProfile = (data: any) => {
+    if (profile && profile.data) {
+      setProfile({
+        ...profile,
+        data: {
+          ...profile.data,
+          ...data
+        }
+      })
+      if (typeof window !== "undefined") {
+        localStorage.setItem("userProfile", JSON.stringify({
+          ...profile,
+          data: {
+            ...profile.data,
+            ...data
+          }
+        }))
+      }
+    }
   }
 
   const fetchUserProfile = async () => {
     try {
       setIsLoadingProfile(true)
       await refetchProfile()
-      if (typeof window !== "undefined" && profileData) {
-        localStorage.setItem("userProfile", JSON.stringify(profileData))
-      }
     } catch (error) {
       console.error("Failed to fetch user profile:", error)
     } finally {
@@ -66,7 +88,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  // Load profile from localStorage on initial render
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedProfile = localStorage.getItem("userProfile")
@@ -76,10 +97,12 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  // Update profile state when profileData changes
   useEffect(() => {
     if (profileData) {
       setProfile(profileData)
+      if (typeof window !== "undefined") {
+        localStorage.setItem("userProfile", JSON.stringify(profileData))
+      }
     }
   }, [profileData])
 
@@ -97,11 +120,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     clearToken()
     setUser(null)
     setProfile(null)
-    // Clear profile from localStorage
     if (typeof window !== "undefined") {
       localStorage.removeItem("userProfile")
+      localStorage.removeItem("accessToken")
     }
-    // Also clear the cookie
     deleteCookie("accessToken")
     router.push("/sign-in")
     queryClient.clear()
@@ -115,7 +137,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         loginUser,
         logoutUser,
         fetchUserProfile,
-        isLoadingProfile: isProfileLoading || isLoadingProfile
+        isLoadingProfile: isProfileLoading || isLoadingProfile,
+        isAuthenticated: !!user || !!profile,
+        updateUserProfile
       }}
     >
       {children}

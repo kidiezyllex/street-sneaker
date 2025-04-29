@@ -39,6 +39,7 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
   const onSubmit = async (data: LoginFormValues) => {
     try {
       const response = await signInMutation.mutateAsync(data)
+      console.log(response);
       if (response && response.data?.token && response.data?.account) {
         loginUser(response.data?.account, response.data?.token)
         toast.success("Đăng nhập thành công", {
@@ -137,27 +138,8 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
 
 export default function AuthPage() {
   const router = useRouter()
-  const [redirect, setRedirect] = useState(false)
-  const { profile } = useUser()
-
-  useEffect(() => {
-    if (profile) {
-      setRedirect(true)
-    }
-  }, [profile])
-
-  useEffect(() => {
-    if (redirect) {
-      router.push("/dashboard")
-    }
-  }, [redirect, router])
-
-  if (redirect) {
-    return null
-  }
-
   const handleSuccess = () => {
-    router.push("/dashboard")
+    router.push("/")
   }
 
   return (

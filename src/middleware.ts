@@ -6,12 +6,14 @@ export function middleware(request: NextRequest) {
   const path = url.pathname;
   const hasAccessToken = request.cookies.has('accessToken') &&
     request.cookies.get('accessToken')?.value;
-  // const isPublicRoute = path === '/auth' || path.includes('auth');
+  
+  const publicRoutes = ['/auth/login', '/auth/register'];
+  const isPublicRoute = publicRoutes.includes(path);
 
-  // if (!hasAccessToken && !isPublicRoute) {
-  //   url.pathname = '/auth';
-  //   return NextResponse.redirect(url);
-  // }
+  if (!hasAccessToken && !isPublicRoute && !path.startsWith('/api/')) {
+    url.pathname = '/auth/login';
+    return NextResponse.redirect(url);
+  }
 
   // if (hasAccessToken && isPublicRoute) {
   //   url.pathname = '/dashboard';

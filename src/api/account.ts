@@ -71,14 +71,6 @@ export const deleteAddress = async (accountId: string, addressId: string): Promi
   return res as IAddressListResponse;
 };
 
-// --- Profile Endpoints (dựa trên controller/router) ---
-
-// Lấy thông tin cá nhân người dùng đang đăng nhập
-export const getProfile = async (): Promise<IProfileResponse> => {
-  const res = await sendGet("/account/profile"); // Endpoint từ router
-  return res as IProfileResponse;
-};
-
 // Cập nhật thông tin cá nhân người dùng đang đăng nhập
 export const updateProfile = async (payload: IProfileUpdate): Promise<IProfileResponse> => {
   const res = await sendPut("/account/profile", payload); // Endpoint từ router

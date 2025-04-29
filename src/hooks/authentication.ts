@@ -63,6 +63,7 @@ export const useProfile = () => {
   } = useQuery({
     queryKey: ["userProfile"],
     queryFn: () => getProfile(),
+    enabled: typeof window !== 'undefined' && !!localStorage.getItem('accessToken') || !!document.cookie.includes('accessToken='),
   });
 
   return {

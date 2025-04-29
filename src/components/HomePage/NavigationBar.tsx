@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Icon } from '@mdi/react';
-import { mdiCartOutline, mdiAccount } from '@mdi/js';
+import { mdiCartOutline, mdiCart } from '@mdi/js';
 import { Button } from '@/components/ui/button';
 import SearchBox from './SearchBox';
+import { useUser } from '@/context/useUserContext';
+import AccountDropdown from './AccountDropdown';
 
 const tabs = [
     { text: 'Trang chủ', href: '/' },
@@ -42,7 +44,14 @@ const Tab = ({ text, selected, setSelected }: TabProps) => {
 
 export const NavigationBar = () => {
     const [selected, setSelected] = useState<string>(tabs[0].text);
-
+    const {isAuthenticated, profile, user} = useUser();
+    
+    // Log chi tiết thông tin đăng nhập
+    console.log("User data:", user);
+    console.log("Profile data:", profile);
+    console.log("Token from localStorage:", typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null);
+    console.log("Is authenticated:", isAuthenticated);
+    
     const checkPath = () => {
         const currentPath = window.location.pathname;
         const activeTab = tabs.find(tab => tab.href === currentPath);
@@ -82,25 +91,34 @@ export const NavigationBar = () => {
 
                 {/* User Actions */}
                 <div className="flex items-center gap-3">
-                    <div className="hidden md:flex items-center gap-2">
-                        <Link href="/auth/login">
-                            <Button variant="outline" size="sm" className='border border-primary text-primary hover:text-primary/80 rounded-sm'>
-                                Đăng nhập
-                            </Button></Link>
-                        <Button size="sm" className='rounded-sm bg-primary/80'>Đăng ký</Button>
-                    </div>
+                    {!isAuthenticated ? (
+                        <div className="hidden md:flex items-center gap-2">
+                            <Link href="/auth/login">
+                                <Button variant="outline" size="sm" className='border border-primary text-primary hover:text-primary/80 rounded-sm'>
+                                    Đăng nhập
+                                </Button>
+                            </Link>
+                            <Link href="/auth/register">
+                                <Button size="sm" className='rounded-sm bg-primary/80'>Đăng ký</Button>
+                            </Link>
+                        </div>
+                    ) : (
+                        <div className="hidden md:flex items-center gap-2">
+                            <span className="text-sm font-medium text-gray-700">
+                                Xin chào, <span className='text-primary font-bold'>{user?.fullName || 'Khách hàng'}</span>
+                            </span>
+                        </div>
+                    )}
 
                     <div className="flex items-center">
-                        <SearchBox />
+                        {/* <SearchBox /> */}
                         <Link href="/cart" className="relative p-2 text-gray-700 hover:text-primary transition-colors">
-                            <Icon path={mdiCartOutline} size={1} />
+                            <Icon path={mdiCart} size={0.9} />
                             <span className="absolute -top-1 -right-1 bg-extra text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                                 0
                             </span>
                         </Link>
-                        <Link href="/account" className="p-2 text-gray-700 hover:text-primary transition-colors">
-                            <Icon path={mdiAccount} size={1} />
-                        </Link>
+                        <AccountDropdown />
                     </div>
                 </div>
             </div>

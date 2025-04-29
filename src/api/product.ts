@@ -84,7 +84,6 @@ export const deleteProductPromotion = async (productId: string, variantId: strin
   return res;
 };
 
-// Thương hiệu
 export const getAllBrands = async (): Promise<IBrandsResponse> => {
   const res = await sendGet("/products/brands");
   const data: IBrandsResponse = res;
@@ -209,4 +208,40 @@ export const getLowStockProducts = async (threshold: number = 10, limit: number 
   const res = await sendGet("/products/low-stock", { params: { threshold, limit } });
   const data: IProductsResponse = res;
   return data;
+};
+
+// Lọc sản phẩm
+export const filterProducts = async (params: any = {}): Promise<IProductsResponse> => {
+  const res = await sendGet("/products/filter/products", { params });
+  const data: IProductsResponse = res;
+  return data;
+};
+
+// Chỉnh sửa nhanh sản phẩm
+export const quickEdit = async (productId: string, payload: any): Promise<IProductResponse> => {
+  const res = await sendPut(`/products/${productId}/quick-edit`, payload);
+  const data: IProductResponse = res;
+  return data;
+};
+
+// Thêm biến thể
+export const addVariant = async (productId: string, payload: any): Promise<any> => {
+  const res = await sendPost(`/products/${productId}/add-variant`, payload);
+  return res;
+};
+
+// Thêm hình ảnh
+export const addImages = async (productId: string, formData: FormData): Promise<any> => {
+  const res = await sendPost(`/products/${productId}/add-images`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+  return res;
+};
+
+// Thêm vật liệu
+export const addMaterial = async (productId: string, payload: any): Promise<any> => {
+  const res = await sendPost(`/products/${productId}/materials`, payload);
+  return res;
 }; 

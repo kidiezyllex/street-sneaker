@@ -14,7 +14,7 @@ import NavigationBar from './NavigationBar';
 
 export const HomePage = () => {
     return (
-        <ReactLenis root>
+        // <ReactLenis root>
             <main className="min-h-screen bg-background">
                 <NavigationBar />
                 <HeroBanner />
@@ -28,7 +28,6 @@ export const HomePage = () => {
                 <Newsletter />
                 <Footer />
             </main>
-        </ReactLenis>
     );
 };
 

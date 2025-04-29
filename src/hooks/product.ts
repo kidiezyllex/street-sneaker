@@ -33,7 +33,12 @@ import {
   searchProducts,
   getNewestProducts,
   getBestSellingProducts,
-  getLowStockProducts
+  getLowStockProducts,
+  filterProducts,
+  quickEdit,
+  addVariant,
+  addImages,
+  addMaterial
 } from "@/api/product";
 
 import { IProductFilter, IProductVariant, IProductImage, IProductPromotion, IAttributeCreate, IColorCreate } from "@/interface/request/product";
@@ -507,4 +512,75 @@ export const useLowStockProducts = (threshold: number = 10, limit: number = 20) 
     isFetching,
     refetch
   };
+};
+
+// Hook cho lọc sản phẩm
+export const useFilterProducts = (params: any = {}) => {
+  const {
+    data,
+    isLoading,
+    isFetching,
+    refetch
+  } = useQuery({
+    queryKey: ["filterProducts", params],
+    queryFn: () => filterProducts(params),
+  });
+
+  return {
+    filteredData: data,
+    isLoading,
+    isFetching,
+    refetch
+  };
+};
+
+// Hook cho chỉnh sửa nhanh sản phẩm
+export const useQuickEditProduct = (): UseMutationResult<
+  any,
+  Error,
+  { productId: string; payload: any }
+> => {
+  return useMutation<any, Error, { productId: string; payload: any }>({
+    mutationFn: ({ productId, payload }) => quickEdit(productId, payload),
+  });
+};
+
+// Hook cho thêm biến thể
+export const useAddVariant = (): UseMutationResult<
+  any,
+  Error,
+  { productId: string; payload: any }
+> => {
+  return useMutation<any, Error, { productId: string; payload: any }>({
+    mutationFn: ({ productId, payload }) => addVariant(productId, payload),
+  });
+};
+
+// Hook cho thêm hình ảnh
+export const useAddImages = (): UseMutationResult<
+  any,
+  Error,
+  { productId: string; files: File[]; color: string }
+> => {
+  return useMutation<any, Error, { productId: string; files: File[]; color: string }>({
+    mutationFn: ({ productId, files, color }) => {
+      const formData = new FormData();
+      files.forEach((file) => {
+        formData.append('files', file);
+      });
+      formData.append('color', color);
+      return addImages(productId, formData);
+    },
+  });
+};
+
+// Hook cho thêm vật liệu
+export const useAddMaterial = (): UseMutationResult<
+  any,
+  Error,
+  { productId: string; payload: any }
+> => {
+  return useMutation<any, Error, { productId: string; payload: any }>({
+    mutationFn: ({ productId, payload }) => addMaterial(productId, payload),
+  });
 }; 

@@ -14,7 +14,6 @@ import {
   addAddress,
   updateAddress,
   deleteAddress,
-  getProfile,
   updateProfile,
   changePassword,
   getCustomerAccounts, // Thêm hàm API cho customer
@@ -117,15 +116,6 @@ export const useDeleteAddress = (): UseMutationResult<
 > => {
   return useMutation<IAddressListResponse, Error, { accountId: string; addressId: string }>({
     mutationFn: ({ accountId, addressId }) => deleteAddress(accountId, addressId),
-  });
-};
-
-// === Profile Hooks ===
-
-export const useProfile = (): UseQueryResult<IProfileResponse, Error> => {
-  return useQuery<IProfileResponse, Error>({
-    queryKey: ["profile"],
-    queryFn: getProfile,
   });
 };
 

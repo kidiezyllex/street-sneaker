@@ -571,12 +571,10 @@ export const useFilterStore = create(
         });
       },
       
-      // Lấy bộ lọc đang hoạt động để hiển thị
       getActiveFilters: () => {
         const state = get();
         const filters = [];
         
-        // Thêm bộ lọc thương hiệu
         state.selectedBrands.forEach(brand => {
           filters.push({
             name: 'Thương hiệu',
