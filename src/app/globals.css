@@ -4,7 +4,7 @@
 
 body {
   color: #373737;
-  font-family: var(--font-manrope);
+  font-family: 'Poppins', sans-serif;
 }
 
 html,
@@ -237,7 +237,8 @@ ul.ant-menu.ant-menu-sub.ant-menu-inline {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    /* !text-[#374151] */
+    @apply bg-background text-foreground !text-[#374151];
     
   }
 

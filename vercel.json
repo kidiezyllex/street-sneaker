@@ -1,7 +1,7 @@
 {
   "version": 2,
   "env": {
-    "NEXT_PUBLIC_API_URL": "api.example",
+    "NEXT_PUBLIC_API_URL": "street-sneaker-be.onrender.com",
     "NEXT_PUBLIC_ENV": "staging"
   }
 }

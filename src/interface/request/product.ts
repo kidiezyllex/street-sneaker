@@ -1,7 +1,7 @@
 export interface IProductFilter {
   page?: number;
   limit?: number;
-  sort?: string;
+  sort?: 'price_asc' | 'price_desc' | 'newest' | 'oldest';
   name?: string;
   brand?: string;
   category?: string;
@@ -9,26 +9,50 @@ export interface IProductFilter {
   material?: string;
   minPrice?: number;
   maxPrice?: number;
-  status?: string;
+  status?: 'HOAT_DONG' | 'KHONG_HOAT_DONG';
 }
 
 export interface IProductVariant {
+  code?: string;
   price: number;
-  weight: number;
+  weight?: number;
   amount: number;
-  description: string;
-  brand: string;
-  sole: string;
-  material: string;
-  category: string;
-  size: string;
-  color: string;
-  images?: string[];
+  quantityReturn?: number;
+  description?: string;
+  status?: 'HOAT_DONG' | 'KHONG_HOAT_DONG';
+  brand: {
+    _id?: string;
+    name: string;
+  };
+  sole: {
+    _id?: string;
+    name: string;
+  };
+  material: {
+    _id?: string;
+    name: string;
+  };
+  category: {
+    _id?: string;
+    name: string;
+  };
+  size: {
+    _id?: string;
+    size: number;
+  };
+  color: {
+    _id?: string;
+    code: string;
+    name: string;
+  };
+  images?: IProductImage[];
+  promotions?: IProductPromotion[];
 }
 
 export interface IProductImage {
   url: string;
   defaultImage?: boolean;
+  status?: 'HOAT_DONG' | 'KHONG_HOAT_DONG';
 }
 
 export interface IProductPromotion {
@@ -38,8 +62,13 @@ export interface IProductPromotion {
 
 export interface IAttributeCreate {
   name: string;
+  description?: string;
 }
 
 export interface IColorCreate extends IAttributeCreate {
   code: string;
+}
+
+export interface ISizeCreate extends IAttributeCreate {
+  size: number;
 } 

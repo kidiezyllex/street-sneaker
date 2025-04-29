@@ -75,7 +75,7 @@ export function Header() {
     }
 
     const languageMenu = (
-        <ul className="bg-white text-black py-2 rounded shadow-lg min-w-[200px]">
+        <ul className="bg-white !text-[#374151] py-2 rounded shadow-lg min-w-[200px]">
             {languages.map((language) => (
                 <li
                     key={language.code}
@@ -96,7 +96,7 @@ export function Header() {
     )
 
     const currencyMenu = (
-        <ul className="bg-white text-black py-2 rounded shadow-lg min-w-[200px]">
+        <ul className="bg-white !text-[#374151] py-2 rounded shadow-lg min-w-[200px]">
             {currencies.map((currency) => (
                 <li
                     key={currency.code}
@@ -208,7 +208,7 @@ export function Header() {
                             <div className="relative">
                                 <Icon path={mdiCart} size={0.9} />
                                 {cartItemCount > 0 && (
-                                    <span className="absolute -top-1 -right-1 bg-[#febd69] text-black text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                                    <span className="absolute -top-1 -right-1 bg-[#febd69] !text-[#374151] text-xs rounded-full w-4 h-4 flex items-center justify-center">
                                         {cartItemCount}
                                     </span>
                                 )}

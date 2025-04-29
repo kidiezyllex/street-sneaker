@@ -1,7 +1,16 @@
 import { IBaseResponse } from "./authentication";
 
+export interface IUploadImageResponse {
+  data: {
+    url: string;
+    publicId: string;
+  };
+  message: string;
+  statusCode: number;
+}
+
 export interface IUploadImageResponseData {
-  imageUrl: string;
+  url: string;
   publicId: string;
 }
 

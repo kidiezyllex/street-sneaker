@@ -1,5 +1,5 @@
 {
-  "name": "amazon",
+  "name": "street-sneaker",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -54,6 +54,7 @@
     "nextjs-toploader": "^3.8.16",
     "pnpm": "^10.10.0",
     "react": "^18.3.1",
+    "react-colorful": "^5.6.1",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.55.0",

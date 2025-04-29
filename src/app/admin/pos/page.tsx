@@ -364,7 +364,7 @@ export default function POSPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 mb-1">Doanh số hôm nay</p>
-                <p className="text-xl font-semibold text-black/80">{formatCurrency(stats.dailySales)}</p>
+                <p className="text-xl font-semibold !text-[#374151]/80">{formatCurrency(stats.dailySales)}</p>
               </div>
               <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
                 <Icon path={mdiCashRegister} size={1} className="text-primary" />
@@ -376,7 +376,7 @@ export default function POSPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 mb-1">Tổng đơn hàng</p>
-                <p className="text-xl font-semibold text-black/80">{stats.totalOrders} đơn</p>
+                <p className="text-xl font-semibold !text-[#374151]/80">{stats.totalOrders} đơn</p>
               </div>
               <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
                 <Icon path={mdiReceiptOutline} size={1} className="text-blue-500" />
@@ -388,7 +388,7 @@ export default function POSPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 mb-1">Giá trị trung bình</p>
-                <p className="text-xl font-semibold text-black/80">{formatCurrency(stats.averageOrder)}</p>
+                <p className="text-xl font-semibold !text-[#374151]/80">{formatCurrency(stats.averageOrder)}</p>
               </div>
               <div className="h-10 w-10 rounded-full bg-green-50 flex items-center justify-center">
                 <Icon path={mdiTag} size={1} className="text-green-500" />
@@ -400,7 +400,7 @@ export default function POSPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 mb-1">Đơn chờ xử lý</p>
-                <p className="text-xl font-semibold text-black/80">{stats.pendingOrders} đơn</p>
+                <p className="text-xl font-semibold !text-[#374151]/80">{stats.pendingOrders} đơn</p>
               </div>
               <div className="h-10 w-10 rounded-full bg-amber-50 flex items-center justify-center">
                 <Icon path={mdiClockOutline} size={1} className="text-amber-500" />
@@ -480,7 +480,7 @@ export default function POSPage() {
                     
                     {/* Colors */}
                     <div className="mt-6">
-                      <h3 className="text-sm font-medium mb-3 text-black/80">Màu sắc:</h3>
+                      <h3 className="text-sm font-medium mb-3 !text-[#374151]/80">Màu sắc:</h3>
                       <div className="flex gap-3">
                         {selectedProduct.colors.map((color) => (
                           <button
@@ -502,7 +502,7 @@ export default function POSPage() {
                   
                   {/* Product info */}
                   <div className="md:w-1/2">
-                    <h2 className="text-2xl font-bold text-black/80">{selectedProduct.name}</h2>
+                    <h2 className="text-2xl font-bold !text-[#374151]/80">{selectedProduct.name}</h2>
                     <p className="text-gray-500 mb-4">{selectedProduct.brand}</p>
                     
                     {selectedProduct.description && (
@@ -511,7 +511,7 @@ export default function POSPage() {
                     
                     {/* Sizes */}
                     <div className="mb-6">
-                      <h3 className="text-sm font-medium mb-3 text-black/80">Kích thước:</h3>
+                      <h3 className="text-sm font-medium mb-3 !text-[#374151]/80">Kích thước:</h3>
                       <div className="flex flex-wrap gap-2">
                         {selectedColor?.sizes.map((size) => (
                           <button
@@ -537,14 +537,14 @@ export default function POSPage() {
                     {selectedSize && (
                       <>
                         <div className="mb-4">
-                          <h3 className="text-sm font-medium mb-1 text-black/80">Giá:</h3>
+                          <h3 className="text-sm font-medium mb-1 !text-[#374151]/80">Giá:</h3>
                           <p className="text-2xl font-bold text-primary">
                             {formatCurrency(selectedSize.price)}
                           </p>
                         </div>
                         
                         <div className="mb-6">
-                          <h3 className="text-sm font-medium mb-1 text-black/80">Số lượng trong kho:</h3>
+                          <h3 className="text-sm font-medium mb-1 !text-[#374151]/80">Số lượng trong kho:</h3>
                           <div className="flex items-center gap-2">
                             <p className="text-gray-600">{selectedSize.quantity} sản phẩm</p>
                             <Badge variant={selectedSize.quantity > 10 ? "secondary" : selectedSize.quantity > 0 ? "outline" : "destructive" }>
@@ -609,7 +609,7 @@ export default function POSPage() {
                           </div>
                         </div>
                         <div className="p-4">
-                          <h3 className="font-medium text-black/80 group-hover:text-primary transition-colors">{product.name}</h3>
+                          <h3 className="font-medium !text-[#374151]/80 group-hover:text-primary transition-colors">{product.name}</h3>
                           <p className="text-gray-500 text-sm mb-2">{product.brand}</p>
                           <div className="flex justify-between items-center">
                             <p className="text-primary font-medium">
@@ -641,12 +641,12 @@ export default function POSPage() {
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="bg-muted/50">
-                          <th className="text-left py-3 px-4 font-medium text-black/80">Sản phẩm</th>
-                          <th className="text-left py-3 px-4 font-medium text-black/80">Thương hiệu</th>
-                          <th className="text-left py-3 px-4 font-medium text-black/80">Giá</th>
-                          <th className="text-left py-3 px-4 font-medium text-black/80">Màu sắc</th>
-                          <th className="text-left py-3 px-4 font-medium text-black/80">Kho</th>
-                          <th className="text-center py-3 px-4 font-medium text-black/80">Thao tác</th>
+                          <th className="text-left py-3 px-4 font-medium !text-[#374151]/80">Sản phẩm</th>
+                          <th className="text-left py-3 px-4 font-medium !text-[#374151]/80">Thương hiệu</th>
+                          <th className="text-left py-3 px-4 font-medium !text-[#374151]/80">Giá</th>
+                          <th className="text-left py-3 px-4 font-medium !text-[#374151]/80">Màu sắc</th>
+                          <th className="text-left py-3 px-4 font-medium !text-[#374151]/80">Kho</th>
+                          <th className="text-center py-3 px-4 font-medium !text-[#374151]/80">Thao tác</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -666,7 +666,7 @@ export default function POSPage() {
                                     className="object-cover"
                                   />
                                 </div>
-                                <span className="font-medium text-black/80">{product.name}</span>
+                                <span className="font-medium !text-[#374151]/80">{product.name}</span>
                               </div>
                             </td>
                             <td className="py-3 px-4 text-gray-600">{product.brand}</td>
@@ -714,7 +714,7 @@ export default function POSPage() {
         {/* Cart */}
         <div className="bg-white rounded-lg shadow-sm flex flex-col h-full border border-border hover:shadow-md transition-shadow duration-300">
           <div className="p-6 border-b border-border">
-            <h2 className="text-lg font-medium text-black/80">Giỏ hàng</h2>
+            <h2 className="text-lg font-medium !text-[#374151]/80">Giỏ hàng</h2>
           </div>
           
           <div className="flex-1 overflow-y-auto p-6 scrollbar-thin">
@@ -748,7 +748,7 @@ export default function POSPage() {
                       </div>
                       <div className="flex-1">
                         <div className="flex justify-between">
-                          <h3 className="font-medium text-black/80">{item.name}</h3>
+                          <h3 className="font-medium !text-[#374151]/80">{item.name}</h3>
                           <button
                             className="text-gray-400 hover:text-red-500 transition-colors"
                             onClick={() => removeCartItem(item.id)}
@@ -823,7 +823,7 @@ export default function POSPage() {
                 </div>
               )}
               <div className="flex justify-between font-medium text-lg pt-3 border-t border-border">
-                <span className="text-black/80">Tổng:</span>
+                <span className="!text-[#374151]/80">Tổng:</span>
                 <span className="text-primary">{formatCurrency(calculateTotal())}</span>
               </div>
             </div>
@@ -852,7 +852,7 @@ export default function POSPage() {
       <Dialog open={showCheckoutDialog} onOpenChange={setShowCheckoutDialog}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle className="text-black/80">Xác nhận thanh toán</DialogTitle>
+            <DialogTitle className="!text-[#374151]/80">Xác nhận thanh toán</DialogTitle>
             <DialogDescription>
               Hoàn tất thông tin thanh toán để hoàn thành đơn hàng.
             </DialogDescription>
@@ -860,7 +860,7 @@ export default function POSPage() {
           
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="customer-name" className="text-right text-sm text-black/80">
+              <label htmlFor="customer-name" className="text-right text-sm !text-[#374151]/80">
                 Khách hàng
               </label>
               <Input
@@ -872,7 +872,7 @@ export default function POSPage() {
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="customer-phone" className="text-right text-sm text-black/80">
+              <label htmlFor="customer-phone" className="text-right text-sm !text-[#374151]/80">
                 Số điện thoại
               </label>
               <Input
@@ -884,7 +884,7 @@ export default function POSPage() {
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="payment-method" className="text-right text-sm text-black/80">
+              <label htmlFor="payment-method" className="text-right text-sm !text-[#374151]/80">
                 Thanh toán
               </label>
               <Select
@@ -936,7 +936,7 @@ export default function POSPage() {
                 </div>
               )}
               <div className="flex justify-between font-medium text-base pt-2 border-t border-border">
-                <span className="text-black/80">Tổng thanh toán:</span>
+                <span className="!text-[#374151]/80">Tổng thanh toán:</span>
                 <span className="text-primary">{formatCurrency(calculateTotal())}</span>
               </div>
             </div>

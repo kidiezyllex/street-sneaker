@@ -4,7 +4,7 @@ export interface IProductImage {
   _id: string;
   url: string;
   defaultImage: boolean;
-  status: string;
+  status: 'HOAT_DONG' | 'KHONG_HOAT_DONG';
 }
 
 export interface IProductPromotion {
@@ -15,11 +15,13 @@ export interface IProductPromotion {
 
 export interface IProductVariant {
   _id: string;
+  code: string;
   price: number;
   weight: number;
   amount: number;
+  quantityReturn: number;
   description: string;
-  status: string;
+  status: 'HOAT_DONG' | 'KHONG_HOAT_DONG';
   brand: IBrand;
   sole: ISole;
   material: IMaterial;
@@ -34,7 +36,7 @@ export interface IProduct {
   _id: string;
   name: string;
   description: string;
-  status: string;
+  status: 'HOAT_DONG' | 'KHONG_HOAT_DONG';
   createdAt: string;
   updatedAt: string;
   variants: IProductVariant[];
@@ -43,7 +45,8 @@ export interface IProduct {
 export interface IAttribute {
   _id: string;
   name: string;
-  status: string;
+  description?: string;
+  status: 'HOAT_DONG' | 'KHONG_HOAT_DONG';
   createdAt: string;
   updatedAt: string;
 }
@@ -54,7 +57,7 @@ export interface IMaterial extends IAttribute {}
 export interface ISole extends IAttribute {}
 
 export interface ISize extends IAttribute {
-  size: string;
+  size: number;
 }
 
 export interface IColor extends IAttribute {

@@ -177,7 +177,7 @@ export const updateSole = async (soleId: string, payload: Partial<IAttributeCrea
 };
 
 export const searchProducts = async (query: string, page: number = 1, limit: number = 10): Promise<IProductsResponse> => {
-  const res = await sendGet("/products/search", { params: { query, page, limit } });
+  const res = await sendGet("/products/search", { params: { q: query, page, limit } });
   const data: IProductsResponse = res;
   return data;
 };
