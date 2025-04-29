@@ -12,7 +12,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import FileUpload from '@/components/Common/FileUpload';
+// import FileUpload from '@/components/Common/FileUpload';
 
 interface DocumentUploadButtonProps {
   type: 'personal' | 'project' | 'shared';
@@ -39,7 +39,7 @@ export default function DocumentUploadButton({
             <DialogHeader className="pb-4">
               <DialogTitle className='text-maintext'>Tải lên tài liệu mới</DialogTitle>
             </DialogHeader>
-            <FileUpload onSuccess={() => setIsOpen(false)} />
+            {/* <FileUpload onSuccess={() => setIsOpen(false)} /> */}
           </div>
         </ScrollArea>
       </DialogContent>

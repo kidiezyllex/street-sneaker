@@ -44,7 +44,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import Image from 'next/image';
 import { useBrands, useCreateBrand, useUpdateBrand } from '@/hooks/product';
-import { useUploadImage } from '@/hooks/upload';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -78,7 +77,6 @@ export default function BrandsPage() {
   const { brandsData, isLoading, refetch } = useBrands();
   const createBrandMutation = useCreateBrand();
   const updateBrandMutation = useUpdateBrand();
-  const uploadImageMutation = useUploadImage();
 
   const form = useForm<BrandFormValues>({
     resolver: zodResolver(brandFormSchema),
@@ -136,28 +134,10 @@ export default function BrandsPage() {
     form.setValue('logo', undefined);
     setPreviewLogo(editingBrand?.logo || null);
   };
-
-  const uploadLogoImage = async (file: File): Promise<string> => {
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    try {
-      const response = await uploadImageMutation.mutateAsync(formData);
-      return response.imageUrl;
-    } catch (error) {
-      toast.error('Không thể tải lên hình ảnh');
-      throw error;
-    }
-  };
-
   const onSubmit = async (values: BrandFormValues) => {
     let logoUrl = editingBrand?.logo || null;
 
     try {
-      if (values.logo && (values.logo as File).name) {
-        logoUrl = await uploadLogoImage(values.logo as File);
-      }
-
       const payload = {
         name: values.name,
         website: values.website,
@@ -425,14 +405,6 @@ export default function BrandsPage() {
                                 <Icon path={mdiUpload} size={0.8} className="mr-2" />
                                 {previewLogo ? 'Chọn logo khác' : 'Tải lên logo'}
                               </Button>
-                              <input
-                                type="file"
-                                ref={fileInputRef}
-                                accept={ACCEPTED_IMAGE_TYPES.join(',')}
-                                className="hidden"
-                                onChange={handleFileChange}
-                                {...rest}
-                              />
                             </div>
                           </div>
                           <FormMessage />
@@ -447,12 +419,6 @@ export default function BrandsPage() {
                         onClick={() => setIsFormDialogOpen(false)}
                       >
                         Hủy
-                      </Button>
-                      <Button 
-                        type="submit"
-                        disabled={createBrandMutation.isPending || updateBrandMutation.isPending || uploadImageMutation.isPending}
-                      >
-                        {uploadImageMutation.isPending ? 'Đang tải lên...' : editingBrand ? 'Cập nhật' : 'Thêm mới'}
                       </Button>
                     </DialogFooter>
                   </form>
