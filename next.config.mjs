@@ -7,12 +7,10 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   webpack: (config, { dev, isServer }) => {
-    // Bỏ qua các cảnh báo về gói phụ thuộc nền tảng cụ thể
     config.infrastructureLogging = {
-      level: 'error', // Chỉ hiển thị lỗi, ẩn các cảnh báo
+      level: 'error',
     };
     
-    // Giữ lại cấu hình hiện có
     config.module.rules.push({
       test: /flag-icons.*\.css$/,
       type: "asset/resource",
@@ -32,7 +30,7 @@ const nextConfig = {
     ],
   },
   async rewrites() {
-    const domain = "widofile-be.onrender.com";
+    const domain = "https://street-sneaker-be.onrender.com";
     return [
       {
         source: "/api/:path*",

@@ -52,7 +52,7 @@ import {
   useQuery,
 } from "@tanstack/react-query";
 
-// Hook cho sản phẩm
+//                                                                                                                     Hook cho sản phẩm
 export const useProducts = (params: IProductFilter = {}) => {
   const {
     data,
@@ -118,7 +118,7 @@ export const useDeleteProduct = (): UseMutationResult<any, Error, string> => {
   });
 };
 
-// Hook cho biến thể sản phẩm
+//                                                                                                                     Hook cho biến thể sản phẩm
 export const useAddProductVariant = (): UseMutationResult<
   any,
   Error,
@@ -149,7 +149,7 @@ export const useDeleteProductVariant = (): UseMutationResult<
   });
 };
 
-// Hook cho hình ảnh sản phẩm
+//                                                                                                                     Hook cho hình ảnh sản phẩm
 export const useAddProductImage = (): UseMutationResult<
   any,
   Error,
@@ -180,7 +180,7 @@ export const useDeleteProductImage = (): UseMutationResult<
   });
 };
 
-// Hook cho khuyến mãi
+//                                                                                                                     Hook cho khuyến mãi
 export const useAddProductPromotion = (): UseMutationResult<
   any,
   Error,
@@ -201,7 +201,7 @@ export const useDeleteProductPromotion = (): UseMutationResult<
   });
 };
 
-// Hook cho các thuộc tính sản phẩm
+//                                                                                                                     Hook cho các thuộc tính sản phẩm
 export const useBrands = () => {
   const {
     data,
@@ -436,7 +436,7 @@ export const useUpdateSole = (): UseMutationResult<
   });
 };
 
-// Hook cho tìm kiếm và lọc sản phẩm
+//                                                                                                                     Hook cho tìm kiếm và lọc sản phẩm
 export const useSearchProducts = (query: string, page: number = 1, limit: number = 10) => {
   const {
     data,
@@ -514,7 +514,7 @@ export const useLowStockProducts = (threshold: number = 10, limit: number = 20) 
   };
 };
 
-// Hook cho lọc sản phẩm
+//                                                                                                                     Hook cho lọc sản phẩm
 export const useFilterProducts = (params: any = {}) => {
   const {
     data,
@@ -534,7 +534,7 @@ export const useFilterProducts = (params: any = {}) => {
   };
 };
 
-// Hook cho chỉnh sửa nhanh sản phẩm
+//                                                                                                                     Hook cho chỉnh sửa nhanh sản phẩm
 export const useQuickEditProduct = (): UseMutationResult<
   any,
   Error,
@@ -545,7 +545,7 @@ export const useQuickEditProduct = (): UseMutationResult<
   });
 };
 
-// Hook cho thêm biến thể
+//                                                                                                                     Hook cho thêm biến thể
 export const useAddVariant = (): UseMutationResult<
   any,
   Error,
@@ -556,7 +556,7 @@ export const useAddVariant = (): UseMutationResult<
   });
 };
 
-// Hook cho thêm hình ảnh
+//                                                                                                                     Hook cho thêm hình ảnh
 export const useAddImages = (): UseMutationResult<
   any,
   Error,
@@ -574,7 +574,7 @@ export const useAddImages = (): UseMutationResult<
   });
 };
 
-// Hook cho thêm vật liệu
+//                                                                                                                     Hook cho thêm vật liệu
 export const useAddMaterial = (): UseMutationResult<
   any,
   Error,

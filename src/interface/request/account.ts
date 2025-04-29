@@ -9,7 +9,7 @@ export interface IAccountFilter {
 export interface IAccountCreate {
   fullName: string;
   email: string;
-  password?: string; // Password might be optional if set differently
+  password?: string;
   phoneNumber: string;
   role?: 'ADMIN' | 'CUSTOMER';
   gender?: 'Nam' | 'Nữ' | 'Khác';
@@ -33,15 +33,15 @@ export interface IAccountStatusUpdate {
 }
 
 export interface IAddress {
-  _id?: string; // ID có thể có hoặc không khi tạo
-  name: string;
-  phoneNumber: string;
-  provinceId: string; // Assume IDs are strings, adjust if they are numbers
+  _id?: string;
+  fullName: string;
+  phone: string;
+  address: string;
+  provinceId: string;
   districtId: string;
   wardId: string;
-  specificAddress: string;
-  type?: 'NhaRieng' | 'VanPhong'; // Example types
-  isDefault?: boolean;
+  type: "NhaRieng" | "VanPhong";
+  isDefault: boolean;
 }
 
 export interface IAddressCreate extends Omit<IAddress, '_id'> {}
@@ -59,4 +59,22 @@ export interface IProfileUpdate {
 export interface IChangePassword {
   currentPassword: string;
   newPassword: string;
+}
+
+export interface IAccountRequest {
+  email: string;
+  password: string;
+  fullName: string;
+  phone: string;
+  avatar?: string;
+  isMainAdmin?: boolean;
+}
+
+export interface IAccountsRequest {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+  status?: string;
 } 

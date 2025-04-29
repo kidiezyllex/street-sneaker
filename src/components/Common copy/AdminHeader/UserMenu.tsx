@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-// Mock data cho thông tin người dùng
+//                                                                                                                     Mock data cho thông tin người dùng
 const mockUser = {
   id: '1',
   name: 'Nguyễn Văn A',
@@ -23,7 +23,7 @@ const mockUser = {
 
 export default function UserMenu() {
   const handleLogout = () => {
-    // Logic xử lý đăng xuất ở đây
+    //                                                                                                                     Logic xử lý đăng xuất ở đây
     console.log('Đăng xuất');
   };
 

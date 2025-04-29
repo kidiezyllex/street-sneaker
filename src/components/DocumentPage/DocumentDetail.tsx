@@ -131,7 +131,7 @@ export default function DocumentDetail({ id, onBack }: DocumentDetailProps) {
   const handleDownload = () => {
     if (!data?.data) return;
     toast.info('Đang tải xuống tài liệu...');
-    // Giả lập tải xuống
+    //                                                                                                                     Giả lập tải xuống
     setTimeout(() => {
       toast.success('Tài liệu đã được tải xuống thành công!');
     }, 1500);
@@ -518,9 +518,9 @@ export default function DocumentDetail({ id, onBack }: DocumentDetailProps) {
               <SelectContent>
                 {usersData?.data
                   .filter(user => 
-                    // Lọc ra các người dùng chưa được chia sẻ
+                    //                                                                                                                     Lọc ra các người dùng chưa được chia sẻ
                     !document.sharedWith.some(shared => shared._id === user._id) && 
-                    // Loại trừ người tạo
+                    //                                                                                                                     Loại trừ người tạo
                     user._id !== document.creator._id
                   )
                   .map(user => (

@@ -53,7 +53,7 @@ export default function OrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<typeof mockOrders[0] | null>(null);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
-  // Định dạng tiền tệ
+  //                                                                                                                     Định dạng tiền tệ
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -62,15 +62,15 @@ export default function OrdersPage() {
     }).format(amount);
   };
 
-  // Định dạng ngày giờ
+  //                                                                                                                     Định dạng ngày giờ
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return format(date, 'dd/MM/yyyy HH:mm', { locale: vi });
   };
 
-  // Lọc đơn hàng theo tất cả các điều kiện
+  //                                                                                                                     Lọc đơn hàng theo tất cả các điều kiện
   const filteredOrders = mockOrders.filter((order) => {
-    // Lọc theo tab
+    //                                                                                                                     Lọc theo tab
     if (selectedTab === 'today' && !isToday(new Date(order.createdAt))) {
       return false;
     } else if (selectedTab === 'week' && !isThisWeek(new Date(order.createdAt))) {
@@ -79,7 +79,7 @@ export default function OrdersPage() {
       return false;
     }
 
-    // Lọc theo khoảng thời gian
+    //                                                                                                                     Lọc theo khoảng thời gian
     if (dateRange?.from && dateRange?.to) {
       const orderDate = new Date(order.createdAt);
       const startOfDay = new Date(dateRange.from);
@@ -93,22 +93,22 @@ export default function OrdersPage() {
       }
     }
 
-    // Lọc theo trạng thái
+    //                                                                                                                     Lọc theo trạng thái
     if (selectedStatus !== 'all' && order.status !== selectedStatus) {
       return false;
     }
 
-    // Lọc theo loại đơn hàng
+    //                                                                                                                     Lọc theo loại đơn hàng
     if (selectedOrderType !== 'all' && order.type !== selectedOrderType) {
       return false;
     }
 
-    // Lọc theo trạng thái thanh toán
+    //                                                                                                                     Lọc theo trạng thái thanh toán
     if (selectedPaymentStatus !== 'all' && order.paymentStatus !== selectedPaymentStatus) {
       return false;
     }
 
-    // Tìm kiếm theo từ khóa
+    //                                                                                                                     Tìm kiếm theo từ khóa
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       return (
@@ -122,7 +122,7 @@ export default function OrdersPage() {
     return true;
   });
 
-  // Kiểm tra ngày hiện tại
+  //                                                                                                                     Kiểm tra ngày hiện tại
   function isToday(date: Date): boolean {
     const today = new Date();
     return (
@@ -132,21 +132,21 @@ export default function OrdersPage() {
     );
   }
 
-  // Kiểm tra tuần hiện tại
+  //                                                                                                                     Kiểm tra tuần hiện tại
   function isThisWeek(date: Date): boolean {
     const now = new Date();
     const weekStart = new Date(now);
-    weekStart.setDate(now.getDate() - now.getDay()); // Đầu tuần (Chủ nhật)
+    weekStart.setDate(now.getDate() - now.getDay()); //                                                                                                                     Đầu tuần (Chủ nhật)
     weekStart.setHours(0, 0, 0, 0);
     
     const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekStart.getDate() + 6); // Cuối tuần (Thứ 7)
+    weekEnd.setDate(weekStart.getDate() + 6); //                                                                                                                     Cuối tuần (Thứ 7)
     weekEnd.setHours(23, 59, 59, 999);
     
     return date >= weekStart && date <= weekEnd;
   }
 
-  // Kiểm tra tháng hiện tại
+  //                                                                                                                     Kiểm tra tháng hiện tại
   function isThisMonth(date: Date): boolean {
     const now = new Date();
     return (
@@ -155,7 +155,7 @@ export default function OrdersPage() {
     );
   }
 
-  // Lấy tên loại đơn hàng
+  //                                                                                                                     Lấy tên loại đơn hàng
   const getOrderTypeName = (type: string) => {
     switch (type) {
       case 'store':
@@ -167,7 +167,7 @@ export default function OrdersPage() {
     }
   };
 
-  // Lấy tên phương thức thanh toán
+  //                                                                                                                     Lấy tên phương thức thanh toán
   const getPaymentMethodName = (method: string) => {
     switch (method) {
       case 'cash':

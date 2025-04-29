@@ -18,17 +18,28 @@ interface CartState {
   items: CartItem[];
   totalItems: number;
   totalPrice: number;
+  subtotal: number;
+  tax: number;
+  shipping: number;
+  total: number;
   addToCart: (product: any, quantity: number) => void;
   removeFromCart: (productId: number) => void;
   updateQuantity: (productId: number, quantity: number) => void;
   clearCart: () => void;
 }
 
-// Helper để tính các giá trị tổng
 const calculateCartTotals = (items: CartItem[]) => {
   const totalItems = items.reduce((total, item) => total + item.quantity, 0);
   const totalPrice = items.reduce((total, item) => total + item.price * item.quantity, 0);
   return { totalItems, totalPrice };
+};
+
+const calculateTotals = (items: CartItem[]) => {
+  const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
+  const tax = subtotal * 0.1;
+  const shipping = subtotal > 0 ? 10 : 0;
+  const total = subtotal + tax + shipping;
+  return { subtotal, tax, shipping, total };
 };
 
 export const useCartStore = create(
@@ -37,16 +48,18 @@ export const useCartStore = create(
       items: [],
       totalItems: 0,
       totalPrice: 0,
+      subtotal: 0,
+      tax: 0,
+      shipping: 0,
+      total: 0,
       
       addToCart: (product, quantity) => {
         const currentItems = [...get().items];
         const existingItemIndex = currentItems.findIndex(item => item.id === product.id);
         
         if (existingItemIndex !== -1) {
-          // Nếu sản phẩm đã tồn tại, cập nhật số lượng
           currentItems[existingItemIndex].quantity += quantity;
         } else {
-          // Thêm sản phẩm mới vào giỏ hàng
           currentItems.push({
             id: product.id,
             name: product.name,
@@ -62,22 +75,32 @@ export const useCartStore = create(
         }
         
         const { totalItems, totalPrice } = calculateCartTotals(currentItems);
+        const { subtotal, tax, shipping, total } = calculateTotals(currentItems);
         
         set({ 
           items: currentItems,
           totalItems,
-          totalPrice
+          totalPrice,
+          subtotal,
+          tax,
+          shipping,
+          total
         });
       },
       
       removeFromCart: (productId) => {
         const currentItems = get().items.filter(item => item.id !== productId);
         const { totalItems, totalPrice } = calculateCartTotals(currentItems);
+        const { subtotal, tax, shipping, total } = calculateTotals(currentItems);
         
         set({ 
           items: currentItems,
           totalItems,
-          totalPrice
+          totalPrice,
+          subtotal,
+          tax,
+          shipping,
+          total
         });
       },
       
@@ -86,15 +109,19 @@ export const useCartStore = create(
         const itemIndex = currentItems.findIndex(item => item.id === productId);
         
         if (itemIndex !== -1) {
-          // Cập nhật số lượng cho sản phẩm
           currentItems[itemIndex].quantity = quantity;
           
           const { totalItems, totalPrice } = calculateCartTotals(currentItems);
+          const { subtotal, tax, shipping, total } = calculateTotals(currentItems);
           
           set({ 
             items: currentItems,
             totalItems,
-            totalPrice
+            totalPrice,
+            subtotal,
+            tax,
+            shipping,
+            total
           });
         }
       },
@@ -103,12 +130,16 @@ export const useCartStore = create(
         set({ 
           items: [],
           totalItems: 0,
-          totalPrice: 0
+          totalPrice: 0,
+          subtotal: 0,
+          tax: 0,
+          shipping: 0,
+          total: 0
         });
       }
     }),
     {
-      name: 'cart-storage', // Tên định danh cho localStorage
+      name: 'cart-storage',
     }
   )
 ); 

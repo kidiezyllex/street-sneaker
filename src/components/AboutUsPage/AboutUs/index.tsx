@@ -6,12 +6,12 @@ import { mdiCheckCircle, mdiTruck, mdiShieldCheck, mdiStore, mdiStar, mdiAccount
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Autoplay, Navigation } from 'swiper/modules';
 
-// Import Swiper styles
+//                                                                                                                     Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 
-// Component cho các tính năng
+//                                                                                                                     Component cho các tính năng
 const FeatureCard = ({ icon, title, description }: { icon: string; title: string; description: string }) => (
     <motion.div
         className="bg-white backdrop-blur-md p-8 rounded-md transition-all duration-300 border border-white/20"
@@ -31,7 +31,7 @@ const FeatureCard = ({ icon, title, description }: { icon: string; title: string
     </motion.div>
 );
 
-// Component cho thành viên nhóm
+//                                                                                                                     Component cho thành viên nhóm
 const TeamMember = ({ name, id, role }: { name: string; id: string; role: string }) => (
     <motion.div
         className=" bg-gradient-to-r from-[#2C8B3D80] to-[#88C14080] flex flex-col items-center justify-center gap-3 p-4 px-2 rounded-md relative overflow-hidden cursor-pointer"
@@ -55,7 +55,7 @@ const TeamMember = ({ name, id, role }: { name: string; id: string; role: string
     </motion.div>
 );
 
-// Component cho đánh giá khách hàng
+//                                                                                                                     Component cho đánh giá khách hàng
 const TestimonialCard = ({ rating, title, description, image, name, role }: {
     rating: number;
     title: string;
@@ -90,7 +90,7 @@ const TestimonialCard = ({ rating, title, description, image, name, role }: {
     </motion.div>
 );
 
-// Dữ liệu testimonial mở rộng
+//                                                                                                                     Dữ liệu testimonial mở rộng
 const testimonialData = [
     {
         rating: 5,

@@ -1,5 +1,5 @@
 import { IBaseResponse } from './authentication';
-import { IAddress } from '../request/account'; // Reuse IAddress from request if appropriate
+import { IAddress } from '../request/account'; //                                                                                                                     Reuse IAddress from request if appropriate
 
 export interface IAccount {
   _id: string;
@@ -28,16 +28,12 @@ export interface IPagination {
   limit: number;
 }
 
-export interface IAccountsResponse extends IBaseResponse<{
-  accounts: IAccount[];
-  pagination: IPagination;
-}> {}
+export interface IAccountsResponse extends IBaseResponse<IAccount[]> {}
 
-export interface IProfileResponse extends IBaseResponse<Omit<IAccount, 'password' | 'addresses' | 'isMainAdmin'>> { // Profile might have fewer fields
-  // Add specific fields if profile response differs significantly
-}
+export interface IProfileResponse extends IBaseResponse<Omit<IAccount, 'password' | 'addresses' | 'isMainAdmin'>> {}
 
 export interface IAddressListResponse extends IBaseResponse<IAddress[]> {}
 
-// Simple success/message response for actions like delete, change password
-export interface IActionResponse extends IBaseResponse<null> {} 
+export interface IActionResponse extends IBaseResponse<null> {}
+
+export interface IMessageResponse extends IBaseResponse<string> {} 

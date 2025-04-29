@@ -1,24 +1,20 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
-  const url = request.nextUrl.clone();
-  const path = url.pathname;
-  const hasAccessToken = request.cookies.has('accessToken') &&
-    request.cookies.get('accessToken')?.value;
-  
-  const publicRoutes = ['/auth/login', '/auth/register'];
-  const isPublicRoute = publicRoutes.includes(path);
+const publicRoutes = ["/", "/about", "/products", "/contact"];
+const authRoutes = ["/auth/login", "/auth/register", "/auth/forgot-password"];
 
-  if (!hasAccessToken && !isPublicRoute && !path.startsWith('/api/')) {
-    url.pathname = '/auth/login';
+export function middleware(request: NextRequest) {
+  const url = new URL(request.url);
+  const hasAccessToken = request.cookies.has("accessToken");
+  const isPublicRoute = publicRoutes.includes(url.pathname);
+  const isAuthRoute = authRoutes.includes(url.pathname);
+
+  if (!hasAccessToken && !isPublicRoute && !isAuthRoute) {
+    url.pathname = "/auth/login";
     return NextResponse.redirect(url);
   }
 
-  // if (hasAccessToken && isPublicRoute) {
-  //   url.pathname = '/dashboard';
-  //   return NextResponse.redirect(url);
-  // }
   return NextResponse.next();
 }
 

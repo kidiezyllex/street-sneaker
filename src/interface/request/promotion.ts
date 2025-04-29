@@ -1,4 +1,4 @@
-// =================== Khuyến mãi chung ===================
+//                                                                                                                     =================== Khuyến mãi chung ===================
 export interface IPromotionFilter {
   page?: number;
   limit?: number;
@@ -74,7 +74,6 @@ export interface ICustomerVoucher {
   accountId: string;
 }
 
-// =================== Khuyến mãi sản phẩm ===================
 export interface IProductPromotionFilter {
   page?: number;
   limit?: number;
@@ -102,4 +101,69 @@ export interface IProductPromotionUpdate {
   startDate?: string;
   endDate?: string;
   status?: string;
+}
+
+export interface IPromotionRequest {
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  discountType: "percentage" | "fixed";
+  discountValue: number;
+  minOrderValue?: number;
+  maxDiscountValue?: number;
+  maxUsage?: number;
+  isActive: boolean;
+}
+
+export interface IPromotionsRequest {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+  isActive?: boolean;
+}
+
+export interface IVoucherRequest {
+  code: string;
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  discountType: "percentage" | "fixed";
+  discountValue: number;
+  minOrderValue?: number;
+  maxDiscountValue?: number;
+  maxUsage?: number;
+  isActive: boolean;
+}
+
+export interface IVouchersRequest {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+  isActive?: boolean;
+}
+
+export interface IProductPromotionRequest {
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  discountType: "percentage" | "fixed";
+  discountValue: number;
+  productIds: string[];
+  isActive: boolean;
+}
+
+export interface IProductPromotionsRequest {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+  isActive?: boolean;
 } 

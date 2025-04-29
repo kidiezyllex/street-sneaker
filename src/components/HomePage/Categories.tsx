@@ -104,7 +104,7 @@ const categories = [
   }
 ];
 
-// Component Badge hiển thị nhãn cho sản phẩm
+//                                                                                                                     Component Badge hiển thị nhãn cho sản phẩm
 const Badge = ({ text }: { text: string }) => {
   if (!text) return null;
 
@@ -121,7 +121,7 @@ const Badge = ({ text }: { text: string }) => {
   );
 };
 
-// Component DiscountTag hiển thị phần trăm giảm giá
+//                                                                                                                     Component DiscountTag hiển thị phần trăm giảm giá
 const DiscountTag = ({ discount }: { discount: number }) => {
   if (!discount) return null;
 
@@ -184,7 +184,7 @@ const CategoryCard = ({ category, index }: { category: typeof categories[0], ind
       }
     },
     hover: {
-      color: "#2C8B3D", // primary color
+      color: "#2C8B3D", //                                                                                                                     primary color
       transition: { duration: 0.2 }
     }
   };

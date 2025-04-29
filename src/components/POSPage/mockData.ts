@@ -191,14 +191,14 @@ export const coupons = [
   {
     id: 'coupon-1',
     code: 'SUMMER23',
-    discount: 15, // percentage
+    discount: 15, //                                                                                                                     percentage
     minOrder: 1000000,
     description: 'Giảm 15% cho đơn hàng từ 1,000,000đ',
   },
   {
     id: 'coupon-2',
     code: 'NEWCUSTOMER',
-    discount: 10, // percentage
+    discount: 10, //                                                                                                                     percentage
     minOrder: 500000,
     description: 'Giảm 10% cho đơn hàng từ 500,000đ',
   },

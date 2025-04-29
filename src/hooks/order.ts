@@ -14,7 +14,7 @@ import {
   IOrderItemsUpdate 
 } from "@/interface/request/order";
 
-// Hook lấy danh sách đơn hàng
+//                                                                                                                     Hook lấy danh sách đơn hàng
 export const useOrders = (params: IOrderFilter = {}) => {
   const {
     data,
@@ -24,7 +24,7 @@ export const useOrders = (params: IOrderFilter = {}) => {
   } = useQuery({
     queryKey: ["orders", params],
     queryFn: () => getOrders(params),
-    staleTime: 30000 // 30 giây
+    staleTime: 30000 //                                                                                                                     30 giây
   });
 
   return {
@@ -35,7 +35,7 @@ export const useOrders = (params: IOrderFilter = {}) => {
   };
 };
 
-// Hook lấy chi tiết đơn hàng
+//                                                                                                                     Hook lấy chi tiết đơn hàng
 export const useOrderDetail = (orderId: string | undefined) => {
   const {
     data,
@@ -57,7 +57,7 @@ export const useOrderDetail = (orderId: string | undefined) => {
   };
 };
 
-// Hook cập nhật trạng thái đơn hàng
+//                                                                                                                     Hook cập nhật trạng thái đơn hàng
 export const useUpdateOrderStatus = (orderId: string) => {
   const queryClient = useQueryClient();
   
@@ -70,7 +70,7 @@ export const useUpdateOrderStatus = (orderId: string) => {
   });
 };
 
-// Hook cập nhật thông tin vận chuyển
+//                                                                                                                     Hook cập nhật thông tin vận chuyển
 export const useUpdateShippingInfo = (orderId: string) => {
   const queryClient = useQueryClient();
   
@@ -82,7 +82,7 @@ export const useUpdateShippingInfo = (orderId: string) => {
   });
 };
 
-// Hook cập nhật sản phẩm trong đơn hàng
+//                                                                                                                     Hook cập nhật sản phẩm trong đơn hàng
 export const useUpdateOrderItems = (orderId: string) => {
   const queryClient = useQueryClient();
   

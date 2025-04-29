@@ -36,7 +36,7 @@ import {
   useQuery,
 } from "@tanstack/react-query";
 
-// Hooks lấy danh sách đơn hàng POS
+//                                                                                                                     Hooks lấy danh sách đơn hàng POS
 export const usePOSOrders = (params: IPOSOrderFilter = {}) => {
   const {
     data,
@@ -56,7 +56,7 @@ export const usePOSOrders = (params: IPOSOrderFilter = {}) => {
   };
 };
 
-// Hook lấy chi tiết đơn hàng POS
+//                                                                                                                     Hook lấy chi tiết đơn hàng POS
 export const usePOSOrderDetail = (orderId: string) => {
   const {
     data,
@@ -77,7 +77,7 @@ export const usePOSOrderDetail = (orderId: string) => {
   };
 };
 
-// Hook tạo đơn hàng POS mới
+//                                                                                                                     Hook tạo đơn hàng POS mới
 export const useCreatePOSOrder = (): UseMutationResult<
   IPOSOrderResponse,
   Error,
@@ -88,7 +88,7 @@ export const useCreatePOSOrder = (): UseMutationResult<
   });
 };
 
-// Hook cập nhật đơn hàng POS
+//                                                                                                                     Hook cập nhật đơn hàng POS
 export const useUpdatePOSOrder = (): UseMutationResult<
   IPOSOrderResponse,
   Error,
@@ -99,14 +99,14 @@ export const useUpdatePOSOrder = (): UseMutationResult<
   });
 };
 
-// Hook xóa đơn hàng POS
+//                                                                                                                     Hook xóa đơn hàng POS
 export const useDeletePOSOrder = (): UseMutationResult<any, Error, string> => {
   return useMutation<any, Error, string>({
     mutationFn: (orderId: string) => deleteOrder(orderId),
   });
 };
 
-// Hook thêm sản phẩm vào đơn hàng POS
+//                                                                                                                     Hook thêm sản phẩm vào đơn hàng POS
 export const useAddPOSOrderItem = (): UseMutationResult<
   IPOSOrderResponse,
   Error,
@@ -117,7 +117,7 @@ export const useAddPOSOrderItem = (): UseMutationResult<
   });
 };
 
-// Hook cập nhật sản phẩm trong đơn hàng POS
+//                                                                                                                     Hook cập nhật sản phẩm trong đơn hàng POS
 export const useUpdatePOSOrderItem = (): UseMutationResult<
   IPOSOrderResponse,
   Error,
@@ -128,7 +128,7 @@ export const useUpdatePOSOrderItem = (): UseMutationResult<
   });
 };
 
-// Hook xóa sản phẩm khỏi đơn hàng POS
+//                                                                                                                     Hook xóa sản phẩm khỏi đơn hàng POS
 export const useRemovePOSOrderItem = (): UseMutationResult<
   IPOSOrderResponse,
   Error,
@@ -139,7 +139,7 @@ export const useRemovePOSOrderItem = (): UseMutationResult<
   });
 };
 
-// Hook xử lý thanh toán cho đơn hàng POS
+//                                                                                                                     Hook xử lý thanh toán cho đơn hàng POS
 export const useProcessPOSPayment = (): UseMutationResult<
   IPOSOrderResponse,
   Error,
@@ -150,7 +150,7 @@ export const useProcessPOSPayment = (): UseMutationResult<
   });
 };
 
-// Hook hoàn thành đơn hàng POS
+//                                                                                                                     Hook hoàn thành đơn hàng POS
 export const useCompletePOSOrder = (): UseMutationResult<
   IPOSOrderResponse,
   Error,
@@ -161,7 +161,7 @@ export const useCompletePOSOrder = (): UseMutationResult<
   });
 };
 
-// Hook quét mã QR sản phẩm
+//                                                                                                                     Hook quét mã QR sản phẩm
 export const useScanPOSQRCode = (): UseMutationResult<
   IPOSQRProductResponse,
   Error,
@@ -172,7 +172,7 @@ export const useScanPOSQRCode = (): UseMutationResult<
   });
 };
 
-// Hook in hóa đơn
+//                                                                                                                     Hook in hóa đơn
 export const usePrintPOSReceipt = (): UseMutationResult<
   IPOSReceiptResponse,
   Error,

@@ -1,6 +1,5 @@
 import { IBaseResponse } from './authentication';
 
-// =================== Khuyến mãi chung ===================
 export interface IPromotion {
   _id: string;
   name: string;
@@ -16,19 +15,10 @@ export interface IPromotion {
 
 export interface IPromotionResponse extends IBaseResponse<IPromotion> {}
 
-export interface IPromotionsResponse extends IBaseResponse<{
-  promotions: IPromotion[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}> {}
+export interface IPromotionsResponse extends IBaseResponse<IPromotion[]> {}
 
 export interface IActivePromotionsResponse extends IBaseResponse<IPromotion[]> {}
 
-// =================== Voucher ===================
 export interface IVoucherCustomer {
   _id: string;
   account: string;
@@ -58,17 +48,8 @@ export interface IVoucher {
 
 export interface IVoucherResponse extends IBaseResponse<IVoucher> {}
 
-export interface IVouchersResponse extends IBaseResponse<{
-  vouchers: IVoucher[];
-  pagination: {
-    totalItems: number;
-    totalPages: number;
-    currentPage: number;
-    limit: number;
-  };
-}> {}
+export interface IVouchersResponse extends IBaseResponse<IVoucher[]> {}
 
-// =================== Khuyến mãi sản phẩm ===================
 export interface IProductPromotion {
   _id: string;
   productId: string;
@@ -85,8 +66,4 @@ export interface IProductPromotion {
 
 export interface IProductPromotionResponse extends IBaseResponse<IProductPromotion> {}
 
-export interface IProductPromotionsResponse extends IBaseResponse<{
-  promotions: IProductPromotion[];
-  totalPages: number;
-  currentPage: number;
-}> {} 
+export interface IProductPromotionsResponse extends IBaseResponse<IProductPromotion[]> {} 

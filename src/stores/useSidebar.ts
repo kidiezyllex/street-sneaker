@@ -6,7 +6,7 @@ interface SidebarState {
 }
 
 const useSidebar = create<SidebarState>()((set) => ({
-  isSidebarOpen: false, // Giá trị mặc định
+  isSidebarOpen: false, 
   setIsSidebarOpen: (isOpen) => set({ isSidebarOpen: isOpen }),
 }));
 

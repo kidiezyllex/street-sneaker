@@ -26,7 +26,7 @@ import {
   IBillReturn 
 } from "@/interface/request/bill";
 
-// Hook lấy danh sách đơn hàng
+//                                                                                                                     Hook lấy danh sách đơn hàng
 export const useBills = (params: IBillFilter = {}) => {
   const {
     data,
@@ -48,7 +48,7 @@ export const useBills = (params: IBillFilter = {}) => {
   };
 };
 
-// Hook tìm kiếm đơn hàng
+//                                                                                                                     Hook tìm kiếm đơn hàng
 export const useSearchBills = (params: IBillFilter = {}) => {
   const {
     data,
@@ -70,7 +70,7 @@ export const useSearchBills = (params: IBillFilter = {}) => {
   };
 };
 
-// Hook lấy chi tiết đơn hàng
+//                                                                                                                     Hook lấy chi tiết đơn hàng
 export const useBillDetail = (billId: string | undefined) => {
   const {
     data,
@@ -92,7 +92,7 @@ export const useBillDetail = (billId: string | undefined) => {
   };
 };
 
-// Hook tạo đơn hàng mới
+//                                                                                                                     Hook tạo đơn hàng mới
 export const useCreateBill = () => {
   const queryClient = useQueryClient();
   
@@ -104,7 +104,7 @@ export const useCreateBill = () => {
   });
 };
 
-// Hook cập nhật thông tin đơn hàng
+//                                                                                                                     Hook cập nhật thông tin đơn hàng
 export const useUpdateBill = (billId: string) => {
   const queryClient = useQueryClient();
   
@@ -117,7 +117,7 @@ export const useUpdateBill = (billId: string) => {
   });
 };
 
-// Hook cập nhật trạng thái đơn hàng
+//                                                                                                                     Hook cập nhật trạng thái đơn hàng
 export const useUpdateBillStatus = (billId: string) => {
   const queryClient = useQueryClient();
   
@@ -130,7 +130,7 @@ export const useUpdateBillStatus = (billId: string) => {
   });
 };
 
-// Hook thêm sản phẩm vào đơn hàng
+//                                                                                                                     Hook thêm sản phẩm vào đơn hàng
 export const useAddBillItem = (billId: string) => {
   const queryClient = useQueryClient();
   
@@ -142,7 +142,7 @@ export const useAddBillItem = (billId: string) => {
   });
 };
 
-// Hook cập nhật sản phẩm trong đơn hàng
+//                                                                                                                     Hook cập nhật sản phẩm trong đơn hàng
 export const useUpdateBillItem = (billId: string, detailId: string) => {
   const queryClient = useQueryClient();
   
@@ -154,7 +154,7 @@ export const useUpdateBillItem = (billId: string, detailId: string) => {
   });
 };
 
-// Hook xóa sản phẩm khỏi đơn hàng
+//                                                                                                                     Hook xóa sản phẩm khỏi đơn hàng
 export const useDeleteBillItem = (billId: string) => {
   const queryClient = useQueryClient();
   
@@ -166,7 +166,7 @@ export const useDeleteBillItem = (billId: string) => {
   });
 };
 
-// Hook thêm giao dịch thanh toán
+//                                                                                                                     Hook thêm giao dịch thanh toán
 export const useAddBillTransaction = (billId: string) => {
   const queryClient = useQueryClient();
   
@@ -178,7 +178,7 @@ export const useAddBillTransaction = (billId: string) => {
   });
 };
 
-// Hook xử lý trả hàng
+//                                                                                                                     Hook xử lý trả hàng
 export const useBillReturn = (billId: string) => {
   const queryClient = useQueryClient();
   
@@ -191,7 +191,7 @@ export const useBillReturn = (billId: string) => {
   });
 };
 
-// Hook xóa đơn hàng
+//                                                                                                                     Hook xóa đơn hàng
 export const useDeleteBill = () => {
   const queryClient = useQueryClient();
   
@@ -203,7 +203,7 @@ export const useDeleteBill = () => {
   });
 };
 
-// Hook lấy đơn hàng của khách hàng
+//                                                                                                                     Hook lấy đơn hàng của khách hàng
 export const useCustomerBills = (params: IBillFilter = {}) => {
   const {
     data,

@@ -44,7 +44,7 @@ export default function ReturnsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [imageViewUrl, setImageViewUrl] = useState<string | null>(null);
   
-  // Định dạng tiền tệ
+  //                                                                                                                     Định dạng tiền tệ
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -53,15 +53,15 @@ export default function ReturnsPage() {
     }).format(amount);
   };
 
-  // Định dạng ngày giờ
+  //                                                                                                                     Định dạng ngày giờ
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return format(date, 'dd/MM/yyyy HH:mm', { locale: vi });
   };
 
-  // Lọc đơn hàng trả lại theo tất cả các điều kiện
+  //                                                                                                                     Lọc đơn hàng trả lại theo tất cả các điều kiện
   const filteredReturns = mockReturns.filter((returnItem) => {
-    // Lọc theo tab
+    //                                                                                                                     Lọc theo tab
     if (selectedTab === 'pending' && returnItem.status !== 'pending') {
       return false;
     } else if (selectedTab === 'approved' && returnItem.status !== 'approved') {
@@ -72,17 +72,17 @@ export default function ReturnsPage() {
       return false;
     }
 
-    // Lọc theo trạng thái
+    //                                                                                                                     Lọc theo trạng thái
     if (selectedStatus !== 'all' && returnItem.status !== selectedStatus) {
       return false;
     }
 
-    // Lọc theo lý do
+    //                                                                                                                     Lọc theo lý do
     if (selectedReason !== 'all' && returnItem.reason !== selectedReason) {
       return false;
     }
 
-    // Tìm kiếm theo từ khóa
+    //                                                                                                                     Tìm kiếm theo từ khóa
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       return (
@@ -101,7 +101,7 @@ export default function ReturnsPage() {
     return true;
   });
 
-  // Lấy tên phương thức thanh toán/hoàn tiền
+  //                                                                                                                     Lấy tên phương thức thanh toán/hoàn tiền
   const getPaymentMethodName = (method: string) => {
     switch (method) {
       case 'cash':
@@ -119,7 +119,7 @@ export default function ReturnsPage() {
     }
   };
 
-  // Component cho Dialog xem hình ảnh
+  //                                                                                                                     Component cho Dialog xem hình ảnh
   const ImageViewer = ({ imageUrl }: { imageUrl: string }) => {
     return (
       <div className="relative h-[80vh] w-full">
@@ -350,7 +350,7 @@ const ReturnsTable: React.FC<ReturnsTableProps> = ({
     );
   }
 
-  // Component Drawer xem chi tiết
+  //                                                                                                                     Component Drawer xem chi tiết
   const ReturnDetail = ({ returnItem }: { returnItem: typeof mockReturns[0] }) => {
     return (
       <div className="p-4 space-y-6 max-h-[80vh] overflow-y-auto">

@@ -8,7 +8,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { mdiMapMarker, mdiEmail, mdiArrowRight } from '@mdi/js';
 
-// Component cho social media links
+//                                                                                                                     Component cho social media links
 const SocialLink = ({ href, icon }: { href: string; icon: JSX.Element }) => (
   <motion.div
     whileHover={{ scale: 1.1 }}

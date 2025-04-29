@@ -79,7 +79,7 @@ export default function POSPage() {
   const [customerPhone, setCustomerPhone] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // Stats for the dashboard
+  //                                                                                                                     Stats for the dashboard
   const [stats, setStats] = useState({
     dailySales: 12500000,
     totalOrders: 24,
@@ -87,7 +87,7 @@ export default function POSPage() {
     pendingOrders: 3
   });
 
-  // Recent transactions
+  //                                                                                                                     Recent transactions
   const [recentTransactions, setRecentTransactions] = useState([
     { id: 'TX-1234', customer: 'Nguyễn Văn A', amount: 1250000, time: '10:25', status: 'completed' },
     { id: 'TX-1233', customer: 'Trần Thị B', amount: 850000, time: '09:40', status: 'completed' },
@@ -95,12 +95,12 @@ export default function POSPage() {
   ]);
 
   const filteredProducts = products.filter((product) => {
-    // Filter by category
+    //                                                                                                                     Filter by category
     if (activeCategory !== 'cat-1') {
-      // Category filtering logic here (simulated)
+      //                                                                                                                     Category filtering logic here (simulated)
     }
     
-    // Filter by search query
+    //                                                                                                                     Filter by search query
     if (searchQuery) {
       return product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.brand.toLowerCase().includes(searchQuery.toLowerCase());
@@ -142,16 +142,16 @@ export default function POSPage() {
       image: selectedColor.image,
     };
 
-    // Check if the product is already in the cart
+    //                                                                                                                     Check if the product is already in the cart
     const existingItemIndex = cartItems.findIndex(item => item.id === newItem.id);
 
     if (existingItemIndex >= 0) {
-      // Increase quantity if the product is already in the cart
+      //                                                                                                                     Increase quantity if the product is already in the cart
       const updatedItems = [...cartItems];
       updatedItems[existingItemIndex].quantity += 1;
       setCartItems(updatedItems);
     } else {
-      // Add new product to cart
+      //                                                                                                                     Add new product to cart
       setCartItems([...cartItems, newItem]);
     }
 
@@ -227,12 +227,12 @@ export default function POSPage() {
     
     setIsLoading(true);
     
-    // Simulate processing payment
+    //                                                                                                                     Simulate processing payment
     setTimeout(() => {
       setIsLoading(false);
       setShowCheckoutDialog(false);
       
-      // Update stats
+      //                                                                                                                     Update stats
       setStats(prev => ({
         ...prev,
         dailySales: prev.dailySales + calculateTotal(),
@@ -240,7 +240,7 @@ export default function POSPage() {
         averageOrder: Math.round((prev.dailySales + calculateTotal()) / (prev.totalOrders + 1))
       }));
       
-      // Add to recent transactions
+      //                                                                                                                     Add to recent transactions
       const newTransaction = {
         id: `TX-${Math.floor(1000 + Math.random() * 9000)}`,
         customer: customerName || 'Khách lẻ',
@@ -269,15 +269,15 @@ export default function POSPage() {
     setShowCheckoutDialog(true);
   };
 
-  // Keyboard shortcuts
+  //                                                                                                                     Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Alt + P to proceed to checkout
+      //                                                                                                                     Alt + P to proceed to checkout
       if (e.altKey && e.key === 'p') {
         handleProceedToCheckout();
       }
       
-      // Alt + C to clear cart
+      //                                                                                                                     Alt + C to clear cart
       if (e.altKey && e.key === 'c') {
         if (cartItems.length > 0) {
           setCartItems([]);
@@ -285,7 +285,7 @@ export default function POSPage() {
         }
       }
       
-      // Alt + S to focus search
+      //                                                                                                                     Alt + S to focus search
       if (e.altKey && e.key === 's') {
         const searchInput = document.getElementById('product-search');
         if (searchInput) {

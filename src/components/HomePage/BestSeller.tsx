@@ -7,7 +7,7 @@ import { Icon } from '@mdi/react';
 import { mdiCartOutline, mdiHeartOutline, mdiStar, mdiEye, mdiArrowRight, mdiShoeSneaker } from '@mdi/js';
 import { InteractiveHoverButton } from '../Common/InteractiveHoverButton';
 
-// Dữ liệu sản phẩm bán chạy
+//                                                                                                                     Dữ liệu sản phẩm bán chạy
 const bestSellerData = [
   {
     id: 1,
@@ -134,7 +134,7 @@ const fallbackImages = [
   "https://templatekits.themewarrior.com/champz/wp-content/uploads/sites/45/2022/01/product-dummy-3-300x300.jpg"
 ];
 
-// Component hiển thị rating stars
+//                                                                                                                     Component hiển thị rating stars
 const RatingStars = ({ rating }: { rating: number }) => {
   return (
     <div className="flex gap-1 items-center">
@@ -151,7 +151,7 @@ const RatingStars = ({ rating }: { rating: number }) => {
   );
 };
 
-// Component thẻ giảm giá
+//                                                                                                                     Component thẻ giảm giá
 const DiscountBadge = ({ discount }: { discount: number }) => {
   if (!discount) return null;
   
@@ -162,7 +162,7 @@ const DiscountBadge = ({ discount }: { discount: number }) => {
   );
 };
 
-// Component thẻ best seller
+//                                                                                                                     Component thẻ best seller
 const BestSellerBadge = ({ isBestSeller }: { isBestSeller: boolean }) => {
   if (!isBestSeller) return null;
   
@@ -173,7 +173,7 @@ const BestSellerBadge = ({ isBestSeller }: { isBestSeller: boolean }) => {
   );
 };
 
-// Component hiển thị màu sắc
+//                                                                                                                     Component hiển thị màu sắc
 const ColorOptions = ({ colors }: { colors: string[] }) => {
   return (
     <div className="flex gap-1 items-center">
@@ -198,12 +198,12 @@ const ColorOptions = ({ colors }: { colors: string[] }) => {
   );
 };
 
-// Component card sản phẩm
+//                                                                                                                     Component card sản phẩm
 const ProductCard = ({ product, index }: { product: typeof bestSellerData[0], index: number }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
 
-  // Format giá tiền sang VND
+  //                                                                                                                     Format giá tiền sang VND
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', { 
       style: 'currency', 

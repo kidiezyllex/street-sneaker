@@ -17,7 +17,7 @@ import {
 
 import { sendGet, sendPost, sendPut, sendDelete } from "./axios";
 
-// Order management
+//                                                                                                                     Order management
 export const createOrder = async (payload: IPOSOrderCreate): Promise<IPOSOrderResponse> => {
   const res = await sendPost("/pos/orders", payload);
   const data: IPOSOrderResponse = res;
@@ -47,7 +47,7 @@ export const deleteOrder = async (orderId: string): Promise<any> => {
   return res;
 };
 
-// Order items management
+//                                                                                                                     Order items management
 export const addOrderItem = async (orderId: string, payload: IPOSOrderItemCreate): Promise<IPOSOrderResponse> => {
   const res = await sendPost(`/pos/orders/${orderId}/items`, payload);
   const data: IPOSOrderResponse = res;
@@ -66,7 +66,7 @@ export const removeOrderItem = async (orderId: string, itemId: string): Promise<
   return data;
 };
 
-// Payment processing
+//                                                                                                                     Payment processing
 export const processPayment = async (orderId: string, payload: IPOSPayment): Promise<IPOSOrderResponse> => {
   const res = await sendPost(`/pos/orders/${orderId}/payment`, payload);
   const data: IPOSOrderResponse = res;
@@ -79,7 +79,7 @@ export const completeOrder = async (orderId: string): Promise<IPOSOrderResponse>
   return data;
 };
 
-// Utility functions
+//                                                                                                                     Utility functions
 export const scanProductQRCode = async (payload: IPOSScanQR): Promise<IPOSQRProductResponse> => {
   const res = await sendPost('/pos/scan', payload);
   const data: IPOSQRProductResponse = res;

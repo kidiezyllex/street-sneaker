@@ -26,7 +26,7 @@ export default function DashboardLayout({
   const menuItems = userRole === 'admin' ? adminMenuItems : dashboardMenuItems;
 
   useEffect(() => {
-    // Tự động mở menu nếu trang hiện tại thuộc về menu đó
+    //                                                                                                                     Tự động mở menu nếu trang hiện tại thuộc về menu đó
     const autoOpenMenus: Record<string, boolean> = {};
     menuItems.forEach((menu) => {
       if (menu.subMenu && menu.subMenu.some((sub) => pathname === sub.path)) {

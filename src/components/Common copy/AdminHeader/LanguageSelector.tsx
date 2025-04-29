@@ -26,7 +26,7 @@ const languages: Language[] = [
 ];
 
 export default function LanguageSelector() {
-  const [currentLanguage, setCurrentLanguage] = useState<Language>(languages[0]); // Mặc định là tiếng Việt
+  const [currentLanguage, setCurrentLanguage] = useState<Language>(languages[0]); //                                                                                                                     Mặc định là tiếng Việt
 
   const handleSelectLanguage = (language: Language) => {
     setCurrentLanguage(language);

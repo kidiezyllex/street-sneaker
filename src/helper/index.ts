@@ -3,7 +3,7 @@ import cookies from 'js-cookie';
 export const setCookies = (accessToken: string) => {
   cookies.set('accessToken', accessToken);
   
-  // Lưu token vào localStorage để có thể khôi phục sau khi reload
+  //                                                                                                                     Lưu token vào localStorage để có thể khôi phục sau khi reload
   try {
     const tokenString = JSON.stringify({ token: accessToken });
     localStorage.setItem('token', tokenString);

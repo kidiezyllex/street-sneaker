@@ -32,7 +32,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
-// Types
+//                                                                                                                     Types
 type DiscountType = 'percentage' | 'fixed';
 type DiscountStatus = 'active' | 'scheduled' | 'expired' | 'draft';
 
@@ -56,7 +56,7 @@ interface Discount {
   updatedAt: string;
 }
 
-// Mock data
+//                                                                                                                     Mock data
 const mockDiscounts: Discount[] = [
   {
     id: '1',
@@ -184,7 +184,7 @@ export default function DiscountsPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [discountToDelete, setDiscountToDelete] = useState<Discount | null>(null);
 
-  // Format currency
+  //                                                                                                                     Format currency
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -193,20 +193,20 @@ export default function DiscountsPage() {
     }).format(amount);
   };
 
-  // Format date
+  //                                                                                                                     Format date
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return format(date, 'dd/MM/yyyy', { locale: vi });
   };
 
-  // Filter discounts based on search query and selected tab
+  //                                                                                                                     Filter discounts based on search query and selected tab
   const filteredDiscounts = mockDiscounts.filter((discount) => {
-    // Filter by tab
+    //                                                                                                                     Filter by tab
     if (selectedTab !== 'all' && discount.status !== selectedTab) {
       return false;
     }
 
-    // Search query filter
+    //                                                                                                                     Search query filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       return (
@@ -219,7 +219,7 @@ export default function DiscountsPage() {
     return true;
   });
 
-  // Get status badge
+  //                                                                                                                     Get status badge
   const getStatusBadge = (status: DiscountStatus) => {
     switch (status) {
       case 'active':
@@ -233,15 +233,15 @@ export default function DiscountsPage() {
     }
   };
 
-  // Handle delete discount
+  //                                                                                                                     Handle delete discount
   const handleDeleteDiscount = (discount: Discount) => {
     setDiscountToDelete(discount);
     setIsDeleteDialogOpen(true);
   };
 
-  // Confirm delete discount
+  //                                                                                                                     Confirm delete discount
   const confirmDeleteDiscount = () => {
-    // Add logic to delete discount here
+    //                                                                                                                     Add logic to delete discount here
     console.log(`Deleted discount: ${discountToDelete?.code}`);
     setIsDeleteDialogOpen(false);
     setDiscountToDelete(null);

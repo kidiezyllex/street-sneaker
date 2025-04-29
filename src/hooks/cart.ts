@@ -12,7 +12,7 @@ import {
   ICartItemUpdate 
 } from "@/interface/request/cart";
 
-// Hook lấy giỏ hàng
+//                                                                                                                     Hook lấy giỏ hàng
 export const useCart = () => {
   const {
     data,
@@ -33,7 +33,7 @@ export const useCart = () => {
   };
 };
 
-// Hook thêm sản phẩm vào giỏ hàng
+//                                                                                                                     Hook thêm sản phẩm vào giỏ hàng
 export const useAddToCart = () => {
   const queryClient = useQueryClient();
   
@@ -45,7 +45,7 @@ export const useAddToCart = () => {
   });
 };
 
-// Hook cập nhật số lượng sản phẩm trong giỏ hàng
+//                                                                                                                     Hook cập nhật số lượng sản phẩm trong giỏ hàng
 export const useUpdateCartItem = () => {
   const queryClient = useQueryClient();
   
@@ -58,7 +58,7 @@ export const useUpdateCartItem = () => {
   });
 };
 
-// Hook xóa sản phẩm khỏi giỏ hàng
+//                                                                                                                     Hook xóa sản phẩm khỏi giỏ hàng
 export const useRemoveFromCart = () => {
   const queryClient = useQueryClient();
   
@@ -70,7 +70,7 @@ export const useRemoveFromCart = () => {
   });
 };
 
-// Hook xóa toàn bộ giỏ hàng
+//                                                                                                                     Hook xóa toàn bộ giỏ hàng
 export const useClearCart = () => {
   const queryClient = useQueryClient();
   

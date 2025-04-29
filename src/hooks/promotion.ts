@@ -33,8 +33,8 @@ import {
   IProductPromotionUpdate
 } from "@/interface/request/promotion";
 
-// =================== Khuyến mãi chung ===================
-// Hook lấy danh sách khuyến mãi
+//                                                                                                                     =================== Khuyến mãi chung ===================
+//                                                                                                                     Hook lấy danh sách khuyến mãi
 export const usePromotions = (params: IPromotionFilter = {}) => {
   const {
     data,
@@ -44,7 +44,7 @@ export const usePromotions = (params: IPromotionFilter = {}) => {
   } = useQuery({
     queryKey: ["promotions", params],
     queryFn: () => getPromotions(params),
-    staleTime: 60000 // 1 phút
+    staleTime: 60000 //                                                                                                                     1 phút
   });
 
   return {
@@ -55,7 +55,7 @@ export const usePromotions = (params: IPromotionFilter = {}) => {
   };
 };
 
-// Hook lấy chi tiết khuyến mãi
+//                                                                                                                     Hook lấy chi tiết khuyến mãi
 export const usePromotionDetail = (promotionId: string | undefined) => {
   const {
     data,
@@ -77,7 +77,7 @@ export const usePromotionDetail = (promotionId: string | undefined) => {
   };
 };
 
-// Hook tạo khuyến mãi mới
+//                                                                                                                     Hook tạo khuyến mãi mới
 export const useCreatePromotion = () => {
   const queryClient = useQueryClient();
   
@@ -89,7 +89,7 @@ export const useCreatePromotion = () => {
   });
 };
 
-// Hook cập nhật khuyến mãi
+//                                                                                                                     Hook cập nhật khuyến mãi
 export const useUpdatePromotion = (promotionId: string) => {
   const queryClient = useQueryClient();
   
@@ -102,7 +102,7 @@ export const useUpdatePromotion = (promotionId: string) => {
   });
 };
 
-// Hook xóa khuyến mãi
+//                                                                                                                     Hook xóa khuyến mãi
 export const useDeletePromotion = () => {
   const queryClient = useQueryClient();
   
@@ -114,7 +114,7 @@ export const useDeletePromotion = () => {
   });
 };
 
-// Hook lấy danh sách khuyến mãi đang hoạt động
+//                                                                                                                     Hook lấy danh sách khuyến mãi đang hoạt động
 export const useActivePromotions = () => {
   const {
     data,
@@ -135,8 +135,8 @@ export const useActivePromotions = () => {
   };
 };
 
-// =================== Voucher ===================
-// Hook lấy danh sách voucher
+//                                                                                                                     =================== Voucher ===================
+//                                                                                                                     Hook lấy danh sách voucher
 export const useVouchers = (params: IVoucherFilter = {}) => {
   const {
     data,
@@ -157,7 +157,7 @@ export const useVouchers = (params: IVoucherFilter = {}) => {
   };
 };
 
-// Hook lấy chi tiết voucher
+//                                                                                                                     Hook lấy chi tiết voucher
 export const useVoucherDetail = (voucherId: string | undefined) => {
   const {
     data,
@@ -179,7 +179,7 @@ export const useVoucherDetail = (voucherId: string | undefined) => {
   };
 };
 
-// Hook tạo voucher mới
+//                                                                                                                     Hook tạo voucher mới
 export const useCreateVoucher = () => {
   const queryClient = useQueryClient();
   
@@ -191,7 +191,7 @@ export const useCreateVoucher = () => {
   });
 };
 
-// Hook cập nhật voucher
+//                                                                                                                     Hook cập nhật voucher
 export const useUpdateVoucher = (voucherId: string) => {
   const queryClient = useQueryClient();
   
@@ -204,7 +204,7 @@ export const useUpdateVoucher = (voucherId: string) => {
   });
 };
 
-// Hook thêm khách hàng vào voucher
+//                                                                                                                     Hook thêm khách hàng vào voucher
 export const useAddCustomerToVoucher = (voucherId: string) => {
   const queryClient = useQueryClient();
   
@@ -216,7 +216,7 @@ export const useAddCustomerToVoucher = (voucherId: string) => {
   });
 };
 
-// Hook xóa khách hàng khỏi voucher
+//                                                                                                                     Hook xóa khách hàng khỏi voucher
 export const useRemoveCustomerFromVoucher = (voucherId: string) => {
   const queryClient = useQueryClient();
   
@@ -228,7 +228,7 @@ export const useRemoveCustomerFromVoucher = (voucherId: string) => {
   });
 };
 
-// Hook tìm kiếm voucher
+//                                                                                                                     Hook tìm kiếm voucher
 export const useSearchVouchers = (params: IVoucherFilter = {}) => {
   const {
     data,
@@ -249,8 +249,8 @@ export const useSearchVouchers = (params: IVoucherFilter = {}) => {
   };
 };
 
-// =================== Khuyến mãi sản phẩm ===================
-// Hook tạo khuyến mãi sản phẩm
+//                                                                                                                     =================== Khuyến mãi sản phẩm ===================
+//                                                                                                                     Hook tạo khuyến mãi sản phẩm
 export const useCreateProductPromotion = () => {
   const queryClient = useQueryClient();
   
@@ -262,7 +262,7 @@ export const useCreateProductPromotion = () => {
   });
 };
 
-// Hook lấy danh sách khuyến mãi sản phẩm
+//                                                                                                                     Hook lấy danh sách khuyến mãi sản phẩm
 export const useProductPromotions = (params: IProductPromotionFilter = {}) => {
   const {
     data,
@@ -283,7 +283,7 @@ export const useProductPromotions = (params: IProductPromotionFilter = {}) => {
   };
 };
 
-// Hook tìm kiếm khuyến mãi sản phẩm
+//                                                                                                                     Hook tìm kiếm khuyến mãi sản phẩm
 export const useSearchProductPromotions = (params: IProductPromotionFilter = {}) => {
   const {
     data,
@@ -304,7 +304,7 @@ export const useSearchProductPromotions = (params: IProductPromotionFilter = {})
   };
 };
 
-// Hook cập nhật khuyến mãi sản phẩm
+//                                                                                                                     Hook cập nhật khuyến mãi sản phẩm
 export const useUpdateProductPromotion = (promotionId: string) => {
   const queryClient = useQueryClient();
   
@@ -316,7 +316,7 @@ export const useUpdateProductPromotion = (promotionId: string) => {
   });
 };
 
-// Hook xóa khuyến mãi sản phẩm
+//                                                                                                                     Hook xóa khuyến mãi sản phẩm
 export const useDeleteProductPromotion = () => {
   const queryClient = useQueryClient();
   

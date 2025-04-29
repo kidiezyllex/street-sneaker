@@ -5,7 +5,7 @@ import { useRef } from 'react';
 import { Icon } from '@mdi/react';
 import { mdiStar, mdiStarHalfFull, mdiStarOutline } from '@mdi/js';
 
-// Dữ liệu mẫu cho phần đánh giá
+//                                                                                                                     Dữ liệu mẫu cho phần đánh giá
 const testimonials = [
   {
     id: 1,
@@ -33,7 +33,7 @@ const testimonials = [
   },
 ];
 
-// Component hiển thị sao đánh giá
+//                                                                                                                     Component hiển thị sao đánh giá
 const RatingStars = ({ rating }: { rating: number }) => {
   return (
     <div className="flex items-center gap-1">
@@ -72,7 +72,7 @@ const RatingStars = ({ rating }: { rating: number }) => {
   );
 };
 
-// Component card đánh giá
+//                                                                                                                     Component card đánh giá
 const TestimonialCard = ({ testimonial, index }: { testimonial: typeof testimonials[0], index: number }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });

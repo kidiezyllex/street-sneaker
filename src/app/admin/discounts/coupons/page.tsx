@@ -17,7 +17,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
-// Mock data cho mã giảm giá
+//                                                                                                                     Mock data cho mã giảm giá
 const coupons = [
   {
     id: '1',
@@ -31,7 +31,7 @@ const coupons = [
     usedCount: 45,
     status: 'active'
   },
-  // Thêm các mã giảm giá khác ở đây
+  //                                                                                                                     Thêm các mã giảm giá khác ở đây
 ];
 
 export default function CouponsPage() {

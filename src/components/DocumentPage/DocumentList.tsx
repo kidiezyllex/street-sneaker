@@ -94,7 +94,7 @@ export default function DocumentList({ type, projectId, onViewDocument, data }: 
   } else if (type === 'shared') {
     params.project = "shared";
   } else if (type === 'all') {
-    // Không cần thêm tham số
+    //                                                                                                                     Không cần thêm tham số
   }
   
   const { 
@@ -109,7 +109,7 @@ export default function DocumentList({ type, projectId, onViewDocument, data }: 
   const { mutate: deleteDocument } = useDeleteDocument();
   const { mutate: shareDocument, isPending: isSharing } = useShareDocument();
 
-  // Định nghĩa các loại file phổ biến
+  //                                                                                                                     Định nghĩa các loại file phổ biến
   const fileTypes = [
     { value: 'image', label: 'Hình ảnh', pattern: 'image/' },
     { value: 'pdf', label: 'PDF', pattern: 'application/pdf' },
@@ -122,29 +122,29 @@ export default function DocumentList({ type, projectId, onViewDocument, data }: 
     { value: 'other', label: 'Khác', pattern: '' }
   ];
 
-  // Hàm kiểm tra loại file phù hợp với pattern
+  //                                                                                                                     Hàm kiểm tra loại file phù hợp với pattern
   const matchFileType = (fileType: string, pattern: string) => {
-    if (pattern === '') return true; // 'Khác' sẽ hiển thị tất cả
+    if (pattern === '') return true; //                                                                                                                     'Khác' sẽ hiển thị tất cả
     return fileType.includes(pattern);
   };
 
   useEffect(() => {
-    // Sử dụng data từ prop hoặc từ useGetDocuments
+    //                                                                                                                     Sử dụng data từ prop hoặc từ useGetDocuments
     const documents = data?.data || documentsData?.data;
     if (!documents) return;
     
     let filtered = [...documents];
     
-    // Lọc theo danh mục  
+    //                                                                                                                     Lọc theo danh mục  
     if (selectedCategory) {
       filtered = filtered.filter(doc => doc.category?._id === selectedCategory);
     }
     
-    // Lọc theo loại file
+    //                                                                                                                     Lọc theo loại file
     if (selectedFileType) {
       const selectedPattern = fileTypes.find(ft => ft.value === selectedFileType)?.pattern || '';
       if (selectedFileType === 'other') {
-        // Loại 'Khác' sẽ lọc ra các file không thuộc các loại đã định nghĩa
+        //                                                                                                                     Loại 'Khác' sẽ lọc ra các file không thuộc các loại đã định nghĩa
         filtered = filtered.filter(doc => {
           return !fileTypes.some(ft => 
             ft.value !== 'other' && ft.pattern && doc.fileType.includes(ft.pattern)
@@ -155,7 +155,7 @@ export default function DocumentList({ type, projectId, onViewDocument, data }: 
       }
     }
     
-    // Lọc theo từ khóa tìm kiếm
+    //                                                                                                                     Lọc theo từ khóa tìm kiếm
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
@@ -168,7 +168,7 @@ export default function DocumentList({ type, projectId, onViewDocument, data }: 
     setFilteredDocuments(filtered);
   }, [documentsData, data, selectedCategory, selectedFileType, searchQuery]);
 
-  // Xác định icon cho từng loại file
+  //                                                                                                                     Xác định icon cho từng loại file
   const getFileIcon = (fileType: string) => {
     if (fileType.startsWith('image/')) {
       return mdiFileImage;
@@ -191,30 +191,30 @@ export default function DocumentList({ type, projectId, onViewDocument, data }: 
     }
   };
 
-  // Lấy màu cho từng loại file
+  //                                                                                                                     Lấy màu cho từng loại file
   const getIconColor = (fileType: string) => {
     if (fileType.startsWith('image/')) {
-      return "text-blue-500"; // Màu xanh dương cho hình ảnh
+      return "text-blue-500"; //                                                                                                                     Màu xanh dương cho hình ảnh
     } else if (fileType === 'application/pdf') {
-      return "text-red-500"; // Màu đỏ cho PDF
+      return "text-red-500"; //                                                                                                                     Màu đỏ cho PDF
     } else if (fileType.includes('word') || fileType === 'application/msword' || fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-      return "text-blue-700"; // Màu xanh đậm cho Word
+      return "text-blue-700"; //                                                                                                                     Màu xanh đậm cho Word
     } else if (fileType.includes('excel') || fileType === 'application/vnd.ms-excel' || fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-      return "text-green-600"; // Màu xanh lá cho Excel
+      return "text-green-600"; //                                                                                                                     Màu xanh lá cho Excel
     } else if (fileType.includes('powerpoint') || fileType === 'application/vnd.ms-powerpoint' || fileType === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
-      return "text-orange-500"; // Màu cam cho PowerPoint
+      return "text-orange-500"; //                                                                                                                     Màu cam cho PowerPoint
     } else if (fileType.startsWith('video/')) {
-      return "text-purple-600"; // Màu tím cho video
+      return "text-purple-600"; //                                                                                                                     Màu tím cho video
     } else if (fileType.startsWith('audio/')) {
-      return "text-pink-500"; // Màu hồng cho âm thanh
+      return "text-pink-500"; //                                                                                                                     Màu hồng cho âm thanh
     } else if (fileType.startsWith('text/')) {
-      return "text-gray-700"; // Màu xám đậm cho văn bản
+      return "text-gray-700"; //                                                                                                                     Màu xám đậm cho văn bản
     } else {
-      return "text-gray-400"; // Màu xám nhạt cho các file khác
+      return "text-gray-400"; //                                                                                                                     Màu xám nhạt cho các file khác
     }
   };
 
-  // Format kích thước file
+  //                                                                                                                     Format kích thước file
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';
     
@@ -225,31 +225,31 @@ export default function DocumentList({ type, projectId, onViewDocument, data }: 
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  // Format ngày tháng
+  //                                                                                                                     Format ngày tháng
   const formatDate = (dateString: string) => {
     return format(new Date(dateString), 'dd/MM/yyyy HH:mm', { locale: vi });
   };
 
-  // Xử lý tải xuống
+  //                                                                                                                     Xử lý tải xuống
   const handleDownload = (fileUrl: string, fileName: string) => {
     try {
-      // Tạo một request mới để tải file
+      //                                                                                                                     Tạo một request mới để tải file
       fetch(fileUrl)
         .then(response => response.blob())
         .then(blob => {
-          // Tạo một URL từ blob
+          //                                                                                                                     Tạo một URL từ blob
           const blobUrl = window.URL.createObjectURL(blob);
           
-          // Tạo thẻ a và cấu hình
+          //                                                                                                                     Tạo thẻ a và cấu hình
           const link = document.createElement('a');
           link.href = blobUrl;
           link.download = fileName || 'download';
           
-          // Thêm vào body, kích hoạt sự kiện click, và xóa đi
+          //                                                                                                                     Thêm vào body, kích hoạt sự kiện click, và xóa đi
           document.body.appendChild(link);
           link.click();
           
-          // Dọn dẹp
+          //                                                                                                                     Dọn dẹp
           setTimeout(() => {
             document.body.removeChild(link);
             window.URL.revokeObjectURL(blobUrl);
@@ -259,7 +259,7 @@ export default function DocumentList({ type, projectId, onViewDocument, data }: 
         })
         .catch(error => {
           console.error('Download error:', error);
-          // Fallback: Mở URL trong tab mới
+          //                                                                                                                     Fallback: Mở URL trong tab mới
           window.open(fileUrl, '_blank');
           toast.info('Đang mở tài liệu trong tab mới');
         });
@@ -269,13 +269,13 @@ export default function DocumentList({ type, projectId, onViewDocument, data }: 
     }
   };
 
-  // Tìm tên người dùng theo ID
+  //                                                                                                                     Tìm tên người dùng theo ID
   const findUserNameById = (userId: string) => {
     const user = usersData?.data.find(user => user._id === userId);
     return user ? user.fullName : '';
   };
 
-  // Xử lý chia sẻ
+  //                                                                                                                     Xử lý chia sẻ
   const handleShare = (docId: string) => {
     setSelectedDocumentId(docId);
     setSelectedUserId('');
@@ -306,7 +306,7 @@ export default function DocumentList({ type, projectId, onViewDocument, data }: 
     );
   };
 
-  // Xử lý xem chi tiết
+  //                                                                                                                     Xử lý xem chi tiết
   const handleViewDocument = (docId: string) => {
     if (onViewDocument) {
       onViewDocument(docId);
@@ -323,7 +323,7 @@ export default function DocumentList({ type, projectId, onViewDocument, data }: 
     setViewDialogOpen(true);
   };
 
-  // Hiển thị nội dung phù hợp với loại file
+  //                                                                                                                     Hiển thị nội dung phù hợp với loại file
   const renderDocumentContent = (document: IDocument) => {
     const { fileType, fileUrl } = document;
     
@@ -404,7 +404,7 @@ export default function DocumentList({ type, projectId, onViewDocument, data }: 
     }
   };
 
-  // Xử lý xóa tài liệu
+  //                                                                                                                     Xử lý xóa tài liệu
   const handleDeleteDocument = (docId: string, docTitle: string) => {
     setDocumentToDelete({id: docId, title: docTitle});
     setDeleteDialogOpen(true);

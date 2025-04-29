@@ -19,7 +19,6 @@ import {
   useQuery,
 } from "@tanstack/react-query";
 
-// Hook lấy danh sách voucher
 export const useVouchers = (params: IVoucherFilter = {}) => {
   const {
     data,
@@ -39,7 +38,6 @@ export const useVouchers = (params: IVoucherFilter = {}) => {
   };
 };
 
-// Hook lấy chi tiết voucher
 export const useVoucherDetail = (voucherId: string) => {
   const {
     data,
@@ -60,7 +58,6 @@ export const useVoucherDetail = (voucherId: string) => {
   };
 };
 
-// Hook tạo voucher mới
 export const useCreateVoucher = (): UseMutationResult<
   IVoucherResponse,
   Error,
@@ -71,7 +68,6 @@ export const useCreateVoucher = (): UseMutationResult<
   });
 };
 
-// Hook cập nhật voucher
 export const useUpdateVoucher = (): UseMutationResult<
   IVoucherResponse,
   Error,
@@ -82,14 +78,12 @@ export const useUpdateVoucher = (): UseMutationResult<
   });
 };
 
-// Hook xóa voucher
 export const useDeleteVoucher = (): UseMutationResult<any, Error, string> => {
   return useMutation<any, Error, string>({
     mutationFn: (voucherId: string) => deleteVoucher(voucherId),
   });
 };
 
-// Hook thêm khách hàng vào voucher
 export const useAddCustomerToVoucher = (): UseMutationResult<
   IVoucherResponse,
   Error,
@@ -100,7 +94,6 @@ export const useAddCustomerToVoucher = (): UseMutationResult<
   });
 };
 
-// Hook xóa khách hàng khỏi voucher
 export const useRemoveCustomerFromVoucher = (): UseMutationResult<
   IVoucherResponse,
   Error,
@@ -111,7 +104,6 @@ export const useRemoveCustomerFromVoucher = (): UseMutationResult<
   });
 };
 
-// Hook kiểm tra voucher
 export const useCheckVoucher = (): UseMutationResult<
   ICheckVoucherResponse,
   Error,
@@ -122,7 +114,6 @@ export const useCheckVoucher = (): UseMutationResult<
   });
 };
 
-// Hook lấy danh sách voucher của khách hàng
 export const useCustomerVouchers = () => {
   const {
     data,

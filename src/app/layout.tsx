@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-// import './font.css';
+//                                                                                                                     import './font.css';
 import NextTopLoader from 'nextjs-toploader';
 import { ToastProvider } from '@/provider/ToastProvider';
 import { ReactQueryClientProvider } from '@/provider/ReactQueryClientProvider';

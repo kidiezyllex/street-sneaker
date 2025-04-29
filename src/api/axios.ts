@@ -32,8 +32,7 @@ function getLocalAccessToken() {
 
 const instance = axios.create({
   timeout: 3 * 60 * 1000,
-  baseURL: `http://${process.env.NEXT_PUBLIC_API_URL}/api/`,
-  // baseURL: `https://${process.env.NEXT_PUBLIC_API_URL}/api/`,
+  baseURL: `https://${process.env.NEXT_PUBLIC_API_URL}/api/`,
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
@@ -61,20 +60,6 @@ export function logout() {
     window.location.replace("/auth");
   }
 }
-// instance.interceptors.response.use(
-//   (res) => {
-//     return res;
-//   },
-//   async (err) => {
-//     if (err.response) {
-//       if (err.response.status === 403 || err.response.status === 401) {
-//         cookies.remove("accessToken");
-//         localStorage?.clear();
-//       }
-//     }
-//     return Promise.reject(err);
-//   }
-// );
 
 export const sendGet = async (url: string, params?: any): Promise<any> => {
   const response = await instance.get(url, { params });
@@ -159,6 +144,5 @@ class ApiClient {
   }
 }
 
-// eslint-disable-next-line import/no-anonymous-default-export
 export default new ApiClient();
 

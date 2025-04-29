@@ -27,7 +27,7 @@ import {
   IProfileUpdate
 } from "@/interface/request/client";
 
-// Hook trang chủ
+//                                                                                                                     Hook trang chủ
 export const useHomeData = () => {
   const {
     data,
@@ -37,7 +37,7 @@ export const useHomeData = () => {
   } = useQuery({
     queryKey: ["homeData"],
     queryFn: () => getHomeData(),
-    staleTime: 60000 // 1 phút
+    staleTime: 60000 //                                                                                                                     1 phút
   });
 
   return {
@@ -48,7 +48,7 @@ export const useHomeData = () => {
   };
 };
 
-// Hook sản phẩm mới
+//                                                                                                                     Hook sản phẩm mới
 export const useNewProducts = (page: number = 1, limit: number = 12) => {
   const {
     data,
@@ -69,7 +69,7 @@ export const useNewProducts = (page: number = 1, limit: number = 12) => {
   };
 };
 
-// Hook sản phẩm phổ biến
+//                                                                                                                     Hook sản phẩm phổ biến
 export const usePopularProducts = (page: number = 1, limit: number = 12) => {
   const {
     data,
@@ -90,7 +90,7 @@ export const usePopularProducts = (page: number = 1, limit: number = 12) => {
   };
 };
 
-// Hook danh sách sản phẩm
+//                                                                                                                     Hook danh sách sản phẩm
 export const useProducts = (params: IClientFilter = {}) => {
   const {
     data,
@@ -111,7 +111,7 @@ export const useProducts = (params: IClientFilter = {}) => {
   };
 };
 
-// Hook chi tiết sản phẩm
+//                                                                                                                     Hook chi tiết sản phẩm
 export const useProductDetails = (productId: string) => {
   const {
     data,
@@ -133,7 +133,7 @@ export const useProductDetails = (productId: string) => {
   };
 };
 
-// Hook tìm kiếm sản phẩm
+//                                                                                                                     Hook tìm kiếm sản phẩm
 export const useSearchProducts = (query: string, page: number = 1, limit: number = 12) => {
   const {
     data,
@@ -155,7 +155,7 @@ export const useSearchProducts = (query: string, page: number = 1, limit: number
   };
 };
 
-// Hook lọc sản phẩm
+//                                                                                                                     Hook lọc sản phẩm
 export const useFilterProducts = (params: IClientFilter = {}) => {
   const {
     data,
@@ -176,7 +176,7 @@ export const useFilterProducts = (params: IClientFilter = {}) => {
   };
 };
 
-// Hook thanh toán
+//                                                                                                                     Hook thanh toán
 export const useCheckout = () => {
   const queryClient = useQueryClient();
   
@@ -189,7 +189,7 @@ export const useCheckout = () => {
   });
 };
 
-// Hook phương thức thanh toán
+//                                                                                                                     Hook phương thức thanh toán
 export const usePaymentMethods = () => {
   const {
     data,
@@ -199,7 +199,7 @@ export const usePaymentMethods = () => {
   } = useQuery({
     queryKey: ["paymentMethods"],
     queryFn: () => getPaymentMethods(),
-    staleTime: 3600000 // 1 giờ
+    staleTime: 3600000 //                                                                                                                     1 giờ
   });
 
   return {
@@ -210,7 +210,7 @@ export const usePaymentMethods = () => {
   };
 };
 
-// Hook danh sách đơn hàng
+//                                                                                                                     Hook danh sách đơn hàng
 export const useOrders = (page: number = 1, limit: number = 10, status?: string) => {
   const {
     data,
@@ -220,7 +220,7 @@ export const useOrders = (page: number = 1, limit: number = 10, status?: string)
   } = useQuery({
     queryKey: ["orders", page, limit, status],
     queryFn: () => getOrders(page, limit, status),
-    staleTime: 30000 // 30 giây
+    staleTime: 30000 //                                                                                                                     30 giây
   });
 
   return {
@@ -231,7 +231,7 @@ export const useOrders = (page: number = 1, limit: number = 10, status?: string)
   };
 };
 
-// Hook chi tiết đơn hàng
+//                                                                                                                     Hook chi tiết đơn hàng
 export const useOrderDetails = (orderId: string) => {
   const {
     data,
@@ -253,7 +253,7 @@ export const useOrderDetails = (orderId: string) => {
   };
 };
 
-// Hook hồ sơ khách hàng
+//                                                                                                                     Hook hồ sơ khách hàng
 export const useProfile = () => {
   const {
     data,
@@ -274,7 +274,7 @@ export const useProfile = () => {
   };
 };
 
-// Hook cập nhật hồ sơ
+//                                                                                                                     Hook cập nhật hồ sơ
 export const useUpdateProfile = () => {
   const queryClient = useQueryClient();
   
@@ -286,7 +286,7 @@ export const useUpdateProfile = () => {
   });
 };
 
-// Hook danh sách địa chỉ
+//                                                                                                                     Hook danh sách địa chỉ
 export const useAddresses = () => {
   const {
     data,
@@ -307,7 +307,7 @@ export const useAddresses = () => {
   };
 };
 
-// Hook thêm địa chỉ
+//                                                                                                                     Hook thêm địa chỉ
 export const useAddAddress = () => {
   const queryClient = useQueryClient();
   
@@ -320,7 +320,7 @@ export const useAddAddress = () => {
   });
 };
 
-// Hook cập nhật địa chỉ
+//                                                                                                                     Hook cập nhật địa chỉ
 export const useUpdateAddress = () => {
   const queryClient = useQueryClient();
   
@@ -334,7 +334,7 @@ export const useUpdateAddress = () => {
   });
 };
 
-// Hook xóa địa chỉ
+//                                                                                                                     Hook xóa địa chỉ
 export const useDeleteAddress = () => {
   const queryClient = useQueryClient();
   

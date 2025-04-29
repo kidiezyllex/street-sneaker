@@ -16,9 +16,9 @@ import {
   deleteAddress,
   updateProfile,
   changePassword,
-  getCustomerAccounts, // Thêm hàm API cho customer
-  getCustomerAccountById, // Thêm hàm API cho customer
-  updateCustomerAccount, // Thêm hàm API cho customer
+  getCustomerAccounts, //                                                                                                                     Thêm hàm API cho customer
+  getCustomerAccountById, //                                                                                                                     Thêm hàm API cho customer
+  updateCustomerAccount, //                                                                                                                     Thêm hàm API cho customer
 } from "@/api/account";
 import {
   IAccountFilter,
@@ -38,7 +38,7 @@ import {
   IActionResponse
 } from "@/interface/response/account";
 
-// === Admin Account Hooks ===
+//                                                                                                                     === Admin Account Hooks ===
 
 export const useAccounts = (params: IAccountFilter = {}): UseQueryResult<IAccountsResponse, Error> => {
   return useQuery<IAccountsResponse, Error>({
@@ -51,7 +51,7 @@ export const useAccountDetail = (accountId: string): UseQueryResult<IAccountResp
   return useQuery<IAccountResponse, Error>({
     queryKey: ["account", accountId],
     queryFn: () => getAccountById(accountId),
-    enabled: !!accountId, // Chỉ fetch khi có accountId
+    enabled: !!accountId, //                                                                                                                     Chỉ fetch khi có accountId
   });
 };
 
@@ -87,7 +87,7 @@ export const useDeleteAccount = (): UseMutationResult<IActionResponse, Error, st
   });
 };
 
-// === Address Hooks ===
+//                                                                                                                     === Address Hooks ===
 
 export const useAddAddress = (): UseMutationResult<
   IAddressListResponse,
@@ -131,7 +131,7 @@ export const useChangePassword = (): UseMutationResult<IActionResponse, Error, I
   });
 };
 
-// === Customer Account Hooks (Dựa trên router) ===
+//                                                                                                                     === Customer Account Hooks (Dựa trên router) ===
 
 export const useCustomerAccounts = (params: IAccountFilter = {}): UseQueryResult<IAccountsResponse, Error> => {
   return useQuery<IAccountsResponse, Error>({
@@ -158,7 +158,7 @@ export const useUpdateCustomerAccount = (): UseMutationResult<
   });
 };
 
-// Lưu ý: Các hook cho địa chỉ khách hàng có thể được tạo tương tự như useAddAddress, useUpdateAddress, useDeleteAddress
-// nhưng sử dụng các hàm API customer tương ứng (nếu có) hoặc tái sử dụng các hàm hiện có với customerId.
-// Ví dụ:
-// export const useAddCustomerAddress = (): UseMutationResult<...> => { ... mutationFn: ({ customerId, payload }) => addAddress(customerId, payload) ... }; 
+//                                                                                                                     Lưu ý: Các hook cho địa chỉ khách hàng có thể được tạo tương tự như useAddAddress, useUpdateAddress, useDeleteAddress
+//                                                                                                                     nhưng sử dụng các hàm API customer tương ứng (nếu có) hoặc tái sử dụng các hàm hiện có với customerId.
+//                                                                                                                     Ví dụ:
+//                                                                                                                     export const useAddCustomerAddress = (): UseMutationResult<...> => { ... mutationFn: ({ customerId, payload }) => addAddress(customerId, payload) ... }; 

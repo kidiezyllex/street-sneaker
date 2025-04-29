@@ -4,7 +4,7 @@ import { Icon } from '@mdi/react';
 import { mdiMagnify, mdiClose } from '@mdi/js';
 import { Button } from '@/components/ui/button';
 
-// Dữ liệu mẫu cho kết quả tìm kiếm
+//                                                                                                                     Dữ liệu mẫu cho kết quả tìm kiếm
 const searchResults = [
   { id: 1, name: 'Nike Air Max 270', price: 3200000, category: 'Giày thể thao' },
   { id: 2, name: 'Adidas Ultraboost 21', price: 4500000, category: 'Giày chạy bộ' },
@@ -13,7 +13,7 @@ const searchResults = [
   { id: 5, name: 'Converse Chuck 70', price: 1800000, category: 'Giày thời trang' },
 ];
 
-// Format giá tiền theo VND
+//                                                                                                                     Format giá tiền theo VND
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', {
     style: 'currency',

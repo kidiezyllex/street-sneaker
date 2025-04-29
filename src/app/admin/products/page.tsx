@@ -17,7 +17,7 @@ export default function ProductsPage() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
-  // Lọc sản phẩm theo tìm kiếm và bộ lọc
+  //                                                                                                                     Lọc sản phẩm theo tìm kiếm và bộ lọc
   const filteredProducts = products.filter((product) => {
     const matchesSearch = searchQuery
       ? product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -30,7 +30,7 @@ export default function ProductsPage() {
     return matchesSearch && matchesBrand && matchesType;
   });
 
-  // Định dạng ngày
+  //                                                                                                                     Định dạng ngày
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('vi-VN', {
@@ -40,7 +40,7 @@ export default function ProductsPage() {
     }).format(date);
   };
 
-  // Định dạng tiền tệ
+  //                                                                                                                     Định dạng tiền tệ
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -49,19 +49,19 @@ export default function ProductsPage() {
     }).format(amount);
   };
 
-  // Lấy tên thương hiệu từ ID
+  //                                                                                                                     Lấy tên thương hiệu từ ID
   const getBrandName = (brandId: string) => {
     const brand = brands.find((b) => b.id === brandId);
     return brand ? brand.name : '';
   };
 
-  // Lấy tên loại giày từ ID
+  //                                                                                                                     Lấy tên loại giày từ ID
   const getShoeTypeName = (typeId: string) => {
     const type = shoeTypes.find((t) => t.id === typeId);
     return type ? type.name : '';
   };
 
-  // Xóa sản phẩm (mô phỏng)
+  //                                                                                                                     Xóa sản phẩm (mô phỏng)
   const handleDeleteProduct = (id: string) => {
     toast.success(`Đã xóa sản phẩm ${id}`);
   };

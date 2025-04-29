@@ -40,7 +40,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { AccountTabContext } from './layout';
 
-// Profile form schema
+//                                                                                                                     Profile form schema
 const profileFormSchema = z.object({
   fullName: z.string().min(2, { message: "Họ tên cần ít nhất 2 ký tự" }),
   phoneNumber: z.string().min(10, { message: "Số điện thoại không hợp lệ" }).optional().or(z.literal('')),
@@ -49,7 +49,7 @@ const profileFormSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
-// Password form schema
+//                                                                                                                     Password form schema
 const passwordFormSchema = z.object({
   currentPassword: z.string().min(6, { message: "Mật khẩu hiện tại phải có ít nhất 6 ký tự" }),
   newPassword: z.string().min(6, { message: "Mật khẩu mới phải có ít nhất 6 ký tự" }),
@@ -79,7 +79,7 @@ export default function AccountPage() {
   const updateProfileMutation = useUpdateProfile();
   const changePasswordMutation = useChangePassword();
   
-  // Sử dụng context từ layout
+  //                                                                                                                     Sử dụng context từ layout
   const { activeTab, setActiveTab } = useContext(AccountTabContext);
   
   const [isProfileSuccess, setIsProfileSuccess] = useState(false);
@@ -148,7 +148,7 @@ export default function AccountPage() {
     }
   };
 
-  // Xử lý đổi mật khẩu
+  //                                                                                                                     Xử lý đổi mật khẩu
   const handlePasswordSubmit = async (data: PasswordFormValues) => {
     setPasswordError(null);
     
@@ -158,11 +158,11 @@ export default function AccountPage() {
         newPassword: data.newPassword,
       });
 
-      // Hiển thị thông báo thành công
+      //                                                                                                                     Hiển thị thông báo thành công
       setIsPasswordSuccess(true);
       setTimeout(() => setIsPasswordSuccess(false), 3000);
       
-      // Reset form
+      //                                                                                                                     Reset form
       passwordForm.reset({
         currentPassword: "",
         newPassword: "",
@@ -174,7 +174,7 @@ export default function AccountPage() {
     }
   };
 
-  // Xử lý lưu cài đặt
+  //                                                                                                                     Xử lý lưu cài đặt
   const handleSaveSettings = () => {
     setTimeout(() => {
       setIsSettingsSaved(true);

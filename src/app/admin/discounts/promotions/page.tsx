@@ -17,7 +17,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
-// Mock data cho khuyến mãi
+//                                                                                                                     Mock data cho khuyến mãi
 const promotions = [
   {
     id: '1',
@@ -35,7 +35,7 @@ const promotions = [
     ],
     productCategories: ['Thể thao', 'Chạy bộ']
   },
-  // Thêm các khuyến mãi khác ở đây
+  //                                                                                                                     Thêm các khuyến mãi khác ở đây
 ];
 
 export default function PromotionsPage() {

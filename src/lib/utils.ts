@@ -29,7 +29,7 @@ export const formatDate = (dateString: string | Date): string => {
   
   if (isNaN(date.getTime())) return '';
   
-  // Định dạng ngày theo tiếng Việt: DD/MM/YYYY
+  //                                                                                                                     Định dạng ngày theo tiếng Việt: DD/MM/YYYY
   return new Intl.DateTimeFormat('vi-VN', {
     day: '2-digit',
     month: '2-digit',

@@ -65,7 +65,7 @@ export default function ForumPostList({ projectId, isMyPosts = false }: ForumPos
   const { data, isLoading, error } = useGetForumPosts(params);
   const deleteForumPost = useDeleteForumPost();
 
-  // Lấy avatar ngẫu nhiên cho user
+  //                                                                                                                     Lấy avatar ngẫu nhiên cho user
   const getRandomAvatar = (userId: string) => {
     if (userAvatars[userId]) {
       return userAvatars[userId];
@@ -73,7 +73,7 @@ export default function ForumPostList({ projectId, isMyPosts = false }: ForumPos
     return 1;
   };
 
-  // Khởi tạo avatar ngẫu nhiên cho tất cả các tác giả
+  //                                                                                                                     Khởi tạo avatar ngẫu nhiên cho tất cả các tác giả
   useEffect(() => {
     if (data?.data) {
       const newAvatars = { ...userAvatars };
@@ -109,18 +109,18 @@ export default function ForumPostList({ projectId, isMyPosts = false }: ForumPos
     }
   }, [data, searchQuery]);
 
-  // Format ngày tháng
+  //                                                                                                                     Format ngày tháng
   const formatDate = (dateString: string) => {
     return format(new Date(dateString), 'dd/MM/yyyy HH:mm', { locale: vi });
   };
   
-  // Rút gọn nội dung
+  //                                                                                                                     Rút gọn nội dung
   const truncateContent = (content: string, length = 120) => {
     if (content.length <= length) return content;
     return content.substring(0, length) + '...';
   };
 
-  // Xử lý xóa bài viết
+  //                                                                                                                     Xử lý xóa bài viết
   const handleDelete = async () => {
     if (!deletePostId) return;
     
@@ -159,7 +159,7 @@ export default function ForumPostList({ projectId, isMyPosts = false }: ForumPos
     return <div className="text-red-500 p-4">{(error as Error).message}</div>;
   }
 
-  // Animation variants
+  //                                                                                                                     Animation variants
   const container = {
     hidden: { opacity: 0 },
     show: {

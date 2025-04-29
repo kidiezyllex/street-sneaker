@@ -268,7 +268,7 @@ export const actionPlanWeekGA = [
 
 export const getMenuItems = (): MenuProps["items"] => [
   {
-    label: <div>Thêm dòng</div>, // Thêm dòng ngay sau dòng được click
+    label: <div>Thêm dòng</div>,
     key: "0",
   },
   {

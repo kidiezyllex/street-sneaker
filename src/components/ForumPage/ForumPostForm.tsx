@@ -71,7 +71,7 @@ export default function ForumPostForm({ postId, isEdit = false }: ForumPostFormP
   });
   const [submitting, setSubmitting] = useState(false);
 
-  // Cập nhật dữ liệu form khi có dữ liệu bài viết
+  //                                                                                                                     Cập nhật dữ liệu form khi có dữ liệu bài viết
   useEffect(() => {
     if (isEdit && postData?.data) {
       setFormData({
@@ -132,7 +132,7 @@ export default function ForumPostForm({ postId, isEdit = false }: ForumPostFormP
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Kiểm tra dữ liệu
+    //                                                                                                                     Kiểm tra dữ liệu
     if (!formData.title.trim()) {
       toast.error("Thiếu thông tin", {
         description: "Vui lòng nhập tiêu đề bài viết",
@@ -149,13 +149,13 @@ export default function ForumPostForm({ postId, isEdit = false }: ForumPostFormP
 
     setSubmitting(true);
     try {
-      // Upload các file đính kèm chưa được upload
+      //                                                                                                                     Upload các file đính kèm chưa được upload
       const attachmentsToUpload = formData.attachments.filter(att => !att.uploaded && att.file);
       const attachmentIds = formData.attachments
         .filter(att => att.uploaded && att._id)
         .map(att => att._id as string);
       
-      // Upload từng file
+      //                                                                                                                     Upload từng file
       for (const attachment of attachmentsToUpload) {
         if (!attachment.file) continue;
         
@@ -167,7 +167,7 @@ export default function ForumPostForm({ postId, isEdit = false }: ForumPostFormP
         attachmentIds.push(uploadResponse.data.document._id);
       }
       
-      // Dữ liệu bài viết
+      //                                                                                                                     Dữ liệu bài viết
       let response;
       if (isEdit && postId) {
         const updateData: IUpdateForumPost = {
@@ -196,7 +196,7 @@ export default function ForumPostForm({ postId, isEdit = false }: ForumPostFormP
         description: isEdit ? "Đã cập nhật bài viết thành công" : "Đã tạo bài viết mới thành công",
       });
 
-      // Chuyển hướng đến trang chi tiết bài viết
+      //                                                                                                                     Chuyển hướng đến trang chi tiết bài viết
       router.push(`/dashboard/forum/posts/${response.data._id}`);
     } catch (error: any) {
       toast.error("Lỗi", {
@@ -207,7 +207,7 @@ export default function ForumPostForm({ postId, isEdit = false }: ForumPostFormP
     }
   };
 
-  // Lấy icon cho từng loại file
+  //                                                                                                                     Lấy icon cho từng loại file
   const getFileIcon = (filename: string) => {
     return mdiFileDocumentOutline;
   };

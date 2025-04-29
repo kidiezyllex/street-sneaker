@@ -8,7 +8,7 @@ interface MenuSidebarState {
 }
 
 export const useMenuSidebar = create<MenuSidebarState>((set) => ({
-  isOpen: true, // Mặc định sidebar mở
+  isOpen: true,
   toggle: () => set((state) => ({ isOpen: !state.isOpen })),
   open: () => set({ isOpen: true }),
   close: () => set({ isOpen: false }),

@@ -11,7 +11,6 @@ import {
 } from "@/interface/response/product";
 import { sendGet, sendPost, sendPut, sendDelete } from "./axios";
 
-// Sản phẩm
 export const getAllProducts = async (params: IProductFilter): Promise<IProductsResponse> => {
   const res = await sendGet("/products", { params });
   const data: IProductsResponse = res;
@@ -41,7 +40,6 @@ export const deleteProduct = async (productId: string): Promise<any> => {
   return res;
 };
 
-// Biến thể sản phẩm
 export const addProductVariant = async (productId: string, payload: IProductVariant): Promise<any> => {
   const res = await sendPost(`/products/${productId}/variants`, payload);
   return res;
@@ -57,7 +55,6 @@ export const deleteProductVariant = async (productId: string, variantId: string)
   return res;
 };
 
-// Hình ảnh sản phẩm
 export const addProductImage = async (productId: string, variantId: string, payload: IProductImage): Promise<any> => {
   const res = await sendPost(`/products/${productId}/variants/${variantId}/images`, payload);
   return res;
@@ -73,7 +70,6 @@ export const deleteProductImage = async (productId: string, variantId: string, i
   return res;
 };
 
-// Khuyến mãi
 export const addProductPromotion = async (productId: string, variantId: string, payload: IProductPromotion): Promise<any> => {
   const res = await sendPost(`/products/${productId}/variants/${variantId}/promotions`, payload);
   return res;
@@ -100,7 +96,6 @@ export const updateBrand = async (brandId: string, payload: Partial<IAttributeCr
   return res;
 };
 
-// Danh mục
 export const getAllCategories = async (): Promise<ICategoriesResponse> => {
   const res = await sendGet("/products/categories");
   const data: ICategoriesResponse = res;
@@ -117,7 +112,6 @@ export const updateCategory = async (categoryId: string, payload: Partial<IAttri
   return res;
 };
 
-// Màu sắc
 export const getAllColors = async (): Promise<IColorsResponse> => {
   const res = await sendGet("/products/colors");
   const data: IColorsResponse = res;
@@ -134,7 +128,6 @@ export const updateColor = async (colorId: string, payload: Partial<IColorCreate
   return res;
 };
 
-// Vật liệu
 export const getAllMaterials = async (): Promise<IMaterialsResponse> => {
   const res = await sendGet("/products/materials");
   const data: IMaterialsResponse = res;
@@ -151,7 +144,6 @@ export const updateMaterial = async (materialId: string, payload: Partial<IAttri
   return res;
 };
 
-// Kích thước
 export const getAllSizes = async (): Promise<ISizesResponse> => {
   const res = await sendGet("/products/sizes");
   const data: ISizesResponse = res;
@@ -168,7 +160,6 @@ export const updateSize = async (sizeId: string, payload: Partial<IAttributeCrea
   return res;
 };
 
-// Đế giày
 export const getAllSoles = async (): Promise<ISolesResponse> => {
   const res = await sendGet("/products/soles");
   const data: ISolesResponse = res;
@@ -185,7 +176,6 @@ export const updateSole = async (soleId: string, payload: Partial<IAttributeCrea
   return res;
 };
 
-// Tìm kiếm và lọc sản phẩm
 export const searchProducts = async (query: string, page: number = 1, limit: number = 10): Promise<IProductsResponse> => {
   const res = await sendGet("/products/search", { params: { query, page, limit } });
   const data: IProductsResponse = res;
@@ -210,27 +200,23 @@ export const getLowStockProducts = async (threshold: number = 10, limit: number 
   return data;
 };
 
-// Lọc sản phẩm
 export const filterProducts = async (params: any = {}): Promise<IProductsResponse> => {
   const res = await sendGet("/products/filter/products", { params });
   const data: IProductsResponse = res;
   return data;
 };
 
-// Chỉnh sửa nhanh sản phẩm
 export const quickEdit = async (productId: string, payload: any): Promise<IProductResponse> => {
   const res = await sendPut(`/products/${productId}/quick-edit`, payload);
   const data: IProductResponse = res;
   return data;
 };
 
-// Thêm biến thể
 export const addVariant = async (productId: string, payload: any): Promise<any> => {
   const res = await sendPost(`/products/${productId}/add-variant`, payload);
   return res;
 };
 
-// Thêm hình ảnh
 export const addImages = async (productId: string, formData: FormData): Promise<any> => {
   const res = await sendPost(`/products/${productId}/add-images`, formData, {
     headers: {
@@ -240,8 +226,7 @@ export const addImages = async (productId: string, formData: FormData): Promise<
   return res;
 };
 
-// Thêm vật liệu
 export const addMaterial = async (productId: string, payload: any): Promise<any> => {
   const res = await sendPost(`/products/${productId}/materials`, payload);
   return res;
-}; 
+};

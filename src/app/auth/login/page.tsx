@@ -27,6 +27,7 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
   const signInMutation = useSignIn()
   const { loginUser } = useUser()
   const [showPassword, setShowPassword] = useState(false)
+  const router = useRouter()
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -45,7 +46,11 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
         toast.success("Đăng nhập thành công", {
           description: "Chào mừng bạn trở lại Street Sneaker!",
         })
-        onSuccess()
+        if (response.data?.account?.role === "ADMIN") {
+          router.push("/admin/statistics");
+        } else {
+          onSuccess();
+        }
       }
     } catch (error: any) {
       console.error("Lỗi đăng nhập:", error)

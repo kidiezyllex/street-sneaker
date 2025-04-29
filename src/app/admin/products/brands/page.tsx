@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,8 @@ import {
   mdiDelete,
   mdiWeb,
   mdiImageOutline,
+  mdiUpload,
+  mdiClose,
 } from '@mdi/js';
 import {
   Dialog,
@@ -29,60 +31,182 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import Image from 'next/image';
-import { Brand, brands } from '@/components/ProductsPage/mockData';
+import { useBrands, useCreateBrand, useUpdateBrand } from '@/hooks/product';
+import { useUploadImage } from '@/hooks/upload';
+import { toast } from 'sonner';
+import { motion, AnimatePresence } from 'framer-motion';
 
-// Thêm dữ liệu bổ sung cho brands
-const enhancedBrands = brands.map(brand => ({
-  ...brand,
-  description: brand.name === 'Nike' ? 'Thương hiệu giày thể thao hàng đầu thế giới.' : 
-               brand.name === 'Adidas' ? 'Thương hiệu thể thao từ Đức với công nghệ Boost tiên tiến.' :
-               brand.name === 'Puma' ? 'Thương hiệu thể thao và thời trang từ Đức.' :
-               brand.name === 'New Balance' ? 'Nhà sản xuất giày thể thao từ Mỹ.' :
-               brand.name === 'Converse' ? 'Thương hiệu giày thời trang nổi tiếng toàn cầu.' : '',
-  website: brand.name === 'Nike' ? 'https://www.nike.com' : 
-           brand.name === 'Adidas' ? 'https://www.adidas.com' :
-           brand.name === 'Puma' ? 'https://www.puma.com' :
-           brand.name === 'New Balance' ? 'https://www.newbalance.com' :
-           brand.name === 'Converse' ? 'https://www.converse.com' : '',
-}));
+const MAX_FILE_SIZE = 5000000; // 5MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+
+const brandFormSchema = z.object({
+  name: z.string().min(1, "Tên thương hiệu không được để trống"),
+  website: z.string().url("URL website không hợp lệ").or(z.string().length(0)),
+  logo: z.any()
+    .refine((file) => !file || !file.name || file.size <= MAX_FILE_SIZE, `Kích thước file tối đa là 5MB`)
+    .refine(
+      (file) => !file || !file.name || ACCEPTED_IMAGE_TYPES.includes(file.type),
+      "Chỉ chấp nhận định dạng .jpg, .jpeg, .png và .webp"
+    )
+    .optional(),
+});
+
+type BrandFormValues = z.infer<typeof brandFormSchema>;
 
 export default function BrandsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [brandToDelete, setBrandToDelete] = useState<Brand | null>(null);
+  const [brandToDelete, setBrandToDelete] = useState<any | null>(null);
+  const [isFormDialogOpen, setIsFormDialogOpen] = useState(false);
+  const [editingBrand, setEditingBrand] = useState<any | null>(null);
   const [viewLogo, setViewLogo] = useState<string | null>(null);
+  const [previewLogo, setPreviewLogo] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Filter brands based on search query
-  const filteredBrands = enhancedBrands.filter((brand: Brand & { description?: string; website?: string }) => {
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      return (
-        brand.name.toLowerCase().includes(query) ||
-        (brand.description && brand.description.toLowerCase().includes(query))
-      );
-    }
-    return true;
+  const { brandsData, isLoading, refetch } = useBrands();
+  const createBrandMutation = useCreateBrand();
+  const updateBrandMutation = useUpdateBrand();
+  const uploadImageMutation = useUploadImage();
+
+  const form = useForm<BrandFormValues>({
+    resolver: zodResolver(brandFormSchema),
+    defaultValues: {
+      name: '',
+      website: '',
+      logo: undefined,
+    },
   });
 
-  // Handle delete brand
-  const handleDeleteBrand = (brand: Brand & { description?: string; website?: string }) => {
+  const filteredBrands = brandsData?.data?.filter((brand: any) => {
+    if (searchQuery) {
+      return brand.name.toLowerCase().includes(searchQuery.toLowerCase());
+    }
+    return true;
+  }) || [];
+
+  const handleDeleteBrand = (brand: any) => {
     setBrandToDelete(brand);
     setIsDeleteDialogOpen(true);
   };
 
-  // Confirm delete brand
   const confirmDeleteBrand = () => {
-    console.log(`Deleted brand: ${brandToDelete?.name}`);
+    toast.success(`Đã xóa thương hiệu: ${brandToDelete?.name}`);
     setIsDeleteDialogOpen(false);
     setBrandToDelete(null);
+  };
+
+  const handleOpenForm = (brand?: any) => {
+    if (brand) {
+      setEditingBrand(brand);
+      form.setValue('name', brand.name);
+      form.setValue('website', brand.website || '');
+      setPreviewLogo(brand.logo);
+    } else {
+      setEditingBrand(null);
+      form.reset();
+      setPreviewLogo(null);
+    }
+    setIsFormDialogOpen(true);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      form.setValue('logo', file);
+      setPreviewLogo(URL.createObjectURL(file));
+    }
+  };
+
+  const clearFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    form.setValue('logo', undefined);
+    setPreviewLogo(editingBrand?.logo || null);
+  };
+
+  const uploadLogoImage = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+      const response = await uploadImageMutation.mutateAsync(formData);
+      return response.imageUrl;
+    } catch (error) {
+      toast.error('Không thể tải lên hình ảnh');
+      throw error;
+    }
+  };
+
+  const onSubmit = async (values: BrandFormValues) => {
+    let logoUrl = editingBrand?.logo || null;
+
+    try {
+      if (values.logo && (values.logo as File).name) {
+        logoUrl = await uploadLogoImage(values.logo as File);
+      }
+
+      const payload = {
+        name: values.name,
+        website: values.website,
+        logo: logoUrl,
+      };
+
+      if (editingBrand) {
+        updateBrandMutation.mutate(
+          {
+            brandId: editingBrand._id,
+            payload,
+          },
+          {
+            onSuccess: () => {
+              toast.success(`Đã cập nhật thương hiệu: ${values.name}`);
+              setIsFormDialogOpen(false);
+              refetch();
+            },
+            onError: (error) => {
+              toast.error(`Lỗi: ${error.message}`);
+            },
+          }
+        );
+      } else {
+        createBrandMutation.mutate(payload, {
+          onSuccess: () => {
+            toast.success(`Đã thêm thương hiệu: ${values.name}`);
+            setIsFormDialogOpen(false);
+            refetch();
+          },
+          onError: (error) => {
+            toast.error(`Lỗi: ${error.message}`);
+          },
+        });
+      }
+    } catch (error: any) {
+      toast.error(`Lỗi: ${error.message}`);
+    }
   };
 
   return (
     <div className="p-6 space-y-6">
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <h1 className="text-2xl font-bold">Quản lý thương hiệu</h1>
-        <Button className="flex items-center">
+        <Button 
+          className="flex items-center" 
+          onClick={() => handleOpenForm()}
+          disabled={createBrandMutation.isPending}
+        >
           <Icon path={mdiPlus} size={0.8} className="mr-2" />
           Thêm thương hiệu mới
         </Button>
@@ -110,13 +234,19 @@ export default function BrandsPage() {
                 <TableRow>
                   <TableHead className="w-[100px]">Logo</TableHead>
                   <TableHead>Tên thương hiệu</TableHead>
-                  <TableHead>Mô tả</TableHead>
                   <TableHead>Website</TableHead>
+                  <TableHead>Trạng thái</TableHead>
                   <TableHead className="text-right">Thao tác</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredBrands.length === 0 ? (
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center h-24">
+                      <p className="text-gray-400">Đang tải dữ liệu...</p>
+                    </TableCell>
+                  </TableRow>
+                ) : filteredBrands.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={5} className="text-center h-24">
                       <p className="text-gray-400">Không tìm thấy thương hiệu nào phù hợp.</p>
@@ -124,13 +254,13 @@ export default function BrandsPage() {
                   </TableRow>
                 ) : (
                   filteredBrands.map((brand: any) => (
-                    <TableRow key={brand.id} className="hover:bg-gray-50">
+                    <TableRow key={brand._id} className="hover:bg-gray-50">
                       <TableCell>
                         <div 
                           className="relative h-14 w-14 cursor-pointer border rounded overflow-hidden flex items-center justify-center bg-gray-50"
                           onClick={() => setViewLogo(brand.logo)}
                         >
-                          {brand.logo && (
+                          {brand.logo ? (
                             <Image
                               src={brand.logo}
                               alt={brand.name}
@@ -138,15 +268,12 @@ export default function BrandsPage() {
                               height={56}
                               className="object-contain"
                             />
+                          ) : (
+                            <Icon path={mdiImageOutline} size={1.2} className="text-gray-400" />
                           )}
                         </div>
                       </TableCell>
                       <TableCell className="font-medium">{brand.name}</TableCell>
-                      <TableCell className="max-w-xs">
-                        <div className="truncate">
-                          {brand.description || "Không có mô tả"}
-                        </div>
-                      </TableCell>
                       <TableCell>
                         {brand.website ? (
                           <a 
@@ -164,6 +291,13 @@ export default function BrandsPage() {
                           <span className="text-gray-400">Không có website</span>
                         )}
                       </TableCell>
+                      <TableCell>
+                        <span className={`px-2 py-1 rounded-full text-xs ${
+                          brand.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {brand.status === 'active' ? 'Đang hoạt động' : 'Đã vô hiệu'}
+                        </span>
+                      </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end space-x-2">
                           <Button
@@ -171,6 +305,8 @@ export default function BrandsPage() {
                             variant="ghost"
                             className="h-8 w-8"
                             title="Chỉnh sửa"
+                            onClick={() => handleOpenForm(brand)}
+                            disabled={updateBrandMutation.isPending}
                           >
                             <Icon path={mdiPencil} size={0.7} />
                           </Button>
@@ -200,7 +336,7 @@ export default function BrandsPage() {
           <DialogHeader>
             <DialogTitle>Xác nhận xóa thương hiệu</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa thương hiệu <span className="font-medium">{brandToDelete?.name}</span>? Hành động này không thể hoàn tác và sẽ xóa tất cả sản phẩm liên quan.
+              Bạn có chắc chắn muốn xóa thương hiệu <span className="font-medium">{brandToDelete?.name}</span>? Hành động này không thể hoàn tác và sẽ ảnh hưởng đến các sản phẩm liên quan.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -209,6 +345,123 @@ export default function BrandsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Form Dialog */}
+      <AnimatePresence>
+        {isFormDialogOpen && (
+          <Dialog open={isFormDialogOpen} onOpenChange={setIsFormDialogOpen}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>{editingBrand ? 'Chỉnh sửa thương hiệu' : 'Thêm thương hiệu mới'}</DialogTitle>
+              </DialogHeader>
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Tên thương hiệu</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Nhập tên thương hiệu" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="website"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Website (không bắt buộc)</FormLabel>
+                          <FormControl>
+                            <Input placeholder="https://example.com" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="logo"
+                      render={({ field: { onChange, value, ...rest } }) => (
+                        <FormItem>
+                          <FormLabel>Logo thương hiệu</FormLabel>
+                          <div className="space-y-4">
+                            {previewLogo && (
+                              <div className="relative h-32 w-32 mx-auto border rounded">
+                                <Image
+                                  src={previewLogo}
+                                  alt="Logo preview"
+                                  fill
+                                  className="object-contain p-2"
+                                />
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-100 text-red-500 hover:bg-red-200"
+                                  onClick={clearFileInput}
+                                >
+                                  <Icon path={mdiClose} size={0.6} />
+                                </Button>
+                              </div>
+                            )}
+                            <div className="flex items-center justify-center">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="w-full flex items-center justify-center"
+                                onClick={() => fileInputRef.current?.click()}
+                              >
+                                <Icon path={mdiUpload} size={0.8} className="mr-2" />
+                                {previewLogo ? 'Chọn logo khác' : 'Tải lên logo'}
+                              </Button>
+                              <input
+                                type="file"
+                                ref={fileInputRef}
+                                accept={ACCEPTED_IMAGE_TYPES.join(',')}
+                                className="hidden"
+                                onChange={handleFileChange}
+                                {...rest}
+                              />
+                            </div>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <DialogFooter className="pt-2">
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => setIsFormDialogOpen(false)}
+                      >
+                        Hủy
+                      </Button>
+                      <Button 
+                        type="submit"
+                        disabled={createBrandMutation.isPending || updateBrandMutation.isPending || uploadImageMutation.isPending}
+                      >
+                        {uploadImageMutation.isPending ? 'Đang tải lên...' : editingBrand ? 'Cập nhật' : 'Thêm mới'}
+                      </Button>
+                    </DialogFooter>
+                  </form>
+                </Form>
+              </motion.div>
+            </DialogContent>
+          </Dialog>
+        )}
+      </AnimatePresence>
 
       {/* Logo Viewer Dialog */}
       <Dialog open={!!viewLogo} onOpenChange={(open) => !open && setViewLogo(null)}>

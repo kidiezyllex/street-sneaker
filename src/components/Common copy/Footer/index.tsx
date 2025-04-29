@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Icon } from '@mdi/react';
 import { mdiFacebook, mdiInstagram, mdiTwitter, mdiYoutube, mdiMapMarker, mdiPhone, mdiEmail, mdiArrowRight } from '@mdi/js';
 
-// Component cho social media links
+//                                                                                                                     Component cho social media links
 const SocialLink = ({ href, icon, color }: { href: string; icon: string; color: string }) => (
   <motion.div
     whileHover={{ y: -5 }}
@@ -23,7 +23,7 @@ const SocialLink = ({ href, icon, color }: { href: string; icon: string; color: 
   </motion.div>
 );
 
-// Component cho footer links
+//                                                                                                                     Component cho footer links
 const FooterLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
   <motion.li
     whileHover={{ x: 5 }}

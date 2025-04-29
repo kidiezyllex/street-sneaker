@@ -56,7 +56,7 @@ import {
 import Image from 'next/image';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-// Types
+//                                                                                                                     Types
 type AccountRole = 'admin' | 'manager' | 'staff' | 'customer';
 type AccountStatus = 'active' | 'inactive' | 'locked';
 
@@ -73,7 +73,7 @@ interface Account {
   lastLoginAt?: string;
 }
 
-// Mock data
+//                                                                                                                     Mock data
 const mockAccounts: Account[] = [
   {
     id: '1',
@@ -179,26 +179,26 @@ export default function AccountsPage() {
   const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] = useState(false);
   const [accountToResetPassword, setAccountToResetPassword] = useState<Account | null>(null);
 
-  // Format date
+  //                                                                                                                     Format date
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'Chưa đăng nhập';
     const date = new Date(dateString);
     return format(date, 'dd/MM/yyyy HH:mm', { locale: vi });
   };
 
-  // Filter accounts based on search query, role, and status
+  //                                                                                                                     Filter accounts based on search query, role, and status
   const filteredAccounts = mockAccounts.filter((account) => {
-    // Filter by role
+    //                                                                                                                     Filter by role
     if (selectedRole !== 'all' && account.role !== selectedRole) {
       return false;
     }
 
-    // Filter by status
+    //                                                                                                                     Filter by status
     if (selectedStatus !== 'all' && account.status !== selectedStatus) {
       return false;
     }
 
-    // Search query filter
+    //                                                                                                                     Search query filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       return (
@@ -212,7 +212,7 @@ export default function AccountsPage() {
     return true;
   });
 
-  // Get role badge
+  //                                                                                                                     Get role badge
   const getRoleBadge = (role: AccountRole) => {
     switch (role) {
       case 'admin':
@@ -226,7 +226,7 @@ export default function AccountsPage() {
     }
   };
 
-  // Get status badge
+  //                                                                                                                     Get status badge
   const getStatusBadge = (status: AccountStatus) => {
     switch (status) {
       case 'active':
@@ -238,7 +238,7 @@ export default function AccountsPage() {
     }
   };
 
-  // Get initials for avatar fallback
+  //                                                                                                                     Get initials for avatar fallback
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -248,29 +248,29 @@ export default function AccountsPage() {
       .substring(0, 2);
   };
 
-  // Handle delete account
+  //                                                                                                                     Handle delete account
   const handleDeleteAccount = (account: Account) => {
     setAccountToDelete(account);
     setIsDeleteDialogOpen(true);
   };
 
-  // Confirm delete account
+  //                                                                                                                     Confirm delete account
   const confirmDeleteAccount = () => {
-    // Add logic to delete account here
+    //                                                                                                                     Add logic to delete account here
     console.log(`Deleted account: ${accountToDelete?.username}`);
     setIsDeleteDialogOpen(false);
     setAccountToDelete(null);
   };
 
-  // Handle reset password
+  //                                                                                                                     Handle reset password
   const handleResetPassword = (account: Account) => {
     setAccountToResetPassword(account);
     setIsResetPasswordDialogOpen(true);
   };
 
-  // Confirm reset password
+  //                                                                                                                     Confirm reset password
   const confirmResetPassword = () => {
-    // Add logic to reset password here
+    //                                                                                                                     Add logic to reset password here
     console.log(`Reset password for: ${accountToResetPassword?.username}`);
     setIsResetPasswordDialogOpen(false);
     setAccountToResetPassword(null);

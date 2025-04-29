@@ -28,29 +28,114 @@ import {
 } from "@mdi/js";
 
 import { useCartStore } from "@/stores/useCartStore";
-import { useFilterStore } from "@/stores/useFilterStore";
+import useFilterStore from "@/stores/useFilterStore";
 import { RatingStars } from "@/components/Common/RatingStars";
 
-// Hàm format giá
+//                                                                                                                     Hàm format giá
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 };
 
+// Tạo các hàm helper thiếu trong useFilterStore
+const getActiveFilters = (state: any) => {
+  const activeFilters: any[] = [];
+  
+  if (state.selectedBrands.length > 0) {
+    state.selectedBrands.forEach((brand: string) => {
+      activeFilters.push({
+        name: 'Thương hiệu',
+        value: brand,
+        remove: () => state.removeBrandFilter(brand)
+      });
+    });
+  }
+  
+  if (state.selectedCategories.length > 0) {
+    state.selectedCategories.forEach((category: string) => {
+      activeFilters.push({
+        name: 'Danh mục',
+        value: category,
+        remove: () => state.removeCategoryFilter(category)
+      });
+    });
+  }
+  
+  if (state.selectedColors.length > 0) {
+    state.selectedColors.forEach((color: string) => {
+      activeFilters.push({
+        name: 'Màu sắc',
+        value: color,
+        remove: () => state.removeColorFilter(color)
+      });
+    });
+  }
+  
+  if (state.selectedSizes.length > 0) {
+    state.selectedSizes.forEach((size: string) => {
+      activeFilters.push({
+        name: 'Kích cỡ',
+        value: size,
+        remove: () => state.removeSizeFilter(size)
+      });
+    });
+  }
+  
+  return activeFilters;
+};
+
 const ProductsPage = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const { products, brands, categories, colors, sizes, loading, filteredProducts } = useFilterStore((state) => state);
-  const { addToCart } = useCartStore((state) => state);
+  const [loading, setLoading] = useState(true);
   
-  // Lấy dữ liệu khi component mount
-  useEffect(() => {
-    useFilterStore.getState().loadAllData();
-  }, []);
+  const filterStore = useFilterStore();
+  const { 
+    products, 
+    brands, 
+    categories, 
+    colors, 
+    sizes, 
+    filteredProducts,
+    selectedBrands,
+    selectedCategories,
+    selectedColors,
+    selectedSizes,
+    priceRange,
+    sortOption,
+    addBrandFilter,
+    removeBrandFilter,
+    addCategoryFilter,
+    removeCategoryFilter,
+    addColorFilter,
+    removeColorFilter,
+    addSizeFilter,
+    removeSizeFilter,
+    setPriceRange,
+    setSortOption,
+    resetFilters,
+    loadData
+  } = filterStore;
+  
+  const { addToCart, items, totalItems, totalPrice } = useCartStore();
 
   const toggleFilter = () => {
     setIsFilterOpen(!isFilterOpen);
   };
 
-  // Component sản phẩm
+  //                                                                                                                     Lấy dữ liệu khi component mount
+  useEffect(() => {
+    const loadAllData = async () => {
+      setLoading(true);
+      loadData();
+      setLoading(false);
+    };
+    
+    loadAllData();
+  }, [loadData]);
+
+  // Sử dụng helper function với store hiện tại
+  const activeFilters = getActiveFilters(filterStore);
+
+  //                                                                                                                     Component sản phẩm
   const ProductCard = ({ product }: { product: any }) => {
     return (
       <Card className="group overflow-hidden border border-gray-200 hover:border-primary/50 transition-all duration-300 h-full flex flex-col">
@@ -166,13 +251,13 @@ const ProductsPage = () => {
               <Icon path={mdiCart} size={0.8} className="mr-2 text-primary" />
               Giỏ hàng
             </h3>
-            <Badge className="bg-primary">{useCartStore.getState().totalItems}</Badge>
+            <Badge className="bg-primary">{totalItems}</Badge>
           </div>
           
           <div className="border-t border-b py-2 my-2">
             <div className="font-medium flex justify-between">
               <span>Tổng cộng:</span>
-              <span>{formatPrice(useCartStore.getState().totalPrice)}</span>
+              <span>{formatPrice(totalPrice)}</span>
             </div>
           </div>
           
@@ -182,10 +267,10 @@ const ProductsPage = () => {
             </Link>
           </div>
           
-          {useCartStore.getState().items.length > 0 && (
+          {items.length > 0 && (
             <div className="mt-3 max-h-48 overflow-y-auto">
               <p className="text-xs text-gray-500 mb-2">Sản phẩm gần đây:</p>
-              {useCartStore.getState().items.slice(0, 3).map((item) => (
+              {items.slice(0, 3).map((item) => (
                 <div key={item.id} className="flex items-center gap-2 mb-2 border-b pb-2">
                   <div className="w-10 h-10 relative flex-shrink-0">
                     <Image 
@@ -227,16 +312,16 @@ const ProductsPage = () => {
             <div className="mb-6">
               <h3 className="font-medium mb-3">Thương hiệu</h3>
               <div className="space-y-2">
-                {brands.map((brand) => (
+                {brands.map((brand: any) => (
                   <div key={brand.id} className="flex items-center gap-2">
                     <Checkbox 
                       id={`brand-${brand.id}`} 
-                      checked={useFilterStore.getState().selectedBrands.includes(brand.name)}
+                      checked={selectedBrands.includes(brand.name)}
                       onCheckedChange={(checked) => {
                         if (checked) {
-                          useFilterStore.getState().addBrandFilter(brand.name);
+                          addBrandFilter(brand.name);
                         } else {
-                          useFilterStore.getState().removeBrandFilter(brand.name);
+                          removeBrandFilter(brand.name);
                         }
                       }}
                     />
@@ -252,16 +337,16 @@ const ProductsPage = () => {
             <div className="mb-6">
               <h3 className="font-medium mb-3">Danh mục</h3>
               <div className="space-y-2">
-                {categories.map((category) => (
+                {categories.map((category: any) => (
                   <div key={category.id} className="flex items-center gap-2">
                     <Checkbox 
                       id={`category-${category.id}`} 
-                      checked={useFilterStore.getState().selectedCategories.includes(category.name)}
+                      checked={selectedCategories.includes(category.name)}
                       onCheckedChange={(checked) => {
                         if (checked) {
-                          useFilterStore.getState().addCategoryFilter(category.name);
+                          addCategoryFilter(category.name);
                         } else {
-                          useFilterStore.getState().removeCategoryFilter(category.name);
+                          removeCategoryFilter(category.name);
                         }
                       }}
                     />
@@ -277,15 +362,15 @@ const ProductsPage = () => {
             <div className="mb-6">
               <h3 className="font-medium mb-3">Giá</h3>
               <Slider
-                defaultValue={[useFilterStore.getState().priceRange[0], useFilterStore.getState().priceRange[1]]}
+                defaultValue={[priceRange[0], priceRange[1]]}
                 max={5000000}
                 step={100000}
-                onValueChange={(value) => useFilterStore.getState().setPriceRange(value as [number, number])}
+                onValueChange={(value) => setPriceRange(value as [number, number])}
                 className="mb-4"
               />
               <div className="flex justify-between text-sm">
-                <span>{formatPrice(useFilterStore.getState().priceRange[0])}</span>
-                <span>{formatPrice(useFilterStore.getState().priceRange[1])}</span>
+                <span>{formatPrice(priceRange[0])}</span>
+                <span>{formatPrice(priceRange[1])}</span>
               </div>
             </div>
             
@@ -293,16 +378,16 @@ const ProductsPage = () => {
             <div className="mb-6">
               <h3 className="font-medium mb-3">Kích cỡ</h3>
               <div className="flex flex-wrap gap-2">
-                {sizes.map((size) => (
+                {sizes.map((size: any) => (
                   <Badge 
                     key={size.id}
-                    variant={useFilterStore.getState().selectedSizes.includes(size.name) ? "default" : "outline"}
+                    variant={selectedSizes.includes(size.name) ? "default" : "outline"}
                     className="cursor-pointer"
                     onClick={() => {
-                      if (useFilterStore.getState().selectedSizes.includes(size.name)) {
-                        useFilterStore.getState().removeSizeFilter(size.name);
+                      if (selectedSizes.includes(size.name)) {
+                        removeSizeFilter(size.name);
                       } else {
-                        useFilterStore.getState().addSizeFilter(size.name);
+                        addSizeFilter(size.name);
                       }
                     }}
                   >
@@ -316,12 +401,12 @@ const ProductsPage = () => {
             <div className="mb-6">
               <h3 className="font-medium mb-3">Màu sắc</h3>
               <div className="flex flex-wrap gap-3">
-                {colors.map((color) => (
+                {colors.map((color: any) => (
                   <div 
                     key={color.id}
                     className={`
                       w-6 h-6 rounded-full border cursor-pointer relative
-                      ${useFilterStore.getState().selectedColors.includes(color.name) ? 'ring-2 ring-primary ring-offset-2' : ''}
+                      ${selectedColors.includes(color.name) ? 'ring-2 ring-primary ring-offset-2' : ''}
                     `}
                     style={{ 
                       backgroundColor: color.name === 'Đen' ? 'black' : 
@@ -334,14 +419,14 @@ const ProductsPage = () => {
                                      color.name === 'Xanh rêu' ? '#4D7C0F' : '#9CA3AF'
                     }}
                     onClick={() => {
-                      if (useFilterStore.getState().selectedColors.includes(color.name)) {
-                        useFilterStore.getState().removeColorFilter(color.name);
+                      if (selectedColors.includes(color.name)) {
+                        removeColorFilter(color.name);
                       } else {
-                        useFilterStore.getState().addColorFilter(color.name);
+                        addColorFilter(color.name);
                       }
                     }}
                   >
-                    {useFilterStore.getState().selectedColors.includes(color.name) && (
+                    {selectedColors.includes(color.name) && (
                       <span className="absolute inset-0 flex items-center justify-center text-white">
                         <Icon path={mdiClose} size={0.5} />
                       </span>
@@ -354,7 +439,7 @@ const ProductsPage = () => {
             <Button 
               variant="outline" 
               className="w-full"
-              onClick={() => useFilterStore.getState().resetFilters()}
+              onClick={() => resetFilters()}
             >
               Xóa bộ lọc
             </Button>
@@ -365,7 +450,6 @@ const ProductsPage = () => {
         <div className="flex-1">
           <div className="bg-white p-4 border border-gray-200 rounded-lg mb-6">
             <div className="flex flex-wrap gap-4 items-center justify-between">
-              {/* Filter button trên mobile */}
               <Button 
                 variant="outline" 
                 className="md:hidden flex items-center gap-2"
@@ -375,10 +459,9 @@ const ProductsPage = () => {
                 Bộ lọc
               </Button>
               
-              {/* Hiển thị các bộ lọc đang áp dụng */}
               <div className="flex-1">
                 <div className="flex flex-wrap gap-2">
-                  {useFilterStore.getState().getActiveFilters().map((filter, index) => (
+                  {activeFilters.map((filter: any, index: number) => (
                     <Badge key={index} variant="secondary" className="px-3 py-1">
                       {filter.name}: {filter.value}
                       <button 
@@ -396,8 +479,8 @@ const ProductsPage = () => {
               <div className="flex items-center gap-2">
                 <span className="text-sm hidden sm:inline-block">Sắp xếp:</span>
                 <Select 
-                  value={useFilterStore.getState().sortOption} 
-                  onValueChange={(value) => useFilterStore.getState().setSortOption(value)}
+                  value={sortOption} 
+                  onValueChange={(value) => setSortOption(value)}
                 >
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Mặc định" />
@@ -425,13 +508,13 @@ const ProductsPage = () => {
                 <div className="flex flex-col items-center justify-center h-96 gap-4">
                   <h3 className="text-xl font-medium">Không tìm thấy sản phẩm</h3>
                   <p className="text-gray-500">Vui lòng thử các tùy chọn lọc khác</p>
-                  <Button onClick={() => useFilterStore.getState().resetFilters()}>
+                  <Button onClick={() => resetFilters()}>
                     Xóa bộ lọc
                   </Button>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {filteredProducts.map((product) => (
+                  {filteredProducts.map((product: any) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
                 </div>
@@ -464,16 +547,16 @@ const ProductsPage = () => {
             <div className="mb-6 border-b pb-4">
               <h3 className="font-medium mb-3">Thương hiệu</h3>
               <div className="space-y-2">
-                {brands.map((brand) => (
+                {brands.map((brand: any) => (
                   <div key={brand.id} className="flex items-center gap-2">
                     <Checkbox 
                       id={`mobile-brand-${brand.id}`} 
-                      checked={useFilterStore.getState().selectedBrands.includes(brand.name)}
+                      checked={selectedBrands.includes(brand.name)}
                       onCheckedChange={(checked) => {
                         if (checked) {
-                          useFilterStore.getState().addBrandFilter(brand.name);
+                          addBrandFilter(brand.name);
                         } else {
-                          useFilterStore.getState().removeBrandFilter(brand.name);
+                          removeBrandFilter(brand.name);
                         }
                       }}
                     />
@@ -489,16 +572,16 @@ const ProductsPage = () => {
             <div className="mb-6 border-b pb-4">
               <h3 className="font-medium mb-3">Danh mục</h3>
               <div className="space-y-2">
-                {categories.map((category) => (
+                {categories.map((category: any) => (
                   <div key={category.id} className="flex items-center gap-2">
                     <Checkbox 
                       id={`mobile-category-${category.id}`} 
-                      checked={useFilterStore.getState().selectedCategories.includes(category.name)}
+                      checked={selectedCategories.includes(category.name)}
                       onCheckedChange={(checked) => {
                         if (checked) {
-                          useFilterStore.getState().addCategoryFilter(category.name);
+                          addCategoryFilter(category.name);
                         } else {
-                          useFilterStore.getState().removeCategoryFilter(category.name);
+                          removeCategoryFilter(category.name);
                         }
                       }}
                     />
@@ -514,15 +597,15 @@ const ProductsPage = () => {
             <div className="mb-6 border-b pb-4">
               <h3 className="font-medium mb-3">Giá</h3>
               <Slider
-                defaultValue={[useFilterStore.getState().priceRange[0], useFilterStore.getState().priceRange[1]]}
+                defaultValue={[priceRange[0], priceRange[1]]}
                 max={5000000}
                 step={100000}
-                onValueChange={(value) => useFilterStore.getState().setPriceRange(value as [number, number])}
+                onValueChange={(value) => setPriceRange(value as [number, number])}
                 className="mb-4"
               />
               <div className="flex justify-between text-sm">
-                <span>{formatPrice(useFilterStore.getState().priceRange[0])}</span>
-                <span>{formatPrice(useFilterStore.getState().priceRange[1])}</span>
+                <span>{formatPrice(priceRange[0])}</span>
+                <span>{formatPrice(priceRange[1])}</span>
               </div>
             </div>
             
@@ -530,16 +613,16 @@ const ProductsPage = () => {
             <div className="mb-6 border-b pb-4">
               <h3 className="font-medium mb-3">Kích cỡ</h3>
               <div className="flex flex-wrap gap-2">
-                {sizes.map((size) => (
+                {sizes.map((size: any) => (
                   <Badge 
                     key={size.id}
-                    variant={useFilterStore.getState().selectedSizes.includes(size.name) ? "default" : "outline"}
+                    variant={selectedSizes.includes(size.name) ? "default" : "outline"}
                     className="cursor-pointer"
                     onClick={() => {
-                      if (useFilterStore.getState().selectedSizes.includes(size.name)) {
-                        useFilterStore.getState().removeSizeFilter(size.name);
+                      if (selectedSizes.includes(size.name)) {
+                        removeSizeFilter(size.name);
                       } else {
-                        useFilterStore.getState().addSizeFilter(size.name);
+                        addSizeFilter(size.name);
                       }
                     }}
                   >
@@ -553,12 +636,12 @@ const ProductsPage = () => {
             <div className="mb-6 border-b pb-4">
               <h3 className="font-medium mb-3">Màu sắc</h3>
               <div className="flex flex-wrap gap-3">
-                {colors.map((color) => (
+                {colors.map((color: any) => (
                   <div 
                     key={color.id}
                     className={`
                       w-6 h-6 rounded-full border cursor-pointer relative
-                      ${useFilterStore.getState().selectedColors.includes(color.name) ? 'ring-2 ring-primary ring-offset-2' : ''}
+                      ${selectedColors.includes(color.name) ? 'ring-2 ring-primary ring-offset-2' : ''}
                     `}
                     style={{ 
                       backgroundColor: color.name === 'Đen' ? 'black' : 
@@ -571,14 +654,14 @@ const ProductsPage = () => {
                                      color.name === 'Xanh rêu' ? '#4D7C0F' : '#9CA3AF'
                     }}
                     onClick={() => {
-                      if (useFilterStore.getState().selectedColors.includes(color.name)) {
-                        useFilterStore.getState().removeColorFilter(color.name);
+                      if (selectedColors.includes(color.name)) {
+                        removeColorFilter(color.name);
                       } else {
-                        useFilterStore.getState().addColorFilter(color.name);
+                        addColorFilter(color.name);
                       }
                     }}
                   >
-                    {useFilterStore.getState().selectedColors.includes(color.name) && (
+                    {selectedColors.includes(color.name) && (
                       <span className="absolute inset-0 flex items-center justify-center text-white">
                         <Icon path={mdiClose} size={0.5} />
                       </span>
@@ -592,7 +675,7 @@ const ProductsPage = () => {
               <Button 
                 variant="outline" 
                 className="flex-1"
-                onClick={() => useFilterStore.getState().resetFilters()}
+                onClick={() => resetFilters()}
               >
                 Xóa bộ lọc
               </Button>
@@ -611,7 +694,7 @@ const ProductsPage = () => {
   );
 };
 
-// Mảng ảnh dự phòng nếu sản phẩm không có ảnh
+//                                                                                                                     Mảng ảnh dự phòng nếu sản phẩm không có ảnh
 const fallbackImages = [
   "https://templatekits.themewarrior.com/champz/wp-content/uploads/sites/45/2022/01/product-dummy-300x300.jpg",
   "https://templatekits.themewarrior.com/champz/wp-content/uploads/sites/45/2022/01/product-dummy-1-300x300.jpg",

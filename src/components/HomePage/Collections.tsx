@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Icon } from '@mdi/react';
 import { mdiArrowRight } from '@mdi/js';
 
-// Dữ liệu cho các bộ sưu tập
+//                                                                                                                     Dữ liệu cho các bộ sưu tập
 const collectionsData = [
     {
         id: 1,
@@ -30,7 +30,7 @@ const collectionsData = [
     }
 ];
 
-// Component thẻ bộ sưu tập
+//                                                                                                                     Component thẻ bộ sưu tập
 const CollectionCard = ({ collection, animation }: {
     collection: typeof collectionsData[0],
     animation: "fadeInLeft" | "fadeInUp" | "fadeInRight"
@@ -38,7 +38,7 @@ const CollectionCard = ({ collection, animation }: {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true, margin: "-10% 0px" });
 
-    // Xác định animation dựa trên prop
+    //                                                                                                                     Xác định animation dựa trên prop
     const getInitialAnimation = () => {
         switch (animation) {
             case "fadeInLeft":

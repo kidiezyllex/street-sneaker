@@ -6,7 +6,7 @@ import { Icon } from '@mdi/react';
 import { mdiCartOutline, mdiHeartOutline, mdiArrowRight } from '@mdi/js';
 import { useRef } from 'react';
 
-// Dữ liệu mẫu cho sản phẩm
+//                                                                                                                     Dữ liệu mẫu cho sản phẩm
 const featuredProducts = [
   {
     id: 1,
@@ -42,7 +42,7 @@ const featuredProducts = [
   },
 ];
 
-// Format giá tiền theo VND
+//                                                                                                                     Format giá tiền theo VND
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', {
     style: 'currency',
@@ -50,7 +50,7 @@ const formatPrice = (price: number) => {
   }).format(price);
 };
 
-// Component thẻ sản phẩm
+//                                                                                                                     Component thẻ sản phẩm
 const ProductCard = ({ product, index }: { product: typeof featuredProducts[0], index: number }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });

@@ -42,17 +42,17 @@ function PasswordStrengthIndicator({ password }: { password: string }) {
 
     let currentStrength = 0
 
-    // Độ dài
+    //                                                                                                                     Độ dài
     if (password.length >= 8) currentStrength += 20
     if (password.length >= 12) currentStrength += 10
 
-    // Độ phức tạp
+    //                                                                                                                     Độ phức tạp
     if (/[a-z]/.test(password)) currentStrength += 10
     if (/[A-Z]/.test(password)) currentStrength += 15
     if (/[0-9]/.test(password)) currentStrength += 15
     if (/[^a-zA-Z0-9]/.test(password)) currentStrength += 20
 
-    // Kiểm tra mẫu dễ đoán
+    //                                                                                                                     Kiểm tra mẫu dễ đoán
     const commonPatterns = /123456|password|qwerty|abc123/i
     if (commonPatterns.test(password)) {
       currentStrength = Math.max(currentStrength - 30, 0)
@@ -60,7 +60,7 @@ function PasswordStrengthIndicator({ password }: { password: string }) {
 
     setStrength(currentStrength)
 
-    // Cập nhật thông báo
+    //                                                                                                                     Cập nhật thông báo
     if (currentStrength < 40) {
       setMessage("Mật khẩu yếu")
     } else if (currentStrength < 70) {
@@ -116,7 +116,7 @@ function ChangePasswordForm() {
         description: "Mật khẩu của bạn đã được cập nhật",
       })
       
-      // Đợi toast hiển thị xong rồi chuyển hướng
+      //                                                                                                                     Đợi toast hiển thị xong rồi chuyển hướng
       setTimeout(() => {
         router.push("/profile")
       }, 2000)

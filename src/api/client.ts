@@ -20,14 +20,12 @@ import {
 
 import { sendGet, sendPost, sendPut, sendDelete } from "./axios";
 
-// Trang chủ
 export const getHomeData = async (): Promise<IHomeResponse> => {
   const res = await sendGet("/client/home");
   const data: IHomeResponse = res;
   return data;
 };
 
-// Sản phẩm
 export const getNewProducts = async (page: number = 1, limit: number = 12): Promise<IProductsResponse> => {
   const res = await sendGet("/client/products/new", { params: { page, limit } });
   const data: IProductsResponse = res;
@@ -64,7 +62,6 @@ export const filterProducts = async (params: IClientFilter = {}): Promise<IProdu
   return data;
 };
 
-// Thanh toán
 export const checkout = async (payload: ICheckoutPayload): Promise<IOrderDetailResponse> => {
   const res = await sendPost("/client/checkout", payload);
   const data: IOrderDetailResponse = res;
@@ -77,7 +74,6 @@ export const getPaymentMethods = async (): Promise<IPaymentMethodsResponse> => {
   return data;
 };
 
-// Đơn hàng
 export const getOrders = async (page: number = 1, limit: number = 10, status?: string): Promise<IOrdersResponse> => {
   const res = await sendGet("/client/orders", { params: { page, limit, status } });
   const data: IOrdersResponse = res;
@@ -90,7 +86,6 @@ export const getOrderDetails = async (orderId: string): Promise<IOrderDetailResp
   return data;
 };
 
-// Hồ sơ khách hàng
 export const getProfile = async (): Promise<IProfileResponse> => {
   const res = await sendGet("/client/profile");
   const data: IProfileResponse = res;
@@ -103,7 +98,6 @@ export const updateProfile = async (payload: IProfileUpdate): Promise<IProfileRe
   return data;
 };
 
-// Địa chỉ giao hàng
 export const getAddresses = async (): Promise<IAddressesResponse> => {
   const res = await sendGet("/client/addresses");
   const data: IAddressesResponse = res;
@@ -126,4 +120,4 @@ export const deleteAddress = async (addressId: string): Promise<IAddressesRespon
   const res = await sendDelete(`/client/addresses/${addressId}`);
   const data: IAddressesResponse = res;
   return data;
-}; 
+};
