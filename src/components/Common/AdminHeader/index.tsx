@@ -6,6 +6,7 @@ import SearchBar from './SearchBar';
 import LanguageSelector from './LanguageSelector';
 import NotificationDropdown from './NotificationDropdown';
 import UserMenu from './UserMenu';
+import CartIcon from '@/components/ui/CartIcon';
 
 export default function AdminHeader() {
   const { toggle } = useMenuSidebar();
@@ -25,9 +26,10 @@ export default function AdminHeader() {
         <SearchBar />
       </div>
       
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-4">
         <LanguageSelector />
         <NotificationDropdown />
+        <CartIcon />
         <UserMenu />
       </div>
     </header>

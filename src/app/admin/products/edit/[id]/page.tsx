@@ -20,13 +20,14 @@ import { Icon } from '@mdi/react';
 import { mdiPlus, mdiTrashCanOutline, mdiArrowLeft, mdiLoading, mdiUpload, mdiImageOutline } from '@mdi/js';
 import { AnimatePresence, motion } from 'framer-motion';
 import ProductVariantForm from '@/components/ProductPage/ProductVariantForm';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function EditProductPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { id } = params;
   const [activeTab, setActiveTab] = useState('info');
   const [uploading, setUploading] = useState(false);
-  
+
   const { data: productData, isLoading, isError } = useProductDetail(id);
   const updateProduct = useUpdateProduct();
   const updateProductStatus = useUpdateProductStatus();
@@ -39,7 +40,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
   useEffect(() => {
     if (productData && productData.data) {
       const product = productData.data;
-      
+
       setProductUpdate({
         name: product.name,
         brand: typeof product.brand === 'string' ? product.brand : product.brand.name,
@@ -69,7 +70,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
   const handleStatusChange = async (checked: boolean) => {
     const newStatus = checked ? 'HOAT_DONG' : 'KHONG_HOAT_DONG';
     const payload: IProductStatusUpdate = { status: newStatus };
-    
+
     try {
       await updateProductStatus.mutateAsync(
         { productId: id, payload },
@@ -89,7 +90,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
     const payload: IProductStockUpdate = {
       variantUpdates: [{ variantId, stock }]
     };
-    
+
     try {
       await updateProductStock.mutateAsync(
         { productId: id, payload },
@@ -109,21 +110,21 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
       setUploading(true);
       const formData = createFormData(file);
       const result = await uploadImage.mutateAsync(formData);
-      
+
       // Xác định biến thể cần cập nhật ảnh
       const variant = productData?.data.variants.find(v => v._id === variantId);
       if (!variant) {
         toast.error('Không tìm thấy biến thể');
         return;
       }
-      
+
       const newImages = [...variant.images, result.imageUrl];
-      
+
       const payload: IProductImageUpdate = {
         variantId,
         images: newImages
       };
-      
+
       await updateProductImages.mutateAsync(
         { productId: id, payload },
         {
@@ -147,14 +148,14 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
         toast.error('Không tìm thấy biến thể');
         return;
       }
-      
+
       const newImages = variant.images.filter((_, i) => i !== imageIndex);
-      
+
       const payload: IProductImageUpdate = {
         variantId,
         images: newImages
       };
-      
+
       await updateProductImages.mutateAsync(
         { productId: id, payload },
         {
@@ -170,7 +171,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
 
   const handleUpdateInfo = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       await updateProduct.mutateAsync(
         { productId: id, payload: productUpdate },
@@ -256,8 +257,8 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
 
         <Card className="text-center p-6">
           <p className="text-red-500 mb-4">Đã xảy ra lỗi khi tải thông tin sản phẩm.</p>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => router.back()}
           >
             Quay lại
@@ -271,27 +272,22 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
 
   return (
     <div className="space-y-6">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/admin">Trang chủ</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/admin/products">Sản phẩm</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Chỉnh sửa sản phẩm</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
-      <div className="flex justify-between items-center">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold">Chỉnh sửa sản phẩm</h1>
-          <p className="text-sm text-gray-500">Mã: {product.code}</p>
-        </div>
+      <div className='flex justify-between items-start'>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="#">Quản lý sản phẩm</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Chỉnh sửa sản phẩm</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
         <Button
           variant="outline"
           onClick={() => router.back()}
@@ -301,7 +297,6 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
           Quay lại
         </Button>
       </div>
-
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="grid w-full md:w-[500px] grid-cols-3">
           <TabsTrigger value="info">Thông tin cơ bản</TabsTrigger>
@@ -309,13 +304,13 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
           <TabsTrigger value="status">Trạng thái</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="info" className="space-y-4">
-          <Card>
+        <TabsContent value="info" className="space-y-4 text-maintext">
+          <Card className="mb-6">
             <CardHeader>
               <CardTitle>Thông tin cơ bản</CardTitle>
             </CardHeader>
             <form onSubmit={handleUpdateInfo}>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 text-maintext">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">Tên sản phẩm</Label>
@@ -330,56 +325,59 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
 
                   <div className="space-y-2">
                     <Label htmlFor="brand">Thương hiệu</Label>
-                    <select
-                      id="brand"
-                      name="brand"
+                    <Select
                       value={productUpdate.brand || ''}
-                      onChange={handleSelectChange}
-                      className="w-full p-2 border rounded-md"
+                      onValueChange={(value) => setProductUpdate({ ...productUpdate, brand: value })}
                     >
-                      <option value="">Chọn thương hiệu</option>
-                      {['Nike', 'Adidas', 'Puma', 'Converse', 'Vans'].map(brand => (
-                        <option key={brand} value={brand}>
-                          {brand}
-                        </option>
-                      ))}
-                    </select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn thương hiệu" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {['Nike', 'Adidas', 'Puma', 'Converse', 'Vans'].map(brand => (
+                          <SelectItem key={brand} value={brand}>
+                            {brand}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="category">Danh mục</Label>
-                    <select
-                      id="category"
-                      name="category"
+                    <Select
                       value={productUpdate.category || ''}
-                      onChange={handleSelectChange}
-                      className="w-full p-2 border rounded-md"
+                      onValueChange={(value) => setProductUpdate({ ...productUpdate, category: value })}
                     >
-                      <option value="">Chọn danh mục</option>
-                      {['Giày thể thao', 'Giày chạy bộ', 'Giày đá bóng', 'Giày thời trang'].map(category => (
-                        <option key={category} value={category}>
-                          {category}
-                        </option>
-                      ))}
-                    </select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn danh mục" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {['Giày thể thao', 'Giày chạy bộ', 'Giày đá bóng', 'Giày thời trang'].map(category => (
+                          <SelectItem key={category} value={category}>
+                            {category}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="material">Chất liệu</Label>
-                    <select
-                      id="material"
-                      name="material"
+                    <Select
                       value={productUpdate.material || ''}
-                      onChange={handleSelectChange}
-                      className="w-full p-2 border rounded-md"
+                      onValueChange={(value) => setProductUpdate({ ...productUpdate, material: value })}
                     >
-                      <option value="">Chọn chất liệu</option>
-                      {['Canvas', 'Da', 'Vải', 'Nhựa', 'Cao su'].map(material => (
-                        <option key={material} value={material}>
-                          {material}
-                        </option>
-                      ))}
-                    </select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn chất liệu" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {['Canvas', 'Da', 'Vải', 'Nhựa', 'Cao su'].map(material => (
+                          <SelectItem key={material} value={material}>
+                            {material}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div className="space-y-2">
@@ -408,11 +406,11 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                   />
                 </div>
               </CardContent>
-              <CardFooter>
-                <Button 
+              <CardFooter className="flex justify-end">
+                <Button
                   type="submit"
                   disabled={updateProduct.isPending}
-                  className="ml-auto flex items-center gap-2"
+                  className="flex items-center gap-2"
                 >
                   {updateProduct.isPending ? (
                     <>
@@ -428,8 +426,8 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
           </Card>
         </TabsContent>
 
-        <TabsContent value="variants" className="space-y-4">
-          <Card>
+        <TabsContent value="variants" className="space-y-4 text-maintext">
+          <Card className="mb-6">
             <CardHeader>
               <CardTitle>Biến thể sản phẩm</CardTitle>
             </CardHeader>
@@ -460,7 +458,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                       <div className="space-y-2">
-                        <Label htmlFor={`stock-${variant._id}`}>Số lượng tồn kho</Label>
+                        <Label htmlFor={`stock-${variant._id}`} className="text-maintext">Số lượng tồn kho</Label>
                         <div className="flex gap-2">
                           <Input
                             id={`stock-${variant._id}`}
@@ -488,7 +486,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Hình ảnh sản phẩm</Label>
+                      <Label className="text-maintext">Hình ảnh sản phẩm</Label>
                       <div className="flex flex-col gap-4">
                         <div className="flex items-center gap-2">
                           <input
@@ -577,18 +575,18 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
           </Card>
         </TabsContent>
 
-        <TabsContent value="status" className="space-y-4">
-          <Card>
+        <TabsContent value="status" className="space-y-4 text-maintext">
+          <Card className="mb-6">
             <CardHeader>
               <CardTitle>Trạng thái sản phẩm</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between px-4 py-3 border rounded-md">
                 <div>
-                  <h3 className="font-medium">Trạng thái hoạt động</h3>
+                  <h3 className="font-medium text-maintext">Trạng thái hoạt động</h3>
                   <p className="text-sm text-gray-500">
-                    {productUpdate.status === 'HOAT_DONG' 
-                      ? 'Sản phẩm đang được hiển thị và có thể mua' 
+                    {productUpdate.status === 'HOAT_DONG'
+                      ? 'Sản phẩm đang được hiển thị và có thể mua'
                       : 'Sản phẩm đang bị ẩn và không thể mua'}
                   </p>
                 </div>

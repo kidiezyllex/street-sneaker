@@ -75,7 +75,7 @@ export default function DashboardLayout({
         )}
       >
         <div className="flex flex-col h-full">
-          <Link href="/dashboard">
+          <Link href="/admin/statistics">
             <div className={cn("p-4 border-b !max-h-16", isOpen ? "" : "justify-center")}>
               {isOpen ? (
                 <h1 className="text-2xl font-bold text-[#2C8B3D] select-none cursor-pointer">

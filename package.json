@@ -45,6 +45,7 @@
     "embla-carousel-react": "^8.5.2",
     "flag-icons": "^7.3.2",
     "framer-motion": "^12.6.3",
+    "html5-qrcode": "^2.3.8",
     "js-cookie": "^3.0.5",
     "lenis": "^1.2.3",
     "lodash": "^4.17.21",

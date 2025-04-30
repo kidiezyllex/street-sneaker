@@ -10,13 +10,34 @@ import {
 import {
   IProductsResponse,
   IProductResponse,
-  IActionResponse
+  IActionResponse,
+  IProductFiltersResponse
 } from "@/interface/response/product";
 import { sendGet, sendPost, sendPut, sendPatch, sendDelete } from "./axios";
 
+// Helper function để chuyển đổi params thành query string đúng format
+const convertParamsToQueryString = (params: any): any => {
+  // Xử lý các mảng để chuyển đổi thành chuỗi phân cách bằng dấu phẩy
+  const formattedParams: any = {};
+  
+  for (const key in params) {
+    if (params[key] !== undefined) {
+      // Nếu là mảng thì nối thành chuỗi ngăn cách bởi dấu phẩy
+      if (Array.isArray(params[key])) {
+        formattedParams[key] = params[key].join(',');
+      } else {
+        formattedParams[key] = params[key];
+      }
+    }
+  }
+  
+  return formattedParams;
+};
+
 // === Admin/Staff Product API ===
 export const getAllProducts = async (params: IProductFilter): Promise<IProductsResponse> => {
-  const res = await sendGet("/products", { params });
+  const formattedParams = convertParamsToQueryString(params);
+  const res = await sendGet("/products", { params: formattedParams });
   return res as IProductsResponse;
 };
 
@@ -57,6 +78,12 @@ export const deleteProduct = async (productId: string): Promise<IActionResponse>
 
 // === Public Product API ===
 export const searchProducts = async (params: IProductSearchParams): Promise<IProductsResponse> => {
-  const res = await sendGet("/products/search", { params });
+  const formattedParams = convertParamsToQueryString(params);
+  const res = await sendGet("/products/search", { params: formattedParams });
   return res as IProductsResponse;
+};
+
+export const getAllFilters = async (): Promise<IProductFiltersResponse> => {
+  const res = await sendGet("/products/filters");
+  return res as IProductFiltersResponse;
 }; 

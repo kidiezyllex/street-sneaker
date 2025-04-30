@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCreateProduct } from '@/hooks/product';
 import { useUploadImage } from '@/hooks/upload';
@@ -15,10 +15,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { createFormData } from '@/utils/cloudinary';
 import { toast } from 'sonner';
 import { Icon } from '@mdi/react';
-import { mdiPlus, mdiTrashCanOutline, mdiArrowLeft, mdiLoading, mdiUpload } from '@mdi/js';
+import { mdiPlus, mdiTrashCanOutline, mdiArrowLeft, mdiLoading, mdiUpload, mdiLogin, mdiAccount, mdiRefresh } from '@mdi/js';
 import { AnimatePresence, motion } from 'framer-motion';
 import ProductVariantForm from '@/components/ProductPage/ProductVariantForm';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import cookies from 'js-cookie';
 
 const initialProduct: IProductCreate = {
   name: '',
@@ -43,10 +44,11 @@ export default function CreateProductPage() {
   const [product, setProduct] = useState<IProductCreate>(initialProduct);
   const [activeTab, setActiveTab] = useState('info');
   const [uploading, setUploading] = useState(false);
-  
+  const [tokenValid, setTokenValid] = useState<boolean | null>(null);
+  const accessToken = cookies.get('accessToken');
+  console.log(accessToken);
   const createProduct = useCreateProduct();
   const uploadImage = useUploadImage();
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     if (name === 'weight') {
@@ -90,13 +92,13 @@ export default function CreateProductPage() {
       setUploading(true);
       const formData = createFormData(file);
       const result = await uploadImage.mutateAsync(formData);
-      
+
       const newVariants = [...product.variants];
       newVariants[variantIndex].images = [
         ...(newVariants[variantIndex].images || []),
         result.imageUrl
       ];
-      
+
       setProduct({ ...product, variants: newVariants });
       toast.success('Tải lên hình ảnh thành công');
     } catch (error) {
@@ -134,9 +136,14 @@ export default function CreateProductPage() {
         onSuccess: () => {
           toast.success('Tạo sản phẩm thành công');
           router.push('/admin/products');
+        },
+        onError: (error) => {
+          console.error('Chi tiết lỗi:', error);
+          toast.error('Tạo sản phẩm thất bại: ' + (error.message || 'Không xác định'));
         }
       });
     } catch (error) {
+      console.error('Lỗi khi tạo sản phẩm:', error);
       toast.error('Tạo sản phẩm thất bại');
     }
   };
@@ -147,26 +154,25 @@ export default function CreateProductPage() {
     return isBasicInfoValid && areVariantsValid;
   };
 
+
   return (
     <div className="space-y-6">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/admin">Trang chủ</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/admin/products">Sản phẩm</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Thêm sản phẩm mới</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Thêm sản phẩm mới</h1>
+      <div className='flex justify-between items-start'>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="#">Quản lý sản phẩm</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Thêm sản phẩm mới</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
         <Button
           variant="outline"
           onClick={() => router.back()}
@@ -291,7 +297,7 @@ export default function CreateProductPage() {
                 >
                   Hủy
                 </Button>
-                <Button 
+                <Button
                   type="button"
                   onClick={() => setActiveTab('variants')}
                 >
@@ -305,9 +311,9 @@ export default function CreateProductPage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Biến thể sản phẩm</CardTitle>
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={handleAddVariant}
                   className="flex items-center gap-1 mr-4"
                 >
@@ -329,9 +335,9 @@ export default function CreateProductPage() {
                       <div className="flex justify-between items-center mb-4">
                         <h3 className="text-lg font-medium">Biến thể #{index + 1}</h3>
                         {product.variants.length > 1 && (
-                          <Button 
-                            type="button" 
-                            variant="destructive" 
+                          <Button
+                            type="button"
+                            variant="destructive"
                             size="sm"
                             onClick={() => handleRemoveVariant(index)}
                             className="flex items-center gap-1"
@@ -361,7 +367,7 @@ export default function CreateProductPage() {
                 >
                   Quay lại
                 </Button>
-                <Button 
+                <Button
                   type="submit"
                   disabled={!isFormValid() || createProduct.isPending}
                   className="flex items-center gap-2"

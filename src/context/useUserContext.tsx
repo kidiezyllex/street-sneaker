@@ -7,6 +7,7 @@ import { useProfile } from "@/hooks/authentication"
 import { IProfileResponse } from "@/interface/response/authentication"
 import { QueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
+import cookies from "js-cookie"
 
 const queryClient = new QueryClient()
 
@@ -48,11 +49,12 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   const loginUser = (userInfo: any, token: string) => {
     setUser(userInfo)
-    setTokenToLocalStorage(token)
     if (typeof window !== "undefined") {
       localStorage.setItem("accessToken", token)
+      localStorage.setItem("token", JSON.stringify({ token }))
     }
-    setCookie("accessToken", token)
+    cookies.set("accessToken", token, { expires: 7 })
+    setTokenToLocalStorage(token)
     fetchUserProfile()
   }
 
@@ -123,8 +125,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== "undefined") {
       localStorage.removeItem("userProfile")
       localStorage.removeItem("accessToken")
+      localStorage.removeItem("token")
     }
-    deleteCookie("accessToken")
+    cookies.remove("accessToken")
     router.push("/sign-in")
     queryClient.clear()
   }

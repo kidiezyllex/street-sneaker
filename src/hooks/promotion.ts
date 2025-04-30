@@ -24,8 +24,6 @@ import {
   IActionResponse
 } from "@/interface/response/promotion";
 
-// === Admin Promotion Hooks ===
-
 export const usePromotions = (params: IPromotionFilter = {}): UseQueryResult<IPromotionsResponse, Error> => {
   return useQuery<IPromotionsResponse, Error>({
     queryKey: ["promotions", params],

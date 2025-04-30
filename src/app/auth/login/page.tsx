@@ -40,7 +40,7 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
   const onSubmit = async (data: LoginFormValues) => {
     try {
       const response = await signInMutation.mutateAsync(data)
-      if (response && response.data?.token && response.data?.account) {
+      if (response && response.success && response.data?.token && response.data?.account) {
         loginUser(response.data?.account, response.data?.token)
         toast.success("Đăng nhập thành công", {
           description: "Chào mừng bạn trở lại Street Sneaker!",

@@ -94,7 +94,7 @@ const AccountDropdown = () => {
                     {profile?.data?.role === "ADMIN" && (
                         <motion.div variants={itemAnimation} transition={{ delay: 0.07 }}>
                             <DropdownMenuItem asChild>
-                                <Link href="/dashboard" className="flex items-center cursor-pointer">
+                                <Link href="/admin/statistics" className="flex items-center cursor-pointer">
                                     <Icon path={mdiViewDashboard} size={0.7} className="mr-2" />
                                     Dashboard
                                 </Link>

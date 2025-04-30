@@ -10,6 +10,7 @@ import { useUser } from "@/context/useUserContext"
 import { logout } from "@/api/axios"
 import { useRouter } from "next/navigation"
 import { ItemType } from "antd/es/menu/interface"
+import CartIcon from "@/components/ui/CartIcon"
 
 interface LanguageOption {
     code: string
@@ -178,12 +179,9 @@ export function Header() {
                         </Dropdown>
 
                         {/* Shopping Cart */}
-                        <Link href="/cart" className="flex items-center px-2">
-                            <div className="relative flex items-center">
-                                <Icon path={mdiCart} size={1} color="#E3E6E6" />
-                                <span className="ml-1 font-bold text-gray-400 text-sm transition-all duration-300 hover:!text-white/80">{cartItemCount} giỏ hàng</span>
-                            </div>
-                        </Link>
+                        <div className="px-2">
+                            <CartIcon className="text-white" />
+                        </div>
                     </nav>
                 </div>
 
@@ -204,16 +202,9 @@ export function Header() {
                         >
                             <Icon path={mdiMagnify} size={0.9} />
                         </button>
-                        <Link href="/cart" className="text-gray-300 hover:text-white p-1">
-                            <div className="relative">
-                                <Icon path={mdiCart} size={0.9} />
-                                {cartItemCount > 0 && (
-                                    <span className="absolute -top-1 -right-1 bg-[#febd69] !text-[#374151] text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                                        {cartItemCount}
-                                    </span>
-                                )}
-                            </div>
-                        </Link>
+                        <div className="p-1">
+                            <CartIcon className="text-white" />
+                        </div>
                         <button
                             onClick={toggleMobileMenu}
                             className="mr-2 text-gray-300 hover:text-white"

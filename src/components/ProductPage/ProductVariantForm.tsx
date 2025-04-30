@@ -62,7 +62,9 @@ const ProductVariantForm: React.FC<ProductVariantFormProps> = ({
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      await onImageUpload(files[0]);
+      for (let i = 0; i < files.length; i++) {
+        await onImageUpload(files[i]);
+      }
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -169,6 +171,7 @@ const ProductVariantForm: React.FC<ProductVariantFormProps> = ({
               ref={fileInputRef}
               onChange={handleFileChange}
               accept="image/*"
+              multiple
               className="hidden"
             />
             <Button
@@ -209,7 +212,7 @@ const ProductVariantForm: React.FC<ProductVariantFormProps> = ({
                       src={checkImageUrl(image)}
                       alt={`Variant image ${index + 1}`}
                       fill
-                      className="object-cover"
+                      className="object-contain"
                     />
                     <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center">
                       <Button

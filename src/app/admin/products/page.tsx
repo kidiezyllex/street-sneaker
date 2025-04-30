@@ -15,6 +15,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { checkImageUrl } from '@/lib/utils';
+import { Table, TableHeader, TableBody, TableRow, TableCell, TableHead } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function ProductsPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -26,6 +29,8 @@ export default function ProductsPage() {
   const { data, isLoading, isError } = useProducts(filters);
   const deleteProduct = useDeleteProduct();
   const queryClient = useQueryClient();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     const debounce = setTimeout(() => {
@@ -85,30 +90,30 @@ export default function ProductsPage() {
 
   return (
     <div className="space-y-6">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="#">Quản lý sản phẩm</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Sản phẩm</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-        <h1 className="text-2xl font-bold mb-4 md:mb-0">Quản lý sản phẩm</h1>
+      <div className='flex justify-between items-start'>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="#">Quản lý sản phẩm</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Sản phẩm</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
         <Link
           href="/admin/products/create"
-          className="inline-flex items-center bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90 transition-colors"
         >
-          <Icon path={mdiPlus} size={0.9} className="mr-2" />
-          Thêm sản phẩm mới
+          <Button>
+            <Icon path={mdiPlus} size={0.9} />
+            Thêm sản phẩm mới
+          </Button>
+          
         </Link>
       </div>
 
@@ -150,52 +155,51 @@ export default function ProductsPage() {
               >
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm text-gray-700 mb-2 font-semibold">
                       Thương hiệu
                     </label>
-                    <select
-                      className="w-full border rounded-md p-2"
-                      value={filters.brand || ''}
-                      onChange={(e) => handleFilterChange('brand', e.target.value)}
-                    >
-                      <option value="">Tất cả thương hiệu</option>
-                      {['Nike', 'Adidas', 'Puma', 'Converse', 'Vans'].map((brand) => (
-                        <option key={brand} value={brand}>
-                          {brand}
-                        </option>
-                      ))}
-                    </select>
+                    <Select value={filters.brand || ''} onValueChange={(value) => handleFilterChange('brand', value === 'all' ? undefined : value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Tất cả thương hiệu" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Tất cả thương hiệu</SelectItem>
+                        {['Nike', 'Adidas', 'Puma', 'Converse', 'Vans'].map((brand) => (
+                          <SelectItem key={brand} value={brand}>{brand}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm text-gray-700 mb-2 font-semibold">
                       Danh mục
                     </label>
-                    <select
-                      className="w-full border rounded-md p-2"
-                      value={filters.category || ''}
-                      onChange={(e) => handleFilterChange('category', e.target.value)}
-                    >
-                      <option value="">Tất cả danh mục</option>
-                      {['Giày thể thao', 'Giày chạy bộ', 'Giày đá bóng', 'Giày thời trang'].map((category) => (
-                        <option key={category} value={category}>
-                          {category}
-                        </option>
-                      ))}
-                    </select>
+                    <Select value={filters.category || ''} onValueChange={(value) => handleFilterChange('category', value === 'all' ? undefined : value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Tất cả danh mục" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Tất cả danh mục</SelectItem>
+                        {['Giày thể thao', 'Giày chạy bộ', 'Giày đá bóng', 'Giày thời trang'].map((category) => (
+                          <SelectItem key={category} value={category}>{category}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm text-gray-700 mb-2 font-semibold">
                       Trạng thái
                     </label>
-                    <select
-                      className="w-full border rounded-md p-2"
-                      value={filters.status || ''}
-                      onChange={(e) => handleFilterChange('status', e.target.value as 'HOAT_DONG' | 'KHONG_HOAT_DONG' | undefined)}
-                    >
-                      <option value="">Tất cả trạng thái</option>
-                      <option value="HOAT_DONG">Hoạt động</option>
-                      <option value="KHONG_HOAT_DONG">Không hoạt động</option>
-                    </select>
+                    <Select value={filters.status || ''} onValueChange={(value) => handleFilterChange('status', value === 'all' ? undefined : value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Tất cả trạng thái" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                        <SelectItem value="HOAT_DONG">Hoạt động</SelectItem>
+                        <SelectItem value="KHONG_HOAT_DONG">Không hoạt động</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </motion.div>
@@ -219,8 +223,8 @@ export default function ProductsPage() {
       ) : isError ? (
         <div className="bg-white rounded-lg shadow-sm p-6 text-center">
           <p className="text-red-500">Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại sau.</p>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="mt-4"
             onClick={() => queryClient.invalidateQueries({ queryKey: ['products'] })}
           >
@@ -230,24 +234,24 @@ export default function ProductsPage() {
       ) : (
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-4 text-left text-sm font-medium text-gray-500">Hình ảnh</th>
-                  <th className="px-4 py-4 text-left text-sm font-medium text-gray-500">Sản phẩm</th>
-                  <th className="px-4 py-4 text-left text-sm font-medium text-gray-500">Mã</th>
-                  <th className="px-4 py-4 text-left text-sm font-medium text-gray-500">Thương hiệu</th>
-                  <th className="px-4 py-4 text-left text-sm font-medium text-gray-500">Danh mục</th>
-                  <th className="px-4 py-4 text-left text-sm font-medium text-gray-500">Trạng thái</th>
-                  <th className="px-4 py-4 text-left text-sm font-medium text-gray-500">Ngày cập nhật</th>
-                  <th className="px-4 py-4 text-right text-sm font-medium text-gray-500">Thao tác</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Hình ảnh</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Sản phẩm</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Mã</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Thương hiệu</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Danh mục</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Trạng thái</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Ngày cập nhật</TableHead>
+                  <TableHead className="px-4 py-4 text-right text-sm font-medium text-gray-500">Thao tác</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {data?.data.products.length ? (
                   data.data.products.map((product) => (
-                    <tr key={product._id} className="hover:bg-gray-50">
-                      <td className="px-4 py-4 whitespace-nowrap">
+                    <TableRow key={product._id} className="hover:bg-gray-50">
+                      <TableCell className="px-4 py-4 whitespace-nowrap">
                         <div className="relative h-12 w-12 rounded-md overflow-hidden bg-gray-100">
                           <Image
                             src={checkImageUrl(product.variants[0]?.images?.[0])}
@@ -256,66 +260,88 @@ export default function ProductsPage() {
                             className="object-cover"
                           />
                         </div>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
+                      </TableCell>
+                      <TableCell className="px-4 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">{product.name}</div>
                         <div className="text-xs text-gray-500">
                           {product.variants.length} biến thể
                         </div>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                      </TableCell>
+                      <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                         {product.code}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                      </TableCell>
+                      <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                         {typeof product.brand === 'string' ? product.brand : product.brand.name}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                      </TableCell>
+                      <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                         {typeof product.category === 'string' ? product.category : product.category.name}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs rounded-full ${
-                          product.status === 'HOAT_DONG' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-red-100 text-red-800'
-                        }`}>
+                      </TableCell>
+                      <TableCell className="px-4 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 text-xs rounded-full ${product.status === 'HOAT_DONG'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800'
+                          }`}>
                           {product.status === 'HOAT_DONG' ? 'Hoạt động' : 'Không hoạt động'}
                         </span>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                      </TableCell>
+                      <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                         {formatDate(product.updatedAt)}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-right">
+                      </TableCell>
+                      <TableCell className="px-4 py-4 whitespace-nowrap text-right">
                         <div className="flex justify-end space-x-2">
-                          <Link
-                            href={`/admin/products/edit/${product._id}`}
-                            className="text-blue-500 hover:text-blue-700"
-                          >
-                            <Icon path={mdiPencilOutline} size={0.9} />
+                          <Link href={`/admin/products/edit/${product._id}`}>
+                            <Button variant="ghost" className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 bg-gray-100">
+                              <Icon path={mdiPencilOutline} size={0.8} className='text-blue-400 hover:text-blue-500' />
+                            </Button>
                           </Link>
-                          <button
-                            className="text-red-500 hover:text-red-700"
-                            onClick={() => handleDeleteProduct(product._id)}
-                            disabled={deleteProduct.isPending}
-                          >
-                            {deleteProduct.isPending && deleteProduct.variables === product._id ? (
-                              <Icon path={mdiLoading} size={0.9} className="animate-spin" />
-                            ) : (
-                              <Icon path={mdiTrashCanOutline} size={0.9} />
-                            )}
-                          </button>
+                          <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 bg-gray-100"
+                                onClick={() => {
+                                  setProductToDelete(product._id);
+                                  setIsDeleteDialogOpen(true);
+                                }}
+                              >
+                                {deleteProduct.isPending && deleteProduct.variables === product._id ? (
+                                  <Icon path={mdiLoading} size={0.8} className="animate-spin" />
+                                ) : (
+                                  <Icon path={mdiTrashCanOutline} size={0.8} className='text-red-400 hover:text-red-500' />
+                                )}
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Xác nhận xóa sản phẩm</DialogTitle>
+                              </DialogHeader>
+                              <p>Bạn có chắc chắn muốn xóa sản phẩm này không?</p>
+                              <DialogFooter>
+                                <DialogClose asChild>
+                                  <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Hủy</Button>
+                                </DialogClose>
+                                <Button variant="destructive" onClick={() => {
+                                  if (productToDelete) {
+                                    handleDeleteProduct(productToDelete);
+                                    setIsDeleteDialogOpen(false);
+                                  }
+                                }}>Xóa</Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))
                 ) : (
-                  <tr>
-                    <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
+                  <TableRow>
+                    <TableCell colSpan={8} className="px-4 py-8 text-center text-gray-500">
                       Không tìm thấy sản phẩm nào
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 )}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
 
           {data?.data.pagination && data.data.pagination.totalPages > 1 && (

@@ -13,7 +13,8 @@ import {
   updateProductStock,
   updateProductImages,
   deleteProduct,
-  searchProducts
+  searchProducts,
+  getAllFilters
 } from "@/api/product";
 import {
   IProductFilter,
@@ -27,10 +28,9 @@ import {
 import {
   IProductsResponse,
   IProductResponse,
-  IActionResponse
+  IActionResponse,
+  IProductFiltersResponse
 } from "@/interface/response/product";
-
-// === Admin/Staff Product Hooks ===
 
 export const useProducts = (params: IProductFilter = {}): UseQueryResult<IProductsResponse, Error> => {
   return useQuery<IProductsResponse, Error>({
@@ -62,7 +62,7 @@ export const useUpdateProduct = (): UseMutationResult<
     mutationFn: ({ productId, payload }) => updateProduct(productId, payload),
   });
 };
-
+  
 export const useUpdateProductStatus = (): UseMutationResult<
   IProductResponse,
   Error,
@@ -99,12 +99,23 @@ export const useDeleteProduct = (): UseMutationResult<IActionResponse, Error, st
   });
 };
 
-// === Public Product Hooks ===
-
 export const useSearchProducts = (params: IProductSearchParams): UseQueryResult<IProductsResponse, Error> => {
   return useQuery<IProductsResponse, Error>({
     queryKey: ["searchProducts", params],
     queryFn: () => searchProducts(params),
-    enabled: !!params.keyword, // Chỉ fetch khi có từ khóa tìm kiếm
+    enabled: !!params.keyword || 
+             !!params.brands || 
+             !!params.categories || 
+             !!params.color || 
+             !!params.size || 
+             !!params.minPrice || 
+             !!params.maxPrice, 
+  });
+}; 
+
+export const useProductFilters = (): UseQueryResult<IProductFiltersResponse, Error> => {
+  return useQuery<IProductFiltersResponse, Error>({
+    queryKey: ["productFilters"],
+    queryFn: () => getAllFilters(),
   });
 }; 

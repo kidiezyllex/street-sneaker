@@ -75,4 +75,22 @@ export interface IActionResponse {
   success: boolean;
   message: string;
   data?: any;
+}
+
+export interface IPriceRange {
+  min: number;
+  max: number;
+}
+
+export interface IProductFiltersResponse {
+  success: boolean;
+  message: string;
+  data: {
+    brands: IBrand[];
+    categories: ICategory[];
+    materials: IMaterial[];
+    colors: IColor[];
+    sizes: ISize[];
+    priceRange: IPriceRange;
+  };
 } 

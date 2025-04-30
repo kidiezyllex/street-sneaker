@@ -62,8 +62,6 @@ export const useDeletePayment = (): UseMutationResult<IActionResponse, Error, st
   });
 };
 
-// === Order Payments Hooks ===
-
 export const useOrderPayments = (orderId: string): UseQueryResult<IPaymentsResponse, Error> => {
   return useQuery<IPaymentsResponse, Error>({
     queryKey: ["orderPayments", orderId],

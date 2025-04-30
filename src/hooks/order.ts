@@ -22,7 +22,6 @@ import {
 import {
   IOrdersResponse,
   IOrderResponse,
-  IActionResponse
 } from "@/interface/response/order";
 
 export const useOrders = (params: IOrderFilter = {}): UseQueryResult<IOrdersResponse, Error> => {
@@ -71,8 +70,6 @@ export const useCancelOrder = (): UseMutationResult<IOrderResponse, Error, strin
     mutationFn: (orderId) => cancelOrder(orderId),
   });
 };
-
-// === User Order Hooks ===
 
 export const useMyOrders = (params: IOrderFilter = {}): UseQueryResult<IOrdersResponse, Error> => {
   return useQuery<IOrdersResponse, Error>({

@@ -1,13 +1,19 @@
 export interface IProductFilter {
-  name?: string;
-  brand?: string;
-  category?: string;
-  material?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  status?: 'HOAT_DONG' | 'KHONG_HOAT_DONG';
   page?: number;
   limit?: number;
+  name?: string;
+  brand?: string;
+  brands?: string[] | string;
+  category?: string;
+  categories?: string[] | string;
+  material?: string;
+  color?: string;
+  size?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  status?: string;
 }
 
 export interface IProductVariant {
@@ -59,6 +65,18 @@ export interface IProductImageUpdate {
 
 export interface IProductSearchParams {
   keyword: string;
+  brand?: string;
+  brands?: string[] | string;
+  category?: string;
+  categories?: string[] | string;
+  material?: string;
+  color?: string;
+  size?: string;
+  minPrice?: number;
+  maxPrice?: number;
   page?: number;
   limit?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  status?: string;
 } 

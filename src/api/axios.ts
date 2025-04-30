@@ -7,32 +7,12 @@ interface CustomAxiosRequestConfig extends AxiosRequestConfig {
 
 function getLocalAccessToken() {
   const accessToken = cookies.get('accessToken');
-  if (!accessToken && typeof window !== 'undefined') {
-    try {
-      const accessTokenFromStorage = localStorage.getItem('accessToken');
-      if (accessTokenFromStorage) {
-        cookies.set('accessToken', accessTokenFromStorage);
-        return accessTokenFromStorage;
-      }
-      const tokenFromStorage = localStorage.getItem('token');
-      if (tokenFromStorage) {
-        const parsedToken = JSON.parse(tokenFromStorage);
-        const token = parsedToken.token || parsedToken;
-        cookies.set('accessToken', token);
-        localStorage.setItem('accessToken', token);
-        return token;
-      }
-    } catch (error) {
-      console.error('Lỗi khi lấy token từ localStorage:', error);
-    }
-  }
-  
   return accessToken;
 }
 
 const instance = axios.create({
   timeout: 3 * 60 * 1000,
-  baseURL: `https://street-sneaker-be.onrender.com/api/`,
+  baseURL: `http://localhost:5000/api/`,
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
@@ -56,10 +36,26 @@ export function logout() {
   cookies.remove("accessToken");
   localStorage?.clear();
 
-  if (location.pathname !== "/auth") {
-    window.location.replace("/auth");
+  if (location.pathname !== "/sign-in") {
+    window.location.replace("/sign-in");
   }
 }
+// instance.interceptors.response.use(
+//   (res) => {
+//     return res;
+//   },
+//   async (err) => {
+
+//     if (err.response) {
+//       if (err.response.status === 401 && !window.location.pathname.includes("sign-in") && !window.location.pathname.includes("sign-up")) {
+//         logout();
+//         return
+//       }
+
+//     }
+//     return Promise.reject(err);
+//   }
+// );
 
 export const sendGet = async (url: string, params?: any): Promise<any> => {
   const response = await instance.get(url, { params });
@@ -144,5 +140,6 @@ class ApiClient {
   }
 }
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default new ApiClient();
 
