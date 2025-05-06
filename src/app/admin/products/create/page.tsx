@@ -92,11 +92,11 @@ export default function CreateProductPage() {
       setUploading(true);
       const formData = createFormData(file);
       const result = await uploadImage.mutateAsync(formData);
-
+      console.log(result);
       const newVariants = [...product.variants];
       newVariants[variantIndex].images = [
         ...(newVariants[variantIndex].images || []),
-        result.imageUrl
+        result?.data?.imageUrl
       ];
 
       setProduct({ ...product, variants: newVariants });
