@@ -179,7 +179,7 @@ export default function ColorsPage() {
 
       <Card>
         <CardContent className="p-6">
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-4">
             <div className="relative w-full sm:w-80">
               <Input
                 placeholder="Tìm màu sắc..."

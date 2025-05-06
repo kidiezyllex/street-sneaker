@@ -55,7 +55,7 @@ export const Newsletter = () => {
               }}
               className="relative z-10"
             >
-              <Icon path={mdiEmailOutline} size={2.5} className="text-primary mx-auto mb-6" />
+              <Icon path={mdiEmailOutline} size={2.5} className="text-primary mx-auto mb-4" />
             </motion.div>
             
             <motion.h2 

@@ -334,7 +334,7 @@ export default function AccountPage() {
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               {/* Ẩn TabsList vì đã chuyển sang sidebar */}
               <div className="hidden">
-                <TabsList className="grid grid-cols-4 mb-6">
+                <TabsList className="grid grid-cols-4 mb-4">
                   <TabsTrigger value="overview">Tổng quan</TabsTrigger>
                   <TabsTrigger value="profile">Thông tin cá nhân</TabsTrigger>
                   <TabsTrigger value="password">Đổi mật khẩu</TabsTrigger>

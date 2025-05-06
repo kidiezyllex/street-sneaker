@@ -19,10 +19,7 @@ import {
   useQuery,
 } from "@tanstack/react-query";
 import cookies from "js-cookie";
-
-/**
- * Hook đăng nhập
- */
+import { useChangePassword, useUpdateUserProfile } from './account';
 export const useLogin = (): UseMutationResult<
   IAuthResponse,
   Error,
@@ -116,3 +113,6 @@ export const useRefreshToken = (): UseMutationResult<
     },
   });
 };
+
+// Re-export hooks from account
+export { useChangePassword, useUpdateUserProfile as useUpdateProfile };

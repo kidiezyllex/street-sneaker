@@ -82,7 +82,7 @@ function ProfileForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-center mb-4">
           <Avatar className="w-24 h-24 border-4 border-primary/20">
             <AvatarImage src={form.getValues("avatar") || undefined} alt="Avatar" />
             <AvatarFallback className="bg-primary/10 text-primary text-2xl">
@@ -251,7 +251,7 @@ export default function ProfilePage() {
                 <div className="flex flex-col items-center justify-center py-8">
                   <Icon path={mdiShieldAccount} size={3} className="text-primary mb-4 opacity-80" />
                   <h3 className="text-xl font-medium mb-2">Thay đổi mật khẩu tài khoản</h3>
-                  <p className="text-gray-600 dark:text-gray-400 text-center mb-6 max-w-md">
+                  <p className="text-gray-600 dark:text-gray-400 text-center mb-4 max-w-md">
                     Cập nhật mật khẩu mới để bảo vệ tài khoản của bạn khỏi các truy cập trái phép
                   </p>
                   <Link href="/profile/change-password">

@@ -1,14 +1,13 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
 
-export default function PaymentResultPage() {
+function PaymentResultContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  
   const orderId = searchParams.get('orderId');
   const success = searchParams.get('success') === 'true';
   const message = searchParams.get('message') || '';
@@ -59,5 +58,13 @@ export default function PaymentResultPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PaymentResultPage() {
+  return (
+    <Suspense fallback={<div>Đang tải...</div>}>
+      <PaymentResultContent />
+    </Suspense>
   );
 } 

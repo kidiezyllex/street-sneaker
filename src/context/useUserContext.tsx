@@ -24,28 +24,33 @@ type UserContextType = {
 
 const UserContext = createContext<UserContextType | null>(null)
 
-const setCookie = (name: string, value: string, days = 30) => {
-  const expires = new Date()
-  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000)
-  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`
-}
-
-const deleteCookie = (name: string) => {
-  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`
-}
-
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const { data: profileData, refetch: refetchProfile, isLoading: isProfileLoading } = useUserProfile()
-  const [user, setUser] = useState<null | Record<string, any>>(() => {
-    if (typeof window !== "undefined") {
-      const storedUser = localStorage.getItem("user")
-      return storedUser ? JSON.parse(storedUser) : null
-    }
-    return null
-  })
+  const [user, setUser] = useState<null | Record<string, any>>(null)
   const [profile, setProfile] = useState<IAccountResponse | null>(null)
   const [isLoadingProfile, setIsLoadingProfile] = useState<boolean>(false)
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedUser = localStorage.getItem("user")
+      if (storedUser) {
+        setUser(JSON.parse(storedUser))
+      }
+    }
+  }, [])
+
+  const setCookie = (name: string, value: string, days = 30) => {
+    if (typeof window === "undefined") return
+    const expires = new Date()
+    expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000)
+    document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`
+  }
+
+  const deleteCookie = (name: string) => {
+    if (typeof window === "undefined") return
+    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`
+  }
 
   const loginUser = (userInfo: any, token: string) => {
     setUser(userInfo)

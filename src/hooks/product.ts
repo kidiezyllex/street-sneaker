@@ -31,6 +31,7 @@ import {
   IActionResponse,
   IProductFiltersResponse
 } from "@/interface/response/product";
+import { useBrands, useCategories, useColors, useMaterials, useSizes } from './options';
 
 export const useProducts = (params: IProductFilter = {}): UseQueryResult<IProductsResponse, Error> => {
   return useQuery<IProductsResponse, Error>({
@@ -43,7 +44,7 @@ export const useProductDetail = (productId: string): UseQueryResult<IProductResp
   return useQuery<IProductResponse, Error>({
     queryKey: ["product", productId],
     queryFn: () => getProductById(productId),
-    enabled: !!productId, // Chỉ fetch khi có productId
+    enabled: !!productId, 
   });
 };
 
@@ -119,3 +120,98 @@ export const useProductFilters = (): UseQueryResult<IProductFiltersResponse, Err
     queryFn: () => getAllFilters(),
   });
 }; 
+
+export const useCreateBrand = () => {
+  return {
+    mutate: () => {},
+    isPending: false
+  };
+};
+
+export const useUpdateBrand = () => {
+  return {
+    mutate: () => {},
+    isPending: false
+  };
+};
+
+export const useCreateColor = () => {
+  return {
+    mutate: () => {},
+    isPending: false
+  };
+};
+
+export const useUpdateColor = () => {
+  return {
+    mutate: () => {},
+    isPending: false
+  };
+};
+
+export const useCreateMaterial = () => {
+  return {
+    mutate: () => {},
+    isPending: false
+  };
+};
+
+export const useUpdateMaterial = () => {
+  return {
+    mutate: () => {},
+    isPending: false
+  };
+};
+
+export const useCreateSize = () => {
+  return {
+    mutate: () => {},
+    isPending: false
+  };
+};
+
+export const useUpdateSize = () => {
+  return {
+    mutate: () => {},
+    isPending: false
+  };
+};
+
+export const useCreateCategory = () => {
+  return {
+    mutate: () => {},
+    isPending: false
+  };
+};
+
+export const useUpdateCategory = () => {
+  return {
+    mutate: () => {},
+    isPending: false
+  };
+};
+
+export const useSoles = () => {
+  return {
+    solesData: { data: [] },
+    isLoading: false,
+    refetch: () => {}
+  };
+};
+
+export const useCreateSole = () => {
+  return {
+    mutate: () => {},
+    isPending: false
+  };
+};
+
+export const useUpdateSole = () => {
+  return {
+    mutate: () => {},
+    isPending: false
+  };
+};
+
+// Re-export hooks from options.ts
+export { useBrands, useCategories, useColors, useMaterials, useSizes }; 

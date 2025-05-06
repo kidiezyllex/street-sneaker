@@ -1,10 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useToast } from '@/hooks/useToast';
 import { updateOrderPayment } from '@/services/order';
-import { createVNPayUrl } from '@/services/payment';
 import {
   Card,
   CardContent,
@@ -12,7 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export default function VNPayCallbackPage() {
+function VNPayCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { showToast } = useToast();
@@ -21,17 +20,14 @@ export default function VNPayCallbackPage() {
   useEffect(() => {
     const processPaymentResult = async () => {
       try {
-        // Lấy orderId từ localStorage
         const orderId = localStorage.getItem('pendingOrderId');
         if (!orderId) {
           throw new Error('Không tìm thấy thông tin đơn hàng');
         }
 
-        // Lấy các tham số từ URL
         const vnp_ResponseCode = searchParams.get('vnp_ResponseCode');
         const vnp_TransactionStatus = searchParams.get('vnp_TransactionStatus');
 
-        // Gọi API để cập nhật trạng thái thanh toán
         const response = await updateOrderPayment(orderId, {
           vnp_ResponseCode,
           vnp_TransactionStatus,
@@ -91,5 +87,13 @@ export default function VNPayCallbackPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function VNPayCallbackPage() {
+  return (
+    <Suspense fallback={<div>Đang tải...</div>}>
+      <VNPayCallbackContent />
+    </Suspense>
   );
 } 

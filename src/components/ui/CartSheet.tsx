@@ -6,27 +6,21 @@ import { useCartStore } from '@/stores/useCartStore';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/useToast';
-import { useRouter } from 'next/navigation';
-import { createOrder } from '@/services/order';
+import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { checkImageUrl } from '@/lib/utils';
+import { toast } from 'react-toastify';
+import { formatPrice } from '@/utils/formatters';
 
 interface CartSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
 const CartSheet: React.FC<CartSheetProps> = ({ open, onOpenChange }) => {
   const router = useRouter();
+  const pathname = usePathname();
   const { showToast } = useToast();
-  const { user } = useAuth();
   const { 
     items, 
     subtotal, 
@@ -35,12 +29,9 @@ const CartSheet: React.FC<CartSheetProps> = ({ open, onOpenChange }) => {
     total, 
     removeFromCart, 
     updateQuantity,
-    clearCart 
   } = useCartStore();
-
   const [voucher, setVoucher] = React.useState('');
   const [isProcessing, setIsProcessing] = React.useState(false);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = React.useState<string>('');
 
   const handleQuantityChange = (id: number, quantity: number) => {
     if (quantity <= 0) {
@@ -60,6 +51,7 @@ const CartSheet: React.FC<CartSheetProps> = ({ open, onOpenChange }) => {
         });
         return;
       }
+      toast.info('Thanh toán đơn hàng của bạn');
       router.push('/checkout/shipping');
       onOpenChange(false);
     } catch (error) {
@@ -74,7 +66,7 @@ const CartSheet: React.FC<CartSheetProps> = ({ open, onOpenChange }) => {
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-md flex flex-col" side="right">
+      <SheetContent className="w-full sm:max-w-md flex flex-col text-maintext p-4 pr-3" side="right">
         <SheetHeader className="border-b pb-4">
           <SheetTitle>Giỏ hàng của bạn ({items.length})</SheetTitle>
         </SheetHeader>
@@ -87,14 +79,14 @@ const CartSheet: React.FC<CartSheetProps> = ({ open, onOpenChange }) => {
             </Button>
           </div>
         ) : (
-          <>
-            <ScrollArea className="flex-1 my-4">
+          <ScrollArea className="flex-1 my-4 pr-2">
+            <>
               <div className="space-y-4 pr-4">
                 {items.map((item) => (
                   <div key={item.id} className="flex gap-4">
                     <div className="relative h-20 w-20 bg-muted rounded overflow-hidden">
                       <Image 
-                        src={item.image} 
+                        src={checkImageUrl(item.image)} 
                         alt={item.name}
                         fill
                         className="object-cover"
@@ -105,7 +97,7 @@ const CartSheet: React.FC<CartSheetProps> = ({ open, onOpenChange }) => {
                         <h4 className="font-medium line-clamp-1">{item.name}</h4>
                         <button 
                           onClick={() => removeFromCart(item.id)}
-                          className="text-muted-foreground hover:text-destructive text-sm"
+                          className="text-muted-foreground hover:text-destructive text-sm text-red-error"
                         >
                           Xóa
                         </button>
@@ -133,60 +125,70 @@ const CartSheet: React.FC<CartSheetProps> = ({ open, onOpenChange }) => {
                         <div>
                           {item.originalPrice && (
                             <span className="text-sm line-through text-muted-foreground mr-2">
-                              ${item.originalPrice.toFixed(2)}
+                              {formatPrice(item.originalPrice)}
                             </span>
                           )}
-                          <span className="font-medium">${item.price.toFixed(2)}</span>
+                          <span className="font-medium">{formatPrice(item.price)}</span>
                         </div>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-            </ScrollArea>
 
-            <div className="border-t pt-4 space-y-4">
-              <div className="flex items-center">
-                <Input 
-                  placeholder="Mã giảm giá" 
-                  className="flex-1"
-                  value={voucher}
-                  onChange={(e) => setVoucher(e.target.value)}
-                />
-                <Button variant="outline" className="ml-2">Áp dụng</Button>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Tạm tính</span>
-                  <span>${subtotal.toFixed(2)}</span>
+              <div className="border-t pt-4 space-y-4 mt-4">
+                <div className="flex items-center">
+                  <Input 
+                    placeholder="Mã giảm giá" 
+                    className="flex-1"
+                    value={voucher}
+                    onChange={(e) => setVoucher(e.target.value)}
+                  />
+                  <Button variant="default" className="ml-2">Áp dụng</Button>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Thuế</span>
-                  <span>${tax.toFixed(2)}</span>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground text-sm font-semibold">Tạm tính</span>
+                    <span>{formatPrice(subtotal)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground text-sm font-semibold">Thuế</span>
+                    <span>{formatPrice(tax)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground text-sm font-semibold">Phí vận chuyển</span>
+                    <span>{formatPrice(shipping)}</span>
+                  </div>
+                  <Separator />
+                  <div className="flex justify-between font-medium">
+                    <span className="text-sm font-semibold">Tổng</span>
+                    <span className="text-base font-semibold">{formatPrice(total)}</span>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Phí vận chuyển</span>
-                  <span>${shipping.toFixed(2)}</span>
-                </div>
-                <Separator />
-                <div className="flex justify-between font-medium">
-                  <span>Tổng</span>
-                  <span>${total.toFixed(2)}</span>
-                </div>
-              </div>
 
-              <SheetFooter className="pb-8">
-                <Button 
-                  className="w-full" 
-                  onClick={handleCheckout}
-                  disabled={isProcessing || items.length === 0}
-                >
-                  {isProcessing ? 'Đang xử lý...' : 'Thanh toán'}
-                </Button>
-              </SheetFooter>
-            </div>
-          </>
+                <SheetFooter className='flex gap-2 items-center'>
+                  <Button 
+                    variant="outline" 
+                    className="w-full" 
+                    onClick={() => {
+                      onOpenChange(false);
+                      if (!pathname.includes('products')) {
+                        router.push('/products');
+                      }
+                    }}
+                  >Tiếp tục mua hàng</Button>
+                  <Button 
+                    className="w-full" 
+                    onClick={handleCheckout}
+                    disabled={isProcessing || items.length === 0}
+                  >
+                    {isProcessing ? 'Đang xử lý...' : 'Thanh toán'}
+                  </Button>
+                </SheetFooter>
+              </div>
+            </>
+          </ScrollArea>
         )}
       </SheetContent>
     </Sheet>

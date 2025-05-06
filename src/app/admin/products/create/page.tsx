@@ -15,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { createFormData } from '@/utils/cloudinary';
 import { toast } from 'sonner';
 import { Icon } from '@mdi/react';
-import { mdiPlus, mdiTrashCanOutline, mdiArrowLeft, mdiLoading, mdiUpload, mdiLogin, mdiAccount, mdiRefresh } from '@mdi/js';
+import { mdiPlus, mdiTrashCanOutline, mdiArrowLeft, mdiLoading } from '@mdi/js';
 import { AnimatePresence, motion } from 'framer-motion';
 import ProductVariantForm from '@/components/ProductPage/ProductVariantForm';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -46,7 +46,6 @@ export default function CreateProductPage() {
   const [uploading, setUploading] = useState(false);
   const [tokenValid, setTokenValid] = useState<boolean | null>(null);
   const accessToken = cookies.get('accessToken');
-  console.log(accessToken);
   const createProduct = useCreateProduct();
   const uploadImage = useUploadImage();
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -92,7 +91,6 @@ export default function CreateProductPage() {
       setUploading(true);
       const formData = createFormData(file);
       const result = await uploadImage.mutateAsync(formData);
-      console.log(result);
       const newVariants = [...product.variants];
       newVariants[variantIndex].images = [
         ...(newVariants[variantIndex].images || []),

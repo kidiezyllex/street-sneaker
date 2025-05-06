@@ -59,7 +59,6 @@ export const CartCheckout: React.FC<CartCheckoutProps> = ({ onClose }) => {
 
   const handleCheckout = async () => {
     try {
-      console.log('Starting checkout process...');
       if (items.length === 0) {
         showToast({
           title: 'Lỗi',
@@ -70,8 +69,6 @@ export const CartCheckout: React.FC<CartCheckoutProps> = ({ onClose }) => {
       }
 
       setIsProcessing(true);
-      console.log('Creating order with items:', items);
-
       const orderData = {
         items: items.map(item => ({
           product: item.product._id,
@@ -87,11 +84,7 @@ export const CartCheckout: React.FC<CartCheckoutProps> = ({ onClose }) => {
         shippingAddress,
         paymentMethod: 'PENDING'
       };
-
-      console.log('Order data:', orderData);
-
       const response = await createOrder(orderData);
-      console.log('Order creation response:', response);
       
       if (response.success) {
         setOrderId(response.data._id);

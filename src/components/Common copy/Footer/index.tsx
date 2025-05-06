@@ -55,7 +55,7 @@ export const Footer = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">StreetSneaker</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">StreetSneaker</h3>
             <ul className="space-y-4">
               <motion.li 
                 className="flex items-start space-x-3 text-gray-600 dark:text-gray-400"
@@ -98,7 +98,7 @@ export const Footer = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Sản phẩm</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Sản phẩm</h3>
             <ul className="space-y-3">
               <FooterLink href="#">Giày nam</FooterLink>
               <FooterLink href="#">Giày nữ</FooterLink>
@@ -116,7 +116,7 @@ export const Footer = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Hỗ trợ</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Hỗ trợ</h3>
             <ul className="space-y-3">
               <FooterLink href="#">Trung tâm hỗ trợ</FooterLink>
               <FooterLink href="#">Hướng dẫn mua hàng</FooterLink>
@@ -134,7 +134,7 @@ export const Footer = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Chính sách</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Chính sách</h3>
             <ul className="space-y-3">
               <FooterLink href="#">Điều khoản sử dụng</FooterLink>
               <FooterLink href="#">Chính sách bảo mật</FooterLink>

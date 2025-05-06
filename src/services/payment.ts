@@ -10,14 +10,7 @@ export const createVNPayUrl = async (orderId: string, amount: number, orderInfo:
         message: 'Vui lòng đăng nhập để tiếp tục',
       };
     }
-
-    console.log('createVNPayUrl - params:', { orderId, amount, orderInfo });
-    
-    // Sử dụng đường dẫn cố định để tránh vấn đề với biến môi trường
     const apiUrl = 'http://localhost:5000/api/payments/create-vnpay-url';
-    console.log('Calling API:', apiUrl);
-
-    // Xử lý lỗi Internal Server Error 500
     try {
       const response = await fetch(apiUrl, {
         method: 'POST',
@@ -54,20 +47,14 @@ export const createVNPayUrl = async (orderId: string, amount: number, orderInfo:
       }
 
       const result = await response.json();
-      console.log('createVNPayUrl - response:', result);
-      
-      // Nếu backend trả về dạng { paymentUrl: "..." }
       if (result.data && result.data.paymentUrl) {
         return {
           success: true,
           data: { paymentUrl: result.data.paymentUrl }
         };
       }
-      
-      // Hoặc backend trả về dạng { success: true, data: { paymentUrl: "..." } }
       return result;
     } catch (fetchError) {
-      console.error('Fetch error:', fetchError);
       return {
         success: false,
         message: 'Lỗi kết nối đến máy chủ thanh toán. Vui lòng thử lại sau.'

@@ -9,7 +9,7 @@ import { useCartStore } from '@/stores/useCartStore';
 import { useAuth } from '@/hooks/useAuth';
 import { createOrder } from '@/services/order';
 import { createVNPayUrl } from '@/services/payment';
-import type { CreateOrderResponse } from '@/types/order';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import {
   Card,
   CardContent,
@@ -29,6 +29,15 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem
+} from '@/components/ui/select';
+import { checkImageUrl } from '@/lib/utils';
+import { formatPrice } from '@/utils/formatters';
 
 const shippingFormSchema = z.object({
   fullName: z.string().min(1, "Vui lòng nhập họ tên"),
@@ -69,7 +78,7 @@ export default function ShippingPage() {
     const checkCart = async () => {
       try {
         setIsLoading(true);
-        
+
         if (items.length === 0) {
           showToast({
             title: "Thông báo",
@@ -92,8 +101,6 @@ export default function ShippingPage() {
   const onSubmit = async (values: ShippingFormValues) => {
     try {
       setIsProcessing(true);
-      console.log('Starting order creation with data:', { values, user });
-
       const orderData = {
         customer: user?._id || '000000000000000000000000',
         items: items.map(item => ({
@@ -117,49 +124,30 @@ export default function ShippingPage() {
         },
         paymentMethod: values.paymentMethod
       };
-
-      console.log('Sending order data:', orderData);
-      
-      // Sử dụng hàm createOrderWithRetry để tạo đơn hàng với cơ chế thử lại
       const response = await createOrderWithRetry(orderData);
-      console.log('Order API response:', response);
-      
       if (response && response.success && response.data) {
-        // Xóa giỏ hàng sau khi tạo đơn hàng thành công
         clearCart();
 
         if (values.paymentMethod === 'BANK_TRANSFER') {
-          // Tạo URL thanh toán VNPay
           try {
-            console.log('Creating VNPay URL for order:', response.data._id);
-            
-            // Thêm delay để đảm bảo order đã được lưu hoàn toàn vào database
             await new Promise(resolve => setTimeout(resolve, 1000));
-            
             const vnpayResponse = await createVNPayUrl(
               response.data._id,
               response.data.total,
               `Thanh toán đơn hàng ${response.data.code || response.data._id}`,
               response.data.code
             );
-            console.log('VNPay URL response:', vnpayResponse);
-            
+
             if (vnpayResponse.success) {
               let paymentUrl = '';
-              
-              // Xử lý các cấu trúc response khác nhau từ VNPay API
               if (vnpayResponse.data?.paymentUrl) {
                 paymentUrl = vnpayResponse.data.paymentUrl;
               } else if (typeof vnpayResponse.data === 'string') {
                 paymentUrl = vnpayResponse.data;
               }
-              
+
               if (paymentUrl) {
-                // Lưu orderId để xử lý callback
                 localStorage.setItem('pendingOrderId', response.data._id);
-                
-                // Chuyển hướng đến trang thanh toán VNPay
-                console.log('Redirecting to VNPay URL:', paymentUrl);
                 window.location.href = paymentUrl;
                 return;
               } else {
@@ -169,18 +157,15 @@ export default function ShippingPage() {
               throw new Error(vnpayResponse.message || 'Không nhận được đường dẫn thanh toán');
             }
           } catch (error: any) {
-            console.error('Error creating VNPay URL:', error);
             throw new Error(error.message || 'Đã xảy ra lỗi khi tạo đường dẫn thanh toán');
           }
         } else {
-          // Thanh toán COD - chuyển đến trang thành công
           router.push(`/checkout/success?orderId=${response.data._id}`);
         }
       } else {
         throw new Error(response?.message || 'Đã xảy ra lỗi khi tạo đơn hàng');
       }
     } catch (error: any) {
-      console.error('Error during order creation:', error);
       showToast({
         title: "Lỗi",
         message: error.message || "Đã có lỗi xảy ra khi tạo đơn hàng",
@@ -191,17 +176,16 @@ export default function ShippingPage() {
     }
   };
 
-  // Hàm tạo đơn hàng với cơ chế thử lại khi gặp lỗi E11000
   const createOrderWithRetry = async (orderData: any) => {
     const maxRetries = 3;
     const retryDelay = 2000; // 2 giây giữa các lần thử
-    
+
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         // Thêm timestamp vào orderData để tránh trùng lặp
         const timestamp = Date.now();
         const uniqueSuffix = Math.floor(Math.random() * 10000);
-        
+
         // Thêm các trường giúp backend tạo mã đơn hàng duy nhất
         const modifiedOrderData = {
           ...orderData,
@@ -211,47 +195,35 @@ export default function ShippingPage() {
             attemptNumber: attempt
           }
         };
-        
-        console.log(`Attempt ${attempt}: Creating order with unique identifier:`, modifiedOrderData.metadata);
-        
         const result = await createOrder(modifiedOrderData);
-        
+
         if (result.success) {
           return result;
         }
-        
+
         // Kiểm tra lỗi duplicate key
         if (result.message && (
-            result.message.includes('duplicate key error') || 
-            result.message.includes('E11000') ||
-            result.message.includes('orderCode_1 dup key')
+          result.message.includes('duplicate key error') ||
+          result.message.includes('E11000') ||
+          result.message.includes('orderCode_1 dup key')
         )) {
-          console.log(`Attempt ${attempt}: Duplicate key error detected.`);
-          console.log(`Error message: ${result.message}`);
-          console.log(`Retrying in ${retryDelay}ms...`);
-          
           if (attempt < maxRetries) {
-            // Chờ một khoảng thời gian trước khi thử lại
             await new Promise(resolve => setTimeout(resolve, retryDelay));
             continue;
           }
         }
-        
-        // Lỗi khác hoặc đã hết số lần thử, trả về kết quả
         return result;
       } catch (error) {
         console.error(`Attempt ${attempt}: Error during order creation:`, error);
-        
+
         if (attempt >= maxRetries) {
           throw error;
         }
-        
+
         // Chờ một khoảng thời gian trước khi thử lại
         await new Promise(resolve => setTimeout(resolve, retryDelay));
       }
     }
-    
-    // Fallback nếu tất cả các lần thử đều thất bại
     return {
       success: false,
       message: `Không thể tạo đơn hàng sau ${maxRetries} lần thử. Vui lòng thử lại sau.`
@@ -267,7 +239,18 @@ export default function ShippingPage() {
   }
 
   return (
-    <div className="container max-w-6xl py-8">
+    <div className="container mx-auto px-4 py-8 relative">
+      <Breadcrumb className="mb-4">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/">Trang chủ</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Thanh toán đơn hàng</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <Card>
@@ -385,13 +368,19 @@ export default function ShippingPage() {
                       <FormItem>
                         <FormLabel>Phương thức thanh toán</FormLabel>
                         <FormControl>
-                          <select 
-                            {...field} 
-                            className="w-full border rounded px-3 py-2"
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            disabled={field.disabled}
                           >
-                            <option value="COD">Thanh toán khi nhận hàng (COD)</option>
-                            <option value="BANK_TRANSFER">Thanh toán qua VNPay</option>
-                          </select>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Chọn phương thức thanh toán" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="COD">Thanh toán khi nhận hàng (COD)</SelectItem>
+                              <SelectItem value="BANK_TRANSFER">Thanh toán qua VNPay</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -418,7 +407,7 @@ export default function ShippingPage() {
                   <div key={item.id} className="flex gap-4">
                     <div className="w-20 h-20 bg-muted rounded relative overflow-hidden">
                       <img
-                        src={item.image}
+                        src={checkImageUrl(item.image)}
                         alt={item.name}
                         className="object-cover w-full h-full"
                       />
@@ -431,7 +420,7 @@ export default function ShippingPage() {
                       </p>
                       <div className="flex justify-between mt-2">
                         <span>x{item.quantity}</span>
-                        <span>${item.price.toFixed(2)}</span>
+                        <span>{formatPrice(item.price)}</span>
                       </div>
                     </div>
                   </div>
@@ -441,19 +430,19 @@ export default function ShippingPage() {
             <CardFooter className="flex flex-col space-y-2">
               <div className="flex justify-between w-full">
                 <span className="text-muted-foreground">Tạm tính</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span>{formatPrice(subtotal)}</span>
               </div>
               <div className="flex justify-between w-full">
                 <span className="text-muted-foreground">Thuế</span>
-                <span>${tax.toFixed(2)}</span>
+                <span>{formatPrice(tax)}</span>
               </div>
               <div className="flex justify-between w-full">
                 <span className="text-muted-foreground">Phí vận chuyển</span>
-                <span>${shipping.toFixed(2)}</span>
+                <span>{formatPrice(shipping)}</span>
               </div>
-              <div className="flex justify-between w-full font-medium text-lg pt-2 border-t">
+              <div className="flex justify-between w-full text-base font-semibold text-maintext pt-2 border-t">
                 <span>Tổng cộng</span>
-                <span>${total.toFixed(2)}</span>
+                <span>{formatPrice(total)}</span>
               </div>
             </CardFooter>
           </Card>

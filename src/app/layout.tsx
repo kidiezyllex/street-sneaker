@@ -7,6 +7,8 @@ import { UserProvider } from '@/context/useUserContext';
 import "flag-icons/css/flag-icons.min.css";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { Poppins } from 'next/font/google';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -44,6 +46,7 @@ export default function RootLayout({
               showSpinner={false}
             />
             <ToastProvider />
+            <ToastContainer position="top-right" autoClose={4000} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="light" />
             {children}
           </UserProvider>
         </ReactQueryClientProvider>

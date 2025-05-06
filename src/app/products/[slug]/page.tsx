@@ -499,7 +499,7 @@ export default function ProductDetail() {
 
       {/* Sản phẩm liên quan */}
       <div className="mt-16">
-        <h2 className="text-2xl font-bold mb-6">Sản phẩm liên quan</h2>
+        <h2 className="text-2xl font-bold mb-4">Sản phẩm liên quan</h2>
         {/* Thêm component sản phẩm liên quan ở đây */}
       </div>
     </div>

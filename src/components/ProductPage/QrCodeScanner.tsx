@@ -27,13 +27,11 @@ const QrCodeScanner = ({ onQrCodeDetected }: QrCodeScannerProps) => {
 
       qrScanner.render(
         (decodedText: string) => {
-          // Xử lý khi quét mã QR thành công
           onQrCodeDetected(decodedText);
           stopScanner();
           setIsOpen(false);
         },
         (errorMessage: string) => {
-          // Xử lý khi có lỗi, nhưng không hiển thị lỗi để tránh làm phiền người dùng
           console.log(errorMessage);
         }
       );

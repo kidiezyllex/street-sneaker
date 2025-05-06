@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Icon } from '@mdi/react';
 import {
@@ -21,7 +20,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useUser } from '@/context/useUserContext';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
 const dropdownAnimation = {
     hidden: { opacity: 0, y: -5 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.2 } },
@@ -32,14 +30,11 @@ const itemAnimation = {
     hidden: { opacity: 0, x: -5 },
     visible: { opacity: 1, x: 0 }
 };
-
 const AccountDropdown = () => {
     const { isAuthenticated, logoutUser, profile } = useUser();
-    console.log(profile);
     const handleLogout = () => {
         logoutUser();
     };
-
     if (!isAuthenticated) {
         return (
             <Link href="/auth/login" className="p-2 text-gray-700 hover:text-primary transition-colors">
@@ -64,7 +59,6 @@ const AccountDropdown = () => {
                     </Avatar>
                 </button>
             </DropdownMenuTrigger>
-
             <DropdownMenuContent className="w-56" align="end" forceMount asChild>
                 <motion.div
                     initial="hidden"
@@ -101,9 +95,7 @@ const AccountDropdown = () => {
                             </DropdownMenuItem>
                         </motion.div>
                     )}
-
                     <DropdownMenuSeparator />
-
                     <motion.div variants={itemAnimation} transition={{ delay: 0.1 }}>
                         <DropdownMenuItem
                             className="text-rose-500 focus:text-rose-500 cursor-pointer"

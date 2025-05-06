@@ -164,7 +164,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
 
   return (
     <div className="container max-w-6xl py-8">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Chi tiết đơn hàng #{order._id.slice(-6)}</h1>
         <div className="flex items-center gap-4">
           <Badge className={`${getStatusColor(order.status)} text-white`}>

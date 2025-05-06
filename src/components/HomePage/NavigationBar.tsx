@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Icon } from '@mdi/react';
-import { mdiCartOutline, mdiCart } from '@mdi/js';
+import { mdiCart } from '@mdi/js';
 import { Button } from '@/components/ui/button';
-import SearchBox from './SearchBox';
 import { useUser } from '@/context/useUserContext';
 import AccountDropdown from './AccountDropdown';
+import { useCartStore } from '@/stores/useCartStore';
+import CartSheet from '../ui/CartSheet';
 
 const tabs = [
     { text: 'Trang chủ', href: '/' },
@@ -26,8 +27,8 @@ const Tab = ({ text, selected, setSelected }: TabProps) => {
         <button
             onClick={() => setSelected(text)}
             className={`${selected
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+                ? 'text-white'
+                : 'text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
                 } relative rounded-md px-3 py-1.5 text-sm font-medium transition-colors`}
         >
             <span className="relative z-10">{text}</span>
@@ -41,10 +42,10 @@ const Tab = ({ text, selected, setSelected }: TabProps) => {
         </button>
     );
 };
-
 export const NavigationBar = () => {
     const [selected, setSelected] = useState<string>(tabs[0].text);
-    const {isAuthenticated, profile, user} = useUser();
+    const { isAuthenticated, user } = useUser();
+    const { totalItems } = useCartStore();
     const checkPath = () => {
         const currentPath = window.location.pathname;
         const activeTab = tabs.find(tab => tab.href === currentPath);
@@ -52,7 +53,7 @@ export const NavigationBar = () => {
             setSelected(activeTab.text);
         }
     };
-
+    const [isOpen, setIsOpen] = useState(false);
     useEffect(() => {
         checkPath();
     }, []);
@@ -81,7 +82,6 @@ export const NavigationBar = () => {
                         </Link>
                     ))}
                 </div>
-
                 {/* User Actions */}
                 <div className="flex items-center gap-3">
                     {!isAuthenticated ? (
@@ -102,19 +102,21 @@ export const NavigationBar = () => {
                             </span>
                         </div>
                     )}
-
                     <div className="flex items-center">
-                        {/* <SearchBox /> */}
-                        <Link href="/cart" className="relative p-2 text-gray-700 hover:text-primary transition-colors">
+                        <button onClick={() => setIsOpen(true)} className="relative p-2 text-gray-700 hover:text-primary transition-colors">
                             <Icon path={mdiCart} size={0.9} />
                             <span className="absolute -top-1 -right-1 bg-extra text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                                0
+                                {totalItems}
                             </span>
-                        </Link>
+                        </button>
                         <AccountDropdown />
                     </div>
                 </div>
             </div>
+            <CartSheet
+                open={isOpen}
+                onOpenChange={setIsOpen}
+            />
         </header>
     );
 };

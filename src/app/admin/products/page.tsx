@@ -117,7 +117,7 @@ export default function ProductsPage() {
         </Link>
       </div>
 
-      <Card className="mb-6">
+      <Card className="mb-4">
         <CardContent className="py-4">
           <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:justify-between md:items-center">
             <div className="relative flex-1 max-w-md">

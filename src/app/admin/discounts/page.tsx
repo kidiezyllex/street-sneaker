@@ -257,7 +257,7 @@ export default function DiscountsPage() {
       <Card>
         <CardContent className="p-6">
           <Tabs defaultValue="all" className="w-full" onValueChange={setSelectedTab}>
-            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-4">
               <TabsList className="h-9">
                 <TabsTrigger value="all" className="px-4">
                   Tất cả

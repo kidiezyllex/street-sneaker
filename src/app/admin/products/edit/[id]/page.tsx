@@ -109,8 +109,6 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
       setUploading(true);
       const formData = createFormData(file);
       const result = await uploadImage.mutateAsync(formData);
-      console.log(result);
-      // Xác định biến thể cần cập nhật ảnh
       const variant = productData?.data.variants.find(v => v._id === variantId);
       if (!variant) {
         toast.error('Không tìm thấy biến thể');
@@ -304,7 +302,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
         </TabsList>
 
         <TabsContent value="info" className="space-y-4 text-maintext">
-          <Card className="mb-6">
+          <Card className="mb-4">
             <CardHeader>
               <CardTitle>Thông tin cơ bản</CardTitle>
             </CardHeader>
@@ -426,7 +424,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
         </TabsContent>
 
         <TabsContent value="variants" className="space-y-4 text-maintext">
-          <Card className="mb-6">
+          <Card className="mb-4">
             <CardHeader>
               <CardTitle>Biến thể sản phẩm</CardTitle>
             </CardHeader>
@@ -575,7 +573,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
         </TabsContent>
 
         <TabsContent value="status" className="space-y-4 text-maintext">
-          <Card className="mb-6">
+          <Card className="mb-4">
             <CardHeader>
               <CardTitle>Trạng thái sản phẩm</CardTitle>
             </CardHeader>

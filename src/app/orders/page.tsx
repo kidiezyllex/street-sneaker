@@ -123,7 +123,7 @@ export default function OrdersPage() {
 
   return (
     <div className="container max-w-6xl py-8">
-      <h1 className="text-2xl font-bold mb-6">Đơn hàng của tôi</h1>
+      <h1 className="text-2xl font-bold mb-4">Đơn hàng của tôi</h1>
       
       {orders.length === 0 ? (
         <Card>

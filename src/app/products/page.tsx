@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
@@ -23,56 +23,47 @@ import {
   mdiClose,
   mdiMagnify,
 } from "@mdi/js";
-
 import { useProducts, useSearchProducts } from '@/hooks/product';
-import { useCreateOrder } from '@/hooks/order';
-import { IProductFilter, IProductSearchParams } from '@/interface/request/product';
+import { IProductFilter } from '@/interface/request/product';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { checkImageUrl } from '@/lib/utils';
 import { useCartStore } from '@/stores/useCartStore';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import QrCodeScanner from '@/components/ProductPage/QrCodeScanner';
 import VoucherForm from '@/components/ProductPage/VoucherForm';
 import CartIcon from '@/components/ui/CartIcon';
 
-// Hàm format giá
+interface ProductCardProps {
+  product: any;
+  onAddToCart: () => void;
+  onQuickView: () => void;
+  onAddToWishlist: () => void;
+}
+
+interface ProductFiltersProps {
+  filters: IProductFilter;
+  onChange: (filters: Partial<IProductFilter>) => void;
+}
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 };
 
 export default function ProductsPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filters, setFilters] = useState<IProductFilter>({
+  const [pagination, setPagination] = useState({
     page: 1,
     limit: 12,
   });
+  const [filters, setFilters] = useState<IProductFilter>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState('default');
   const [appliedVoucher, setAppliedVoucher] = useState<{ code: string; discount: number; voucherId: string } | null>(null);
   const [isSearching, setIsSearching] = useState(false);
-
   const { addToCart } = useCartStore();
-  const createOrder = useCreateOrder();
-
-  const searchParams: IProductSearchParams = {
-    keyword: searchQuery,
-  };
-
-  if (filters.brands) searchParams.brands = filters.brands;
-  if (filters.categories) searchParams.categories = filters.categories;
-  if (filters.color) searchParams.color = filters.color;
-  if (filters.size) searchParams.size = filters.size;
-  if (filters.minPrice) searchParams.minPrice = filters.minPrice;
-  if (filters.maxPrice) searchParams.maxPrice = filters.maxPrice;
-  if (filters.sortBy) searchParams.sortBy = filters.sortBy;
-  if (filters.sortOrder) searchParams.sortOrder = filters.sortOrder;
-  
-  searchParams.page = filters.page;
-  searchParams.limit = filters.limit;
-  searchParams.status = 'HOAT_DONG';
 
   useEffect(() => {
     const timerId = setTimeout(() => {
@@ -86,52 +77,112 @@ export default function ProductsPage() {
     return () => clearTimeout(timerId);
   }, [searchQuery]);
 
-  useEffect(() => {
-    const updateSortParams = () => {
-      const updatedParams = { ...filters };
-      const { sortBy, sortOrder, ...restParams } = updatedParams as any;
+  const paginationParams: IProductFilter = {
+    page: pagination.page,
+    limit: pagination.limit,
+    status: 'HOAT_DONG'
+  };
 
-      let newParams: IProductFilter = { ...restParams };
-      let sortParams: any = {};
+  const productsQuery = useProducts(paginationParams);
+  const searchQuery2 = useSearchProducts(isSearching ? { keyword: searchQuery, status: 'HOAT_DONG' } : { keyword: '' });
+  const { data: rawData, isLoading, isError } = isSearching ? searchQuery2 : productsQuery;
+  const data = useMemo(() => {
+    if (!rawData || !rawData.data || !rawData.data.products) return rawData;
+    let filteredProducts = [...rawData.data.products];
+    if (filters.brands && filters.brands.length > 0) {
+      const brandsArray = Array.isArray(filters.brands) ? filters.brands : [filters.brands];
+      filteredProducts = filteredProducts.filter(product => {
+        const brandId = typeof product.brand === 'object' ? product.brand._id : product.brand;
+        return brandsArray.includes(brandId);
+      });
+    }
 
-      switch (sortOption) {
-        case 'price-asc':
-          sortParams = { sortBy: 'price', sortOrder: 'asc' };
-          break;
-        case 'price-desc':
-          sortParams = { sortBy: 'price', sortOrder: 'desc' };
-          break;
-        case 'newest':
-          sortParams = { sortBy: 'createdAt', sortOrder: 'desc' };
-          break;
-        case 'popularity':
-          sortParams = { sortBy: 'popularity', sortOrder: 'desc' };
-          break;
-        default:
-          break;
-      }
+    if (filters.categories && filters.categories.length > 0) {
+      const categoriesArray = Array.isArray(filters.categories) ? filters.categories : [filters.categories];
+      filteredProducts = filteredProducts.filter(product => {
+        const categoryId = typeof product.category === 'object' ? product.category._id : product.category;
+        return categoriesArray.includes(categoryId);
+      });
+    }
 
-      if (JSON.stringify(sortParams) !== JSON.stringify({ sortBy: filters.sortBy, sortOrder: filters.sortOrder })) {
-        setFilters({ ...newParams, ...(sortParams as any) });
+    if (filters.color) {
+      filteredProducts = filteredProducts.filter(product =>
+        product.variants.some((variant: any) => {
+          const colorId = typeof variant.colorId === 'object' ? variant.colorId._id : variant.colorId;
+          return colorId === filters.color;
+        })
+      );
+    }
+
+    if (filters.size) {
+      filteredProducts = filteredProducts.filter(product =>
+        product.variants.some((variant: any) => {
+          const sizeId = typeof variant.sizeId === 'object' ? variant.sizeId._id : variant.sizeId;
+          return sizeId === filters.size;
+        })
+      );
+    }
+
+    if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
+      const minPrice = filters.minPrice !== undefined ? filters.minPrice : 0;
+      const maxPrice = filters.maxPrice !== undefined ? filters.maxPrice : Infinity;
+
+      filteredProducts = filteredProducts.filter(product => {
+        const price = product.variants[0]?.price || 0;
+        return price >= minPrice && price <= maxPrice;
+      });
+    }
+
+    // Sắp xếp sản phẩm
+    if (sortOption !== 'default') {
+      filteredProducts.sort((a, b) => {
+        const priceA = a.variants[0]?.price || 0;
+        const priceB = b.variants[0]?.price || 0;
+        const dateA = new Date(a.createdAt).getTime();
+        const dateB = new Date(b.createdAt).getTime();
+
+        switch (sortOption) {
+          case 'price-asc':
+            return priceA - priceB;
+          case 'price-desc':
+            return priceB - priceA;
+          case 'newest':
+            return dateB - dateA;
+          case 'popularity':
+            const stockA = a.variants.reduce((total: number, variant: any) => total + variant.stock, 0);
+            const stockB = b.variants.reduce((total: number, variant: any) => total + variant.stock, 0);
+            return stockB - stockA;
+          default:
+            return 0;
+        }
+      });
+    }
+
+    const totalItems = filteredProducts.length;
+    const totalPages = Math.ceil(totalItems / pagination.limit);
+
+    return {
+      ...rawData,
+      data: {
+        ...rawData.data,
+        products: filteredProducts,
+        pagination: {
+          ...rawData.data.pagination,
+          totalItems,
+          totalPages,
+          currentPage: pagination.page > totalPages ? 1 : pagination.page
+        }
       }
     };
+  }, [rawData, filters, sortOption, pagination]);
 
-    updateSortParams();
-  }, [sortOption]);
-
-  // Sử dụng useProducts hoặc useSearchProducts tùy thuộc vào trạng thái tìm kiếm
-  const productsQuery = useProducts(filters);
-  const searchQuery2 = useSearchProducts(isSearching ? searchParams : { keyword: '' });
-  
-  // Chọn dữ liệu từ query phù hợp
-  const { data, isLoading, isError } = isSearching ? searchQuery2 : productsQuery;
-
-  // Xử lý khi thay đổi bộ lọc
   const handleFilterChange = (updatedFilters: Partial<IProductFilter>) => {
-    // Cập nhật bộ lọc và đặt lại trang về 1
     setFilters(prev => ({
       ...prev,
       ...updatedFilters,
+    }));
+    setPagination(prev => ({
+      ...prev,
       page: 1
     }));
   };
@@ -141,7 +192,7 @@ export default function ProductsPage() {
   };
 
   const handlePageChange = (page: number) => {
-    setFilters(prev => ({
+    setPagination(prev => ({
       ...prev,
       page
     }));
@@ -171,7 +222,6 @@ export default function ProductsPage() {
   };
 
   const handleQuickView = (product: any) => {
-    // Điều hướng đến trang chi tiết sản phẩm
     window.location.href = `/products/${product.name.toLowerCase().replace(/\s+/g, '-')}-${product._id}`;
   };
 
@@ -191,18 +241,15 @@ export default function ProductsPage() {
 
   const handleQrCodeDetected = (qrData: string) => {
     try {
-      // Thử phân tích dữ liệu QR
       const productData = JSON.parse(qrData);
 
       if (productData && productData.productId) {
-        // Tìm sản phẩm trong danh sách hiện tại
         const product = data?.data.products.find(p => p._id === productData.productId);
 
         if (product) {
           handleAddToCart(product);
           toast.success(`Đã quét mã QR và thêm ${product.name} vào giỏ hàng`);
         } else {
-          // Sản phẩm không có trong danh sách hiện tại, điều hướng đến trang chi tiết
           window.location.href = `/products/${productData.productId}`;
         }
       } else {
@@ -213,9 +260,14 @@ export default function ProductsPage() {
     }
   };
 
+  const filteredProducts = useMemo(() => {
+    if (!data || !data.data || !data.data.products) return [];
+    return data.data.products;
+  }, [data]);
+
   return (
     <div className="container mx-auto px-4 py-8 relative">
-      <Breadcrumb className="mb-6">
+      <Breadcrumb className="mb-4">
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink href="/">Trang chủ</BreadcrumbLink>
@@ -227,7 +279,7 @@ export default function ProductsPage() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Tất cả sản phẩm</h1>
         <div className="flex gap-2">
           <QrCodeScanner onQrCodeDetected={handleQrCodeDetected} />
@@ -340,20 +392,19 @@ export default function ProductsPage() {
           ) : isError ? (
             <div className="text-center py-12">
               <p className="text-red-500 mb-4">Đã xảy ra lỗi khi tải dữ liệu</p>
-              <Button onClick={() => setFilters({ ...filters })}>
+              <Button onClick={() => setPagination({ ...pagination })}>
                 Thử lại
               </Button>
             </div>
-          ) : data?.data.products && data.data.products.length > 0 ? (
+          ) : filteredProducts.length > 0 ? (
             <>
               <div className="flex justify-between items-center mb-4">
                 <p className="text-sm text-gray-500">
-                  Tìm thấy {data.data.pagination?.totalItems || data.data.products.length} sản phẩm
+                  Tìm thấy {filteredProducts.length} sản phẩm
                 </p>
               </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {data.data.products.map((product) => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {filteredProducts.map((product) => (
                   <ProductCard
                     key={product._id}
                     product={product}
@@ -363,46 +414,74 @@ export default function ProductsPage() {
                   />
                 ))}
               </div>
-
-              {data.data.pagination && data.data.pagination.totalPages > 1 && (
+              
+              {/* Phân trang */}
+              {data && data.data.pagination && data.data.pagination.totalPages > 1 && (
                 <div className="flex justify-center mt-8">
                   <div className="flex gap-2">
-                    <Button
-                      variant="outline"
+                    <Button 
+                      variant="outline" 
                       size="sm"
-                      onClick={() => handlePageChange(data.data.pagination.currentPage - 1)}
-                      disabled={data.data.pagination.currentPage === 1}
+                      disabled={pagination.page <= 1}
+                      onClick={() => handlePageChange(pagination.page - 1)}
                     >
                       Trước
                     </Button>
-                    {[...Array(data.data.pagination.totalPages)].map((_, i) => (
-                      <Button
-                        key={i}
-                        variant={data.data.pagination.currentPage === i + 1 ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => handlePageChange(i + 1)}
-                      >
-                        {i + 1}
-                      </Button>
-                    )).slice(
-                      Math.max(0, data.data.pagination.currentPage - 3),
-                      Math.min(data.data.pagination.totalPages, data.data.pagination.currentPage + 2)
-                    )}
-                    <Button
-                      variant="outline"
+                    
+                    {[...Array(data.data.pagination.totalPages)].map((_, index) => {
+                      const pageNumber = index + 1;
+                      const isCurrentPage = pageNumber === pagination.page;
+                      
+                      // Chỉ hiển thị các trang gần trang hiện tại
+                      if (
+                        pageNumber === 1 || 
+                        pageNumber === data.data.pagination.totalPages ||
+                        (pageNumber >= pagination.page - 1 && pageNumber <= pagination.page + 1)
+                      ) {
+                        return (
+                          <Button
+                            key={pageNumber}
+                            variant={isCurrentPage ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => handlePageChange(pageNumber)}
+                          >
+                            {pageNumber}
+                          </Button>
+                        );
+                      } else if (
+                        (pageNumber === 2 && pagination.page > 3) ||
+                        (pageNumber === data.data.pagination.totalPages - 1 && pagination.page < data.data.pagination.totalPages - 2)
+                      ) {
+                        return (
+                          <Button
+                            key={pageNumber}
+                            variant="outline"
+                            size="sm"
+                            disabled
+                          >
+                            ...
+                          </Button>
+                        );
+                      }
+                      
+                      return null;
+                    })}
+                    
+                    <Button 
+                      variant="outline" 
                       size="sm"
-                      onClick={() => handlePageChange(data.data.pagination.currentPage + 1)}
-                      disabled={data.data.pagination.currentPage === data.data.pagination.totalPages}
+                      disabled={pagination.page >= data.data.pagination.totalPages}
+                      onClick={() => handlePageChange(pagination.page + 1)}
                     >
                       Sau
                     </Button>
                   </div>
                 </div>
               )}
-
+              
               <div className="lg:hidden mt-8 bg-white rounded-lg shadow-sm border p-4">
                 <VoucherForm
-                  orderValue={data.data.products.reduce((sum, product) => sum + (product.variants[0]?.price || 0), 0)}
+                  orderValue={filteredProducts.reduce((sum, product) => sum + (product.variants[0]?.price || 0), 0)}
                   onApplyVoucher={handleApplyVoucher}
                   onRemoveVoucher={handleRemoveVoucher}
                   appliedVoucher={appliedVoucher}
@@ -412,8 +491,11 @@ export default function ProductsPage() {
           ) : (
             <div className="text-center py-12">
               <p className="text-gray-500 mb-4">Không tìm thấy sản phẩm nào</p>
-              {searchQuery && (
-                <Button onClick={() => setSearchQuery('')}>
+              {(searchQuery || Object.keys(filters).length > 0) && (
+                <Button onClick={() => {
+                  setSearchQuery('');
+                  setFilters({});
+                }}>
                   Xóa bộ lọc
                 </Button>
               )}
@@ -429,354 +511,98 @@ export default function ProductsPage() {
   );
 }
 
-interface ProductFiltersProps {
-  filters: IProductFilter;
-  onChange: (filters: Partial<IProductFilter>) => void;
-}
-
-const ProductFilters = ({ filters, onChange }: ProductFiltersProps) => {
-  // Dữ liệu cố định
-  const brands = [
-    { _id: 'nike', name: 'Nike' },
-    { _id: 'adidas', name: 'Adidas' },
-    { _id: 'puma', name: 'Puma' },
-    { _id: 'converse', name: 'Converse' },
-    { _id: 'vans', name: 'Vans' }
-  ];
-  
-  const categories = [
-    { _id: 'giay-the-thao', name: 'Giày thể thao' },
-    { _id: 'giay-chay-bo', name: 'Giày chạy bộ' },
-    { _id: 'giay-da-bong', name: 'Giày đá bóng' },
-    { _id: 'giay-thoi-trang', name: 'Giày thời trang' }
-  ];
-  
-  const colors = [
-    { _id: 'black', name: 'Đen', code: '#000' },
-    { _id: 'white', name: 'Trắng', code: '#FFF' },
-    { _id: 'red', name: 'Đỏ', code: '#FF0000' },
-    { _id: 'blue', name: 'Xanh dương', code: '#0000FF' },
-    { _id: 'green', name: 'Xanh lá', code: '#00FF00' },
-    { _id: 'yellow', name: 'Vàng', code: '#FFFF00' },
-    { _id: 'gray', name: 'Xám', code: '#808080' }
-  ];
-  
-  const sizes = [
-    { _id: 'eu35', name: 'EU 35' },
-    { _id: 'eu36', name: 'EU 36' },
-    { _id: 'eu37', name: 'EU 37' },
-    { _id: 'eu38', name: 'EU 38' },
-    { _id: 'eu39', name: 'EU 39' },
-    { _id: 'eu40', name: 'EU 40' },
-    { _id: 'eu41', name: 'EU 41' },
-    { _id: 'eu42', name: 'EU 42' },
-    { _id: 'eu43', name: 'EU 43' },
-    { _id: 'eu44', name: 'EU 44' },
-    { _id: 'eu45', name: 'EU 45' }
-  ];
-  
-  // Khoảng giá mặc định
-  const priceRange = {
-    min: 0,
-    max: 5000000
-  };
-  
-  const [selectedPriceRange, setSelectedPriceRange] = useState<[number, number]>([
-    filters.minPrice || priceRange.min, 
-    filters.maxPrice || priceRange.max
-  ]);
-  
-  const [selectedBrands, setSelectedBrands] = useState<string[]>(
-    filters.brands ? (Array.isArray(filters.brands) ? filters.brands : [filters.brands]) : []
-  );
-  
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    filters.categories ? (Array.isArray(filters.categories) ? filters.categories : [filters.categories]) : []
-  );
-  
-  useEffect(() => {
-    setSelectedPriceRange([
-      filters.minPrice || priceRange.min,
-      filters.maxPrice || priceRange.max
-    ]);
-  }, [filters.minPrice, filters.maxPrice]);
-  
-  useEffect(() => {
-    if (filters.brands) {
-      setSelectedBrands(Array.isArray(filters.brands) ? filters.brands : [filters.brands]);
-    } else {
-      setSelectedBrands([]);
-    }
-  }, [filters.brands]);
-  
-  useEffect(() => {
-    if (filters.categories) {
-      setSelectedCategories(Array.isArray(filters.categories) ? filters.categories : [filters.categories]);
-    } else {
-      setSelectedCategories([]);
-    }
-  }, [filters.categories]);
-  
-  const formatPriceLabel = (value: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
-  
-  const handleBrandChange = (brandId: string, checked: boolean) => {
-    let newSelectedBrands: string[];
-    
-    if (checked) {
-      newSelectedBrands = [...selectedBrands, brandId];
-    } else {
-      newSelectedBrands = selectedBrands.filter(id => id !== brandId);
-    }
-    
-    setSelectedBrands(newSelectedBrands);
-    onChange({ 
-      brands: newSelectedBrands.length > 0 ? newSelectedBrands : undefined 
-    });
-  };
-  
-  const handleCategoryChange = (categoryId: string, checked: boolean) => {
-    let newSelectedCategories: string[];
-    
-    if (checked) {
-      newSelectedCategories = [...selectedCategories, categoryId];
-    } else {
-      newSelectedCategories = selectedCategories.filter(id => id !== categoryId);
-    }
-    
-    setSelectedCategories(newSelectedCategories);
-    onChange({ 
-      categories: newSelectedCategories.length > 0 ? newSelectedCategories : undefined 
-    });
-  };
-  
-  const handleColorChange = (colorId: string) => {
-    onChange({ 
-      color: filters.color === colorId ? undefined : colorId 
-    });
-  };
-  
-  const handleSizeChange = (sizeId: string) => {
-    onChange({ 
-      size: filters.size === sizeId ? undefined : sizeId 
-    });
-  };
-  
-  const handlePriceChange = (values: number[]) => {
-    setSelectedPriceRange(values as [number, number]);
-  };
-  
-  const handleApplyFilters = () => {
-    onChange({
-      minPrice: selectedPriceRange[0],
-      maxPrice: selectedPriceRange[1]
-    });
-    toast.success('Đã áp dụng bộ lọc');
-  };
-  
-  const handleResetFilters = () => {
-    setSelectedPriceRange([priceRange.min, priceRange.max]);
-    setSelectedBrands([]);
-    setSelectedCategories([]);
-    onChange({
-      brands: undefined,
-      categories: undefined,
-      minPrice: undefined,
-      maxPrice: undefined,
-      color: undefined,
-      size: undefined
-    });
-    toast.info('Đã đặt lại bộ lọc');
-  };
-  
-  return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-sm font-medium mb-3">Giá</h3>
-        <div className="px-2">
-          <Slider
-            defaultValue={[priceRange.min, priceRange.max]}
-            min={priceRange.min}
-            max={priceRange.max}
-            step={100000}
-            value={selectedPriceRange}
-            onValueChange={(value) => handlePriceChange(value as [number, number])}
-          />
-          <div className="flex justify-between mt-2 text-sm text-gray-500">
-            <span>{formatPriceLabel(selectedPriceRange[0])}</span>
-            <span>{formatPriceLabel(selectedPriceRange[1])}</span>
-          </div>
-        </div>
-      </div>
-      
-      <div>
-        <h3 className="text-sm font-medium mb-3">Thương hiệu</h3>
-        <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
-          {brands.map((brand) => (
-            <div key={brand._id} className="flex items-center gap-2">
-              <Checkbox 
-                id={`brand-${brand._id}`} 
-                checked={selectedBrands.includes(brand._id)}
-                onCheckedChange={(checked) => handleBrandChange(brand._id, checked as boolean)}
-              />
-              <label htmlFor={`brand-${brand._id}`} className="text-sm">
-                {brand.name}
-              </label>
-            </div>
-          ))}
-        </div>
-      </div>
-      
-      <div>
-        <h3 className="text-sm font-medium mb-3">Danh mục</h3>
-        <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
-          {categories.map((category) => (
-            <div key={category._id} className="flex items-center gap-2">
-              <Checkbox 
-                id={`category-${category._id}`} 
-                checked={selectedCategories.includes(category._id)}
-                onCheckedChange={(checked) => handleCategoryChange(category._id, checked as boolean)}
-              />
-              <label htmlFor={`category-${category._id}`} className="text-sm">
-                {category.name}
-              </label>
-            </div>
-          ))}
-        </div>
-      </div>
-      
-      <div>
-        <h3 className="text-sm font-medium mb-3">Màu sắc</h3>
-        <div className="flex flex-wrap gap-2">
-          {colors.map((color) => (
-            <button
-              key={color._id}
-              className={`w-8 h-8 rounded-full border overflow-hidden relative transition-all duration-300 ${filters.color === color._id ? 'ring-2 ring-primary ring-offset-2' : 'border-gray-300'}`}
-              style={{ backgroundColor: color.code }}
-              title={color.name}
-              onClick={() => handleColorChange(color._id)}
-            />
-          ))}
-        </div>
-      </div>
-      
-      <div>
-        <h3 className="text-sm font-medium mb-3">Kích cỡ</h3>
-        <div className="flex flex-wrap gap-2">
-          {sizes.map((size) => (
-            <button
-              key={size._id}
-              className={`px-2 py-1 border rounded text-sm transition-all duration-300 ${filters.size === size._id ? 'bg-primary text-white border-primary' : 'border-gray-300 hover:border-primary'}`}
-              onClick={() => handleSizeChange(size._id)}
-            >
-              {size.name}
-            </button>
-          ))}
-        </div>
-      </div>
-      
-      <Button className="w-full" onClick={handleApplyFilters}>Áp dụng</Button>
-      <Button variant="outline" className="w-full" onClick={handleResetFilters}>Đặt lại</Button>
-    </div>
-  );
-};
-
-interface ProductCardProps {
-  product: any;
-  onAddToCart: () => void;
-  onQuickView: () => void;
-  onAddToWishlist: () => void;
-}
-
 const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: ProductCardProps) => {
   return (
-    <Card className="group overflow-hidden border border-gray-200 hover:border-primary/50 hover:shadow-lg transition-all duration-300 h-full flex flex-col transform hover:-translate-y-1">
-      <div className="relative overflow-hidden bg-gray-50">
-        <Link href={`/products/${product.name.toLowerCase().replace(/\s+/g, '-')}-${product._id}`}>
-          <div className="aspect-square overflow-hidden relative">
+    <Card className="group overflow-hidden border border-gray-200 rounded-md hover:border-primary/70 hover:shadow-2xl shadow-md transition-all duration-300 h-full flex flex-col transform hover:-translate-y-2 bg-white relative">
+      <div className="relative overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100">
+        <Link href={`/products/${product.name.toLowerCase().replace(/\s+/g, '-')}-${product._id}`} className="block">
+          <div className="aspect-square overflow-hidden relative flex items-center justify-center">
             <Image
               src={checkImageUrl(product.variants[0]?.images?.[0])}
               alt={product.name}
-              className="object-contain w-full h-full group-hover:scale-105 transition-transform duration-500"
+              className="object-contain w-full h-full group-hover:scale-110 transition-transform duration-700 drop-shadow-xl"
               fill
             />
           </div>
         </Link>
 
         {/* Badge cho sản phẩm mới hoặc giảm giá */}
-        {product.isNew && (
-          <div className="absolute top-3 left-3 bg-primary text-white text-xs font-bold px-2 py-1 rounded-md">
-            Mới
-          </div>
-        )}
-        {product.discount && (
-          <div className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-md">
-            -{product.discount}%
-          </div>
-        )}
+        <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
+          {product.isNew && (
+            <div className="bg-gradient-to-r from-primary to-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg animate-pulse border-2 border-white">
+              Mới
+            </div>
+          )}
+          {product.discount && (
+            <div className="bg-gradient-to-r from-red-500 to-orange-400 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg border-2 border-white">
+              -{product.discount}%
+            </div>
+          )}
+        </div>
 
         {/* Quick action buttons */}
-        <div className="absolute -right-10 top-14 flex flex-col gap-2 transition-all duration-300 group-hover:right-3">
+        <div className="absolute -right-12 top-14 flex flex-col gap-3 transition-all duration-300 group-hover:right-4 z-20">
           <Button
             variant="outline"
             size="icon"
-            className="rounded-full h-9 w-9 bg-white/90 backdrop-blur-sm hover:bg-primary hover:text-white shadow-md"
+            className="rounded-full h-9 w-9 bg-white/90 backdrop-blur-sm hover:bg-primary hover:text-white shadow-lg border-primary/20 hover:scale-110 transition-all duration-200"
             onClick={(e) => {
               e.preventDefault();
               onAddToCart();
             }}
+            aria-label="Thêm vào giỏ hàng"
           >
-            <Icon path={mdiCartOutline} size={0.8} />
+            <Icon path={mdiCartOutline} size={0.9} />
           </Button>
           <Button
             variant="outline"
             size="icon"
-            className="rounded-full h-9 w-9 bg-white/90 backdrop-blur-sm hover:bg-primary hover:text-white shadow-md"
+            className="rounded-full h-9 w-9 bg-white/90 backdrop-blur-sm hover:bg-pink-500 hover:text-white shadow-lg border-pink-200 hover:scale-110 transition-all duration-200"
             onClick={(e) => {
               e.preventDefault();
               onAddToWishlist();
             }}
+            aria-label="Yêu thích"
           >
-            <Icon path={mdiHeartOutline} size={0.8} />
+            <Icon path={mdiHeartOutline} size={0.9} />
           </Button>
           <Button
             variant="outline"
             size="icon"
-            className="rounded-full h-9 w-9 bg-white/90 backdrop-blur-sm hover:bg-primary hover:text-white shadow-md"
+            className="rounded-full h-9 w-9 bg-white/90 backdrop-blur-sm hover:bg-blue-500 hover:text-white shadow-lg border-blue-200 hover:scale-110 transition-all duration-200"
             onClick={(e) => {
               e.preventDefault();
               onQuickView();
             }}
+            aria-label="Xem nhanh"
           >
-            <Icon path={mdiEye} size={0.8} />
+            <Icon path={mdiEye} size={0.9} />
           </Button>
         </div>
       </div>
 
       {/* Thông tin sản phẩm */}
-      <div className="p-4 flex flex-col flex-grow  bg-muted border-t">
-        <div className="text-xs text-gray-500 mb-1 uppercase tracking-wide font-medium">
+      <div className="p-4 flex flex-col flex-grow bg-gradient-to-t from-gray-50 via-white to-white border-t rounded-b-2xl">
+        <div className="text-xs text-gray-500 mb-1 uppercase tracking-wide font-semibold flex items-center gap-1">
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary/70"></span>
           {typeof product.brand === 'string' ? product.brand : product.brand.name}
         </div>
         <Link
           href={`/products/${product.name.toLowerCase().replace(/\s+/g, '-')}-${product._id}`}
           className="hover:text-primary transition-colors"
         >
-          <h3 className="font-semibold text-base mb-1 line-clamp-2 leading-tight">{product.name}</h3>
+          <h3 className="font-semibold text-sm mb-1 line-clamp-2 leading-tight group-hover:text-primary/90 transition-colors duration-200 text-maintext">
+            {product.name}
+          </h3>
         </Link>
 
         <div className="mt-auto pt-2">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="font-bold text-lg text-primary">
+          <div className="flex items-end gap-2 mb-2">
+            <div className="font-bold text-xl text-extra drop-shadow-sm">
               {formatPrice(product.variants[0]?.price || 0)}
             </div>
             {product.originalPrice && (
-              <div className="text-sm text-gray-500 line-through">
+              <div className="text-sm text-gray-400 line-through font-medium">
                 {formatPrice(product.originalPrice)}
               </div>
             )}
@@ -796,8 +622,9 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
                 return (
                   <div
                     key={index}
-                    className="w-3 h-3 rounded-full border border-gray-300 transform hover:scale-125 transition-transform"
+                    className="w-4 h-4 rounded-full border-2 border-white shadow ring-1 ring-gray-300 transform hover:scale-125 transition-transform duration-200"
                     style={{ backgroundColor: color.code }}
+                    title={color.name}
                   />
                 );
               })}
@@ -805,7 +632,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
               {Array.from(new Set(product.variants.map((v: any) =>
                 typeof v.colorId === 'object' ? v.colorId._id : v.colorId
               ))).length > 4 && (
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-gray-500 ml-1">
                     +{Array.from(new Set(product.variants.map((v: any) =>
                       typeof v.colorId === 'object' ? v.colorId._id : v.colorId
                     ))).length - 4}
@@ -818,3 +645,258 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
     </Card>
   );
 }; 
+const ProductFilters = ({ filters, onChange }: ProductFiltersProps) => {
+  const productsQuery = useProducts({ limit: 100, status: 'HOAT_DONG' });
+  const products = productsQuery.data?.data.products || [];
+  const [selectedBrand, setSelectedBrand] = useState<string | undefined>(
+    filters.brands ? (Array.isArray(filters.brands) ? filters.brands[0] : filters.brands) : undefined
+  );
+
+  useEffect(() => {
+    if (filters.brands) {
+      setSelectedBrand(Array.isArray(filters.brands) ? filters.brands[0] : filters.brands);
+    } else {
+      setSelectedBrand(undefined);
+    }
+  }, [filters.brands]);
+
+  const handleBrandChange = (brandId: string) => {
+    if (selectedBrand === brandId) {
+      setSelectedBrand(undefined);
+      onChange({ brands: undefined });
+    } else {
+      setSelectedBrand(brandId);
+      onChange({ brands: brandId });
+    }
+  };
+
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(
+    filters.categories ? (Array.isArray(filters.categories) ? filters.categories[0] : filters.categories) : undefined
+  );
+
+  useEffect(() => {
+    if (filters.categories) {
+      setSelectedCategory(Array.isArray(filters.categories) ? filters.categories[0] : filters.categories);
+    } else {
+      setSelectedCategory(undefined);
+    }
+  }, [filters.categories]);
+
+  const handleCategoryChange = (categoryId: string) => {
+    if (selectedCategory === categoryId) {
+      setSelectedCategory(undefined);
+      onChange({ categories: undefined });
+    } else {
+      setSelectedCategory(categoryId);
+      onChange({ categories: categoryId });
+    }
+  };
+
+  const handleColorChange = (colorId: string) => {
+    onChange({
+      color: filters.color === colorId ? undefined : colorId
+    });
+  };
+  const handleSizeChange = (sizeId: string) => {
+    onChange({
+      size: filters.size === sizeId ? undefined : sizeId
+    });
+  };
+  const brands = useMemo(() => {
+    if (!products || products.length === 0) return [];
+    
+    const uniqueBrands = Array.from(new Set(products.map(product => {
+      const brand = typeof product.brand === 'object' ? product.brand : { _id: product.brand, name: product.brand };
+      return JSON.stringify(brand);
+    }))).map(brandStr => JSON.parse(brandStr));
+    
+    return uniqueBrands;
+  }, [products]);
+
+  const categories = useMemo(() => {
+    if (!products || products.length === 0) return [];
+    
+    const uniqueCategories = Array.from(new Set(products.map(product => {
+      const category = typeof product.category === 'object' ? product.category : { _id: product.category, name: product.category };
+      return JSON.stringify(category);
+    }))).map(categoryStr => JSON.parse(categoryStr));
+    
+    return uniqueCategories;
+  }, [products]);
+
+  const colors = useMemo(() => {
+    if (!products || products.length === 0) return [];
+    
+    const allColors = products.flatMap(product => 
+      product.variants.map(variant => 
+        typeof variant.colorId === 'object' ? variant.colorId : { _id: variant.colorId, name: variant.colorId, code: '#000000' }
+      )
+    );
+    
+    const uniqueColors = Array.from(new Set(allColors.map(color => JSON.stringify(color))))
+      .map(colorStr => JSON.parse(colorStr));
+    
+    return uniqueColors;
+  }, [products]);
+
+  const sizes = useMemo(() => {
+    if (!products || products.length === 0) return [];
+    
+    const allSizes = products.flatMap(product => 
+      product.variants.map(variant => 
+        typeof variant.sizeId === 'object' ? variant.sizeId : { _id: variant.sizeId, value: variant.sizeId }
+      )
+    );
+    
+    const uniqueSizes = Array.from(new Set(allSizes.map(size => JSON.stringify(size))))
+      .map(sizeStr => JSON.parse(sizeStr))
+      .sort((a, b) => (a.value || 0) - (b.value || 0)); // Sắp xếp theo kích thước tăng dần
+    
+    return uniqueSizes;
+  }, [products]);
+
+  const priceRange = useMemo(() => {
+    if (!products || products.length === 0) {
+      return { min: 0, max: 5000000 };
+    }
+    
+    const prices = products.flatMap(product => product.variants.map(variant => variant.price || 0));
+    
+    return {
+      min: Math.min(...prices, 0),
+      max: Math.max(...prices, 5000000)
+    };
+  }, [products]);
+
+  const [selectedPriceRange, setSelectedPriceRange] = useState<[number, number]>([
+    filters.minPrice || priceRange.min,
+    filters.maxPrice || priceRange.max
+  ]);
+
+  const handlePriceChange = (values: number[]) => {
+    setSelectedPriceRange(values as [number, number]);
+    
+    // Áp dụng thay đổi giá vào bộ lọc sau một khoảng thời gian ngắn
+    const timerId = setTimeout(() => {
+      onChange({
+        minPrice: values[0],
+        maxPrice: values[1]
+      });
+    }, 300);
+
+    return () => clearTimeout(timerId);
+  };
+
+  const handleResetFilters = () => {
+    setSelectedPriceRange([priceRange.min, priceRange.max]);
+    setSelectedCategory(undefined);
+    onChange({
+      categories: undefined,
+      minPrice: undefined,
+      maxPrice: undefined,
+      color: undefined,
+      size: undefined
+    });
+    toast.info('Đã đặt lại bộ lọc');
+  };
+
+  if (productsQuery.isLoading) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-40 w-full" />
+        <Skeleton className="h-40 w-full" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-sm font-medium mb-3">Giá</h3>
+        <div className="px-2">
+          <Slider
+            defaultValue={[priceRange.min, priceRange.max]}
+            min={priceRange.min}
+            max={priceRange.max}
+            step={100000}
+            value={selectedPriceRange}
+            onValueChange={(value) => handlePriceChange(value as [number, number])}
+          />
+          <div className="flex justify-between mt-2 text-sm text-gray-500">
+            <span>{formatPrice(selectedPriceRange[0])}</span>
+            <span>{formatPrice(selectedPriceRange[1])}</span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-sm font-medium mb-3">Thương hiệu</h3>
+        <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
+          {brands.map((brand) => (
+            <div key={brand._id} className="flex items-center gap-2">
+              <Checkbox
+                id={`brand-${brand._id}`}
+                checked={selectedBrand === brand._id}
+                onCheckedChange={() => handleBrandChange(brand._id)}
+              />
+              <label htmlFor={`brand-${brand._id}`} className="text-sm">
+                {brand.name}
+              </label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-sm font-medium mb-3">Danh mục</h3>
+        <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
+          {categories.map((category) => (
+            <div key={category._id} className="flex items-center gap-2">
+              <Checkbox
+                id={`category-${category._id}`}
+                checked={selectedCategory === category._id}
+                onCheckedChange={() => handleCategoryChange(category._id)}
+              />
+              <label htmlFor={`category-${category._id}`} className="text-sm">
+                {category.name}
+              </label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-sm font-medium mb-3">Màu sắc</h3>
+        <div className="flex flex-wrap gap-2">
+          {colors.map((color) => (
+            <button
+              key={color._id}
+              className={`w-8 h-8 rounded-full border overflow-hidden relative transition-all duration-300 ${filters.color === color._id ? 'ring-2 ring-primary ring-offset-2' : 'border-gray-300'}`}
+              style={{ backgroundColor: color.code }}
+              title={color.name}
+              onClick={() => handleColorChange(color._id)}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-sm font-medium mb-3">Kích cỡ</h3>
+        <div className="flex flex-wrap gap-2">
+          {sizes.map((size) => (
+            <button
+              key={size._id}
+              className={`px-2 py-1 border rounded text-sm transition-all duration-300 ${filters.size === size._id ? 'bg-primary text-white border-primary' : 'border-gray-300 hover:border-primary'}`}
+              onClick={() => handleSizeChange(size._id)}
+            >
+              {size.value ? `EU ${size.value}` : size.name || size._id}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <Button variant="outline" className="w-full" onClick={handleResetFilters}>Đặt lại</Button>
+    </div>
+  );
+};

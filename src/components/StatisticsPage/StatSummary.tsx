@@ -59,7 +59,7 @@ const StatCard = ({ title, value, icon, iconColor, bgColor, percentage, increasi
 
 export const StatSummary = () => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6 items-stretch">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-4 items-stretch">
       <StatCard
         title="Doanh thu tháng"
         value="897,521,000 đ"

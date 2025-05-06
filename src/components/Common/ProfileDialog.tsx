@@ -120,7 +120,7 @@ export default function ProfileDialog({ isOpen, onOpenChange }: ProfileDialogPro
             </DialogHeader>
             
             <form onSubmit={handleSubmit}>
-              <div className="flex flex-col sm:flex-row gap-6 mb-6">
+              <div className="flex flex-col sm:flex-row gap-6 mb-4">
                 <div className="flex flex-col items-center gap-2">
                   <div className="relative p-[2px] rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600">
                     <div className="p-[2px] bg-white rounded-full">

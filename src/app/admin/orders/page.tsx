@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -52,6 +52,8 @@ export default function OrdersPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<typeof mockOrders[0] | null>(null);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [filteredOrders, setFilteredOrders] = useState<typeof mockOrders>([]);
+  const [nowDate, setNowDate] = useState<Date | null>(null);
 
   //                                                                                                                     Định dạng tiền tệ
   const formatCurrency = (amount: number) => {
@@ -68,79 +70,86 @@ export default function OrdersPage() {
     return format(date, 'dd/MM/yyyy HH:mm', { locale: vi });
   };
 
-  //                                                                                                                     Lọc đơn hàng theo tất cả các điều kiện
-  const filteredOrders = mockOrders.filter((order) => {
-    //                                                                                                                     Lọc theo tab
-    if (selectedTab === 'today' && !isToday(new Date(order.createdAt))) {
-      return false;
-    } else if (selectedTab === 'week' && !isThisWeek(new Date(order.createdAt))) {
-      return false;
-    } else if (selectedTab === 'month' && !isThisMonth(new Date(order.createdAt))) {
-      return false;
-    }
+  useEffect(() => {
+    setNowDate(new Date());
+  }, []);
 
-    //                                                                                                                     Lọc theo khoảng thời gian
-    if (dateRange?.from && dateRange?.to) {
+  useEffect(() => {
+    if (!nowDate) return;
+    const filtered = mockOrders.filter((order) => {
       const orderDate = new Date(order.createdAt);
-      const startOfDay = new Date(dateRange.from);
-      startOfDay.setHours(0, 0, 0, 0);
-      
-      const endOfDay = new Date(dateRange.to);
-      endOfDay.setHours(23, 59, 59, 999);
-      
-      if (orderDate < startOfDay || orderDate > endOfDay) {
+
+      if (selectedTab === 'today' && !isToday(orderDate)) {
+        return false;
+      } else if (selectedTab === 'week' && !isThisWeek(orderDate)) {
+        return false;
+      } else if (selectedTab === 'month' && !isThisMonth(orderDate)) {
         return false;
       }
-    }
 
-    //                                                                                                                     Lọc theo trạng thái
-    if (selectedStatus !== 'all' && order.status !== selectedStatus) {
-      return false;
-    }
+      if (dateRange?.from && dateRange?.to) {
+        const startOfDay = new Date(dateRange.from);
+        startOfDay.setHours(0, 0, 0, 0);
+        
+        const endOfDay = new Date(dateRange.to);
+        endOfDay.setHours(23, 59, 59, 999);
+        
+        if (orderDate < startOfDay || orderDate > endOfDay) {
+          return false;
+        }
+      }
 
-    //                                                                                                                     Lọc theo loại đơn hàng
-    if (selectedOrderType !== 'all' && order.type !== selectedOrderType) {
-      return false;
-    }
+      if (selectedStatus !== 'all' && order.status !== selectedStatus) {
+        return false;
+      }
 
-    //                                                                                                                     Lọc theo trạng thái thanh toán
-    if (selectedPaymentStatus !== 'all' && order.paymentStatus !== selectedPaymentStatus) {
-      return false;
-    }
+      if (selectedOrderType !== 'all' && order.type !== selectedOrderType) {
+        return false;
+      }
 
-    //                                                                                                                     Tìm kiếm theo từ khóa
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      return (
-        order.code.toLowerCase().includes(query) ||
-        order.customer.fullName.toLowerCase().includes(query) ||
-        order.customer.phone.includes(query) ||
-        (order.customer.email && order.customer.email.toLowerCase().includes(query))
-      );
-    }
+      //                                                                                                                     Lọc theo trạng thái thanh toán
+      if (selectedPaymentStatus !== 'all' && order.paymentStatus !== selectedPaymentStatus) {
+        return false;
+      }
 
-    return true;
-  });
+      //                                                                                                                     Tìm kiếm theo từ khóa
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        return (
+          order.code.toLowerCase().includes(query) ||
+          order.customer.fullName.toLowerCase().includes(query) ||
+          order.customer.phone.includes(query) ||
+          (order.customer.email && order.customer.email.toLowerCase().includes(query))
+        );
+      }
+
+      return true;
+    });
+
+    setFilteredOrders(filtered);
+  }, [nowDate, selectedTab, dateRange, selectedStatus, selectedOrderType, selectedPaymentStatus, searchQuery]);
 
   //                                                                                                                     Kiểm tra ngày hiện tại
   function isToday(date: Date): boolean {
-    const today = new Date();
+    if (!nowDate) return false;
+    
     return (
-      date.getDate() === today.getDate() &&
-      date.getMonth() === today.getMonth() &&
-      date.getFullYear() === today.getFullYear()
+      date.getDate() === nowDate.getDate() &&
+      date.getMonth() === nowDate.getMonth() &&
+      date.getFullYear() === nowDate.getFullYear()
     );
   }
 
   //                                                                                                                     Kiểm tra tuần hiện tại
   function isThisWeek(date: Date): boolean {
-    const now = new Date();
-    const weekStart = new Date(now);
-    weekStart.setDate(now.getDate() - now.getDay()); //                                                                                                                     Đầu tuần (Chủ nhật)
+    if (!nowDate) return false;
+    
+    const weekStart = new Date(nowDate);
+    weekStart.setDate(nowDate.getDate() - nowDate.getDay()); // Đầu tuần (Chủ nhật)
     weekStart.setHours(0, 0, 0, 0);
     
     const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekStart.getDate() + 6); //                                                                                                                     Cuối tuần (Thứ 7)
+    weekEnd.setDate(weekStart.getDate() + 6); // Cuối tuần (Thứ 7)
     weekEnd.setHours(23, 59, 59, 999);
     
     return date >= weekStart && date <= weekEnd;
@@ -148,10 +157,11 @@ export default function OrdersPage() {
 
   //                                                                                                                     Kiểm tra tháng hiện tại
   function isThisMonth(date: Date): boolean {
-    const now = new Date();
+    if (!nowDate) return false;
+    
     return (
-      date.getMonth() === now.getMonth() &&
-      date.getFullYear() === now.getFullYear()
+      date.getMonth() === nowDate.getMonth() &&
+      date.getFullYear() === nowDate.getFullYear()
     );
   }
 
@@ -222,7 +232,7 @@ export default function OrdersPage() {
       <Card>
         <CardContent className="p-6">
           <Tabs defaultValue="all" className="w-full" onValueChange={setSelectedTab}>
-            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-4">
               <TabsList className="h-9">
                 <TabsTrigger value="all" className="px-4">
                   Tất cả
@@ -273,7 +283,7 @@ export default function OrdersPage() {
             </div>
 
             {showFilters && (
-              <div className="bg-slate-50 p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="bg-slate-50 p-4 rounded-lg mb-4 grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                   <label className="text-sm font-medium mb-1 block">Trạng thái đơn hàng</label>
                   <Select

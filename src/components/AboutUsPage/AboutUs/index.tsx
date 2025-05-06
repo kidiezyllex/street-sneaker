@@ -71,7 +71,7 @@ const TestimonialCard = ({ rating, title, description, image, name, role }: {
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
     >
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-center mb-4">
             {[...Array(rating)].map((_, i) => (
                 <Icon key={i} path={mdiStar} size={1.5} className="text-yellow-400 mx-1" />
             ))}
@@ -166,7 +166,7 @@ export const AboutUs = () => {
                         transition={{ duration: 0.8 }}
                     >
                         <motion.h1 
-                            className="text-5xl md:text-7xl font-normal text-white mb-6 leading-tight"
+                            className="text-5xl md:text-7xl font-normal text-white mb-4 leading-tight"
                             initial={{ opacity: 0, y: -20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.2, duration: 0.8 }}
@@ -280,7 +280,7 @@ export const AboutUs = () => {
                         viewport={{ once: true }}
                         transition={{ duration: 0.5 }}
                     >
-                        <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-6">Tại sao chọn StreetSneaker?</h2>
+                        <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Tại sao chọn StreetSneaker?</h2>
                         <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
                             Chúng tôi cam kết mang đến trải nghiệm mua sắm tốt nhất cho khách hàng với những dịch vụ và sản phẩm chất lượng cao.
                         </p>
@@ -320,7 +320,7 @@ export const AboutUs = () => {
                         viewport={{ once: true }}
                         transition={{ duration: 0.5 }}
                     >
-                        <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-6">Đội ngũ của chúng tôi</h2>
+                        <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Đội ngũ của chúng tôi</h2>
                         <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
                             StreetSneaker được vận hành bởi một đội ngũ trẻ trung, năng động và đầy nhiệt huyết. Chúng tôi luôn nỗ lực để mang đến những sản phẩm và dịch vụ tốt nhất cho khách hàng.
                         </p>
@@ -345,7 +345,7 @@ export const AboutUs = () => {
                         viewport={{ once: true }}
                         transition={{ duration: 0.5 }}
                     >
-                        <h2 className="text-4xl font-bold text-white mb-6">Khách hàng nói gì về chúng tôi?</h2>
+                        <h2 className="text-4xl font-bold text-white mb-4">Khách hàng nói gì về chúng tôi?</h2>
                         <p className="text-xl text-white/90 max-w-2xl mx-auto">
                             Những phản hồi từ khách hàng là động lực để chúng tôi không ngừng cải thiện và phát triển.
                         </p>

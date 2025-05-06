@@ -440,7 +440,7 @@ export default function DocumentList({ type, projectId, onViewDocument, data }: 
           <Skeleton className="h-10 w-full" />
         </div>
         
-        <div className="flex gap-2 flex-wrap mb-6">
+        <div className="flex gap-2 flex-wrap mb-4">
           <Skeleton className="h-8 w-16" />
           <Skeleton className="h-8 w-24" />
           <Skeleton className="h-8 w-20" />

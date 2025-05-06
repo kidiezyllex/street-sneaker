@@ -119,11 +119,11 @@ export const Footer = () => {
                 alt="Logo"
                 width={200}
                 height={134}
-                className="w-14 mb-6 lg:w-20 lg:mb-10"
+                className="w-14 mb-4 lg:w-20 lg:mb-10"
                 quality={100}
                 draggable={false}
               />
-              <p className="text-sm mb-6 lg:mb-10 lg:text-lg">©2023 Street Sneakers. All Rights Reserved.</p>
+              <p className="text-sm mb-4 lg:mb-10 lg:text-lg">©2023 Street Sneakers. All Rights Reserved.</p>
               
               <div className="gap-5 flex justify-start items-center">
                 {socialLinks.map((link, index) => (

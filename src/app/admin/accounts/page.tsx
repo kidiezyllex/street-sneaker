@@ -284,7 +284,7 @@ export default function AccountsPage() {
 
       <Card>
         <CardContent className="p-6">
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-4">
             <div className="flex flex-col sm:flex-row w-full gap-3">
               <div className="relative w-full sm:w-80">
                 <Input
@@ -314,7 +314,7 @@ export default function AccountsPage() {
           </div>
 
           {showFilters && (
-            <div className="bg-slate-50 p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-slate-50 p-4 rounded-lg mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium mb-1 block">Vai trò</label>
                 <Select

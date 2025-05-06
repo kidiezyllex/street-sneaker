@@ -17,7 +17,7 @@ import {
 export default function StatisticsPage() {
   return (
     <div>
-      <div className="mb-6">
+      <div className="mb-4">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -31,7 +31,7 @@ export default function StatisticsPage() {
         </Breadcrumb>
       </div>
       <StatSummary />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
         <SalesChart />
         <OrdersChart />
       </div>

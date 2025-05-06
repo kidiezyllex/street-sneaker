@@ -66,7 +66,7 @@ export default function PromotionsPage() {
 
   return (
     <div className="container mx-auto p-4">
-      <div className="mb-6">
+      <div className="mb-4">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -84,7 +84,7 @@ export default function PromotionsPage() {
         </Breadcrumb>
       </div>
 
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-4">
         <Link href="/admin/discounts/promotions/new">
           <button className="bg-primary text-white px-4 py-2 rounded-lg flex items-center gap-2">
             <Icon path={mdiPlus} size={1} />
@@ -93,7 +93,7 @@ export default function PromotionsPage() {
         </Link>
       </div>
 
-      <Card className="mb-6">
+      <Card className="mb-4">
         <CardContent className="p-4">
           <div className="flex gap-4 items-center">
             <div className="relative flex-1">

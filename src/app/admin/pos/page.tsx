@@ -302,8 +302,8 @@ export default function POSPage() {
   return (
     <div className="h-full">
       {/* Header with breadcrumb and stats */}
-      <div className="mb-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+      <div className="mb-4">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
@@ -359,7 +359,7 @@ export default function POSPage() {
         </div>
         
         {/* Stats cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           <div className="bg-white rounded-lg p-4 shadow-sm border border-border hover:shadow-md transition-shadow duration-300">
             <div className="flex items-center justify-between">
               <div>
@@ -429,7 +429,6 @@ export default function POSPage() {
               </div>
               <button 
                 className="px-4 py-2.5 bg-primary text-white rounded-md hover:bg-primary/90 transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
-                onClick={() => console.log('Quét mã QR')}
               >
                 <Icon path={mdiQrcodeScan} size={0.8} className="text-white" />
                 <span>Quét mã QR</span>
@@ -506,11 +505,11 @@ export default function POSPage() {
                     <p className="text-gray-500 mb-4">{selectedProduct.brand}</p>
                     
                     {selectedProduct.description && (
-                      <p className="text-gray-600 mb-6">{selectedProduct.description}</p>
+                      <p className="text-gray-600 mb-4">{selectedProduct.description}</p>
                     )}
                     
                     {/* Sizes */}
-                    <div className="mb-6">
+                    <div className="mb-4">
                       <h3 className="text-sm font-medium mb-3 !text-[#374151]/80">Kích thước:</h3>
                       <div className="flex flex-wrap gap-2">
                         {selectedColor?.sizes.map((size) => (
@@ -543,7 +542,7 @@ export default function POSPage() {
                           </p>
                         </div>
                         
-                        <div className="mb-6">
+                        <div className="mb-4">
                           <h3 className="text-sm font-medium mb-1 !text-[#374151]/80">Số lượng trong kho:</h3>
                           <div className="flex items-center gap-2">
                             <p className="text-gray-600">{selectedSize.quantity} sản phẩm</p>
@@ -788,7 +787,7 @@ export default function POSPage() {
           
           <div className="p-6 border-t border-border">
             {/* Coupon code */}
-            <div className="mb-6">
+            <div className="mb-4">
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <Icon path={mdiTag} size={0.8} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -811,7 +810,7 @@ export default function POSPage() {
             </div>
             
             {/* Order summary */}
-            <div className="space-y-3 mb-6">
+            <div className="space-y-3 mb-4">
               <div className="flex justify-between text-gray-600">
                 <span>Tạm tính:</span>
                 <span>{formatCurrency(calculateSubtotal())}</span>
