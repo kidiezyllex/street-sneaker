@@ -24,14 +24,13 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { useUser } from '@/context/useUserContext';
-import { useProfile } from '@/hooks/authentication';
 import ProfileDialog from './ProfileDialog';
 import { useRouter } from 'next/navigation';
-
+import { useUserProfile } from '@/hooks/account';
 export default function DashboardHeader() {
   const { toggle } = useMenuSidebar();
   const { logoutUser } = useUser();
-  const {profileData} = useProfile();
+  const {data: profileData} = useUserProfile();
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   const router = useRouter();
   const handleLogout = () => {

@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Loader2, Plus, Pencil, Trash2, Check, X } from "lucide-react"
 import { toast } from 'sonner'
-import { useProfile, useAddAddress, useUpdateAddress, useDeleteAddress, useSetDefaultAddress } from "@/hooks/authentication"
+import { useAddAddress, useUpdateAddress, useDeleteAddress, useUserProfile } from "@/hooks/account"
 import { motion, AnimatePresence } from "framer-motion"
 import { Icon } from '@mdi/react'
 import { mdiMapMarker, mdiHome, mdiStar, mdiStarOutline } from '@mdi/js'
@@ -33,11 +33,10 @@ const addressSchema = z.object({
 type AddressFormValues = z.infer<typeof addressSchema>
 
 export default function AddressManager() {
-  const { profileData, isLoading, refetch } = useProfile()
+  const { data: profileData, isLoading, refetch } = useUserProfile()
   const addAddressMutation = useAddAddress()
   const updateAddressMutation = useUpdateAddress()
   const deleteAddressMutation = useDeleteAddress()
-  const setDefaultAddressMutation = useSetDefaultAddress()
 
   const [addresses, setAddresses] = useState<any[]>([])
   const [isEditMode, setIsEditMode] = useState(false)
@@ -97,20 +96,6 @@ export default function AddressManager() {
     setOpenDialog(true)
   }
 
-  const handleSetDefault = async (addressId: string) => {
-    try {
-      await setDefaultAddressMutation.mutateAsync(addressId)
-      toast.success("Cập nhật thành công", {
-        description: "Đã đặt địa chỉ mặc định",
-      })
-      refetch()
-    } catch (error: any) {
-      toast.error("Cập nhật thất bại", {
-        description: error.message || "Đã xảy ra lỗi khi cập nhật địa chỉ mặc định",
-      })
-    }
-  }
-
   const handleDelete = async () => {
     if (!deleteId) return
     
@@ -136,13 +121,13 @@ export default function AddressManager() {
       if (isEditMode && currentAddressId) {
         await updateAddressMutation.mutateAsync({
           addressId: currentAddressId,
-          payload: data,
+          data: data,
         })
         toast.success("Cập nhật thành công", {
           description: "Địa chỉ đã được cập nhật",
         })
       } else {
-        await addAddressMutation.mutateAsync(data)
+        await addAddressMutation.mutateAsync(data as any)
         toast.success("Thêm mới thành công", {
           description: "Địa chỉ đã được thêm mới",
         })
@@ -224,8 +209,6 @@ export default function AddressManager() {
                             variant="ghost"
                             size="sm"
                             className="h-8 px-2 text-xs text-gray-600 hover:text-primary"
-                            onClick={() => handleSetDefault(address._id)}
-                            disabled={setDefaultAddressMutation.isPending}
                           >
                             <Icon path={mdiStarOutline} size={0.7} className="mr-1" />
                             Đặt mặc định

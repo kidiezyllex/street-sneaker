@@ -13,11 +13,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useUser } from '@/context/useUserContext';
 import { toast } from 'sonner';
-import { useProfile } from '@/hooks/authentication';
 import { useRouter } from 'next/navigation';
+import { useUserProfile } from '@/hooks/account';
 export default function UserMenu() {
   const { logoutUser } = useUser();
-  const {profileData} = useProfile();
+  const {data: profileData} = useUserProfile();
   const router = useRouter();
   const handleLogout = () => {
     logoutUser();

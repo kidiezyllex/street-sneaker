@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useProfile } from '@/hooks/authentication';
-import { useUpdateUser } from '@/hooks/useUser';
+import { useUpdateUserProfile, useUserProfile } from '@/hooks/account';
 import { toast } from 'sonner';
 import { Icon } from '@mdi/react';
 import { mdiContentSave, mdiLoading } from '@mdi/js';
@@ -29,8 +28,8 @@ interface ProfileDialogProps {
 }
 
 export default function ProfileDialog({ isOpen, onOpenChange }: ProfileDialogProps) {
-  const { profileData } = useProfile();
-  const updateUser = useUpdateUser();
+  const { data: profileData } = useUserProfile();
+  const updateUser = useUpdateUserProfile();
   
   const [formData, setFormData] = useState({
     fullName: '',

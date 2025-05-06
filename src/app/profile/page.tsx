@@ -13,13 +13,13 @@ import { Loader2 } from "lucide-react"
 import { toast } from 'sonner'
 import { useUser } from "@/context/useUserContext"
 import { motion } from "framer-motion"
-import { useProfile, useUpdateProfile } from "@/hooks/authentication"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Icon } from '@mdi/react'
 import { mdiAccount, mdiAccountEdit, mdiShieldAccount, mdiMapMarker } from '@mdi/js'
 import Link from "next/link"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import AddressManager from "@/components/ProfilePage/AddressManager"
+import { useUpdateUserProfile, useUserProfile } from "@/hooks/account"
 
 const profileSchema = z.object({
   fullName: z.string().min(3, "Tên đầy đủ phải có ít nhất 3 ký tự"),
@@ -31,8 +31,8 @@ const profileSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileSchema>
 
 function ProfileForm() {
-  const { profileData, isLoading, refetch } = useUser()
-  const updateProfileMutation = useUpdateProfile()
+  const { data: profileData, isLoading, refetch } = useUserProfile()
+  const updateProfileMutation = useUpdateUserProfile()
   const { updateUserProfile } = useUser()
 
   const form = useForm<ProfileFormValues>({

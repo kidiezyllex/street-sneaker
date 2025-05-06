@@ -12,9 +12,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Loader2, Eye, EyeOff } from "lucide-react"
 import { toast } from 'sonner';
 import { useUser } from "@/context/useUserContext"
-import { useSignIn } from "@/hooks/authentication"
 import { motion } from "framer-motion"
 import Link from "next/link"
+import { useLogin } from "@/hooks/authentication"
 
 const loginSchema = z.object({
   email: z.string().email("Email không hợp lệ").min(1, "Email không được để trống"),
@@ -24,7 +24,7 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>
 
 function LoginForm({ onSuccess }: { onSuccess: () => void }) {
-  const signInMutation = useSignIn()
+  const signInMutation = useLogin()
   const { loginUser } = useUser()
   const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
@@ -40,12 +40,12 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
   const onSubmit = async (data: LoginFormValues) => {
     try {
       const response = await signInMutation.mutateAsync(data)
-      if (response && response.success && response.data?.token && response.data?.account) {
-        loginUser(response.data?.account, response.data?.token)
+      if (response && response.success && response.data?.token && (response.data as any)?.account) {
+        loginUser((response.data as any)?.account, response.data?.token)
         toast.success("Đăng nhập thành công", {
           description: "Chào mừng bạn trở lại Street Sneaker!",
         })
-        if (response.data?.account?.role === "ADMIN") {
+        if ((response.data as any)?.account?.role === "ADMIN") {
           router.push("/admin/statistics");
         } else {
           onSuccess();
