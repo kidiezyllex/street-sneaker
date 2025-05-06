@@ -13,7 +13,7 @@ import { sendGet, sendPost, sendPut, sendDelete } from "./axios";
 
 // === Admin Promotion API ===
 export const getAllPromotions = async (params: IPromotionFilter): Promise<IPromotionsResponse> => {
-  const res = await sendGet("/promotions", { params });
+  const res = await sendGet("/promotions", params);
   return res as IPromotionsResponse;
 };
 

@@ -11,14 +11,14 @@ import {
 import {
   IAccountsResponse,
   IAccountResponse,
-  IAddressListResponse,
   IProfileResponse,
   IActionResponse
 } from "@/interface/response/account";
 import { sendGet, sendPost, sendPut, sendDelete } from "./axios";
 
+// === Admin Account API ===
 export const getAllAccounts = async (params: IAccountFilter): Promise<IAccountsResponse> => {
-  const res = await sendGet("/accounts", { params });
+  const res = await sendGet("/accounts", params);
   return res as IAccountsResponse;
 };
 
@@ -28,7 +28,7 @@ export const getAccountById = async (accountId: string): Promise<IAccountRespons
 };
 
 export const createAccount = async (payload: IAccountCreate): Promise<IAccountResponse> => {
-  const res = await sendPost("/accounts", payload);
+  const res = await sendPost("/accounts/register", payload);
   return res as IAccountResponse;
 };
 
@@ -41,49 +41,41 @@ export const updateAccountStatus = async (accountId: string, payload: IAccountSt
   const res = await sendPut(`/accounts/${accountId}/status`, payload);
   return res as IAccountResponse;
 };
+
 export const deleteAccount = async (accountId: string): Promise<IActionResponse> => {
   const res = await sendDelete(`/accounts/${accountId}`);
   return res as IActionResponse;
 };
 
-export const addAddress = async (accountId: string, payload: IAddressCreate): Promise<IAddressListResponse> => {
-  const res = await sendPost(`/accounts/${accountId}/addresses`, payload);
-  return res as IAddressListResponse;
-};
-
-export const updateAddress = async (accountId: string, addressId: string, payload: IAddressUpdate): Promise<IAddressListResponse> => {
-  const res = await sendPut(`/accounts/${accountId}/addresses/${addressId}`, payload);
-  return res as IAddressListResponse;
-};
-
-export const deleteAddress = async (accountId: string, addressId: string): Promise<IAddressListResponse> => {
-  const res = await sendDelete(`/accounts/${accountId}/addresses/${addressId}`);
-  return res as IAddressListResponse;
+// === User Profile API ===
+export const getProfile = async (): Promise<IProfileResponse> => {
+  const res = await sendGet("/accounts/profile");
+  return res as IProfileResponse;
 };
 
 export const updateProfile = async (payload: IProfileUpdate): Promise<IProfileResponse> => {
-  const res = await sendPut("/account/profile", payload);
+  const res = await sendPut("/accounts/profile", payload);
   return res as IProfileResponse;
 };
 
 export const changePassword = async (payload: IChangePassword): Promise<IActionResponse> => {
-  const res = await sendPut("/account/profile/password", payload);
+  const res = await sendPut("/accounts/profile/password", payload);
   return res as IActionResponse;
 };
 
-
-export const getCustomerAccounts = async (params: IAccountFilter): Promise<IAccountsResponse> => {
-  const res = await sendGet("/account/customers", { params });
-  return res as IAccountsResponse;
+// === Address API ===
+export const addAddress = async (payload: IAddressCreate): Promise<IProfileResponse> => {
+  const res = await sendPost("/accounts/profile/addresses", payload);
+  return res as IProfileResponse;
 };
 
-export const getCustomerAccountById = async (customerId: string): Promise<IAccountResponse> => {
-  const res = await sendGet(`/account/customers/${customerId}`);
-  return res as IAccountResponse;
+export const updateAddress = async (addressId: string, payload: IAddressUpdate): Promise<IProfileResponse> => {
+  const res = await sendPut(`/accounts/profile/addresses/${addressId}`, payload);
+  return res as IProfileResponse;
 };
 
-export const updateCustomerAccount = async (customerId: string, payload: IAccountUpdate): Promise<IAccountResponse> => {
-  const res = await sendPut(`/account/customers/${customerId}`, payload);
-  return res as IAccountResponse;
+export const deleteAddress = async (addressId: string): Promise<IProfileResponse> => {
+  const res = await sendDelete(`/accounts/profile/addresses/${addressId}`);
+  return res as IProfileResponse;
 };
 

@@ -40,22 +40,6 @@ export function logout() {
     window.location.replace("/sign-in");
   }
 }
-// instance.interceptors.response.use(
-//   (res) => {
-//     return res;
-//   },
-//   async (err) => {
-
-//     if (err.response) {
-//       if (err.response.status === 401 && !window.location.pathname.includes("sign-in") && !window.location.pathname.includes("sign-up")) {
-//         logout();
-//         return
-//       }
-
-//     }
-//     return Promise.reject(err);
-//   }
-// );
 
 export const sendGet = async (url: string, params?: any): Promise<any> => {
   const response = await instance.get(url, { params });

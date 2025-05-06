@@ -37,7 +37,7 @@ const convertParamsToQueryString = (params: any): any => {
 // === Admin/Staff Product API ===
 export const getAllProducts = async (params: IProductFilter): Promise<IProductsResponse> => {
   const formattedParams = convertParamsToQueryString(params);
-  const res = await sendGet("/products", { params: formattedParams });
+  const res = await sendGet("/products", formattedParams);
   return res as IProductsResponse;
 };
 
@@ -79,7 +79,7 @@ export const deleteProduct = async (productId: string): Promise<IActionResponse>
 // === Public Product API ===
 export const searchProducts = async (params: IProductSearchParams): Promise<IProductsResponse> => {
   const formattedParams = convertParamsToQueryString(params);
-  const res = await sendGet("/products/search", { params: formattedParams });
+  const res = await sendGet("/products/search", formattedParams);
   return res as IProductsResponse;
 };
 

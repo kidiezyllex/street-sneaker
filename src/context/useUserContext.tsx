@@ -3,8 +3,8 @@ import type React from "react"
 import { createContext, useContext, useEffect, useState } from "react"
 
 import { clearToken, setTokenToLocalStorage } from "@/helper/tokenStorage"
-import { useProfile } from "@/hooks/authentication"
-import { IProfileResponse } from "@/interface/response/authentication"
+import { useUserProfile } from "@/hooks/account"
+import { IAccountResponse } from "@/interface/response/account"
 import { QueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import cookies from "js-cookie"
@@ -13,7 +13,7 @@ const queryClient = new QueryClient()
 
 type UserContextType = {
   user: null | Record<string, any>
-  profile: IProfileResponse | null
+  profile: IAccountResponse | null
   loginUser: (userInfo: any, token: string) => void
   logoutUser: () => void
   fetchUserProfile: () => Promise<void>
@@ -36,7 +36,7 @@ const deleteCookie = (name: string) => {
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
-  const { profileData, refetch: refetchProfile, isLoading: isProfileLoading } = useProfile()
+  const { data: profileData, refetch: refetchProfile, isLoading: isProfileLoading } = useUserProfile()
   const [user, setUser] = useState<null | Record<string, any>>(() => {
     if (typeof window !== "undefined") {
       const storedUser = localStorage.getItem("user")
@@ -44,7 +44,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     }
     return null
   })
-  const [profile, setProfile] = useState<IProfileResponse | null>(null)
+  const [profile, setProfile] = useState<IAccountResponse | null>(null)
   const [isLoadingProfile, setIsLoadingProfile] = useState<boolean>(false)
 
   const loginUser = (userInfo: any, token: string) => {
@@ -60,21 +60,16 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   const updateUserProfile = (data: any) => {
     if (profile && profile.data) {
-      setProfile({
+      const updatedProfile = {
         ...profile,
         data: {
           ...profile.data,
           ...data
         }
-      })
+      };
+      setProfile(updatedProfile);
       if (typeof window !== "undefined") {
-        localStorage.setItem("userProfile", JSON.stringify({
-          ...profile,
-          data: {
-            ...profile.data,
-            ...data
-          }
-        }))
+        localStorage.setItem("userProfile", JSON.stringify(updatedProfile));
       }
     }
   }

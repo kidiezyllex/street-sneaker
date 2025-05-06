@@ -1,57 +1,49 @@
 import {
   ISignIn,
-  IRegister,
+  IRegister
 } from "@/interface/request/authentication";
 import {
   IAuthResponse,
-  IProfileResponse,
+  IProfileResponse
 } from "@/interface/response/authentication";
-import { sendGet, sendPost, sendPut, sendDelete } from "./axios";
+import { sendGet, sendPost } from "./axios";
 
+/**
+ * Đăng ký tài khoản mới
+ */
 export const register = async (payload: IRegister): Promise<IAuthResponse> => {
-  const res = await sendPost("/auth/register", payload);
-  const data: IAuthResponse = res;
-  return data;
+  const res = await sendPost("/accounts/register", payload);
+  return res as IAuthResponse;
 };
 
-export const signIn = async (payload: ISignIn): Promise<IAuthResponse> => {
+/**
+ * Đăng nhập
+ */
+export const login = async (payload: ISignIn): Promise<IAuthResponse> => {
   const res = await sendPost("/auth/login", payload);
-  const data: IAuthResponse = res;
-  return data;
+  return res as IAuthResponse;
 };
 
-export const getProfile = async (): Promise<IProfileResponse> => {
-  const res = await sendGet("/auth/profile");
-  const data: IProfileResponse = res;
-  return data;
-};
-
-export const changePassword = async (payload: any): Promise<any> => {
-  const res = await sendPut("/auth/change-password", payload);
+/**
+ * Đăng xuất
+ */
+export const logout = async (): Promise<{success: boolean; message: string}> => {
+  const res = await sendPost("/auth/logout", {});
   return res;
 };
 
-export const updateProfile = async (payload: any): Promise<any> => {
-  const res = await sendPut("/auth/update-profile", payload);
-  return res;
+/**
+ * Lấy thông tin người dùng hiện tại từ token
+ */
+export const getCurrentUser = async (): Promise<IProfileResponse> => {
+  const res = await sendGet("/auth/me");
+  return res as IProfileResponse;
 };
 
-export const addAddress = async (payload: any): Promise<any> => {
-  const res = await sendPost("/auth/address", payload);
+/**
+ * Làm mới token
+ */
+export const refreshToken = async (payload: {refreshToken: string}): Promise<{success: boolean; data: {token: string; refreshToken: string}}> => {
+  const res = await sendPost("/auth/refresh-token", payload);
   return res;
-};
-
-export const updateAddress = async (addressId: string, payload: any): Promise<any> => {
-  const res = await sendPut(`/auth/address/${addressId}`, payload);
-  return res;
-};
-
-export const deleteAddress = async (addressId: string): Promise<any> => {
-  const res = await sendDelete(`/auth/address/${addressId}`);
-  return res;
-};
-
-export const setDefaultAddress = async (addressId: string): Promise<any> => {
-  const res = await sendPut(`/auth/address/${addressId}/default`);
-  return res;
-};
+}; 

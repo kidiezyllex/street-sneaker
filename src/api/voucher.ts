@@ -15,7 +15,7 @@ import { sendGet, sendPost, sendPut, sendDelete } from "./axios";
 
 // === Admin Voucher API ===
 export const getAllVouchers = async (params: IVoucherFilter): Promise<IVouchersResponse> => {
-  const res = await sendGet("/vouchers", { params });
+  const res = await sendGet("/vouchers", params);
   return res as IVouchersResponse;
 };
 

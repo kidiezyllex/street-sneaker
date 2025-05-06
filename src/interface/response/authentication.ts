@@ -2,10 +2,8 @@ import { IAddress } from "../request/account"
 
 export interface IBaseResponse<T> {
   success: boolean
-  message: string
+  message?: string
   data: T
-  errors?: null | any
-  timestamp?: string
 }
 
 export interface IAccountData {
@@ -17,8 +15,11 @@ export interface IAccountData {
 }
 
 export interface IAuthData {
+  _id: string
+  fullName: string
+  email: string
+  role: string
   token: string
-  account: IAccountData
 }
 
 export interface IAuthResponse extends IBaseResponse<IAuthData> {}
@@ -27,10 +28,9 @@ export interface IProfileData {
   _id: string
   fullName: string
   email: string
+  phoneNumber: string
   role: string
   avatar: string
-  phoneNumber?: string
-  addresses: IAddress[]
 }
 
 export interface IProfileResponse extends IBaseResponse<IProfileData> {}

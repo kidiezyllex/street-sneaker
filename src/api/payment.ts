@@ -12,7 +12,7 @@ import { sendGet, sendPost, sendPut, sendDelete } from "./axios";
 
 // === Admin/Staff Payment API ===
 export const getAllPayments = async (params: IPaymentFilter): Promise<IPaymentsResponse> => {
-  const res = await sendGet("/payments", { params });
+  const res = await sendGet("/payments", params);
   return res as IPaymentsResponse;
 };
 

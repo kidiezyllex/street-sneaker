@@ -1,26 +1,18 @@
 import {
-  useQuery,
-  useMutation,
-  UseQueryResult,
-  UseMutationResult,
-} from "@tanstack/react-query";
-import {
   getAllAccounts,
   getAccountById,
   createAccount,
   updateAccount,
   updateAccountStatus,
   deleteAccount,
-  addAddress,
-  updateAddress,
-  deleteAddress,
+  getProfile,
   updateProfile,
   changePassword,
-  getCustomerAccounts, //                                                                                                                     Thêm hàm API cho customer
-  getCustomerAccountById, //                                                                                                                     Thêm hàm API cho customer
-  updateCustomerAccount, //                                                                                                                     Thêm hàm API cho customer
+  addAddress,
+  updateAddress,
+  deleteAddress
 } from "@/api/account";
-import {
+import type {
   IAccountFilter,
   IAccountCreate,
   IAccountUpdate,
@@ -28,137 +20,169 @@ import {
   IAddressCreate,
   IAddressUpdate,
   IProfileUpdate,
-  IChangePassword,
+  IChangePassword
 } from "@/interface/request/account";
-import {
+import type {
   IAccountsResponse,
   IAccountResponse,
-  IAddressListResponse,
   IProfileResponse,
   IActionResponse
 } from "@/interface/response/account";
+import {
+  useMutation,
+  useQuery,
+  type UseMutationResult,
+  type UseQueryResult
+} from "@tanstack/react-query";
 
-//                                                                                                                     === Admin Account Hooks ===
-
-export const useAccounts = (params: IAccountFilter = {}): UseQueryResult<IAccountsResponse, Error> => {
+/**
+ * Hook lấy danh sách tài khoản
+ */
+export const useAccounts = (
+  params: IAccountFilter = {}
+): UseQueryResult<IAccountsResponse, Error> => {
   return useQuery<IAccountsResponse, Error>({
     queryKey: ["accounts", params],
-    queryFn: () => getAllAccounts(params),
+    queryFn: () => getAllAccounts(params)
   });
 };
 
-export const useAccountDetail = (accountId: string): UseQueryResult<IAccountResponse, Error> => {
+/**
+ * Hook lấy chi tiết tài khoản
+ */
+export const useAccount = (
+  accountId: string
+): UseQueryResult<IAccountResponse, Error> => {
   return useQuery<IAccountResponse, Error>({
     queryKey: ["account", accountId],
     queryFn: () => getAccountById(accountId),
-    enabled: !!accountId, //                                                                                                                     Chỉ fetch khi có accountId
+    enabled: !!accountId
   });
 };
 
-export const useCreateAccount = (): UseMutationResult<IAccountResponse, Error, IAccountCreate> => {
+/**
+ * Hook tạo tài khoản
+ */
+export const useCreateAccount = (): UseMutationResult<
+  IAccountResponse,
+  Error,
+  IAccountCreate
+> => {
   return useMutation<IAccountResponse, Error, IAccountCreate>({
-    mutationFn: (payload) => createAccount(payload),
+    mutationFn: (data: IAccountCreate) => createAccount(data)
   });
 };
 
-export const useUpdateAccount = (): UseMutationResult<
-  IAccountResponse,
+/**
+ * Hook cập nhật tài khoản
+ */
+export const useUpdateAccount = (
+  accountId: string
+): UseMutationResult<IAccountResponse, Error, IAccountUpdate> => {
+  return useMutation<IAccountResponse, Error, IAccountUpdate>({
+    mutationFn: (data: IAccountUpdate) => updateAccount(accountId, data)
+  });
+};
+
+/**
+ * Hook cập nhật trạng thái tài khoản
+ */
+export const useUpdateAccountStatus = (
+  accountId: string
+): UseMutationResult<IAccountResponse, Error, IAccountStatusUpdate> => {
+  return useMutation<IAccountResponse, Error, IAccountStatusUpdate>({
+    mutationFn: (data: IAccountStatusUpdate) => updateAccountStatus(accountId, data)
+  });
+};
+
+/**
+ * Hook xóa tài khoản
+ */
+export const useDeleteAccount = (): UseMutationResult<
+  IActionResponse,
   Error,
-  { accountId: string; payload: IAccountUpdate }
+  string
 > => {
-  return useMutation<IAccountResponse, Error, { accountId: string; payload: IAccountUpdate }>({
-    mutationFn: ({ accountId, payload }) => updateAccount(accountId, payload),
-  });
-};
-
-export const useUpdateAccountStatus = (): UseMutationResult<
-  IAccountResponse,
-  Error,
-  { accountId: string; payload: IAccountStatusUpdate }
-> => {
-  return useMutation<IAccountResponse, Error, { accountId: string; payload: IAccountStatusUpdate }>({
-    mutationFn: ({ accountId, payload }) => updateAccountStatus(accountId, payload),
-  });
-};
-
-export const useDeleteAccount = (): UseMutationResult<IActionResponse, Error, string> => {
   return useMutation<IActionResponse, Error, string>({
-    mutationFn: (accountId) => deleteAccount(accountId),
+    mutationFn: (accountId: string) => deleteAccount(accountId)
   });
 };
 
-//                                                                                                                     === Address Hooks ===
+/**
+ * Hook lấy hồ sơ người dùng
+ */
+export const useUserProfile = (): UseQueryResult<IProfileResponse, Error> => {
+  return useQuery<IProfileResponse, Error>({
+    queryKey: ["userProfile"],
+    queryFn: () => getProfile()
+  });
+};
 
-export const useAddAddress = (): UseMutationResult<
-  IAddressListResponse,
+/**
+ * Hook cập nhật hồ sơ người dùng
+ */
+export const useUpdateUserProfile = (): UseMutationResult<
+  IProfileResponse,
   Error,
-  { accountId: string; payload: IAddressCreate }
+  IProfileUpdate
 > => {
-  return useMutation<IAddressListResponse, Error, { accountId: string; payload: IAddressCreate }>({
-    mutationFn: ({ accountId, payload }) => addAddress(accountId, payload),
-  });
-};
-
-export const useUpdateAddress = (): UseMutationResult<
-  IAddressListResponse,
-  Error,
-  { accountId: string; addressId: string; payload: IAddressUpdate }
-> => {
-  return useMutation<IAddressListResponse, Error, { accountId: string; addressId: string; payload: IAddressUpdate }>({
-    mutationFn: ({ accountId, addressId, payload }) => updateAddress(accountId, addressId, payload),
-  });
-};
-
-export const useDeleteAddress = (): UseMutationResult<
-  IAddressListResponse,
-  Error,
-  { accountId: string; addressId: string }
-> => {
-  return useMutation<IAddressListResponse, Error, { accountId: string; addressId: string }>({
-    mutationFn: ({ accountId, addressId }) => deleteAddress(accountId, addressId),
-  });
-};
-
-export const useUpdateProfile = (): UseMutationResult<IProfileResponse, Error, IProfileUpdate> => {
   return useMutation<IProfileResponse, Error, IProfileUpdate>({
-    mutationFn: (payload) => updateProfile(payload),
+    mutationFn: (data: IProfileUpdate) => updateProfile(data)
   });
 };
 
-export const useChangePassword = (): UseMutationResult<IActionResponse, Error, IChangePassword> => {
-  return useMutation<IActionResponse, Error, IChangePassword>({
-    mutationFn: (payload) => changePassword(payload),
-  });
-};
-
-//                                                                                                                     === Customer Account Hooks (Dựa trên router) ===
-
-export const useCustomerAccounts = (params: IAccountFilter = {}): UseQueryResult<IAccountsResponse, Error> => {
-  return useQuery<IAccountsResponse, Error>({
-    queryKey: ["customerAccounts", params],
-    queryFn: () => getCustomerAccounts(params),
-  });
-};
-
-export const useCustomerAccountDetail = (customerId: string): UseQueryResult<IAccountResponse, Error> => {
-  return useQuery<IAccountResponse, Error>({
-    queryKey: ["customerAccount", customerId],
-    queryFn: () => getCustomerAccountById(customerId),
-    enabled: !!customerId,
-  });
-};
-
-export const useUpdateCustomerAccount = (): UseMutationResult<
-  IAccountResponse,
+/**
+ * Hook đổi mật khẩu
+ */
+export const useChangePassword = (): UseMutationResult<
+  IActionResponse,
   Error,
-  { customerId: string; payload: IAccountUpdate }
+  IChangePassword
 > => {
-  return useMutation<IAccountResponse, Error, { customerId: string; payload: IAccountUpdate }>({
-    mutationFn: ({ customerId, payload }) => updateCustomerAccount(customerId, payload),
+  return useMutation<IActionResponse, Error, IChangePassword>({
+    mutationFn: (data: IChangePassword) => changePassword(data)
   });
 };
 
-//                                                                                                                     Lưu ý: Các hook cho địa chỉ khách hàng có thể được tạo tương tự như useAddAddress, useUpdateAddress, useDeleteAddress
-//                                                                                                                     nhưng sử dụng các hàm API customer tương ứng (nếu có) hoặc tái sử dụng các hàm hiện có với customerId.
-//                                                                                                                     Ví dụ:
-//                                                                                                                     export const useAddCustomerAddress = (): UseMutationResult<...> => { ... mutationFn: ({ customerId, payload }) => addAddress(customerId, payload) ... }; 
+/**
+ * Hook thêm địa chỉ mới
+ */
+export const useAddAddress = (): UseMutationResult<
+  IProfileResponse,
+  Error,
+  IAddressCreate
+> => {
+  return useMutation<IProfileResponse, Error, IAddressCreate>({
+    mutationFn: (data: IAddressCreate) => addAddress(data)
+  });
+};
+
+/**
+ * Hook cập nhật địa chỉ
+ */
+export const useUpdateAddress = (): UseMutationResult<
+  IProfileResponse,
+  Error,
+  { addressId: string; data: IAddressUpdate }
+> => {
+  return useMutation<
+    IProfileResponse,
+    Error,
+    { addressId: string; data: IAddressUpdate }
+  >({
+    mutationFn: ({ addressId, data }) => updateAddress(addressId, data)
+  });
+};
+
+/**
+ * Hook xóa địa chỉ
+ */
+export const useDeleteAddress = (): UseMutationResult<
+  IProfileResponse,
+  Error,
+  string
+> => {
+  return useMutation<IProfileResponse, Error, string>({
+    mutationFn: (addressId: string) => deleteAddress(addressId)
+  });
+}; 

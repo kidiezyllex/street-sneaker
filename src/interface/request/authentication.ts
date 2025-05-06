@@ -8,5 +8,8 @@ export interface IRegister {
   email: string
   password: string
   phoneNumber: string
-  role?: string
+  role?: 'CUSTOMER' | 'STAFF' | 'ADMIN'
+  gender?: 'Nam' | 'Nữ' | 'Khác'
+  birthday?: Date
+  citizenId?: string
 }

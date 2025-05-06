@@ -1,13 +1,9 @@
 import {
-  signIn,
+  login,
   register,
-  getProfile,
-  changePassword,
-  updateProfile,
-  addAddress,
-  updateAddress,
-  deleteAddress,
-  setDefaultAddress,
+  logout,
+  getCurrentUser,
+  refreshToken
 } from "@/api/authentication";
 import type {
   ISignIn,
@@ -15,29 +11,38 @@ import type {
 } from "@/interface/request/authentication";
 import type {
   IAuthResponse,
+  IProfileResponse
 } from "@/interface/response/authentication";
 import {
   type UseMutationResult,
   useMutation,
   useQuery,
 } from "@tanstack/react-query";
+import cookies from "js-cookie";
 
-export const useSignIn = (): UseMutationResult<
+/**
+ * Hook đăng nhập
+ */
+export const useLogin = (): UseMutationResult<
   IAuthResponse,
   Error,
   ISignIn
 > => {
   return useMutation<IAuthResponse, Error, ISignIn>({
-    mutationFn: (params: ISignIn) => signIn(params),
+    mutationFn: (params: ISignIn) => login(params),
     onSuccess: (result: IAuthResponse) => {
-      return result;
-    },
-    onError: (result) => {
+      // Lưu token vào cookie khi đăng nhập thành công
+      if (result.success && result.data.token) {
+        cookies.set("accessToken", result.data.token);
+      }
       return result;
     },
   });
 };
 
+/**
+ * Hook đăng ký
+ */
 export const useRegister = (): UseMutationResult<
   IAuthResponse,
   Error,
@@ -45,67 +50,69 @@ export const useRegister = (): UseMutationResult<
 > => {
   return useMutation<IAuthResponse, Error, IRegister>({
     mutationFn: (params: IRegister) => register(params),
-    onSuccess: (result: IAuthResponse) => {
-      return result;
-    },
-    onError: (result) => {
-      return result;
+  });
+};
+
+/**
+ * Hook đăng xuất
+ */
+export const useLogout = (): UseMutationResult<
+  {success: boolean; message: string},
+  Error,
+  void
+> => {
+  return useMutation<{success: boolean; message: string}, Error, void>({
+    mutationFn: () => logout(),
+    onSuccess: () => {
+      // Xóa token khi đăng xuất
+      cookies.remove("accessToken");
+      localStorage.clear();
     },
   });
 };
 
-export const useProfile = () => {
+/**
+ * Hook lấy thông tin người dùng hiện tại
+ */
+export const useCurrentUser = () => {
   const {
-    data: profileData,
+    data: userData,
     isLoading,
     isFetching,
     refetch,
-  } = useQuery({
-    queryKey: ["userProfile"],
-    queryFn: () => getProfile(),
-    enabled: typeof window !== 'undefined' && (!!localStorage.getItem('accessToken') || (typeof document !== 'undefined' && !!document.cookie.includes('accessToken='))),
+  } = useQuery<IProfileResponse, Error>({
+    queryKey: ["currentUser"],
+    queryFn: () => getCurrentUser(),
+    enabled: typeof window !== 'undefined' && (!!cookies.get("accessToken")),
   });
 
   return {
-    profileData,
+    userData,
     isLoading,
     isFetching,
     refetch,
   };
 };
 
-export const useChangePassword = (): UseMutationResult<any, Error, any> => {
-  return useMutation<any, Error, any>({
-    mutationFn: (params: any) => changePassword(params),
-  });
-};
-
-export const useUpdateProfile = (): UseMutationResult<any, Error, any> => {
-  return useMutation<any, Error, any>({
-    mutationFn: (params: any) => updateProfile(params),
-  });
-};
-
-export const useAddAddress = (): UseMutationResult<any, Error, any> => {
-  return useMutation<any, Error, any>({
-    mutationFn: (params: any) => addAddress(params),
-  });
-};
-
-export const useUpdateAddress = (): UseMutationResult<any, Error, { addressId: string; payload: any }> => {
-  return useMutation<any, Error, { addressId: string; payload: any }>({
-    mutationFn: ({ addressId, payload }) => updateAddress(addressId, payload),
-  });
-};
-
-export const useDeleteAddress = (): UseMutationResult<any, Error, string> => {
-  return useMutation<any, Error, string>({
-    mutationFn: (addressId: string) => deleteAddress(addressId),
-  });
-};
-
-export const useSetDefaultAddress = (): UseMutationResult<any, Error, string> => {
-  return useMutation<any, Error, string>({
-    mutationFn: (addressId: string) => setDefaultAddress(addressId),
+/**
+ * Hook làm mới token
+ */
+export const useRefreshToken = (): UseMutationResult<
+  {success: boolean; data: {token: string; refreshToken: string}},
+  Error,
+  {refreshToken: string}
+> => {
+  return useMutation<
+    {success: boolean; data: {token: string; refreshToken: string}},
+    Error,
+    {refreshToken: string}
+  >({
+    mutationFn: (params: {refreshToken: string}) => refreshToken(params),
+    onSuccess: (result) => {
+      if (result.success && result.data.token) {
+        cookies.set("accessToken", result.data.token);
+      }
+      return result;
+    },
   });
 };

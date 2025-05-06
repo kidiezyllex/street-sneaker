@@ -17,7 +17,7 @@ import { sendGet, sendPost, sendPut, sendDelete } from "./axios";
 
 // === Admin Return API ===
 export const getAllReturns = async (params: IReturnFilter): Promise<IReturnsResponse> => {
-  const res = await sendGet("/returns", { params });
+  const res = await sendGet("/returns", params);
   return res as IReturnsResponse;
 };
 
@@ -47,11 +47,11 @@ export const deleteReturn = async (returnId: string): Promise<IActionResponse> =
 };
 
 export const searchReturn = async (params: IReturnSearchParams): Promise<IReturnSearchResponse> => {
-  const res = await sendGet("/returns/search", { params });
+  const res = await sendGet("/returns/search", params);
   return res as IReturnSearchResponse;
 };
 
 export const getReturnStats = async (params: IReturnStatsParams): Promise<IReturnStatsResponse> => {
-  const res = await sendGet("/returns/stats", { params });
+  const res = await sendGet("/returns/stats", params);
   return res as IReturnStatsResponse;
 }; 

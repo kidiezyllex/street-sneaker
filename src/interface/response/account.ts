@@ -1,20 +1,18 @@
 import { IBaseResponse } from './authentication';
-import { IAddress } from '../request/account'; //                                                                                                                     Reuse IAddress from request if appropriate
+import { IAddress } from '../request/account';
 
 export interface IAccount {
   _id: string;
-  code: string;
   fullName: string;
   email: string;
   phoneNumber: string;
-  role: 'ADMIN' | 'CUSTOMER';
-  status: 'HOAT_DONG' | 'KHONG_HOAT_DONG';
+  role: 'CUSTOMER' | 'STAFF' | 'ADMIN';
   gender?: 'Nam' | 'Nữ' | 'Khác';
   birthday?: string | Date;
   citizenId?: string;
+  status: 'HOAT_DONG' | 'KHONG_HOAT_DONG';
   avatar?: string;
   addresses: IAddress[];
-  isMainAdmin?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -22,18 +20,20 @@ export interface IAccount {
 export interface IAccountResponse extends IBaseResponse<IAccount> {}
 
 export interface IPagination {
-  totalItems: number;
+  count: number;
   totalPages: number;
   currentPage: number;
-  limit: number;
 }
 
-export interface IAccountsResponse extends IBaseResponse<IAccount[]> {}
+export interface IAccountsData {
+  accounts: IAccount[];
+  pagination: IPagination;
+}
 
-export interface IProfileResponse extends IBaseResponse<Omit<IAccount, 'password' | 'addresses' | 'isMainAdmin'>> {}
+export interface IAccountsResponse extends IBaseResponse<IAccountsData> {}
 
-export interface IAddressListResponse extends IBaseResponse<IAddress[]> {}
+export interface IProfileResponse extends IBaseResponse<IAccount> {}
 
-export interface IActionResponse extends IBaseResponse<null> {}
-
-export interface IMessageResponse extends IBaseResponse<string> {} 
+export interface IActionResponse extends IBaseResponse<{
+  message: string;
+}> {} 

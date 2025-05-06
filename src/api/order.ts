@@ -13,7 +13,7 @@ import { sendGet, sendPost, sendPut, sendPatch, sendDelete } from "./axios";
 
 // === Admin Order API ===
 export const getAllOrders = async (params: IOrderFilter): Promise<IOrdersResponse> => {
-  const res = await sendGet("/orders", { params });
+  const res = await sendGet("/orders", params);
   return res as IOrdersResponse;
 };
 
@@ -44,6 +44,6 @@ export const cancelOrder = async (orderId: string): Promise<IOrderResponse> => {
 
 // === User Order API ===
 export const getMyOrders = async (params: IOrderFilter = {}): Promise<IOrdersResponse> => {
-  const res = await sendGet("/orders/my-orders", { params });
+  const res = await sendGet("/orders/my-orders", params);
   return res as IOrdersResponse;
 }; 

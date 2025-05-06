@@ -9,9 +9,9 @@ export interface IAccountFilter {
 export interface IAccountCreate {
   fullName: string;
   email: string;
-  password?: string;
+  password: string;
   phoneNumber: string;
-  role?: 'ADMIN' | 'CUSTOMER';
+  role?: 'CUSTOMER' | 'STAFF' | 'ADMIN';
   gender?: 'Nam' | 'Nữ' | 'Khác';
   birthday?: string | Date;
   citizenId?: string;
@@ -34,19 +34,28 @@ export interface IAccountStatusUpdate {
 
 export interface IAddress {
   _id?: string;
-  fullName: string;
-  phone: string;
-  address: string;
-  provinceId: string;
-  districtId: string;
-  wardId: string;
-  type: "NhaRieng" | "VanPhong";
+  name: string;
+  phoneNumber: string;
+  provinceId: number;
+  districtId: number;
+  wardId: number;
+  specificAddress: string;
+  type: "Nhà riêng" | "Văn phòng";
   isDefault: boolean;
 }
 
-export interface IAddressCreate extends Omit<IAddress, '_id'> {}
+export interface IAddressCreate {
+  name: string;
+  phoneNumber: string;
+  provinceId: number;
+  districtId: number;
+  wardId: number;
+  specificAddress: string;
+  type: "Nhà riêng" | "Văn phòng";
+  isDefault: boolean;
+}
 
-export interface IAddressUpdate extends Partial<Omit<IAddress, '_id'>> {}
+export interface IAddressUpdate extends Partial<IAddressCreate> {}
 
 export interface IProfileUpdate {
   fullName?: string;
@@ -59,22 +68,5 @@ export interface IProfileUpdate {
 export interface IChangePassword {
   currentPassword: string;
   newPassword: string;
-}
-
-export interface IAccountRequest {
-  email: string;
-  password: string;
-  fullName: string;
-  phone: string;
-  avatar?: string;
-  isMainAdmin?: boolean;
-}
-
-export interface IAccountsRequest {
-  page?: number;
-  limit?: number;
-  search?: string;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
-  status?: string;
+  confirmPassword: string;
 } 
