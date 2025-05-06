@@ -5,7 +5,18 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useCartStore } from '@/stores/useCartStore';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/useToast';
+import { useRouter } from 'next/navigation';
+import { createOrder } from '@/services/order';
 import Image from 'next/image';
+import { useAuth } from '@/hooks/useAuth';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface CartSheetProps {
   open: boolean;
@@ -13,6 +24,9 @@ interface CartSheetProps {
 }
 
 const CartSheet: React.FC<CartSheetProps> = ({ open, onOpenChange }) => {
+  const router = useRouter();
+  const { showToast } = useToast();
+  const { user } = useAuth();
   const { 
     items, 
     subtotal, 
@@ -20,16 +34,41 @@ const CartSheet: React.FC<CartSheetProps> = ({ open, onOpenChange }) => {
     shipping, 
     total, 
     removeFromCart, 
-    updateQuantity 
+    updateQuantity,
+    clearCart 
   } = useCartStore();
 
   const [voucher, setVoucher] = React.useState('');
+  const [isProcessing, setIsProcessing] = React.useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = React.useState<string>('');
 
   const handleQuantityChange = (id: number, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(id);
     } else {
       updateQuantity(id, quantity);
+    }
+  };
+
+  const handleCheckout = async () => {
+    try {
+      if (items.length === 0) {
+        showToast({
+          title: "Lỗi",
+          message: "Giỏ hàng trống",
+          type: "error"
+        });
+        return;
+      }
+      router.push('/checkout/shipping');
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Error during checkout:', error);
+      showToast({
+        title: "Lỗi",
+        message: "Đã có lỗi xảy ra khi xử lý đơn hàng",
+        type: "error"
+      });
     }
   };
 
@@ -138,7 +177,13 @@ const CartSheet: React.FC<CartSheetProps> = ({ open, onOpenChange }) => {
               </div>
 
               <SheetFooter className="pb-8">
-                <Button className="w-full">Thanh toán</Button>
+                <Button 
+                  className="w-full" 
+                  onClick={handleCheckout}
+                  disabled={isProcessing || items.length === 0}
+                >
+                  {isProcessing ? 'Đang xử lý...' : 'Thanh toán'}
+                </Button>
               </SheetFooter>
             </div>
           </>

@@ -1,0 +1,95 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useToast } from '@/hooks/useToast';
+import { updateOrderPayment } from '@/services/order';
+import { createVNPayUrl } from '@/services/payment';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
+export default function VNPayCallbackPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { showToast } = useToast();
+  const [isProcessing, setIsProcessing] = useState(true);
+
+  useEffect(() => {
+    const processPaymentResult = async () => {
+      try {
+        // Lấy orderId từ localStorage
+        const orderId = localStorage.getItem('pendingOrderId');
+        if (!orderId) {
+          throw new Error('Không tìm thấy thông tin đơn hàng');
+        }
+
+        // Lấy các tham số từ URL
+        const vnp_ResponseCode = searchParams.get('vnp_ResponseCode');
+        const vnp_TransactionStatus = searchParams.get('vnp_TransactionStatus');
+
+        // Gọi API để cập nhật trạng thái thanh toán
+        const response = await updateOrderPayment(orderId, {
+          vnp_ResponseCode,
+          vnp_TransactionStatus,
+          ...Object.fromEntries(searchParams.entries())
+        });
+
+        if (!response.success) {
+          throw new Error(response.message || 'Không thể cập nhật trạng thái thanh toán');
+        }
+
+        // Xóa orderId khỏi localStorage
+        localStorage.removeItem('pendingOrderId');
+
+        // Kiểm tra kết quả thanh toán
+        if (vnp_ResponseCode === '00' && vnp_TransactionStatus === '00') {
+          showToast({
+            title: "Thành công",
+            message: "Thanh toán thành công",
+            type: "success"
+          });
+          router.push(`/checkout/success?orderId=${orderId}`);
+        } else {
+          throw new Error('Thanh toán không thành công');
+        }
+      } catch (error: any) {
+        console.error('Payment processing error:', error);
+        showToast({
+          title: "Lỗi",
+          message: error.message || "Đã có lỗi xảy ra khi xử lý thanh toán",
+          type: "error"
+        });
+        router.push('/orders');
+      } finally {
+        setIsProcessing(false);
+      }
+    };
+
+    processPaymentResult();
+  }, [router, searchParams, showToast]);
+
+  return (
+    <div className="container max-w-md py-8">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-center">Xử lý thanh toán</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center">
+            {isProcessing ? (
+              <p className="text-muted-foreground">Đang xử lý kết quả thanh toán...</p>
+            ) : (
+              <p className="text-muted-foreground">
+                Vui lòng đợi trong giây lát...
+              </p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+} 

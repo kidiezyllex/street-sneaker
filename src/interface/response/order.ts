@@ -39,6 +39,7 @@ export interface IOrder {
   paymentMethod: 'CASH' | 'BANK_TRANSFER' | 'COD' | 'MIXED';
   paymentStatus: 'PENDING' | 'PARTIAL_PAID' | 'PAID';
   orderStatus: 'CHO_XAC_NHAN' | 'CHO_GIAO_HANG' | 'DANG_VAN_CHUYEN' | 'DA_GIAO_HANG' | 'HOAN_THANH' | 'DA_HUY';
+  paymentUrl?: string;
   createdAt: string;
   updatedAt: string;
 }
