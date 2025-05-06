@@ -19,7 +19,6 @@ import { toast } from 'sonner';
 import { Icon } from '@mdi/react';
 import { mdiPlus, mdiTrashCanOutline, mdiArrowLeft, mdiLoading, mdiUpload, mdiImageOutline } from '@mdi/js';
 import { AnimatePresence, motion } from 'framer-motion';
-import ProductVariantForm from '@/components/ProductPage/ProductVariantForm';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function EditProductPage({ params }: { params: { id: string } }) {
@@ -110,7 +109,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
       setUploading(true);
       const formData = createFormData(file);
       const result = await uploadImage.mutateAsync(formData);
-
+      console.log(result);
       // Xác định biến thể cần cập nhật ảnh
       const variant = productData?.data.variants.find(v => v._id === variantId);
       if (!variant) {
@@ -118,7 +117,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
         return;
       }
 
-      const newImages = [...variant.images, result.imageUrl];
+      const newImages = [...variant.images, result?.data?.imageUrl];
 
       const payload: IProductImageUpdate = {
         variantId,
