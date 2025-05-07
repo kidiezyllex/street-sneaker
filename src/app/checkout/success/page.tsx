@@ -18,7 +18,7 @@ function SuccessContent() {
   }, [orderId, router]);
 
   return (
-    <div className="container max-w-lg py-16">
+    <div className="container max-w-lg py-16 mx-auto">
       <Card className="text-center">
         <CardHeader>
           <div className="flex justify-center mb-4">
@@ -36,10 +36,10 @@ function SuccessContent() {
           </p>
         </CardContent>
         <CardFooter className="flex justify-center space-x-4">
-          <Button variant="outline" onClick={() => router.push('/orders')}>
+          <Button variant="outline" onClick={() => router.push('/account#account-tabs?tab=orders')}>
             Xem đơn hàng
           </Button>
-          <Button onClick={() => router.push('/')}>
+          <Button onClick={() => router.push('/products')}>
             Tiếp tục mua sắm
           </Button>
         </CardFooter>
@@ -51,7 +51,9 @@ function SuccessContent() {
 export default function SuccessPage() {
   return (
     <Suspense fallback={<div>Đang tải...</div>}>
+      <div className='h-screen w-full flex items-center justify-center'>
       <SuccessContent />
+      </div>
     </Suspense>
   );
 } 

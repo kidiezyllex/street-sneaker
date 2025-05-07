@@ -25,11 +25,9 @@ export default function AdminHeader() {
       <div className="flex-1 flex justify-center">
         <SearchBar />
       </div>
-      
       <div className="flex items-center space-x-4">
         <LanguageSelector />
         <NotificationDropdown />
-        <CartIcon />
         <UserMenu />
       </div>
     </header>
