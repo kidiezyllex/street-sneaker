@@ -10,7 +10,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Loader2, Plus, Pencil, Trash2, Check, X } from "lucide-react"
-import { toast } from 'sonner'
+import { toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import { useAddAddress, useUpdateAddress, useDeleteAddress, useUserProfile } from "@/hooks/account"
 import { motion, AnimatePresence } from "framer-motion"
 import { Icon } from '@mdi/react'
@@ -102,15 +103,11 @@ export default function AddressManager() {
     setIsDeleting(true)
     try {
       await deleteAddressMutation.mutateAsync(deleteId)
-      toast.success("Xóa thành công", {
-        description: "Địa chỉ đã được xóa",
-      })
+      toast.success("Xóa thành công")
       setDeleteId(null)
       refetch()
     } catch (error: any) {
-      toast.error("Xóa thất bại", {
-        description: error.message || "Đã xảy ra lỗi khi xóa địa chỉ",
-      })
+      toast.error("Xóa thất bại")
     } finally {
       setIsDeleting(false)
     }
@@ -123,22 +120,16 @@ export default function AddressManager() {
           addressId: currentAddressId,
           data: data,
         })
-        toast.success("Cập nhật thành công", {
-          description: "Địa chỉ đã được cập nhật",
-        })
+        toast.success("Cập nhật thành công")
       } else {
         await addAddressMutation.mutateAsync(data as any)
-        toast.success("Thêm mới thành công", {
-          description: "Địa chỉ đã được thêm mới",
-        })
+        toast.success("Thêm mới thành công")
       }
       setOpenDialog(false)
       resetForm()
       refetch()
     } catch (error: any) {
-      toast.error(isEditMode ? "Cập nhật thất bại" : "Thêm mới thất bại", {
-        description: error.message || "Đã xảy ra lỗi",
-      })
+      toast.error(isEditMode ? "Cập nhật thất bại" : "Thêm mới thất bại")
     }
   }
 

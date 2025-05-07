@@ -44,7 +44,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import Image from 'next/image';
 import { useBrands, useCreateBrand, useUpdateBrand } from '@/hooks/product';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const MAX_FILE_SIZE = 5000000; // 5MB

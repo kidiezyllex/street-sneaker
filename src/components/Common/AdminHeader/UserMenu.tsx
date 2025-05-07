@@ -12,7 +12,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useUser } from '@/context/useUserContext';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/hooks/account';
 export default function UserMenu() {

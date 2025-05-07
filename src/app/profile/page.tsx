@@ -10,7 +10,8 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Loader2 } from "lucide-react"
-import { toast } from 'sonner'
+import { toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css';
 import { useUser } from "@/context/useUserContext"
 import { motion } from "framer-motion"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -59,15 +60,11 @@ function ProfileForm() {
   const onSubmit = async (data: ProfileFormValues) => {
     try {
       await updateProfileMutation.mutateAsync(data)
-      toast.success("Cập nhật thành công", {
-        description: "Thông tin cá nhân của bạn đã được cập nhật",
-      })
+      toast.success("Cập nhật thành công")
       refetch()
     } catch (error: any) {
       console.error("Lỗi cập nhật:", error)
-      toast.error("Cập nhật thất bại", {
-        description: error.message || "Đã xảy ra lỗi khi cập nhật thông tin",
-      })
+      toast.error("Cập nhật thất bại")
     }
   }
 

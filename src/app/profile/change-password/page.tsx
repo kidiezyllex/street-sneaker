@@ -10,7 +10,8 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Loader2, Eye, EyeOff, ArrowLeft } from "lucide-react"
-import { toast } from 'sonner'
+import { toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css';
 import { useUser } from "@/context/useUserContext"
 import { motion } from "framer-motion"
 import { useChangePassword } from "@/hooks/authentication"
@@ -108,13 +109,11 @@ function ChangePasswordForm() {
   const onSubmit = async (data: PasswordFormValues) => {
     try {
       await changePasswordMutation.mutateAsync({
-        oldPassword: data.oldPassword,
-        newPassword: data.newPassword,
+        oldPassword: (data as any).oldPassword,
+        newPassword: (data as any).newPassword,
       })
       
-      toast.success("Đổi mật khẩu thành công", {
-        description: "Mật khẩu của bạn đã được cập nhật",
-      })
+      toast.success("Đổi mật khẩu thành công")
       
       //                                                                                                                     Đợi toast hiển thị xong rồi chuyển hướng
       setTimeout(() => {
@@ -122,9 +121,7 @@ function ChangePasswordForm() {
       }, 2000)
     } catch (error: any) {
       console.error("Lỗi đổi mật khẩu:", error)
-      toast.error("Đổi mật khẩu thất bại", {
-        description: error.message || "Mật khẩu cũ không chính xác hoặc đã xảy ra lỗi",
-      })
+      toast.error("Đổi mật khẩu thất bại")
     }
   }
 

@@ -46,8 +46,22 @@ export interface IOrder {
 
 export interface IOrderResponse {
   success: boolean;
-  message: string;
-  data: IOrder;
+  data: {
+    _id: string;
+    orderNumber: string;
+    customer: any;
+    items: any[];
+    voucher: any;
+    subTotal: number;
+    discount: number;
+    total: number;
+    shippingAddress: any;
+    paymentMethod: string;
+    orderStatus: 'CHO_XAC_NHAN' | 'CHO_GIAO_HANG' | 'DANG_VAN_CHUYEN' | 'DA_GIAO_HANG' | 'HOAN_THANH' | 'DA_HUY';
+    paymentStatus: 'PENDING' | 'PARTIAL_PAID' | 'PAID';
+    createdAt: string;
+    updatedAt: string;
+  };
 }
 
 export interface IOrdersResponse {

@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Icon } from '@mdi/react';
 import { mdiTicket, mdiCheck, mdiClose, mdiLoading } from '@mdi/js';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface VoucherFormProps {

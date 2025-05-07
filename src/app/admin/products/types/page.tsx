@@ -39,7 +39,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useCategories, useCreateCategory, useUpdateCategory } from '@/hooks/product';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const typeFormSchema = z.object({

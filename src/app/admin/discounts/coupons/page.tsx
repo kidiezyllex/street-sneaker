@@ -6,7 +6,8 @@ import { Icon } from '@mdi/react';
 import { mdiMagnify, mdiPlus, mdiPencilOutline, mdiTrashCanOutline, mdiFilterOutline } from '@mdi/js';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { cn } from '@/lib/utils';
 import {
   Breadcrumb,
@@ -16,8 +17,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-
-//                                                                                                                     Mock data cho mã giảm giá
 const coupons = [
   {
     id: '1',

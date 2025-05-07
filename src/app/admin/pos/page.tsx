@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { categories, products, CartItem, Product, ProductColor, ProductSize } from '@/components/POSPage/mockData';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { Icon } from '@mdi/react';

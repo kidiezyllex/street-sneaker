@@ -10,7 +10,8 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Loader2, Eye, EyeOff } from "lucide-react"
-import { toast } from 'sonner';
+import { toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css';
 import { useUser } from "@/context/useUserContext"
 import { motion } from "framer-motion"
 import Link from "next/link"
@@ -42,9 +43,7 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
       const response = await signInMutation.mutateAsync(data)
       if (response && response.success && response.data?.token && (response.data as any)?.account) {
         loginUser((response.data as any)?.account, response.data?.token)
-        toast.success("Đăng nhập thành công", {
-          description: "Chào mừng bạn trở lại Street Sneaker!",
-        })
+        toast.success("Đăng nhập thành công")
         if ((response.data as any)?.account?.role === "ADMIN") {
           router.push("/admin/statistics");
         } else {
@@ -53,9 +52,7 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
       }
     } catch (error: any) {
       console.error("Lỗi đăng nhập:", error)
-      toast.error("Đăng nhập thất bại", {
-        description: error.message || "Đã xảy ra lỗi khi đăng nhập",
-      })
+      toast.error("Đăng nhập thất bại")
     }
   }
 

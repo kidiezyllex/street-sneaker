@@ -10,7 +10,8 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Loader2, Eye, EyeOff } from "lucide-react"
-import { toast } from 'sonner';
+import { toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'; 
 import { useUser } from "@/context/useUserContext"
 import { motion } from "framer-motion"
 import Link from "next/link"
@@ -99,16 +100,12 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
       const response = await signUpMutation.mutateAsync(data as any)
       if (response) {
         loginUser(response?.data?.account, response?.data?.token)
-        toast.success("Đăng ký thành công", {
-          description: "Chào mừng bạn đến với Street Sneaker! Vui lòng đăng nhập.",
-        })
+        toast.success("Đăng ký thành công")
         onSuccess()
       }
     } catch (error: any) {
       console.error("Lỗi đăng ký:", error)
-      toast.error("Đăng ký thất bại", {
-        description: error.status === 400 ? "Email hoặc số điện thoại đã được sử dụng" : error.message || "Đã xảy ra lỗi khi đăng ký",
-      })
+      toast.error("Đăng ký thất bại")
     }
   }
 

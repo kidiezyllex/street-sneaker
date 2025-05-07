@@ -30,12 +30,27 @@ export interface IShippingAddress {
 
 export interface IOrderCreate {
   customer: string;
-  items: IOrderItem[];
-  voucher?: string;
+  items: {
+    product: string;
+    variant: {
+      colorId: string;
+      sizeId: string;
+    };
+    quantity: number;
+    price: number;
+  }[];
+  voucher: string;
   subTotal: number;
-  discount?: number;
+  discount: number;
   total: number;
-  shippingAddress?: IShippingAddress;
+  shippingAddress: {
+    name: string;
+    phoneNumber: string;
+    provinceId: string;
+    districtId: string;
+    wardId: string;
+    specificAddress: string;
+  };
   paymentMethod: 'CASH' | 'BANK_TRANSFER' | 'COD' | 'MIXED';
 }
 

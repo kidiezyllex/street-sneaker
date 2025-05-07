@@ -32,6 +32,7 @@ const itemAnimation = {
 };
 const AccountDropdown = () => {
     const { isAuthenticated, logoutUser, profile } = useUser();
+    console.log(profile)
     const handleLogout = () => {
         logoutUser();
     };
