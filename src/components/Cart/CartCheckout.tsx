@@ -42,21 +42,6 @@ export const CartCheckout: React.FC<CartCheckoutProps> = ({ onClose }) => {
     }));
   };
 
-  const validateShippingAddress = () => {
-    const required = ['name', 'phoneNumber', 'provinceId', 'districtId', 'wardId', 'specificAddress'];
-    const missing = required.filter(field => !shippingAddress[field as keyof ShippingAddress]);
-    
-    if (missing.length > 0) {
-      showToast({
-        title: 'Lỗi',
-        message: 'Vui lòng điền đầy đủ thông tin giao hàng',
-        type: 'error'
-      });
-      return false;
-    }
-    return true;
-  };
-
   const handleCheckout = async () => {
     try {
       if (items.length === 0) {
@@ -84,7 +69,7 @@ export const CartCheckout: React.FC<CartCheckoutProps> = ({ onClose }) => {
         shippingAddress,
         paymentMethod: 'PENDING'
       };
-      const response = await createOrder(orderData);
+      const response = await createOrder(orderData as any);
       
       if (response.success) {
         setOrderId(response.data._id);

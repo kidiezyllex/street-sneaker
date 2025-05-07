@@ -46,4 +46,12 @@ export const cancelOrder = async (orderId: string): Promise<IOrderResponse> => {
 export const getMyOrders = async (params: IOrderFilter = {}): Promise<IOrdersResponse> => {
   const res = await sendGet("/orders/my-orders", params);
   return res as IOrdersResponse;
+};
+
+export const getOrdersByUser = async (
+  userId: string,
+  params: { orderStatus?: string; page?: number; limit?: number } = {}
+): Promise<IOrdersResponse> => {
+  const res = await sendGet(`/orders/user/${userId}`, params);
+  return res as IOrdersResponse;
 }; 

@@ -47,15 +47,15 @@ export default function UserMenu() {
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <IconUser className="mr-2 h-4 w-4" />
-            <span>Thông tin tài khoản</span>
+            <span className='!text-maintext'>Thông tin tài khoản</span>
           </DropdownMenuItem>
           <DropdownMenuItem>
             <IconSettings className="mr-2 h-4 w-4" />
-            <span>Cài đặt</span>
+            <span className='!text-maintext'>Cài đặt</span>
           </DropdownMenuItem>
           <DropdownMenuItem>
             <IconLock className="mr-2 h-4 w-4" />
-            <span>Đổi mật khẩu</span>
+            <span className='!text-maintext'>Đổi mật khẩu</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

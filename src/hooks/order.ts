@@ -11,7 +11,8 @@ import {
   updateOrder,
   updateOrderStatus,
   cancelOrder,
-  getMyOrders
+  getMyOrders,
+  getOrdersByUser
 } from "@/api/order";
 import {
   IOrderFilter,
@@ -75,5 +76,16 @@ export const useMyOrders = (params: IOrderFilter = {}): UseQueryResult<IOrdersRe
   return useQuery<IOrdersResponse, Error>({
     queryKey: ["myOrders", params],
     queryFn: () => getMyOrders(params),
+  });
+};
+
+export const useOrdersByUser = (
+  userId: string,
+  params: { orderStatus?: string; page?: number; limit?: number } = {}
+): UseQueryResult<IOrdersResponse, Error> => {
+  return useQuery<IOrdersResponse, Error>({
+    queryKey: ["ordersByUser", userId, params],
+    queryFn: () => getOrdersByUser(userId, params),
+    enabled: !!userId,
   });
 }; 

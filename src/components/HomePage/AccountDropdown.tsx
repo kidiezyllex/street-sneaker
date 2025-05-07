@@ -80,8 +80,8 @@ const AccountDropdown = () => {
                     <motion.div variants={itemAnimation} transition={{ delay: 0.05 }}>
                         <DropdownMenuItem asChild>
                             <Link href="/account" className="flex items-center cursor-pointer">
-                                <Icon path={mdiAccount} size={0.7} className="mr-2" />
-                                Quản lý tài khoản
+                                <Icon path={mdiAccount} size={0.7} className="mr-2 text-maintext" />
+                               <span className='!text-maintext'>Quản lý chung</span>
                             </Link>
                         </DropdownMenuItem>
                     </motion.div>
@@ -90,8 +90,8 @@ const AccountDropdown = () => {
                         <motion.div variants={itemAnimation} transition={{ delay: 0.07 }}>
                             <DropdownMenuItem asChild>
                                 <Link href="/admin/statistics" className="flex items-center cursor-pointer">
-                                    <Icon path={mdiViewDashboard} size={0.7} className="mr-2" />
-                                    Dashboard
+                                    <Icon path={mdiViewDashboard} size={0.7} className="mr-2 text-maintext" />
+                                    <span className='!text-maintext'>Dashboard</span>
                                 </Link>
                             </DropdownMenuItem>
                         </motion.div>

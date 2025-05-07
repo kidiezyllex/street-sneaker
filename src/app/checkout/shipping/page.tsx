@@ -39,6 +39,7 @@ import {
 import { checkImageUrl } from '@/lib/utils';
 import { formatPrice } from '@/utils/formatters';
 import { useCreateOrder } from '@/hooks/order';
+import { useUser } from '@/context/useUserContext';
 
 const shippingFormSchema = z.object({
   fullName: z.string().min(1, "Vui lòng nhập họ tên"),
@@ -55,7 +56,7 @@ type ShippingFormValues = z.infer<typeof shippingFormSchema>;
 
 export default function ShippingPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user } = useUser()
   const { items, subtotal, tax, shipping, total, clearCart } = useCartStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -64,9 +65,9 @@ export default function ShippingPage() {
   const form = useForm<ShippingFormValues>({
     resolver: zodResolver(shippingFormSchema),
     defaultValues: {
-      fullName: user?.fullName || "",
-      email: user?.email || "",
-      phoneNumber: user?.phoneNumber || "",
+      fullName: user?.data?.fullName || "",
+      email: user?.data?.email || "",
+      phoneNumber: user?.data?.phoneNumber || "",
       address: "",
       province: "",
       district: "",
@@ -176,215 +177,215 @@ export default function ShippingPage() {
   }
 
   return (
-      <div className="container mx-auto px-4 py-8 relative">
-        <Breadcrumb className="mb-4">
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/">Trang chủ</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Thanh toán đơn hàng</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <Card>
-              <CardHeader>
-                <CardTitle>Thông tin giao hàng</CardTitle>
-                <CardDescription>
-                  Vui lòng điền đầy đủ thông tin để chúng tôi giao hàng đến bạn
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="fullName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Họ tên</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Nguyễn Văn A" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+    <div className="container mx-auto px-4 py-8 relative">
+      <Breadcrumb className="mb-4">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/">Trang chủ</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Thanh toán đơn hàng</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Thông tin giao hàng</CardTitle>
+              <CardDescription>
+                Vui lòng điền đầy đủ thông tin để chúng tôi giao hàng đến bạn
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="fullName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Họ tên</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Nguyễn Văn A" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                    <FormField
-                      control={form.control}
-                      name="phoneNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Số điện thoại</FormLabel>
-                          <FormControl>
-                            <Input placeholder="0123456789" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <FormField
+                    control={form.control}
+                    name="phoneNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Số điện thoại</FormLabel>
+                        <FormControl>
+                          <Input placeholder="0123456789" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email</FormLabel>
-                          <FormControl>
-                            <Input placeholder="example@email.com" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input placeholder="example@email.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                    <FormField
-                      control={form.control}
-                      name="province"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Tỉnh/Thành phố</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <FormField
+                    control={form.control}
+                    name="province"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tỉnh/Thành phố</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                    <FormField
-                      control={form.control}
-                      name="district"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Quận/Huyện</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <FormField
+                    control={form.control}
+                    name="district"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Quận/Huyện</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                    <FormField
-                      control={form.control}
-                      name="ward"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Phường/Xã</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <FormField
+                    control={form.control}
+                    name="ward"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phường/Xã</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                    <FormField
-                      control={form.control}
-                      name="address"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Địa chỉ cụ thể</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Số nhà, tên đường..." {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <FormField
+                    control={form.control}
+                    name="address"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Địa chỉ cụ thể</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Số nhà, tên đường..." {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                    <FormField
-                      control={form.control}
-                      name="paymentMethod"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Phương thức thanh toán</FormLabel>
-                          <FormControl>
-                            <Select
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              disabled={field.disabled}
-                            >
-                              <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Chọn phương thức thanh toán" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="COD">Thanh toán khi nhận hàng (COD)</SelectItem>
-                                <SelectItem value="BANK_TRANSFER">Thanh toán qua VNPay</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <FormField
+                    control={form.control}
+                    name="paymentMethod"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phương thức thanh toán</FormLabel>
+                        <FormControl>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            disabled={field.disabled}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Chọn phương thức thanh toán" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="COD">Thanh toán khi nhận hàng (COD)</SelectItem>
+                              <SelectItem value="BANK_TRANSFER">Thanh toán qua VNPay</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                    <Button type="submit" className="w-full" disabled={isProcessing}>
-                      {isProcessing ? "Đang xử lý..." : "Hoàn tất đặt hàng"}
-                    </Button>
-                  </form>
-                </Form>
-              </CardContent>
-            </Card>
-          </div>
+                  <Button type="submit" className="w-full" disabled={isProcessing}>
+                    {isProcessing ? "Đang xử lý..." : "Hoàn tất đặt hàng"}
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        </div>
 
-          <div>
-            <Card>
-              <CardHeader>
-                <CardTitle>Đơn hàng của bạn</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {items.map((item) => (
-                    <div key={item.id} className="flex gap-4">
-                      <div className="w-20 h-20 bg-muted rounded relative overflow-hidden">
-                        <img
-                          src={checkImageUrl(item.image)}
-                          alt={item.name}
-                          className="object-cover w-full h-full"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-medium">{item.name}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {item.brand}
-                          {item.size && ` • Size ${item.size}`}
-                        </p>
-                        <div className="flex justify-between mt-2">
-                          <span>x{item.quantity}</span>
-                          <span>{formatPrice(item.price)}</span>
-                        </div>
+        <div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Đơn hàng của bạn</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {items.map((item) => (
+                  <div key={item.id} className="flex gap-4">
+                    <div className="w-20 h-20 bg-muted rounded relative overflow-hidden">
+                      <img
+                        src={checkImageUrl(item.image)}
+                        alt={item.name}
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-medium">{item.name}</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {item.brand}
+                        {item.size && ` • Size ${item.size}`}
+                      </p>
+                      <div className="flex justify-between mt-2">
+                        <span>x{item.quantity}</span>
+                        <span>{formatPrice(item.price)}</span>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-              <CardFooter className="flex flex-col space-y-2">
-                <div className="flex justify-between w-full">
-                  <span className="text-muted-foreground">Tạm tính</span>
-                  <span>{formatPrice(subtotal)}</span>
-                </div>
-                <div className="flex justify-between w-full">
-                  <span className="text-muted-foreground">Thuế</span>
-                  <span>{formatPrice(tax)}</span>
-                </div>
-                <div className="flex justify-between w-full">
-                  <span className="text-muted-foreground">Phí vận chuyển</span>
-                  <span>{formatPrice(shipping)}</span>
-                </div>
-                <div className="flex justify-between w-full text-base font-semibold text-maintext pt-2 border-t">
-                  <span>Tổng cộng</span>
-                  <span>{formatPrice(total)}</span>
-                </div>
-              </CardFooter>
-            </Card>
-          </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+            <CardFooter className="flex flex-col space-y-2">
+              <div className="flex justify-between w-full">
+                <span className="text-muted-foreground">Tạm tính</span>
+                <span>{formatPrice(subtotal)}</span>
+              </div>
+              <div className="flex justify-between w-full">
+                <span className="text-muted-foreground">Thuế</span>
+                <span>{formatPrice(tax)}</span>
+              </div>
+              <div className="flex justify-between w-full">
+                <span className="text-muted-foreground">Phí vận chuyển</span>
+                <span>{formatPrice(shipping)}</span>
+              </div>
+              <div className="flex justify-between w-full text-base font-semibold text-maintext pt-2 border-t">
+                <span>Tổng cộng</span>
+                <span>{formatPrice(total)}</span>
+              </div>
+            </CardFooter>
+          </Card>
         </div>
       </div>
+    </div>
   );
 } 
