@@ -40,6 +40,7 @@ import { checkImageUrl } from '@/lib/utils';
 import { formatPrice } from '@/utils/formatters';
 import { useCreateOrder } from '@/hooks/order';
 import { useUser } from '@/context/useUserContext';
+import { useCreateNotification } from '@/hooks/notification';
 
 const shippingFormSchema = z.object({
   fullName: z.string().min(1, "Vui lòng nhập họ tên"),
@@ -61,6 +62,7 @@ export default function ShippingPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const createOrderMutation = useCreateOrder();
+  const createNotificationMutation = useCreateNotification();
 
   const form = useForm<ShippingFormValues>({
     resolver: zodResolver(shippingFormSchema),
@@ -96,6 +98,89 @@ export default function ShippingPage() {
     checkCart();
   }, [items, router]);
 
+  const sendOrderConfirmationEmail = async (orderId: string, orderData: any, userEmail: string) => {
+    try {
+      const itemsList = items.map(item => 
+        `<tr>
+          <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.name} (${item.size || 'N/A'})</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.quantity}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${formatPrice(item.price)}</td>
+        </tr>`
+      ).join('');
+
+      const emailContent = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; padding: 20px;">
+          <h2 style="color: #333; text-align: center;">Xác nhận đơn hàng</h2>
+          <p>Xin chào <strong>${orderData.shippingAddress.name}</strong>,</p>
+          <p>Cảm ơn bạn đã đặt hàng tại Street Sneaker. Dưới đây là chi tiết đơn hàng của bạn:</p>
+          
+          <div style="background-color: #f9f9f9; padding: 15px; margin: 20px 0;">
+            <p><strong>Mã đơn hàng:</strong> ${orderData.code || orderId}</p>
+            <p><strong>Ngày đặt hàng:</strong> ${new Date().toLocaleDateString('vi-VN')}</p>
+            <p><strong>Phương thức thanh toán:</strong> ${orderData.paymentMethod === 'COD' ? 'Thanh toán khi nhận hàng' : 'Thanh toán qua VNPay'}</p>
+          </div>
+          
+          <h3 style="color: #333;">Chi tiết sản phẩm</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background-color: #f2f2f2;">
+                <th style="padding: 10px; text-align: left;">Sản phẩm</th>
+                <th style="padding: 10px;">Số lượng</th>
+                <th style="padding: 10px; text-align: right;">Giá</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsList}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="2" style="padding: 10px; text-align: right; font-weight: bold;">Tạm tính:</td>
+                <td style="padding: 10px; text-align: right;">${formatPrice(subtotal)}</td>
+              </tr>
+              <tr>
+                <td colspan="2" style="padding: 10px; text-align: right; font-weight: bold;">Thuế:</td>
+                <td style="padding: 10px; text-align: right;">${formatPrice(tax)}</td>
+              </tr>
+              <tr>
+                <td colspan="2" style="padding: 10px; text-align: right; font-weight: bold;">Phí vận chuyển:</td>
+                <td style="padding: 10px; text-align: right;">${formatPrice(shipping)}</td>
+              </tr>
+              <tr style="background-color: #f9f9f9;">
+                <td colspan="2" style="padding: 10px; text-align: right; font-weight: bold;">Tổng cộng:</td>
+                <td style="padding: 10px; text-align: right; font-weight: bold;">${formatPrice(total)}</td>
+              </tr>
+            </tfoot>
+          </table>
+          
+          <div style="margin-top: 20px;">
+            <h3 style="color: #333;">Thông tin giao hàng</h3>
+            <p><strong>Người nhận:</strong> ${orderData.shippingAddress.name}</p>
+            <p><strong>Số điện thoại:</strong> ${orderData.shippingAddress.phoneNumber}</p>
+            <p><strong>Địa chỉ:</strong> ${orderData.shippingAddress.specificAddress}, ${orderData.shippingAddress.wardId}, ${orderData.shippingAddress.districtId}, ${orderData.shippingAddress.provinceId}</p>
+          </div>
+          
+          <div style="margin-top: 30px; text-align: center; color: #777;">
+            <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi qua email hoặc hotline.</p>
+            <p>© 2023 Street Sneaker. Tất cả các quyền được bảo lưu.</p>
+          </div>
+        </div>
+      `;
+
+      // Tạo thông báo email
+      await createNotificationMutation.mutateAsync({
+        type: 'EMAIL',
+        title: `Xác nhận đơn hàng ${orderData.code || orderId}`,
+        content: emailContent,
+        recipients: [userEmail, 'buitranthienan1111@gmail.com'], // Email của người dùng và email test
+        relatedTo: 'ORDER',
+        relatedId: orderId
+      });
+
+    } catch (error) {
+      console.error('Error sending confirmation email:', error);
+    }
+  };
+
   const onSubmit = async (values: ShippingFormValues) => {
     try {
       setIsProcessing(true);
@@ -126,6 +211,10 @@ export default function ShippingPage() {
       if (response && response.success && response.data) {
         clearCart();
         toast.success('Đặt hàng thành công!');
+        
+        // Gửi email xác nhận đơn hàng
+        await sendOrderConfirmationEmail(response.data._id, response.data, values.email);
+        
         if (values.paymentMethod === 'BANK_TRANSFER') {
           try {
             await new Promise(resolve => setTimeout(resolve, 1000));
