@@ -36,6 +36,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import QrCodeScanner from '@/components/ProductPage/QrCodeScanner';
 import VoucherForm from '@/components/ProductPage/VoucherForm';
 import CartIcon from '@/components/ui/CartIcon';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
+} from "@/components/ui/pagination";
 
 interface ProductCardProps {
   product: any;
@@ -56,7 +65,7 @@ export default function ProductsPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [pagination, setPagination] = useState({
     page: 1,
-    limit: 12,
+    limit: 8,
   });
   const [filters, setFilters] = useState<IProductFilter>({});
   const [searchQuery, setSearchQuery] = useState('');
@@ -84,6 +93,7 @@ export default function ProductsPage() {
   };
 
   const productsQuery = useProducts(paginationParams);
+  console.log(productsQuery)
   const searchQuery2 = useSearchProducts(isSearching ? { keyword: searchQuery, status: 'HOAT_DONG' } : { keyword: '' });
   const { data: rawData, isLoading, isError } = isSearching ? searchQuery2 : productsQuery;
   const data = useMemo(() => {
@@ -158,20 +168,12 @@ export default function ProductsPage() {
       });
     }
 
-    const totalItems = filteredProducts.length;
-    const totalPages = Math.ceil(totalItems / pagination.limit);
-
+    // Giữ nguyên thông tin phân trang từ API
     return {
       ...rawData,
       data: {
         ...rawData.data,
-        products: filteredProducts,
-        pagination: {
-          ...rawData.data.pagination,
-          totalItems,
-          totalPages,
-          currentPage: pagination.page > totalPages ? 1 : pagination.page
-        }
+        products: filteredProducts
       }
     };
   }, [rawData, filters, sortOption, pagination]);
@@ -404,84 +406,134 @@ export default function ProductsPage() {
                 </p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {filteredProducts.map((product) => (
-                  <ProductCard
-                    key={product._id}
-                    product={product}
-                    onAddToCart={() => handleAddToCart(product)}
-                    onQuickView={() => handleQuickView(product)}
-                    onAddToWishlist={() => handleAddToWishlist(product)}
-                  />
-                ))}
+                {filteredProducts
+                  .map((product) => (
+                    <ProductCard
+                      key={product._id}
+                      product={product}
+                      onAddToCart={() => handleAddToCart(product)}
+                      onQuickView={() => handleQuickView(product)}
+                      onAddToWishlist={() => handleAddToWishlist(product)}
+                    />
+                  ))}
               </div>
-              
+
               {/* Phân trang */}
-              {data && data.data.pagination && data.data.pagination.totalPages > 1 && (
-                <div className="flex justify-center mt-8">
-                  <div className="flex gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      disabled={pagination.page <= 1}
-                      onClick={() => handlePageChange(pagination.page - 1)}
-                    >
-                      Trước
-                    </Button>
-                    
-                    {[...Array(data.data.pagination.totalPages)].map((_, index) => {
-                      const pageNumber = index + 1;
-                      const isCurrentPage = pageNumber === pagination.page;
-                      
-                      // Chỉ hiển thị các trang gần trang hiện tại
-                      if (
-                        pageNumber === 1 || 
-                        pageNumber === data.data.pagination.totalPages ||
-                        (pageNumber >= pagination.page - 1 && pageNumber <= pagination.page + 1)
-                      ) {
-                        return (
-                          <Button
-                            key={pageNumber}
-                            variant={isCurrentPage ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => handlePageChange(pageNumber)}
-                          >
-                            {pageNumber}
-                          </Button>
-                        );
-                      } else if (
-                        (pageNumber === 2 && pagination.page > 3) ||
-                        (pageNumber === data.data.pagination.totalPages - 1 && pagination.page < data.data.pagination.totalPages - 2)
-                      ) {
-                        return (
-                          <Button
-                            key={pageNumber}
-                            variant="outline"
-                            size="sm"
-                            disabled
-                          >
-                            ...
-                          </Button>
+              <div className="flex justify-center mt-8">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        href="#"
+                        disabled={(data?.data?.pagination as any)?.currentPage <= 1}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if ((data?.data?.pagination as any)?.currentPage > 1)
+                            handlePageChange((data?.data?.pagination as any)?.currentPage - 1);
+                        }}
+                      />
+                    </PaginationItem>
+                    {(() => {
+                      const pages = [];
+                      const totalPages = (data?.data?.pagination as any)?.totalPages || 1;
+                      const currentPage = (data?.data?.pagination as any)?.currentPage || 1;
+
+                      // Hiển thị trang đầu
+                      if (totalPages > 0) {
+                        pages.push(
+                          <PaginationItem key={1}>
+                            <PaginationLink
+                              href="#"
+                              isActive={currentPage === 1}
+                              onClick={e => {
+                                e.preventDefault();
+                                handlePageChange(1);
+                              }}
+                            >
+                              1
+                            </PaginationLink>
+                          </PaginationItem>
                         );
                       }
-                      
-                      return null;
-                    })}
-                    
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      disabled={pagination.page >= data.data.pagination.totalPages}
-                      onClick={() => handlePageChange(pagination.page + 1)}
-                    >
-                      Sau
-                    </Button>
-                  </div>
-                </div>
-              )}
-              
+
+                      // Hiển thị dấu ... nếu cần
+                      if (currentPage > 3) {
+                        pages.push(
+                          <PaginationItem key="start-ellipsis">
+                            <PaginationEllipsis />
+                          </PaginationItem>
+                        );
+                      }
+
+                      // Hiển thị các trang gần currentPage
+                      for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+                        if (i !== 1 && i !== totalPages) {
+                          pages.push(
+                            <PaginationItem key={i}>
+                              <PaginationLink
+                                href="#"
+                                isActive={currentPage === i}
+                                onClick={e => {
+                                  e.preventDefault();
+                                  handlePageChange(i);
+                                }}
+                              >
+                                {i}
+                              </PaginationLink>
+                            </PaginationItem>
+                          );
+                        }
+                      }
+
+                      // Hiển thị dấu ... nếu cần
+                      if (currentPage < totalPages - 2) {
+                        pages.push(
+                          <PaginationItem key="end-ellipsis">
+                            <PaginationEllipsis />
+                          </PaginationItem>
+                        );
+                      }
+
+                      // Hiển thị trang cuối
+                      if (totalPages > 1) {
+                        pages.push(
+                          <PaginationItem key={totalPages}>
+                            <PaginationLink
+                              href="#"
+                              isActive={currentPage === totalPages}
+                              onClick={e => {
+                                e.preventDefault();
+                                handlePageChange(totalPages);
+                              }}
+                            >
+                              {totalPages}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      }
+
+                      return pages;
+                    })()}
+                    <PaginationItem>
+                      <PaginationNext
+                        href="#"
+                        disabled={(data?.data?.pagination as any)?.currentPage >= (data?.data?.pagination?.totalPages || 1)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          const totalPages = data?.data?.pagination?.totalPages || 1;
+                          const currentPage = data?.data?.pagination?.currentPage || 1;
+                          if (currentPage < totalPages) handlePageChange(currentPage + 1);
+                        }}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+
               <div className="lg:hidden mt-8 bg-white rounded-lg shadow-sm border p-4">
                 <VoucherForm
-                  orderValue={filteredProducts.reduce((sum, product) => sum + (product.variants[0]?.price || 0), 0)}
+                  orderValue={filteredProducts
+                    .reduce((sum, product) => sum + (product.variants[0]?.price || 0), 0)}
                   onApplyVoucher={handleApplyVoucher}
                   onRemoveVoucher={handleRemoveVoucher}
                   appliedVoucher={appliedVoucher}
@@ -644,7 +696,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
       </div>
     </Card>
   );
-}; 
+};
 const ProductFilters = ({ filters, onChange }: ProductFiltersProps) => {
   const productsQuery = useProducts({ limit: 100, status: 'HOAT_DONG' });
   const products = productsQuery.data?.data.products || [];
@@ -704,54 +756,54 @@ const ProductFilters = ({ filters, onChange }: ProductFiltersProps) => {
   };
   const brands = useMemo(() => {
     if (!products || products.length === 0) return [];
-    
+
     const uniqueBrands = Array.from(new Set(products.map(product => {
       const brand = typeof product.brand === 'object' ? product.brand : { _id: product.brand, name: product.brand };
       return JSON.stringify(brand);
     }))).map(brandStr => JSON.parse(brandStr));
-    
+
     return uniqueBrands;
   }, [products]);
 
   const categories = useMemo(() => {
     if (!products || products.length === 0) return [];
-    
+
     const uniqueCategories = Array.from(new Set(products.map(product => {
       const category = typeof product.category === 'object' ? product.category : { _id: product.category, name: product.category };
       return JSON.stringify(category);
     }))).map(categoryStr => JSON.parse(categoryStr));
-    
+
     return uniqueCategories;
   }, [products]);
 
   const colors = useMemo(() => {
     if (!products || products.length === 0) return [];
-    
-    const allColors = products.flatMap(product => 
-      product.variants.map(variant => 
+
+    const allColors = products.flatMap(product =>
+      product.variants.map(variant =>
         typeof variant.colorId === 'object' ? variant.colorId : { _id: variant.colorId, name: variant.colorId, code: '#000000' }
       )
     );
-    
+
     const uniqueColors = Array.from(new Set(allColors.map(color => JSON.stringify(color))))
       .map(colorStr => JSON.parse(colorStr));
-    
+
     return uniqueColors;
   }, [products]);
 
   const sizes = useMemo(() => {
     if (!products || products.length === 0) return [];
-    
-    const allSizes = products.flatMap(product => 
-      product.variants.map(variant => 
+
+    const allSizes = products.flatMap(product =>
+      product.variants.map(variant =>
         typeof variant.sizeId === 'object' ? variant.sizeId : { _id: variant.sizeId, value: variant.sizeId }
       )
     );
-    
+
     const uniqueSizes = Array.from(new Set(allSizes.map(size => JSON.stringify(size))))
       .map(sizeStr => JSON.parse(sizeStr))
       .sort((a, b) => (a.value || 0) - (b.value || 0)); // Sắp xếp theo kích thước tăng dần
-    
+
     return uniqueSizes;
   }, [products]);
 
@@ -759,9 +811,9 @@ const ProductFilters = ({ filters, onChange }: ProductFiltersProps) => {
     if (!products || products.length === 0) {
       return { min: 0, max: 5000000 };
     }
-    
+
     const prices = products.flatMap(product => product.variants.map(variant => variant.price || 0));
-    
+
     return {
       min: Math.min(...prices, 0),
       max: Math.max(...prices, 5000000)
@@ -775,7 +827,7 @@ const ProductFilters = ({ filters, onChange }: ProductFiltersProps) => {
 
   const handlePriceChange = (values: number[]) => {
     setSelectedPriceRange(values as [number, number]);
-    
+
     // Áp dụng thay đổi giá vào bộ lọc sau một khoảng thời gian ngắn
     const timerId = setTimeout(() => {
       onChange({
@@ -895,7 +947,6 @@ const ProductFilters = ({ filters, onChange }: ProductFiltersProps) => {
           ))}
         </div>
       </div>
-
       <Button variant="outline" className="w-full" onClick={handleResetFilters}>Đặt lại</Button>
     </div>
   );
