@@ -419,7 +419,7 @@ export default function POSPage() {
             <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
               <div className="relative flex-1">
                 <Icon path={mdiMagnify} size={1} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
+                <Input
                   id="product-search"
                   type="text"
                   placeholder="Tìm kiếm sản phẩm..."
@@ -792,7 +792,7 @@ export default function POSPage() {
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <Icon path={mdiTag} size={0.8} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <input
+                  <Input
                     type="text"
                     placeholder="Mã giảm giá"
                     className="w-full pl-10 pr-4 py-2.5 rounded-md border border-border focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"

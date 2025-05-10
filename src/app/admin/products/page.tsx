@@ -5,10 +5,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
 import { Icon } from '@mdi/react';
-import { mdiMagnify, mdiPlus, mdiPencilOutline, mdiTrashCanOutline, mdiFilterOutline, mdiLoading } from '@mdi/js';
+import { mdiMagnify, mdiPlus, mdiPencilOutline, mdiTrashCanOutline, mdiFilterOutline, mdiLoading, mdiEmailFast, mdiPencilCircle, mdiDeleteCircle } from '@mdi/js';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { useProducts, useDeleteProduct } from '@/hooks/product';
 import { IProductFilter } from '@/interface/request/product';
 import { useQueryClient } from '@tanstack/react-query';
@@ -18,6 +19,11 @@ import { checkImageUrl } from '@/lib/utils';
 import { Table, TableHeader, TableBody, TableRow, TableCell, TableHead } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import Lightbox from 'yet-another-react-lightbox';
+import Zoom from 'yet-another-react-lightbox/plugins/zoom';
+import Download from 'yet-another-react-lightbox/plugins/download';
+import 'yet-another-react-lightbox/styles.css';
+import { Input } from '@/components/ui/input';
 
 export default function ProductsPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -31,6 +37,9 @@ export default function ProductsPage() {
   const queryClient = useQueryClient();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxSlides, setLightboxSlides] = useState<any[]>([]);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   useEffect(() => {
     const debounce = setTimeout(() => {
@@ -72,20 +81,39 @@ export default function ProductsPage() {
     setFilters({ ...filters, page: newPage });
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
   const formatDate = (dateString: string) => {
     return new Intl.DateTimeFormat('vi-VN', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
     }).format(new Date(dateString));
+  };
+
+  const handleOpenLightbox = (
+    product: any,
+    variantIndex: number = 0,
+    imageIndex: number = 0
+  ) => {
+    const slides = (product.variants as any[]).flatMap((variant: any) =>
+      (variant.images || []).map((img: string) => ({
+        src: checkImageUrl(img),
+        alt: product.name,
+        download: checkImageUrl(img),
+      }))
+    );
+    let startIndex = 0;
+    let count = 0;
+    for (let i = 0; i < product.variants.length; i++) {
+      const imgs = product.variants[i].images || [];
+      if (i === variantIndex) {
+        startIndex = count + imageIndex;
+        break;
+      }
+      count += imgs.length;
+    }
+    setLightboxSlides(slides);
+    setLightboxIndex(startIndex);
+    setLightboxOpen(true);
   };
 
   return (
@@ -126,7 +154,7 @@ export default function ProductsPage() {
                 size={0.9}
                 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
               />
-              <input
+              <Input
                 type="text"
                 placeholder="Tìm kiếm theo tên sản phẩm..."
                 className="pl-10 pr-4 py-2 w-full border rounded-md"
@@ -232,8 +260,16 @@ export default function ProductsPage() {
           </Button>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
+        <div className="bg-white rounded-lg shadow-sm overflow-visible">
+          <div className="overflow-x-auto" style={{ 
+            width: '100%', 
+            display: 'block',
+            overflowX: 'auto',
+            whiteSpace: 'nowrap',
+            scrollbarWidth: 'thin',
+            scrollbarColor: '#94a3b8 #e2e8f0',
+            WebkitOverflowScrolling: 'touch'
+          }}>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -252,12 +288,16 @@ export default function ProductsPage() {
                   data.data.products.map((product) => (
                     <TableRow key={product._id} className="hover:bg-gray-50">
                       <TableCell className="px-4 py-4 whitespace-nowrap">
-                        <div className="relative h-12 w-12 rounded-md overflow-hidden bg-gray-100">
+                        <div
+                          className="relative h-12 w-12 rounded-md overflow-hidden bg-gray-100 cursor-pointer group"
+                          onClick={() => handleOpenLightbox(product, 0, 0)}
+                          title="Xem ảnh lớn"
+                        >
                           <Image
                             src={checkImageUrl(product.variants[0]?.images?.[0])}
                             alt={product.name}
                             fill
-                            className="object-cover"
+                            className="object-cover group-hover:scale-105 transition-transform duration-200"
                           />
                         </div>
                       </TableCell>
@@ -288,27 +328,28 @@ export default function ProductsPage() {
                         {formatDate(product.updatedAt)}
                       </TableCell>
                       <TableCell className="px-4 py-4 whitespace-nowrap text-right">
-                        <div className="flex justify-end space-x-2">
+                        <div className="flex items-center justify-end space-x-2">
                           <Link href={`/admin/products/edit/${product._id}`}>
-                            <Button variant="ghost" className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 bg-gray-100">
-                              <Icon path={mdiPencilOutline} size={0.8} className='text-blue-400 hover:text-blue-500' />
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              title="Sửa"
+                            >
+                              <Icon path={mdiPencilCircle} size={0.9} />
                             </Button>
                           </Link>
-                          <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                          <Dialog open={isDeleteDialogOpen && productToDelete === product._id} onOpenChange={setIsDeleteDialogOpen}>
                             <DialogTrigger asChild>
                               <Button
-                                variant="ghost"
-                                className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 bg-gray-100"
+                                variant="outline"
+                                size="icon"
                                 onClick={() => {
                                   setProductToDelete(product._id);
                                   setIsDeleteDialogOpen(true);
                                 }}
+                                title="Xóa"
                               >
-                                {deleteProduct.isPending && deleteProduct.variables === product._id ? (
-                                  <Icon path={mdiLoading} size={0.8} className="animate-spin" />
-                                ) : (
-                                  <Icon path={mdiTrashCanOutline} size={0.8} className='text-red-400 hover:text-red-500' />
-                                )}
+                                <Icon path={mdiDeleteCircle} size={0.9} />
                               </Button>
                             </DialogTrigger>
                             <DialogContent>
@@ -387,6 +428,21 @@ export default function ProductsPage() {
             </div>
           )}
         </div>
+      )}
+
+      {lightboxOpen && (
+        <Lightbox
+          open={lightboxOpen}
+          close={() => setLightboxOpen(false)}
+          slides={lightboxSlides}
+          index={lightboxIndex}
+          on={{ view: ({ index }) => setLightboxIndex(index) }}
+          plugins={[Zoom, Download]}
+          zoom={{
+            maxZoomPixelRatio: 3,
+            zoomInMultiplier: 2,
+          }}
+        />
       )}
     </div>
   );

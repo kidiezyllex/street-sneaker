@@ -166,7 +166,7 @@ const ProductVariantForm: React.FC<ProductVariantFormProps> = ({
         <Label>Hình ảnh sản phẩm</Label>
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-2">
-            <input
+            <Input
               type="file"
               ref={fileInputRef}
               onChange={handleFileChange}

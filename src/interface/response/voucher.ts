@@ -14,13 +14,11 @@ export interface IVoucher {
   createdAt: string;
   updatedAt: string;
 }
-
 export interface IVoucherResponse {
   success: boolean;
   message: string;
   data: IVoucher;
 }
-
 export interface IVouchersResponse {
   success: boolean;
   message: string;
@@ -34,7 +32,6 @@ export interface IVouchersResponse {
     };
   };
 }
-
 export interface IVoucherValidationResponse {
   success: boolean;
   message: string;
@@ -43,15 +40,13 @@ export interface IVoucherValidationResponse {
     discountValue: number;
   };
 }
-
 export interface INotificationResponse {
   success: boolean;
   message: string;
   data: any;
 }
-
 export interface IActionResponse {
   success: boolean;
   message: string;
   data?: any;
-} 
+}

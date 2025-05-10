@@ -20,6 +20,7 @@ export interface IAuthData {
   email: string
   role: string
   token: string
+  account: IAccountData
 }
 
 export interface IAuthResponse extends IBaseResponse<IAuthData> {}

@@ -1,37 +1,50 @@
+/**
+ * Interface for filtering vouchers in admin dashboard
+ */
 export interface IVoucherFilter {
-  code?: string;
-  name?: string;
-  status?: 'HOAT_DONG' | 'KHONG_HOAT_DONG';
-  startDate?: string;
-  endDate?: string;
-  page?: number;
-  limit?: number;
+  code?: string;                                 // Filter by voucher code
+  name?: string;                                 // Filter by voucher name
+  status?: 'HOAT_DONG' | 'KHONG_HOAT_DONG';     // Filter by voucher status
+  startDate?: string;                            // Filter by start date
+  endDate?: string;                              // Filter by end date
+  page?: number;                                 // Page number for pagination
+  limit?: number;                                // Number of items per page
 }
 
+/**
+ * Interface for creating a new voucher
+ */
 export interface IVoucherCreate {
-  code: string;
-  name: string;
-  type: 'PERCENTAGE' | 'FIXED_AMOUNT';
-  value: number;
-  quantity: number;
-  startDate: string | Date;
-  endDate: string | Date;
-  minOrderValue?: number;
-  maxDiscount?: number;
-  status?: 'HOAT_DONG' | 'KHONG_HOAT_DONG';
+  code: string;                                  // Unique voucher code (uppercase letters, numbers, and dashes)
+  name: string;                                  // Display name for the voucher
+  type: 'PERCENTAGE' | 'FIXED_AMOUNT';           // Type of voucher (percentage or fixed amount)
+  value: number;                                 // Value of the voucher (percentage or fixed amount)
+  quantity: number;                              // Total number of vouchers available
+  startDate: string | Date;                      // Start date (when voucher becomes valid)
+  endDate: string | Date;                        // End date (when voucher expires)
+  minOrderValue?: number;                        // Minimum order value required to apply voucher
+  maxDiscount?: number;                          // Maximum discount amount (for percentage vouchers)
+  status?: 'HOAT_DONG' | 'KHONG_HOAT_DONG';     // Voucher status (active or inactive)
 }
 
+/**
+ * Interface for updating an existing voucher
+ * Note: code, type and value cannot be updated after creation
+ */
 export interface IVoucherUpdate {
-  name?: string;
-  quantity?: number;
-  startDate?: string | Date;
-  endDate?: string | Date;
-  minOrderValue?: number;
-  maxDiscount?: number;
-  status?: 'HOAT_DONG' | 'KHONG_HOAT_DONG';
+  name?: string;                                 // Display name for the voucher
+  quantity?: number;                             // Total number of vouchers available
+  startDate?: string | Date;                     // Start date (when voucher becomes valid)
+  endDate?: string | Date;                       // End date (when voucher expires)
+  minOrderValue?: number;                        // Minimum order value required to apply voucher
+  maxDiscount?: number;                          // Maximum discount amount (for percentage vouchers)
+  status?: 'HOAT_DONG' | 'KHONG_HOAT_DONG';     // Voucher status (active or inactive)
 }
 
+/**
+ * Interface for validating a voucher code
+ */
 export interface IVoucherValidate {
-  code: string;
-  orderValue?: number;
+  code: string;                                  // Voucher code to validate
+  orderValue?: number;                           // Order value to calculate discount amount
 } 

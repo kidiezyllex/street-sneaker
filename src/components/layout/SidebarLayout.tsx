@@ -52,22 +52,22 @@ export default function SidebarLayout({
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex flex-row min-h-screen w-screen">
       {/* Sidebar */}
       <div 
         className={cn(
           "bg-white shadow-md min-h-screen transition-all duration-300",
-          isOpen ? "w-64" : "w-0 md:w-16 overflow-hidden"
+          isOpen ? "w-60 min-w-60" : "w-0 md:w-16 overflow-hidden"
         )}
       >
         <div className="flex flex-col h-full">
           <div className={cn("p-4 border-b !max-h-16", isOpen ? "" : "justify-center")}>
             {isOpen ? (
-              <h1 className="text-2xl font-bold text-primary select-none cursor-pointer">
+              <h1 className="text-2xl  text-primary !font-bold select-none cursor-pointer">
                 Street<span className="text-extra">Sneaker</span>
               </h1>
             ) : (
-              <h1 className="text-2xl font-bold text-primary select-none cursor-pointer text-center">
+              <h1 className="text-2xl text-primary !font-bold select-none cursor-pointer text-center">
                 S<span className="text-extra">S</span>
               </h1>
             )}
@@ -81,9 +81,9 @@ export default function SidebarLayout({
                       <button
                         onClick={() => toggleSubMenu(menu.id)}
                         className={cn(
-                          'flex items-center justify-between w-full rounded-md p-2 text-left text-sm font-medium transition-colors',
+                          'flex items-center font-medium justify-between w-full rounded-md p-2 text-left text-base transition-colors',
                           isMenuActive(menu)
-                            ? 'bg-primary/10 text-primary'
+                            ? 'bg-primary/10 text-primary !font-medium'
                             : 'hover:bg-gray-100'
                         )}
                       >
@@ -93,10 +93,10 @@ export default function SidebarLayout({
                             size={0.8}
                             className={cn(
                               'mr-2',
-                              isMenuActive(menu) ? 'text-primary' : 'text-gray-400'
+                              isMenuActive(menu) ? 'text-primary !font-medium' : 'text-gray-400'
                             )}
                           />
-                          <span>{menu.name}</span>
+                          <span className={cn('font-medium', isMenuActive(menu) ? 'text-primary !font-medium' : '')}>{menu.name}</span>
                         </div>
                         <Icon
                           path={openMenus[menu.id] ? mdiChevronUp : mdiChevronDown}
@@ -123,9 +123,9 @@ export default function SidebarLayout({
                                 <Link href={subItem.path}>
                                   <div
                                     className={cn(
-                                      'flex items-center rounded-md p-2 text-sm transition-colors',
+                                      'flex items-center rounded-md p-2 text-base transition-colors font-medium',
                                       isSubMenuActive(subItem.path)
-                                        ? 'bg-active/10 text-active font-medium'
+                                        ? 'bg-active/10 text-active !font-medium'
                                         : 'text-gray-700 hover:bg-gray-100'
                                     )}
                                   >
@@ -136,7 +136,7 @@ export default function SidebarLayout({
                                         className="mr-2 text-gray-400"
                                       />
                                     )}
-                                    <span>{subItem.name}</span>
+                                    <span className={cn('font-medium', isSubMenuActive(subItem.path) ? 'text-active !font-medium' : '')}>{subItem.name}</span>
                                   </div>
                                 </Link>
                               </motion.li>
@@ -154,9 +154,9 @@ export default function SidebarLayout({
                       <Link href={menu.path}>
                         <div
                           className={cn(
-                            'flex items-center rounded-md p-2 text-sm font-medium transition-colors',
+                            'flex items-center rounded-md p-2 text-base font-medium transition-colors ',
                             isMenuActive(menu)
-                              ? 'bg-primary/10 text-primary'
+                              ? 'bg-primary/10 text-primary !font-medium'
                               : 'text-gray-700 hover:bg-gray-100',
                             !isOpen && 'justify-center'
                           )}
@@ -166,7 +166,7 @@ export default function SidebarLayout({
                             size={0.8}
                             className={cn(
                               isOpen ? 'mr-2' : 'mr-0',
-                              isMenuActive(menu) ? 'text-primary' : 'text-gray-400'
+                              isMenuActive(menu) ? 'text-primary !font-medium' : 'text-gray-400'
                             )}
                           />
                           {isOpen && <span>{menu.name}</span>}
@@ -194,12 +194,34 @@ export default function SidebarLayout({
           </nav>
         </div>
       </div>
-
       {/* Main content */}
-      <div className="flex-1 flex flex-col">
+      <div className="w-full flex-1 flex flex-col">
         <AdminHeader />
-        <main className="flex-1 p-6 overflow-auto bg-[#E9F3EB]/50">
-          {children}
+        <main 
+        style={{
+          backgroundImage: 'url(/images/background.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          position: 'relative',
+          backgroundColor: 'rgba(0,0,0,0.18)',
+        }}
+        className="p-6 bg-[#E9F3EB]/50 min-h-[calc(100vh-66px)]">
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              background: 'rgba(0,0,0,0.18)',
+              zIndex: 1,
+              pointerEvents: 'none',
+            }}
+          />
+          <div style={{ position: 'relative', zIndex: 2 }}>
+            {children}
+          </div>
         </main>
       </div>
     </div>

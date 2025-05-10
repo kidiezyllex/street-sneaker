@@ -49,6 +49,7 @@ export interface IProduct {
   status: 'HOAT_DONG' | 'KHONG_HOAT_DONG';
   createdAt: string;
   updatedAt: string;
+  price: number;
 }
 
 export interface IProductResponse {

@@ -398,7 +398,7 @@ export default function AddressManager() {
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
                         <FormControl>
-                          <input
+                          <Input
                             type="checkbox"
                             checked={field.value}
                             onChange={field.onChange}

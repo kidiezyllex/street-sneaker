@@ -93,7 +93,6 @@ export default function ProductsPage() {
   };
 
   const productsQuery = useProducts(paginationParams);
-  console.log(productsQuery)
   const searchQuery2 = useSearchProducts(isSearching ? { keyword: searchQuery, status: 'HOAT_DONG' } : { keyword: '' });
   const { data: rawData, isLoading, isError } = isSearching ? searchQuery2 : productsQuery;
   const data = useMemo(() => {

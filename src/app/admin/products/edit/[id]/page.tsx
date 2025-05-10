@@ -487,7 +487,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                       <Label className="text-maintext">Hình ảnh sản phẩm</Label>
                       <div className="flex flex-col gap-4">
                         <div className="flex items-center gap-2">
-                          <input
+                          <Input
                             type="file"
                             id={`file-upload-${variant._id}`}
                             onChange={(e) => {

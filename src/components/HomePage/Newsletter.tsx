@@ -86,7 +86,7 @@ export const Newsletter = () => {
             >
               <div className="relative flex-1 group">
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-extra/20 rounded-lg blur-md group-hover:blur-lg transition-all duration-300 opacity-0 group-hover:opacity-100" />
-                <input 
+                <Input 
                   type="email" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}

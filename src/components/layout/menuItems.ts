@@ -74,12 +74,12 @@ export const menuItems: MenuItem[] = [
     icon: mdiTagMultiple,
     subMenu: [
       {
-        id: 'discounts-coupons',
+        id: 'discounts-vouchers',
         name: 'Mã giảm giá',
-        path: '/admin/discounts/coupons',
+        path: '/admin/discounts/vouchers',
       },
       {
-        id: 'discounts-promotions',
+        id: 'discounts-promotions', 
         name: 'Khuyến mãi',
         path: '/admin/discounts/promotions',
       },

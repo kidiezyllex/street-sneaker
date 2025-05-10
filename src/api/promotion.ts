@@ -11,7 +11,6 @@ import {
 } from "@/interface/response/promotion";
 import { sendGet, sendPost, sendPut, sendDelete } from "./axios";
 
-// === Admin Promotion API ===
 export const getAllPromotions = async (params: IPromotionFilter): Promise<IPromotionsResponse> => {
   const res = await sendGet("/promotions", params);
   return res as IPromotionsResponse;
@@ -37,7 +36,6 @@ export const deletePromotion = async (promotionId: string): Promise<IActionRespo
   return res as IActionResponse;
 };
 
-// === Product Promotion API ===
 export const getProductPromotions = async (productId: string): Promise<IProductPromotionsResponse> => {
   const res = await sendGet(`/promotions/product/${productId}`);
   return res as IProductPromotionsResponse;

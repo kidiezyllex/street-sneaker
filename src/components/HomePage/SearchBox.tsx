@@ -93,7 +93,7 @@ export const SearchBox = () => {
               <div className="relative">
                 <div className="flex items-center border-b-2 border-primary focus-within:border-extra transition-colors">
                   <Icon path={mdiMagnify} size={1} className="text-gray-400 mr-2" />
-                  <input 
+                  <Input 
                     type="text" 
                     placeholder="Tìm kiếm sản phẩm, danh mục..." 
                     className="w-full py-3 outline-none text-gray-900"

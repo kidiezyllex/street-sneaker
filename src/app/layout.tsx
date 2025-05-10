@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import NextTopLoader from 'nextjs-toploader';
-import { ToastProvider } from '@/provider/ToastProvider';
 import { ReactQueryClientProvider } from '@/provider/ReactQueryClientProvider';
 import { UserProvider } from '@/context/useUserContext';
 import "flag-icons/css/flag-icons.min.css";
@@ -45,7 +44,6 @@ export default function RootLayout({
               speed={200}
               showSpinner={false}
             />
-            <ToastProvider />
             <ToastContainer position="top-right" autoClose={4000} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="light" />
             {children}
           </UserProvider>
