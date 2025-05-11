@@ -17,14 +17,13 @@ import {
   mdiMagnify,
   mdiFilterOutline,
   mdiEye,
-  mdiPrinter,
-  mdiDelete,
+  mdiPencil,
+  mdiDeleteOutline,
   mdiClose,
   mdiFileExport,
+  mdiPrinter,
+  mdiCheck,
 } from '@mdi/js';
-import { mockOrders } from '@/components/OrdersPage/mockData';
-import { OrderStatusBadge, OrderPaymentStatusBadge } from '@/components/OrdersPage/OrderStatusBadge';
-import { OrderDetail } from '@/components/OrdersPage/OrderDetail';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -42,20 +41,122 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+import { Table, TableHeader, TableBody, TableRow, TableCell, TableHead } from '@/components/ui/table';
+import { Skeleton } from '@/components/ui/skeleton';
+import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Link from 'next/link';
+import { useOrders, useOrderDetail, useUpdateOrderStatus, useCancelOrder } from '@/hooks/order';
+import { IOrderFilter } from '@/interface/request/order';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function OrdersPage() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
-  const [selectedOrderType, setSelectedOrderType] = useState<string>('all');
-  const [selectedPaymentStatus, setSelectedPaymentStatus] = useState<string>('all');
+  const [filters, setFilters] = useState<IOrderFilter>({
+    page: 1,
+    limit: 10
+  });
   const [selectedTab, setSelectedTab] = useState<string>('all');
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<typeof mockOrders[0] | null>(null);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
-  const [filteredOrders, setFilteredOrders] = useState<typeof mockOrders>([]);
-  const [nowDate, setNowDate] = useState<Date | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
+  const [isConfirmCancelDialogOpen, setIsConfirmCancelDialogOpen] = useState(false);
+  const [orderToCancel, setOrderToCancel] = useState<string | null>(null);
+  const [statusToUpdate, setStatusToUpdate] = useState<string>('');
+  
+  const { data, isLoading, isError } = useOrders(filters);
+  const { data: orderDetail } = useOrderDetail(selectedOrder || '');
+  const updateOrderStatus = useUpdateOrderStatus();
+  const cancelOrder = useCancelOrder();
+  const queryClient = useQueryClient();
 
-  //                                                                                                                     Định dạng tiền tệ
+  useEffect(() => {
+    const debounce = setTimeout(() => {
+      if (searchQuery.trim()) {
+        setFilters((prev) => ({ ...prev, search: searchQuery, page: 1 }));
+      } else {
+        const { search, ...rest } = filters;
+        setFilters({ ...rest, page: 1 });
+      }
+    }, 500);
+
+    return () => clearTimeout(debounce);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    if (dateRange?.from && dateRange?.to) {
+      const fromDate = dateRange.from;
+      const toDate = dateRange.to;
+      setFilters(prev => ({
+        ...prev,
+        startDate: fromDate.toISOString().split('T')[0],
+        endDate: toDate.toISOString().split('T')[0],
+        page: 1
+      }));
+    } else if (!dateRange) {
+      const { startDate, endDate, ...rest } = filters;
+      setFilters({ ...rest, page: 1 });
+    }
+  }, [dateRange]);
+
+  const handleFilterChange = (key: keyof IOrderFilter, value: string | undefined) => {
+    if (value === '' || value === 'all') {
+      const newFilters = { ...filters };
+      delete newFilters[key];
+      setFilters({ ...newFilters, page: 1 });
+    } else {
+      setFilters({ ...filters, [key]: value, page: 1 });
+    }
+  };
+
+  const handleViewOrder = (orderId: string) => {
+    setSelectedOrder(orderId);
+    setIsViewDialogOpen(true);
+  };
+
+  const handleChangeStatus = async () => {
+    if (!selectedOrder || !statusToUpdate) return;
+    
+    try {
+      await updateOrderStatus.mutateAsync({
+        orderId: selectedOrder,
+        payload: { status: statusToUpdate as any }
+      }, {
+        onSuccess: () => {
+          toast.success('Cập nhật trạng thái đơn hàng thành công');
+          queryClient.invalidateQueries({ queryKey: ['orders'] });
+          queryClient.invalidateQueries({ queryKey: ['order', selectedOrder] });
+          setIsStatusDialogOpen(false);
+        }
+      });
+    } catch (error) {
+      toast.error('Cập nhật trạng thái đơn hàng thất bại');
+    }
+  };
+
+  const handleCancelOrder = async () => {
+    if (!orderToCancel) return;
+    
+    try {
+      await cancelOrder.mutateAsync(orderToCancel, {
+        onSuccess: () => {
+          toast.success('Hủy đơn hàng thành công');
+          queryClient.invalidateQueries({ queryKey: ['orders'] });
+          setIsConfirmCancelDialogOpen(false);
+          if (selectedOrder === orderToCancel) {
+            queryClient.invalidateQueries({ queryKey: ['order', selectedOrder] });
+          }
+        }
+      });
+    } catch (error) {
+      toast.error('Hủy đơn hàng thất bại');
+    }
+  };
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -64,135 +165,12 @@ export default function OrdersPage() {
     }).format(amount);
   };
 
-  //                                                                                                                     Định dạng ngày giờ
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return format(date, 'dd/MM/yyyy HH:mm', { locale: vi });
+    return format(new Date(dateString), 'dd/MM/yyyy HH:mm', { locale: vi });
   };
 
-  useEffect(() => {
-    setNowDate(new Date());
-  }, []);
-
-  useEffect(() => {
-    if (!nowDate) return;
-    const filtered = mockOrders.filter((order) => {
-      const orderDate = new Date(order.createdAt);
-
-      if (selectedTab === 'today' && !isToday(orderDate)) {
-        return false;
-      } else if (selectedTab === 'week' && !isThisWeek(orderDate)) {
-        return false;
-      } else if (selectedTab === 'month' && !isThisMonth(orderDate)) {
-        return false;
-      }
-
-      if (dateRange?.from && dateRange?.to) {
-        const startOfDay = new Date(dateRange.from);
-        startOfDay.setHours(0, 0, 0, 0);
-        
-        const endOfDay = new Date(dateRange.to);
-        endOfDay.setHours(23, 59, 59, 999);
-        
-        if (orderDate < startOfDay || orderDate > endOfDay) {
-          return false;
-        }
-      }
-
-      if (selectedStatus !== 'all' && order.status !== selectedStatus) {
-        return false;
-      }
-
-      if (selectedOrderType !== 'all' && order.type !== selectedOrderType) {
-        return false;
-      }
-
-      //                                                                                                                     Lọc theo trạng thái thanh toán
-      if (selectedPaymentStatus !== 'all' && order.paymentStatus !== selectedPaymentStatus) {
-        return false;
-      }
-
-      //                                                                                                                     Tìm kiếm theo từ khóa
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        return (
-          order.code.toLowerCase().includes(query) ||
-          order.customer.fullName.toLowerCase().includes(query) ||
-          order.customer.phone.includes(query) ||
-          (order.customer.email && order.customer.email.toLowerCase().includes(query))
-        );
-      }
-
-      return true;
-    });
-
-    setFilteredOrders(filtered);
-  }, [nowDate, selectedTab, dateRange, selectedStatus, selectedOrderType, selectedPaymentStatus, searchQuery]);
-
-  //                                                                                                                     Kiểm tra ngày hiện tại
-  function isToday(date: Date): boolean {
-    if (!nowDate) return false;
-    
-    return (
-      date.getDate() === nowDate.getDate() &&
-      date.getMonth() === nowDate.getMonth() &&
-      date.getFullYear() === nowDate.getFullYear()
-    );
-  }
-
-  //                                                                                                                     Kiểm tra tuần hiện tại
-  function isThisWeek(date: Date): boolean {
-    if (!nowDate) return false;
-    
-    const weekStart = new Date(nowDate);
-    weekStart.setDate(nowDate.getDate() - nowDate.getDay()); // Đầu tuần (Chủ nhật)
-    weekStart.setHours(0, 0, 0, 0);
-    
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekStart.getDate() + 6); // Cuối tuần (Thứ 7)
-    weekEnd.setHours(23, 59, 59, 999);
-    
-    return date >= weekStart && date <= weekEnd;
-  }
-
-  //                                                                                                                     Kiểm tra tháng hiện tại
-  function isThisMonth(date: Date): boolean {
-    if (!nowDate) return false;
-    
-    return (
-      date.getMonth() === nowDate.getMonth() &&
-      date.getFullYear() === nowDate.getFullYear()
-    );
-  }
-
-  //                                                                                                                     Lấy tên loại đơn hàng
-  const getOrderTypeName = (type: string) => {
-    switch (type) {
-      case 'store':
-        return 'Mua tại cửa hàng';
-      case 'online':
-        return 'Đặt hàng online';
-      default:
-        return 'Không xác định';
-    }
-  };
-
-  //                                                                                                                     Lấy tên phương thức thanh toán
-  const getPaymentMethodName = (method: string) => {
-    switch (method) {
-      case 'cash':
-        return 'Tiền mặt';
-      case 'banking':
-        return 'Chuyển khoản ngân hàng';
-      case 'card':
-        return 'Thẻ tín dụng/ghi nợ';
-      case 'momo':
-        return 'Ví MoMo';
-      case 'zalopay':
-        return 'ZaloPay';
-      default:
-        return 'Không xác định';
-    }
+  const handleChangePage = (newPage: number) => {
+    setFilters({ ...filters, page: newPage });
   };
 
   return (
@@ -225,7 +203,12 @@ export default function OrdersPage() {
               <DropdownMenuItem>In danh sách</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button>Tạo đơn hàng mới</Button>
+          <Link href="/admin/orders/create">
+            <Button>
+              <Icon path={mdiCheck} size={0.8} className="mr-2" />
+              Tạo đơn hàng mới
+            </Button>
+          </Link>
         </div>
       </div>
 
@@ -247,320 +230,645 @@ export default function OrdersPage() {
                   Tháng này
                 </TabsTrigger>
               </TabsList>
+            </div>
 
-              <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
-                <div className="relative w-full sm:w-80">
-                  <Input
-                    placeholder="Tìm theo mã đơn, tên KH, SĐT..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 w-full"
-                  />
-                  <div className="absolute left-3 top-2.5 text-gray-400">
-                    <Icon path={mdiMagnify} size={0.9} />
-                  </div>
-                </div>
-
+            <div className="flex flex-col md:flex-row justify-between items-start mb-6 gap-4">
+              <div className="relative w-full md:w-96">
+                <Icon
+                  path={mdiMagnify}
+                  size={0.9}
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                />
+                <Input
+                  type="text"
+                  placeholder="Tìm kiếm theo mã đơn, tên khách hàng, số điện thoại..."
+                  className="pl-10 w-full"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <div className="flex gap-3 w-full md:w-auto">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !dateRange && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {dateRange?.from ? (
+                        dateRange.to ? (
+                          <>
+                            {format(dateRange.from, "dd/MM/yyyy")} -{" "}
+                            {format(dateRange.to, "dd/MM/yyyy")}
+                          </>
+                        ) : (
+                          format(dateRange.from, "dd/MM/yyyy")
+                        )
+                      ) : (
+                        "Chọn khoảng thời gian"
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <Calendar
+                      initialFocus
+                      mode="range"
+                      defaultMonth={dateRange?.from}
+                      selected={dateRange}
+                      onSelect={setDateRange}
+                      numberOfMonths={2}
+                    />
+                  </PopoverContent>
+                </Popover>
                 <Button
                   variant="outline"
-                  onClick={() => setShowFilters(!showFilters)}
                   className="flex items-center"
+                  onClick={() => setShowFilters(!showFilters)}
                 >
-                  <Icon path={mdiFilterOutline} size={0.8} className="mr-2" />
-                  Bộ lọc
-                  {(selectedStatus !== 'all' || selectedOrderType !== 'all' || selectedPaymentStatus !== 'all' || dateRange?.from) && (
-                    <Badge className="ml-2 bg-primary h-5 w-5 p-0 flex items-center justify-center">
-                      {[
-                        selectedStatus !== 'all' ? 1 : 0,
-                        selectedOrderType !== 'all' ? 1 : 0,
-                        selectedPaymentStatus !== 'all' ? 1 : 0,
-                        dateRange?.from ? 1 : 0,
-                      ].reduce((a, b) => a + b, 0)}
-                    </Badge>
-                  )}
+                  <Icon path={mdiFilterOutline} size={0.9} className="mr-2" />
+                  {showFilters ? 'Ẩn bộ lọc' : 'Hiện bộ lọc'}
                 </Button>
               </div>
             </div>
 
-            {showFilters && (
-              <div className="bg-slate-50 p-4 rounded-lg mb-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                  <label className="text-sm font-medium mb-1 block">Trạng thái đơn hàng</label>
-                  <Select
-                    value={selectedStatus}
-                    onValueChange={setSelectedStatus}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Tất cả trạng thái" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Tất cả trạng thái</SelectItem>
-                      <SelectItem value="pending">Chờ xác nhận</SelectItem>
-                      <SelectItem value="processing">Đang xử lý</SelectItem>
-                      <SelectItem value="shipping">Đang giao hàng</SelectItem>
-                      <SelectItem value="delivered">Đã giao hàng</SelectItem>
-                      <SelectItem value="cancelled">Đã hủy</SelectItem>
-                      <SelectItem value="returned">Đã trả hàng</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-1 block">Loại đơn hàng</label>
-                  <Select
-                    value={selectedOrderType}
-                    onValueChange={setSelectedOrderType}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Tất cả loại đơn" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Tất cả loại đơn</SelectItem>
-                      <SelectItem value="store">Mua tại cửa hàng</SelectItem>
-                      <SelectItem value="online">Đặt hàng online</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-1 block">Trạng thái thanh toán</label>
-                  <Select
-                    value={selectedPaymentStatus}
-                    onValueChange={setSelectedPaymentStatus}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Tất cả trạng thái" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Tất cả trạng thái</SelectItem>
-                      <SelectItem value="pending">Chờ thanh toán</SelectItem>
-                      <SelectItem value="paid">Đã thanh toán</SelectItem>
-                      <SelectItem value="failed">Thanh toán thất bại</SelectItem>
-                      <SelectItem value="refunded">Đã hoàn tiền</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-1 block">Khoảng thời gian</label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !dateRange && "text-muted-foreground"
-                        )}
+            <AnimatePresence>
+              {showFilters && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="mb-6 border-t pt-4"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        Trạng thái đơn hàng
+                      </label>
+                      <Select 
+                        value={filters.orderStatus || 'all'} 
+                        onValueChange={(value) => handleFilterChange('orderStatus', value)}
                       >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {dateRange?.from ? (
-                          dateRange.to ? (
-                            <>
-                              {format(dateRange.from, "dd/MM/yyyy")} -{" "}
-                              {format(dateRange.to, "dd/MM/yyyy")}
-                            </>
-                          ) : (
-                            format(dateRange.from, "dd/MM/yyyy")
-                          )
-                        ) : (
-                          <span>Chọn khoảng thời gian</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        initialFocus
-                        mode="range"
-                        defaultMonth={dateRange?.from}
-                        selected={dateRange}
-                        onSelect={setDateRange}
-                        numberOfMonths={2}
+                        <SelectTrigger>
+                          <SelectValue placeholder="Tất cả trạng thái" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                          <SelectItem value="CHO_XAC_NHAN">Chờ xác nhận</SelectItem>
+                          <SelectItem value="CHO_GIAO_HANG">Chờ giao hàng</SelectItem>
+                          <SelectItem value="DANG_VAN_CHUYEN">Đang vận chuyển</SelectItem>
+                          <SelectItem value="DA_GIAO_HANG">Đã giao hàng</SelectItem>
+                          <SelectItem value="HOAN_THANH">Hoàn thành</SelectItem>
+                          <SelectItem value="DA_HUY">Đã hủy</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        Trạng thái thanh toán
+                      </label>
+                      <Select 
+                        value={filters.paymentStatus || 'all'} 
+                        onValueChange={(value) => handleFilterChange('paymentStatus', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Tất cả trạng thái" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                          <SelectItem value="PENDING">Chưa thanh toán</SelectItem>
+                          <SelectItem value="PARTIAL_PAID">Thanh toán một phần</SelectItem>
+                          <SelectItem value="PAID">Đã thanh toán</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        Khách hàng
+                      </label>
+                      <Input
+                        type="text"
+                        value={filters.customer || ''}
+                        onChange={(e) => handleFilterChange('customer', e.target.value)}
+                        placeholder="Tìm theo tên khách hàng"
                       />
-                      <div className="flex items-center justify-between p-3 border-t">
-                        <Button
-                          variant="ghost"
-                          onClick={() => setDateRange(undefined)}
-                          size="sm"
-                        >
-                          Đặt lại
-                        </Button>
-                        <Button size="sm" onClick={() => {}}>
-                          Áp dụng
-                        </Button>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
-                <div className="md:col-span-4 flex justify-end">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedStatus('all');
-                      setSelectedOrderType('all');
-                      setSelectedPaymentStatus('all');
-                      setDateRange(undefined);
-                    }}
-                    className="flex items-center text-gray-400"
-                  >
-                    <Icon path={mdiClose} size={0.7} className="mr-1" />
-                    Đặt lại bộ lọc
-                  </Button>
-                </div>
-              </div>
-            )}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <TabsContent value="all" className="mt-0">
-              <OrdersTable 
-                orders={filteredOrders} 
-                formatCurrency={formatCurrency}
-                formatDate={formatDate}
-                getOrderTypeName={getOrderTypeName}
-                getPaymentMethodName={getPaymentMethodName}
-                onViewDetail={setSelectedOrder}
-              />
+              {renderOrdersList()}
             </TabsContent>
             <TabsContent value="today" className="mt-0">
-              <OrdersTable 
-                orders={filteredOrders}
-                formatCurrency={formatCurrency}
-                formatDate={formatDate}
-                getOrderTypeName={getOrderTypeName}
-                getPaymentMethodName={getPaymentMethodName}
-                onViewDetail={setSelectedOrder}
-              />
+              {renderOrdersList()}
             </TabsContent>
             <TabsContent value="week" className="mt-0">
-              <OrdersTable 
-                orders={filteredOrders}
-                formatCurrency={formatCurrency}
-                formatDate={formatDate}
-                getOrderTypeName={getOrderTypeName}
-                getPaymentMethodName={getPaymentMethodName}
-                onViewDetail={setSelectedOrder}
-              />
+              {renderOrdersList()}
             </TabsContent>
             <TabsContent value="month" className="mt-0">
-              <OrdersTable 
-                orders={filteredOrders}
-                formatCurrency={formatCurrency}
-                formatDate={formatDate}
-                getOrderTypeName={getOrderTypeName}
-                getPaymentMethodName={getPaymentMethodName}
-                onViewDetail={setSelectedOrder}
-              />
+              {renderOrdersList()}
             </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
 
-      {selectedOrder && (
-        <OrderDetail order={selectedOrder} onClose={() => setSelectedOrder(null)} />
-      )}
+      <OrderDetailDialog 
+        isOpen={isViewDialogOpen} 
+        onClose={() => setIsViewDialogOpen(false)}
+        orderId={selectedOrder}
+        orderDetail={orderDetail?.data}
+        formatCurrency={formatCurrency}
+        formatDate={formatDate}
+        onUpdateStatus={(orderId, status) => {
+          setSelectedOrder(orderId);
+          setStatusToUpdate(status);
+          setIsStatusDialogOpen(true);
+        }}
+        onCancelOrder={(orderId) => {
+          setOrderToCancel(orderId);
+          setIsConfirmCancelDialogOpen(true);
+        }}
+      />
+
+      <Dialog open={isStatusDialogOpen} onOpenChange={setIsStatusDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cập nhật trạng thái đơn hàng</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <Select value={statusToUpdate} onValueChange={setStatusToUpdate}>
+              <SelectTrigger>
+                <SelectValue placeholder="Chọn trạng thái" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="CHO_XAC_NHAN">Chờ xác nhận</SelectItem>
+                <SelectItem value="CHO_GIAO_HANG">Chờ giao hàng</SelectItem>
+                <SelectItem value="DANG_VAN_CHUYEN">Đang vận chuyển</SelectItem>
+                <SelectItem value="DA_GIAO_HANG">Đã giao hàng</SelectItem>
+                <SelectItem value="HOAN_THANH">Hoàn thành</SelectItem>
+                <SelectItem value="DA_HUY">Đã hủy</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsStatusDialogOpen(false)}>Hủy</Button>
+            <Button onClick={handleChangeStatus}>Cập nhật</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isConfirmCancelDialogOpen} onOpenChange={setIsConfirmCancelDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Xác nhận hủy đơn hàng</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p>Bạn có chắc chắn muốn hủy đơn hàng này không? Hành động này không thể hoàn tác.</p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsConfirmCancelDialogOpen(false)}>Không</Button>
+            <Button variant="destructive" onClick={handleCancelOrder}>Xác nhận hủy</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
-}
 
-interface OrdersTableProps {
-  orders: typeof mockOrders;
-  formatCurrency: (amount: number) => string;
-  formatDate: (dateString: string) => string;
-  getOrderTypeName: (type: string) => string;
-  getPaymentMethodName: (method: string) => string;
-  onViewDetail: (order: typeof mockOrders[0]) => void;
-}
+  function renderOrdersList() {
+    if (isLoading) {
+      return (
+        <div className="space-y-4">
+          {[...Array(5)].map((_, index) => (
+            <div key={index} className="flex items-center space-x-4">
+              <Skeleton className="h-12 w-12 rounded-md" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-[250px]" />
+                <Skeleton className="h-4 w-[200px]" />
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
 
-const OrdersTable: React.FC<OrdersTableProps> = ({
-  orders,
-  formatCurrency,
-  formatDate,
-  getOrderTypeName,
-  getPaymentMethodName,
-  onViewDetail,
-}) => {
-  if (orders.length === 0) {
+    if (isError) {
+      return (
+        <div className="text-center py-10">
+          <p className="text-red-500">Đã xảy ra lỗi khi tải dữ liệu đơn hàng. Vui lòng thử lại sau.</p>
+          <Button variant="outline" className="mt-4" onClick={() => queryClient.invalidateQueries({ queryKey: ['orders'] })}>
+            Thử lại
+          </Button>
+        </div>
+      );
+    }
+
+    if (!data?.data.orders || data.data.orders.length === 0) {
+      return (
+        <div className="text-center py-10">
+          <p className="text-gray-500">Không tìm thấy đơn hàng nào.</p>
+        </div>
+      );
+    }
+
     return (
-      <div className="text-center py-10">
-        <p className="text-gray-400">Không tìm thấy đơn hàng nào phù hợp.</p>
-      </div>
+      <>
+        <div className="rounded-md border overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[120px]">Mã đơn hàng</TableHead>
+                <TableHead>Khách hàng</TableHead>
+                <TableHead className="hidden md:table-cell">Ngày tạo</TableHead>
+                <TableHead className="text-right">Tổng tiền</TableHead>
+                <TableHead className="hidden md:table-cell">Trạng thái đơn hàng</TableHead>
+                <TableHead className="hidden md:table-cell">Trạng thái thanh toán</TableHead>
+                <TableHead className="text-right">Thao tác</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.data.orders.map((order) => (
+                <TableRow key={order._id}>
+                  <TableCell className="font-medium">{order.code}</TableCell>
+                  <TableCell>
+                    <div>
+                      <div className="font-medium">{order.customer.fullName}</div>
+                      <div className="text-sm text-gray-500">{order.customer.phoneNumber}</div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">{formatDate(order.createdAt)}</TableCell>
+                  <TableCell className="text-right font-medium">{formatCurrency(order.total)}</TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    <OrderStatusBadge status={order.orderStatus} />
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    <PaymentStatusBadge status={order.paymentStatus} />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end space-x-2">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => handleViewOrder(order._id)}
+                      >
+                        <Icon path={mdiEye} size={0.9} />
+                      </Button>
+                      <Link href={`/admin/orders/edit/${order._id}`}>
+                        <Button variant="ghost" size="icon">
+                          <Icon path={mdiPencil} size={0.9} />
+                        </Button>
+                      </Link>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        disabled={order.orderStatus === 'DA_HUY' || order.orderStatus === 'HOAN_THANH'}
+                        onClick={() => {
+                          setOrderToCancel(order._id);
+                          setIsConfirmCancelDialogOpen(true);
+                        }}
+                      >
+                        <Icon path={mdiDeleteOutline} size={0.9} />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {data.data.pagination.totalPages > 1 && (
+          <div className="flex justify-center mt-6">
+            <div className="flex space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleChangePage(Math.max(1, data.data.pagination.currentPage - 1))}
+                disabled={data.data.pagination.currentPage === 1}
+              >
+                Trước
+              </Button>
+              {Array.from({ length: data.data.pagination.totalPages }, (_, i) => i + 1)
+                .filter(page => 
+                  page === 1 || 
+                  page === data.data.pagination.totalPages || 
+                  Math.abs(page - data.data.pagination.currentPage) <= 1
+                )
+                .reduce((acc: (number | string)[], page, idx, arr) => {
+                  if (idx > 0 && page - arr[idx - 1] > 1) {
+                    acc.push('...');
+                  }
+                  acc.push(page);
+                  return acc;
+                }, [])
+                .map((page, index) => 
+                  page === '...' ? (
+                    <Button key={`ellipsis-${index}`} variant="outline" size="sm" disabled>
+                      ...
+                    </Button>
+                  ) : (
+                    <Button
+                      key={`page-${page}`}
+                      variant={data.data.pagination.currentPage === page ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => handleChangePage(page as number)}
+                    >
+                      {page}
+                    </Button>
+                  )
+                )
+              }
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleChangePage(Math.min(data.data.pagination.totalPages, data.data.pagination.currentPage + 1))}
+                disabled={data.data.pagination.currentPage === data.data.pagination.totalPages}
+              >
+                Sau
+              </Button>
+            </div>
+          </div>
+        )}
+      </>
     );
   }
+}
+
+const OrderStatusBadge = ({ status }: { status: string }) => {
+  const getStatusConfig = (status: string) => {
+    switch (status) {
+      case 'CHO_XAC_NHAN':
+        return { label: 'Chờ xác nhận', variant: 'outline' as const };
+      case 'CHO_GIAO_HANG':
+        return { label: 'Chờ giao hàng', variant: 'secondary' as const };
+      case 'DANG_VAN_CHUYEN':
+        return { label: 'Đang vận chuyển', variant: 'default' as const };
+      case 'DA_GIAO_HANG':
+        return { label: 'Đã giao hàng', variant: 'secondary' as const };
+      case 'HOAN_THANH':
+        return { label: 'Hoàn thành', variant: 'default' as const };
+      case 'DA_HUY':
+        return { label: 'Đã hủy', variant: 'destructive' as const };
+      default:
+        return { label: 'Không xác định', variant: 'outline' as const };
+    }
+  };
+
+  const config = getStatusConfig(status);
+  
+  return (
+    <Badge variant={config.variant}>
+      {config.label}
+    </Badge>
+  );
+};
+
+const PaymentStatusBadge = ({ status }: { status: string }) => {
+  const getStatusConfig = (status: string) => {
+    switch (status) {
+      case 'PENDING':
+        return { label: 'Chưa thanh toán', variant: 'outline' as const };
+      case 'PARTIAL_PAID':
+        return { label: 'Thanh toán một phần', variant: 'secondary' as const };
+      case 'PAID':
+        return { label: 'Đã thanh toán', variant: 'default' as const };
+      default:
+        return { label: 'Không xác định', variant: 'outline' as const };
+    }
+  };
+
+  const config = getStatusConfig(status);
+  
+  return (
+    <Badge variant={config.variant}>
+      {config.label}
+    </Badge>
+  );
+};
+
+type OrderDetailDialogProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  orderId: string | null;
+  orderDetail: any;
+  formatCurrency: (amount: number) => string;
+  formatDate: (dateString: string) => string;
+  onUpdateStatus: (orderId: string, status: string) => void;
+  onCancelOrder: (orderId: string) => void;
+};
+
+const OrderDetailDialog = ({ 
+  isOpen, 
+  onClose, 
+  orderId, 
+  orderDetail, 
+  formatCurrency, 
+  formatDate,
+  onUpdateStatus,
+  onCancelOrder
+}: OrderDetailDialogProps) => {
+  if (!orderId || !orderDetail) return null;
+
+  const getPaymentMethodName = (method: string) => {
+    switch (method) {
+      case 'CASH':
+        return 'Tiền mặt';
+      case 'BANK_TRANSFER':
+        return 'Chuyển khoản ngân hàng';
+      case 'COD':
+        return 'Thanh toán khi nhận hàng';
+      case 'MIXED':
+        return 'Thanh toán nhiều phương thức';
+      default:
+        return 'Không xác định';
+    }
+  };
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b">
-            <th className="px-4 py-3 text-left font-medium text-gray-400">Mã đơn</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-400">Khách hàng</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-400">Ngày tạo</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-400">Loại đơn</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-400">Trạng thái</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-400">Thanh toán</th>
-            <th className="px-4 py-3 text-right font-medium text-gray-400">Tổng tiền</th>
-            <th className="px-4 py-3 text-center font-medium text-gray-400">Thao tác</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y">
-          {orders.map((order) => (
-            <tr key={order.id} className="hover:bg-gray-50">
-              <td className="px-4 py-4 font-medium">{order.code}</td>
-              <td className="px-4 py-4">
-                <div>
-                  <div className="font-medium">{order.customer.fullName}</div>
-                  <div className="text-gray-400 text-xs">{order.customer.phone}</div>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex justify-between items-center">
+            <span>Chi tiết đơn hàng: {orderDetail.orderNumber}</span>
+            <div className="flex space-x-2">
+              <Link href={`/admin/orders/edit/${orderId}`}>
+                <Button variant="outline" size="sm">
+                  <Icon path={mdiPencil} size={0.8} className="mr-2" />
+                  Chỉnh sửa
+                </Button>
+              </Link>
+              <Button variant="outline" size="sm">
+                <Icon path={mdiPrinter} size={0.8} className="mr-2" />
+                In đơn
+              </Button>
+            </div>
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 py-4">
+          <div>
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Thông tin đơn hàng</h3>
+                <div className="mt-2 rounded-lg border p-4 space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-500">Mã đơn hàng:</span>
+                    <span className="text-sm font-medium">{orderDetail.orderNumber}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-500">Ngày tạo:</span>
+                    <span className="text-sm font-medium">{formatDate(orderDetail.createdAt)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-500">Trạng thái đơn hàng:</span>
+                    <OrderStatusBadge status={orderDetail.orderStatus} />
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-500">Trạng thái thanh toán:</span>
+                    <PaymentStatusBadge status={orderDetail.paymentStatus} />
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-500">Phương thức thanh toán:</span>
+                    <span className="text-sm font-medium">{getPaymentMethodName(orderDetail.paymentMethod)}</span>
+                  </div>
                 </div>
-              </td>
-              <td className="px-4 py-4">
-                <div>{formatDate(order.createdAt)}</div>
-              </td>
-              <td className="px-4 py-4">{getOrderTypeName(order.type)}</td>
-              <td className="px-4 py-4">
-                <OrderStatusBadge status={order.status} />
-              </td>
-              <td className="px-4 py-4">
-                <div className="mb-1">
-                  <OrderPaymentStatusBadge status={order.paymentStatus} />
+              </div>
+
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Thông tin khách hàng</h3>
+                <div className="mt-2 rounded-lg border p-4 space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-500">Tên khách hàng:</span>
+                    <span className="text-sm font-medium">{orderDetail.customer.fullName}</span>
+                  </div>
+                  {orderDetail.customer.email && (
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-500">Email:</span>
+                      <span className="text-sm font-medium">{orderDetail.customer.email}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-500">Số điện thoại:</span>
+                    <span className="text-sm font-medium">{orderDetail.customer.phoneNumber}</span>
+                  </div>
                 </div>
-                <div className="text-xs text-gray-400">{getPaymentMethodName(order.paymentMethod)}</div>
-              </td>
-              <td className="px-4 py-4 text-right font-medium">
-                {formatCurrency(order.finalAmount)}
-              </td>
-              <td className="px-4 py-4">
-                <div className="flex items-center justify-center space-x-2">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => onViewDetail(order)}
-                    className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 bg-gray-100"
-                    title="Xem chi tiết"
+              </div>
+
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Địa chỉ giao hàng</h3>
+                <div className="mt-2 rounded-lg border p-4">
+                  {orderDetail.shippingAddress ? (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">{orderDetail.shippingAddress.name}</p>
+                      <p className="text-sm">{orderDetail.shippingAddress.phoneNumber}</p>
+                      <p className="text-sm">{orderDetail.shippingAddress.specificAddress}, {orderDetail.shippingAddress.wardName}, {orderDetail.shippingAddress.districtName}, {orderDetail.shippingAddress.provinceName}</p>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500">Không có thông tin địa chỉ giao hàng</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Sản phẩm đã đặt</h3>
+                <div className="mt-2 rounded-lg border">
+                  <div className="max-h-[300px] overflow-y-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Sản phẩm</TableHead>
+                          <TableHead className="text-right">Đơn giá</TableHead>
+                          <TableHead className="text-right">SL</TableHead>
+                          <TableHead className="text-right">Tổng</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {orderDetail.items.map((item: any, index: number) => (
+                          <TableRow key={index}>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                {item.product.imageUrl && (
+                                  <div className="w-10 h-10 rounded border overflow-hidden bg-gray-100">
+                                    <img 
+                                      src={item.product.imageUrl} 
+                                      alt={item.product.name}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  </div>
+                                )}
+                                <div>
+                                  <div className="font-medium text-sm">{item.product.name}</div>
+                                  <div className="text-xs text-gray-500">
+                                    {item.variant?.colorName && item.variant?.sizeName && 
+                                      `${item.variant.colorName} / ${item.variant.sizeName}`
+                                    }
+                                  </div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-right">{formatCurrency(item.price)}</TableCell>
+                            <TableCell className="text-right">{item.quantity}</TableCell>
+                            <TableCell className="text-right">{formatCurrency(item.price * item.quantity)}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Tổng tiền</h3>
+                <div className="mt-2 rounded-lg border p-4 space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-500">Tổng tiền hàng:</span>
+                    <span className="text-sm font-medium">{formatCurrency(orderDetail.subTotal)}</span>
+                  </div>
+                  {orderDetail.voucher && (
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-500">Mã giảm giá ({orderDetail.voucher.code}):</span>
+                      <span className="text-sm font-medium text-red-500">-{formatCurrency(orderDetail.discount)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between border-t pt-2">
+                    <span className="text-sm font-medium">Tổng thanh toán:</span>
+                    <span className="text-base font-bold">{formatCurrency(orderDetail.total)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action buttons */}
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <Button 
+                    className="w-full" 
+                    disabled={['DA_HUY', 'HOAN_THANH'].includes(orderDetail.orderStatus)}
+                    onClick={() => onUpdateStatus(orderId, orderDetail.orderStatus)}
                   >
-                    <Icon path={mdiEye} size={0.8} className='text-gray-400' />
+                    Cập nhật trạng thái
                   </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 bg-gray-100"
-                    title="In hóa đơn"
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    disabled={['DA_HUY', 'HOAN_THANH'].includes(orderDetail.orderStatus)}
+                    onClick={() => onCancelOrder(orderId)}
                   >
-                    <Icon path={mdiPrinter} size={0.8} className='text-gray-400' />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 bg-gray-100 text-red-500"
-                    title="Xóa đơn hàng"
-                  >
-                    <Icon path={mdiDelete} size={0.8} className='text-gray-400' />
+                    Hủy đơn hàng
                   </Button>
                 </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }; 

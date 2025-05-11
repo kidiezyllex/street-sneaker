@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@mdi/react';
 import { mdiEmailOutline, mdiChevronRight, mdiCheck, mdiEmailFast } from '@mdi/js';
+import { Input } from '../ui/input';
 
 export const Newsletter = () => {
   const [email, setEmail] = useState('');

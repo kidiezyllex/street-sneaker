@@ -270,15 +270,12 @@ export default function POSPage() {
     setShowCheckoutDialog(true);
   };
 
-  //                                                                                                                     Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      //                                                                                                                     Alt + P to proceed to checkout
       if (e.altKey && e.key === 'p') {
         handleProceedToCheckout();
       }
       
-      //                                                                                                                     Alt + C to clear cart
       if (e.altKey && e.key === 'c') {
         if (cartItems.length > 0) {
           setCartItems([]);
@@ -286,7 +283,6 @@ export default function POSPage() {
         }
       }
       
-      //                                                                                                                     Alt + S to focus search
       if (e.altKey && e.key === 's') {
         const searchInput = document.getElementById('product-search');
         if (searchInput) {
