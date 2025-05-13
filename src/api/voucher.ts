@@ -2,7 +2,8 @@ import {
   IVoucherFilter,
   IVoucherCreate,
   IVoucherUpdate,
-  IVoucherValidate
+  IVoucherValidate,
+  IUserVoucherParams
 } from "@/interface/request/voucher";
 import {
   IVouchersResponse,
@@ -84,4 +85,14 @@ export const incrementVoucherUsage = async (voucherId: string): Promise<IVoucher
 export const notifyVoucher = async (voucherId: string): Promise<INotificationResponse> => {
   const res = await sendPost(`/vouchers/${voucherId}/notify`, {});
   return res as INotificationResponse;
+};
+
+// === User Voucher API ===
+/**
+ * Get available vouchers for a specific user
+ * Endpoint: GET /api/vouchers/user/{userId}
+ */
+export const getAvailableVouchersForUser = async (userId: string, params?: IUserVoucherParams): Promise<IVouchersResponse> => {
+  const res = await sendGet(`/vouchers/user/${userId}`, params);
+  return res as IVouchersResponse;
 }; 

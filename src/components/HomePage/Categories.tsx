@@ -94,7 +94,7 @@ const categories = [
   {
     id: 8,
     name: 'Giày trẻ em',
-    image: 'https://images.unsplash.com/photo-1551861568-c4e1eabe4482?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1591291621164-2c6367723315?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
     productCount: 80,
     slug: 'giay-tre-em',
     description: 'Giày dành cho trẻ em, thiết kế năng động và nhiều màu sắc',

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Icon } from '@mdi/react';
-import { mdiMagnify, mdiPlus, mdiPencilCircle, mdiDeleteCircle, mdiFilterOutline, mdiLoading, mdiEmailFast, mdiTagCheckOutline } from '@mdi/js';
+import { mdiMagnify, mdiPlus, mdiPencilCircle, mdiDeleteCircle, mdiFilterOutline, mdiLoading, mdiEmailFast, mdiTagCheckOutline, mdiFilterRemoveOutline } from '@mdi/js';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
@@ -63,6 +63,11 @@ export default function VouchersPage() {
     } else {
       setFilters({ ...filters, [key]: value, page: 1 });
     }
+  };
+
+  const handleClearFilters = () => {
+    setSearchQuery('');
+    setFilters({ page: 1, limit: 10 });
   };
 
   const handleDeleteVoucher = async (id: string) => {
@@ -185,14 +190,26 @@ export default function VouchersPage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <Button
-              variant="outline"
-              className="flex items-center"
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              <Icon path={mdiFilterOutline} size={0.9} className="mr-2" />
-              {showFilters ? 'Ẩn bộ lọc' : 'Hiện bộ lọc'}
-            </Button>
+            <div className="flex space-x-2">
+              {(showFilters || searchQuery || Object.keys(filters).filter(k => k !== 'page' && k !== 'limit').length > 0) && (
+                <Button
+                  variant="outline"
+                  className="flex items-center"
+                  onClick={handleClearFilters}
+                >
+                  <Icon path={mdiFilterRemoveOutline} size={0.9} className="mr-2" />
+                  Clear bộ lọc
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                className="flex items-center"
+                onClick={() => setShowFilters(!showFilters)}
+              >
+                <Icon path={mdiFilterOutline} size={0.9} className="mr-2" />
+                {showFilters ? 'Ẩn bộ lọc' : 'Hiện bộ lọc'}
+              </Button>
+            </div>
           </div>
 
           <AnimatePresence>

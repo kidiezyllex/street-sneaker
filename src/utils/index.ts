@@ -3,12 +3,6 @@ import { KeyboardEvent } from "react";
 import dayjs from "dayjs";
 import { numericRegex } from "@/regex";
 import moment from "moment";
-export const camelizeConvert = (obj: any) => {
-  return _.transform(obj, (acc: any, value, key: any, target) => {
-    const camelKey = _.isArray(target) ? key : _.camelCase(key);
-    acc[camelKey] = _.isObject(value) ? camelizeConvert(value) : value;
-  });
-};
 
 export const onKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
   const key = e.key;

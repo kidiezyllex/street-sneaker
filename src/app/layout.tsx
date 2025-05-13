@@ -18,9 +18,6 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: 'Street Sneakers',
   description: 'Street Sneakers',
-  icons: {
-    icon: '/images/faviconV2.png',
-  },
 };
 
 export default function RootLayout({

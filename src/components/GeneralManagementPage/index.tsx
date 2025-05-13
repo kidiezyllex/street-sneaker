@@ -27,7 +27,9 @@ import {
   mdiBellOutline,
   mdiShieldLockOutline,
   mdiLockReset,
-  mdiContentSaveOutline
+  mdiContentSaveOutline,
+  mdiTicketPercentOutline,
+  mdiContentCopy
 } from '@mdi/js';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -39,6 +41,8 @@ import { useUser } from '@/context/useUserContext';
 import { useOrdersByUser, useOrderDetail } from '@/hooks/order';
 import { useToast } from '@/hooks/useToast';
 import { useUserProfile, useUpdateUserProfile, useChangePassword } from '@/hooks/account';
+import { useAvailableVouchersForUser } from '@/hooks/voucher';
+import { IVoucher } from '@/interface/response/voucher';
 import { IOrder } from '@/interface/response/order';
 import { 
   Card, 
@@ -77,27 +81,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { formatDate } from '@/lib/utils';
+import { formatPrice } from '@/utils/formatters';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const sidebarAnimation = {
   hidden: { opacity: 0, x: -20 },
@@ -116,15 +106,15 @@ export const AccountTabContext = createContext({
 
 const OrderStatusBadge = ({ status }: { status: string }) => {
   const statusConfig: Record<string, { label: string; className: string }> = {
-    'CHO_XAC_NHAN': { label: 'Chờ xác nhận', className: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-    'CHO_GIAO_HANG': { label: 'Chờ giao hàng', className: 'bg-blue-100 text-blue-800 border-blue-200' },
-    'DANG_VAN_CHUYEN': { label: 'Đang vận chuyển', className: 'bg-orange-100 text-orange-800 border-orange-200' },
-    'DA_GIAO_HANG': { label: 'Đã giao hàng', className: 'bg-green-100 text-green-800 border-green-200' },
-    'HOAN_THANH': { label: 'Hoàn thành', className: 'bg-emerald-200 text-emerald-900 border-emerald-300' },
-    'DA_HUY': { label: 'Đã hủy', className: 'bg-red-100 text-red-800 border-red-200' },
+    'CHO_XAC_NHAN': { label: 'Chờ xác nhận', className: '!bg-yellow-400 !text-yellow-900 !border-yellow-500' },
+    'CHO_GIAO_HANG': { label: 'Chờ giao hàng', className: '!bg-blue-400 !text-blue-900 !border-blue-500' },
+    'DANG_VAN_CHUYEN': { label: 'Đang vận chuyển', className: '!bg-orange-400 !text-orange-900 !border-orange-500' },
+    'DA_GIAO_HANG': { label: 'Đã giao hàng', className: '!bg-green-400 !text-green-900 !border-green-500' },
+    'HOAN_THANH': { label: 'Hoàn thành', className: '!bg-emerald-400 !text-emerald-900 !border-emerald-500' },
+    'DA_HUY': { label: 'Đã hủy', className: '!bg-red-400 !text-red-900 !border-red-500' },
   };
 
-  const config = statusConfig[status] || { label: status, className: 'bg-gray-100 text-gray-800 border-gray-200' };
+  const config = statusConfig[status] || { label: status, className: 'bg-gray-400 text-gray-900 border-gray-500' };
 
   return (
     <Badge className={`${config.className} rounded-md font-normal`}>
@@ -759,6 +749,200 @@ const PasswordTab = () => {
   );
 };
 
+// Tab Mã giảm giá
+const VouchersTab = () => {
+  const { profile } = useUser();
+  const userId = profile?.data?._id;
+  const { data: vouchersData, isLoading, isError } = useAvailableVouchersForUser(userId || '', {}); 
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast.success(`Đã sao chép mã: ${text}`, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }).catch(err => {
+      toast.error("Không thể sao chép mã giảm giá.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    });
+  };
+
+  const formatDiscountValue = (type: 'PERCENTAGE' | 'FIXED_AMOUNT', value: number) => {
+    if (type === 'PERCENTAGE') {
+      return `${value}%`;
+    }
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[...Array(3)].map((_, index) => (
+          <Card key={index}>
+            <CardHeader>
+              <Skeleton className="h-6 w-3/4" />
+              <Skeleton className="h-4 w-1/2 mt-2" />
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-2/3" />
+              <Skeleton className="h-10 w-1/3 mt-2" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Icon path={mdiAlertCircleOutline} size={0.9} className="text-red-500" />
+            <span>Lỗi tải mã giảm giá</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-red-500">Đã xảy ra lỗi khi tải danh sách mã giảm giá của bạn. Vui lòng thử lại sau.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const vouchers = vouchersData?.data?.vouchers;
+
+  if (!vouchers || vouchers.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Icon path={mdiTicketPercentOutline} size={0.9} />
+            <span>Mã giảm giá</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">Bạn không có mã giảm giá nào hiện có.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-xl font-semibold">
+                <Icon path={mdiTicketPercentOutline} size={1} className="text-primary" />
+                <span>Mã giảm giá của bạn</span>
+            </CardTitle>
+            <CardDescription>
+                Danh sách các mã giảm giá bạn có thể sử dụng để tiết kiệm khi mua sắm.
+            </CardDescription>
+        </CardHeader>
+        <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
+            {vouchers.map((voucher: IVoucher) => (
+                <Card 
+                    key={voucher._id} 
+                    className={`relative overflow-hidden shadow-lg transition-all hover:shadow-xl group
+                                ${voucher.status === 'KHONG_HOAT_DONG' || new Date(voucher.endDate) < new Date() 
+                                    ? 'bg-muted/30 border-dashed' 
+                                    : 'bg-card border-primary/20 hover:border-primary/50'}`}
+                >
+                { (voucher.status === 'KHONG_HOAT_DONG' || new Date(voucher.endDate) < new Date()) && (
+                    <div className="absolute top-3 right-3 z-10">
+                        <Badge variant="destructive" className="text-xs px-2 py-1 rounded-full shadow-md">
+                            {new Date(voucher.endDate) < new Date() ? 'Đã hết hạn' : 'Ngừng hoạt động'}
+                        </Badge>
+                    </div>
+                )}
+                <CardHeader className="pb-3 relative">
+                    {!(voucher.status === 'KHONG_HOAT_DONG' || new Date(voucher.endDate) < new Date()) && (
+                         <div className="absolute -top-5 -left-5 w-16 h-16 bg-primary/10 rounded-full transform rotate-45 group-hover:scale-110 transition-transform duration-300"></div>
+                    )}
+                    <div className="relative z-0">
+                        <CardTitle className="text-lg font-bold flex items-center gap-2.5 text-primary tracking-wide">
+                            {voucher.name}
+                        </CardTitle>
+                        <CardDescription className="text-xs mt-1">
+                            Mã: <span className="font-semibold text-foreground tracking-wider bg-primary/10 px-1.5 py-0.5 rounded">{voucher.code}</span>
+                        </CardDescription>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-3.5 text-sm pt-2">
+                    <div className="border-t border-border pt-3 space-y-2">
+                        <div className="flex justify-between items-center">
+                            <span className="font-medium text-muted-foreground">Giá trị giảm:</span> 
+                            <span className="font-bold text-lg text-green-600">{formatDiscountValue(voucher.type, voucher.value)}</span>
+                        </div>
+                        {voucher.type === 'PERCENTAGE' && voucher.maxDiscount && (
+                            <div className="flex justify-between items-center text-xs text-muted-foreground">
+                                <span>Tối đa:</span>
+                                <span>{formatPrice(voucher.maxDiscount)}</span>
+                            </div>
+                        )}
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <span className="font-medium text-muted-foreground">Đơn tối thiểu:</span> 
+                        <span className="font-semibold">{formatPrice(voucher.minOrderValue || 0)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <span className="font-medium text-muted-foreground">Hiệu lực:</span> 
+                        <span className="font-semibold">{formatDate(voucher.startDate)} - {formatDate(voucher.endDate)}</span>
+                    </div>
+                     {voucher.quantity - voucher.usedCount > 0 && voucher.quantity < Infinity && (
+                        <div className="text-xs text-blue-600 flex justify-between items-center">
+                           <span className="font-medium text-muted-foreground">Lượt sử dụng còn lại:</span> 
+                           <span className="font-semibold">{voucher.quantity - voucher.usedCount}</span>
+                        </div>
+                    )}
+
+                    {(voucher.status === 'HOAT_DONG' && new Date(voucher.endDate) >= new Date()) ? (
+                        <Button 
+                            variant="default"
+                            size="sm" 
+                            className="w-full mt-4 bg-primary hover:bg-primary/90 text-primary-foreground gap-2 shadow-md hover:shadow-lg transition-shadow"
+                            onClick={() => copyToClipboard(voucher.code)}
+                        >
+                            <Icon path={mdiContentCopy} size={0.7} />
+                            Sao chép mã
+                        </Button>
+                    ) : (
+                        <Button 
+                            variant="outline"
+                            size="sm" 
+                            className="w-full mt-4 cursor-not-allowed"
+                            disabled
+                        >
+                            Không thể sử dụng
+                        </Button>
+                    )}
+                </CardContent>
+                </Card>
+            ))}
+            </div>
+            {/* TODO: Add pagination if vouchersData.data.pagination exists and totalPages > 1 */}
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
 // Tab Cài đặt
 const SettingsTab = () => {
   const [notifications, setNotifications] = useState({
@@ -848,7 +1032,7 @@ export default function GeneralManagementPage() {
         const urlParams = new URLSearchParams(window.location.search);
         const tabParam = urlParams.get('tab');
         
-        if (tabParam && ['overview', 'profile', 'password', 'settings', 'orders'].includes(tabParam)) {
+        if (tabParam && ['overview', 'profile', 'password', 'settings', 'orders', 'vouchers'].includes(tabParam)) {
           setActiveTab(tabParam);
         } else {
           setActiveTab('overview');
@@ -901,6 +1085,11 @@ export default function GeneralManagementPage() {
       title: 'Đơn hàng của bạn',
       icon: mdiOrderBoolAscending,
       value: 'orders',
+    },
+    {
+      title: 'Mã giảm giá',
+      icon: mdiTicketPercentOutline,
+      value: 'vouchers',
     },
     {
       title: 'Cài đặt',
@@ -1020,24 +1209,24 @@ export default function GeneralManagementPage() {
                         </Button>
                       </div>
                     ) : (
-                      <div className="rounded-md border">
+                      <div>
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead className="w-[120px]">Mã đơn hàng</TableHead>
-                              <TableHead>Ngày đặt</TableHead>
-                              <TableHead>Sản phẩm</TableHead>
-                              <TableHead className="text-right">Tổng tiền</TableHead>
-                              <TableHead>Trạng thái</TableHead>
-                              <TableHead className="text-center">Thao tác</TableHead>
+                              <TableHead className="w-[120px] px-3 py-2">Mã đơn hàng</TableHead>
+                              <TableHead className="px-3 py-2">Ngày đặt</TableHead>
+                              <TableHead className="px-3 py-2">Sản phẩm</TableHead>
+                              <TableHead className="text-right px-3 py-2">Tổng tiền</TableHead>
+                              <TableHead className="px-3 py-2">Trạng thái</TableHead>
+                              <TableHead className="text-center px-3 py-2">Thao tác</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             {ordersData.data.orders.map((order: IOrder) => (
                               <TableRow key={order._id}>
-                                <TableCell className="font-medium">{order.code}</TableCell>
-                                <TableCell>{formatDate(order.createdAt)}</TableCell>
-                                <TableCell>
+                                <TableCell className="font-medium px-3 py-2">{order.code}</TableCell>
+                                <TableCell className="px-3 py-2">{formatDate(order.createdAt)}</TableCell>
+                                <TableCell className="px-3 py-2">
                                   <div className="flex flex-col gap-1">
                                     {order.items.slice(0, 2).map((item, index) => (
                                       <div key={index} className="text-xs">
@@ -1051,13 +1240,13 @@ export default function GeneralManagementPage() {
                                     )}
                                   </div>
                                 </TableCell>
-                                <TableCell className="text-right font-medium">
+                                <TableCell className="text-right font-medium px-3 py-2">
                                   {formatPrice(order.total)}
                                 </TableCell>
-                                <TableCell>
+                                <TableCell className="px-3 py-2">
                                   <OrderStatusBadge status={order.orderStatus} />
                                 </TableCell>
-                                <TableCell className="text-center">
+                                <TableCell className="text-center px-3 py-2">
                                   <Button
                                     variant="ghost"
                                     size="icon"
@@ -1099,6 +1288,9 @@ export default function GeneralManagementPage() {
                     )}
                   </CardContent>
                 </Card>
+              </TabsContent>
+              <TabsContent value="vouchers">
+                {activeTab === 'vouchers' && <VouchersTab />}
               </TabsContent>
               <TabsContent value="settings">
                 {activeTab === 'settings' && <SettingsTab />}

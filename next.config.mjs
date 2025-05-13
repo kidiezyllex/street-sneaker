@@ -43,6 +43,11 @@ const nextConfig = {
       }
     ];
   },
+  staticPageGenerationTimeout: 120,
+  experimental: {
+    instrumentationHook: true,
+    missingSuspenseWithCSRBailout: false,
+  },
 };
 
 export default nextConfig;

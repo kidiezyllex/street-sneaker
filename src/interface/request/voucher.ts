@@ -47,4 +47,12 @@ export interface IVoucherUpdate {
 export interface IVoucherValidate {
   code: string;                                  // Voucher code to validate
   orderValue?: number;                           // Order value to calculate discount amount
+}
+
+/**
+ * Interface for fetching available vouchers for a user
+ */
+export interface IUserVoucherParams {
+  page?: number;    // Page number for pagination
+  limit?: number;   // Number of items per page
 } 

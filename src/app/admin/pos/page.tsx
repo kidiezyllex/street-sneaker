@@ -304,11 +304,11 @@ export default function POSPage() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/admin" className="text-gray-600 hover:text-primary transition-colors">Trang chủ</BreadcrumbLink>
+                <BreadcrumbLink href="/admin">Trang chủ</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage className="font-medium text-primary">Bán hàng tại quầy</BreadcrumbPage>
+                <BreadcrumbPage>Bán hàng tại quầy</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>

@@ -12,13 +12,15 @@ import {
   deleteVoucher,
   validateVoucher,
   incrementVoucherUsage,
-  notifyVoucher
+  notifyVoucher,
+  getAvailableVouchersForUser
 } from "@/api/voucher";
 import {
   IVoucherFilter,
   IVoucherCreate,
   IVoucherUpdate,
-  IVoucherValidate
+  IVoucherValidate,
+  IUserVoucherParams
 } from "@/interface/request/voucher";
 import {
   IVouchersResponse,
@@ -82,5 +84,17 @@ export const useIncrementVoucherUsage = (): UseMutationResult<IVoucherResponse, 
 export const useNotifyVoucher = (): UseMutationResult<INotificationResponse, Error, string> => {
   return useMutation<INotificationResponse, Error, string>({
     mutationFn: (voucherId) => notifyVoucher(voucherId),
+  });
+};
+
+// === User Voucher Hooks ===
+export const useAvailableVouchersForUser = (
+  userId: string,
+  params: IUserVoucherParams = {}
+): UseQueryResult<IVouchersResponse, Error> => {
+  return useQuery<IVouchersResponse, Error>({
+    queryKey: ["availableVouchers", userId, params],
+    queryFn: () => getAvailableVouchersForUser(userId, params),
+    enabled: !!userId, // Only fetch if userId is present
   });
 }; 

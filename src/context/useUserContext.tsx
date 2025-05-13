@@ -1,15 +1,12 @@
 "use client"
 import type React from "react"
-import { createContext, useContext, useEffect, useState } from "react"
+import { createContext, useContext, useEffect, useState, useRef } from "react"
 
 import { clearToken, setTokenToLocalStorage } from "@/helper/tokenStorage"
 import { useUserProfile } from "@/hooks/account"
 import { IAccountResponse } from "@/interface/response/account"
-import { QueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import cookies from "js-cookie"
-
-const queryClient = new QueryClient()
 
 type UserContextType = {
   user: null | Record<string, any>
@@ -30,6 +27,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<null | Record<string, any>>(null)
   const [profile, setProfile] = useState<IAccountResponse | null>(null)
   const [isLoadingProfile, setIsLoadingProfile] = useState<boolean>(false)
+  const lastProfileDataStringRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -100,11 +98,26 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   useEffect(() => {
-    if (profileData) {
-      setProfile(profileData)
-      if (typeof window !== "undefined") {
-        localStorage.setItem("userProfile", JSON.stringify(profileData))
+    const currentProfileDataString = profileData ? JSON.stringify(profileData) : null;
+    console.log("UserProfileContext: useEffect for profileData triggered. Current profileData string:", currentProfileDataString);
+
+    if (currentProfileDataString !== lastProfileDataStringRef.current) {
+      if (profileData) {
+        console.log("UserProfileContext: profileData has changed (or was initially set). Updating profile state and localStorage.");
+        setProfile(profileData);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("userProfile", currentProfileDataString!);
+        }
+      } else {
+        console.log("UserProfileContext: profileData is now falsy and has changed. Clearing profile state and localStorage.");
+        setProfile(null);
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("userProfile");
+        }
       }
+      lastProfileDataStringRef.current = currentProfileDataString;
+    } else {
+      console.log("UserProfileContext: profileData string has NOT changed. Skipping state update.");
     }
   }, [profileData])
 
@@ -129,7 +142,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     }
     cookies.remove("accessToken")
     router.push("/sign-in")
-    queryClient.clear()
   }
 
   return (
