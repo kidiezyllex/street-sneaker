@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { categories, products, CartItem, Product, ProductColor, ProductSize } from '@/components/POSPage/mockData';
+import { useState, useEffect, useMemo } from 'react';
+import { CartItem as OldCartItem } from '@/components/POSPage/mockData'; // Keep old CartItem as reference if needed or for gradual update
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -17,10 +17,8 @@ import {
   mdiQrcodeScan,
   mdiCreditCardOutline,
   mdiCashMultiple,
-  mdiAccountOutline,
   mdiReceiptOutline,
   mdiClockOutline,
-  mdiChevronDown,
   mdiInformationOutline,
   mdiReceipt,
   mdiClock,
@@ -54,7 +52,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -67,23 +64,68 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from '@/components/ui/skeleton'; // For loading states
+
+import { useProducts, useSearchProducts } from '@/hooks/product';
+import { IProductFilter } from '@/interface/request/product';
+
+// Define types based on expected API response
+interface ApiVariant {
+  _id: string;
+  colorId?: { _id: string; name: string; code: string; images?: string[] };
+  sizeId?: { _id: string; name: string; value?: string; };
+  price: number;
+  stock: number;
+  images?: string[];
+  sku?: string;
+}
+
+interface ApiProduct {
+  _id: string;
+  name: string;
+  brand: { _id: string; name: string; } | string;
+  category: { _id: string; name: string; } | string;
+  description?: string;
+  variants: ApiVariant[];
+  status?: string;
+  createdAt: string; 
+}
+
+interface UpdatedCartItem {
+  id: string; 
+  productId: string;
+  variantId: string; 
+  name: string;
+  colorName: string;
+  colorCode?: string; 
+  sizeName: string; 
+  price: number;
+  quantity: number;
+  image: string; 
+  stock: number; 
+}
 
 export default function POSPage() {
-  const [activeCategory, setActiveCategory] = useState<string>('cat-1');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [selectedColor, setSelectedColor] = useState<ProductColor | null>(null);
-  const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<ApiProduct | null>(null);
+  const [selectedApiVariant, setSelectedApiVariant] = useState<ApiVariant | null>(null);
+  
+  const [cartItems, setCartItems] = useState<UpdatedCartItem[]>([]);
   const [couponCode, setCouponCode] = useState<string>('');
   const [appliedDiscount, setAppliedDiscount] = useState<number>(0);
   const [paymentMethod, setPaymentMethod] = useState<string>('cash');
   const [showCheckoutDialog, setShowCheckoutDialog] = useState<boolean>(false);
   const [customerName, setCustomerName] = useState<string>('');
   const [customerPhone, setCustomerPhone] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [checkoutIsLoading, setCheckoutIsLoading] = useState<boolean>(false); // Renamed from isLoading
 
-  //                                                                                                                     Stats for the dashboard
+  // New states for API data handling
+  const [pagination, setPagination] = useState({ page: 1, limit: 12 });
+  const [filters, setFilters] = useState<IProductFilter>({ status: 'HOAT_DONG' });
+  const [sortOption, setSortOption] = useState<string>('newest'); 
+  const [isSearching, setIsSearching] = useState<boolean>(false);
+  const [activeCategoryName, setActiveCategoryName] = useState<string>('Tất cả sản phẩm');
+
   const [stats, setStats] = useState({
     dailySales: 12500000,
     totalOrders: 24,
@@ -91,88 +133,203 @@ export default function POSPage() {
     pendingOrders: 3
   });
 
-  //                                                                                                                     Recent transactions
   const [recentTransactions, setRecentTransactions] = useState([
     { id: 'TX-1234', customer: 'Nguyễn Văn A', amount: 1250000, time: '10:25', status: 'completed' },
     { id: 'TX-1233', customer: 'Trần Thị B', amount: 850000, time: '09:40', status: 'completed' },
     { id: 'TX-1232', customer: 'Lê Văn C', amount: 2100000, time: '09:15', status: 'pending' }
   ]);
 
-  const filteredProducts = products.filter((product) => {
-    //                                                                                                                     Filter by category
-    if (activeCategory !== 'cat-1') {
-      //                                                                                                                     Category filtering logic here (simulated)
-    }
-    
-    //                                                                                                                     Filter by search query
-    if (searchQuery) {
-      return product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.brand.toLowerCase().includes(searchQuery.toLowerCase());
-    }
-    
-    return true;
-  });
+  useEffect(() => {
+    const timerId = setTimeout(() => {
+      setIsSearching(searchQuery.length > 0);
+    }, 500);
+    return () => clearTimeout(timerId);
+  }, [searchQuery]);
 
-  const handleProductSelect = (product: Product) => {
+  useEffect(() => {
+    if (activeCategoryName === 'Tất cả sản phẩm') {
+      // Remove categories filter if 'All' is selected
+      const { categories, ...restFilters } = filters;
+      setFilters(restFilters);
+    } else {
+      // Assuming category name is used as filter value. If API needs ID, adjust accordingly.
+      setFilters(prev => ({ ...prev, categories: [activeCategoryName] }));
+    }
+    setPagination(prev => ({ ...prev, page: 1 }));
+  }, [activeCategoryName]);
+
+  const productsHookParams: IProductFilter = {
+    ...pagination,
+    ...filters,
+  };
+
+  const productsQuery = useProducts(productsHookParams);
+  const searchQueryHook = useSearchProducts(
+    isSearching ? { keyword: searchQuery, status: 'HOAT_DONG', ...pagination, ...filters } : { keyword: '' }
+  );
+
+  const {
+    data: rawData,
+    isLoading: apiIsLoading, // Use this for product list loading
+    isError: apiIsError,
+    // refetch 
+  } = isSearching ? searchQueryHook : productsQuery;
+
+  const processedProducts = useMemo(() => {
+    let productsToProcess = (rawData?.data?.products || []) as ApiProduct[];
+
+    // Client-side sorting
+    if (sortOption !== 'default' && productsToProcess.length > 0) {
+      productsToProcess = [...productsToProcess].sort((a, b) => {
+        const priceA = a.variants[0]?.price || 0;
+        const priceB = b.variants[0]?.price || 0;
+        const dateA = new Date(a.createdAt).getTime();
+        const dateB = new Date(b.createdAt).getTime();
+
+        switch (sortOption) {
+          case 'price-asc':
+            return priceA - priceB;
+          case 'price-desc':
+            return priceB - priceA;
+          case 'newest':
+            return dateB - dateA;
+          // Add 'popularity' or other client-side sort cases if needed
+          // case 'popularity':
+          //   const stockA = a.variants.reduce((total: number, variant: any) => total + variant.stock, 0);
+          //   const stockB = b.variants.reduce((total: number, variant: any) => total + variant.stock, 0);
+          //   return stockB - stockA; 
+          default:
+            return 0;
+        }
+      });
+    }
+    return productsToProcess;
+  }, [rawData, sortOption]);
+
+  const dynamicCategories = useMemo(() => {
+    const baseCategories = [{ _id: 'all', name: 'Tất cả sản phẩm' }];
+    if (rawData?.data?.products) {
+        const uniqueCatObjects = new Map<string, { _id: string; name:string }>();
+        rawData.data.products.forEach((p: ApiProduct) => { // Explicitly type p
+            if (p.category && typeof p.category === 'object' && p.category._id && p.category.name) {
+                uniqueCatObjects.set(p.category._id, { _id: p.category._id, name: p.category.name });
+            } else if (typeof p.category === 'string') { // Handle if category is just a string name
+                 uniqueCatObjects.set(p.category, { _id: p.category, name: p.category });
+            }
+        });
+        return [...baseCategories, ...Array.from(uniqueCatObjects.values())];
+    }
+    return baseCategories;
+  }, [rawData?.data?.products]);
+
+
+  const handleProductSelect = (product: ApiProduct) => {
     setSelectedProduct(product);
-    setSelectedColor(product.colors[0]);
-    setSelectedSize(null);
+    if (product.variants && product.variants.length > 0) {
+      const firstAvailableVariant = product.variants.find(v => v.stock > 0) || product.variants[0];
+      setSelectedApiVariant(firstAvailableVariant);
+    } else {
+      setSelectedApiVariant(null);
+      toast.warn('Sản phẩm này không có biến thể hoặc đã hết hàng.');
+    }
   };
-
-  const handleColorSelect = (color: ProductColor) => {
-    setSelectedColor(color);
-    setSelectedSize(null);
+  
+  const handleColorSelectFromDetail = (colorId: string) => {
+    if (!selectedProduct) return;
+    const variantWithThisColor = selectedProduct.variants.find(v => v.colorId?._id === colorId && v.stock > 0);
+    if (variantWithThisColor) {
+      setSelectedApiVariant(variantWithThisColor);
+    } else {
+      // Fallback or keep current variant if no stock for new color
+      const firstVariantOfThisColor = selectedProduct.variants.find(v => v.colorId?._id === colorId);
+      if (firstVariantOfThisColor) {
+          setSelectedApiVariant(firstVariantOfThisColor); // Select even if out of stock to show details
+          if (firstVariantOfThisColor.stock === 0) toast.warn("Màu này đã hết hàng.");
+      }
+    }
   };
-
-  const handleSizeSelect = (size: ProductSize) => {
-    setSelectedSize(size);
+  
+  const handleSizeSelectFromDetail = (sizeId: string) => {
+    if (!selectedProduct || !selectedApiVariant?.colorId) return;
+    const variantWithThisSizeAndColor = selectedProduct.variants.find(v => 
+      v.colorId?._id === selectedApiVariant.colorId?._id && v.sizeId?._id === sizeId && v.stock > 0
+    );
+    if (variantWithThisSizeAndColor) {
+      setSelectedApiVariant(variantWithThisSizeAndColor);
+    } else {
+      const firstVariantOfThisSizeAndColor = selectedProduct.variants.find(v => v.colorId?._id === selectedApiVariant.colorId?._id && v.sizeId?._id === sizeId);
+      if (firstVariantOfThisSizeAndColor) {
+        setSelectedApiVariant(firstVariantOfThisSizeAndColor);
+        if (firstVariantOfThisSizeAndColor.stock === 0) toast.warn("Kích thước này với màu đã chọn đã hết hàng.");
+      }
+    }
   };
 
   const addToCart = () => {
-    if (!selectedProduct || !selectedColor || !selectedSize) {
-      toast.error('Vui lòng chọn sản phẩm, màu và kích thước');
+    if (!selectedProduct || !selectedApiVariant) {
+      toast.error('Vui lòng chọn sản phẩm, màu và kích thước.');
       return;
     }
 
-    const newItem: CartItem = {
-      id: `${selectedProduct.id}-${selectedColor.id}-${selectedSize.id}`,
-      productId: selectedProduct.id,
-      name: selectedProduct.name,
-      color: selectedColor.name,
-      colorCode: selectedColor.code,
-      size: selectedSize.size,
-      price: selectedSize.price,
-      quantity: 1,
-      image: selectedColor.image,
-    };
-
-    //                                                                                                                     Check if the product is already in the cart
-    const existingItemIndex = cartItems.findIndex(item => item.id === newItem.id);
-
-    if (existingItemIndex >= 0) {
-      //                                                                                                                     Increase quantity if the product is already in the cart
-      const updatedItems = [...cartItems];
-      updatedItems[existingItemIndex].quantity += 1;
-      setCartItems(updatedItems);
-    } else {
-      //                                                                                                                     Add new product to cart
-      setCartItems([...cartItems, newItem]);
+    if (selectedApiVariant.stock === 0) {
+      toast.error('Sản phẩm này đã hết hàng.');
+      return;
     }
 
-    toast.success('Đã thêm sản phẩm vào giỏ hàng');
+    const { _id: productId, name: productName } = selectedProduct;
+    const { _id: variantId, price, stock, colorId, sizeId, images } = selectedApiVariant;
+
+    const cartItemId = `${productId}-${variantId}`;
+    const existingItemIndex = cartItems.findIndex(item => item.id === cartItemId);
+
+    if (existingItemIndex >= 0) {
+      const updatedItems = [...cartItems];
+      if (updatedItems[existingItemIndex].quantity < stock) {
+        updatedItems[existingItemIndex].quantity += 1;
+        setCartItems(updatedItems);
+        toast.success('Đã cập nhật số lượng sản phẩm.');
+      } else {
+        toast.warn('Số lượng sản phẩm trong kho không đủ.');
+        return;
+      }
+    } else {
+      if (1 > stock) {
+         toast.warn('Số lượng sản phẩm trong kho không đủ.');
+         return;
+      }
+      const newItem: UpdatedCartItem = {
+        id: cartItemId,
+        productId: productId,
+        variantId: variantId,
+        name: productName,
+        colorName: colorId?.name || 'N/A',
+        colorCode: colorId?.code,
+        sizeName: sizeId?.name || sizeId?.value || 'N/A',
+        price: price,
+        quantity: 1,
+        image: images?.[0] || selectedProduct.variants[0]?.images?.[0] || '/placeholder.svg',
+        stock: stock,
+      };
+      setCartItems([...cartItems, newItem]);
+      toast.success('Đã thêm sản phẩm vào giỏ hàng');
+    }
     setSelectedProduct(null);
-    setSelectedColor(null);
-    setSelectedSize(null);
+    setSelectedApiVariant(null);
   };
 
   const updateCartItemQuantity = (id: string, amount: number) => {
     const updatedItems = cartItems.map(item => {
       if (item.id === id) {
         const newQuantity = item.quantity + amount;
-        return { ...item, quantity: newQuantity > 0 ? newQuantity : 1 };
+        if (newQuantity <= 0) return item; // Logic to remove if quantity becomes 0 is handled by filter below
+        if (newQuantity > item.stock) {
+            toast.warn(`Chỉ còn ${item.stock} sản phẩm trong kho.`);
+            return {...item, quantity: item.stock };
+        }
+        return { ...item, quantity: newQuantity };
       }
       return item;
-    });
+    }).filter(item => item.quantity > 0); 
     setCartItems(updatedItems);
   };
 
@@ -229,14 +386,12 @@ export default function POSPage() {
       return;
     }
     
-    setIsLoading(true);
+    setCheckoutIsLoading(true);
     
-    //                                                                                                                     Simulate processing payment
     setTimeout(() => {
-      setIsLoading(false);
+      setCheckoutIsLoading(false);
       setShowCheckoutDialog(false);
       
-      //                                                                                                                     Update stats
       setStats(prev => ({
         ...prev,
         dailySales: prev.dailySales + calculateTotal(),
@@ -244,7 +399,6 @@ export default function POSPage() {
         averageOrder: Math.round((prev.dailySales + calculateTotal()) / (prev.totalOrders + 1))
       }));
       
-      //                                                                                                                     Add to recent transactions
       const newTransaction = {
         id: `TX-${Math.floor(1000 + Math.random() * 9000)}`,
         customer: customerName || 'Khách lẻ',
@@ -282,6 +436,8 @@ export default function POSPage() {
       if (e.altKey && e.key === 'c') {
         if (cartItems.length > 0) {
           setCartItems([]);
+          setSelectedProduct(null);
+          setSelectedApiVariant(null);
           toast.success('Đã xóa giỏ hàng');
         }
       }
@@ -297,7 +453,34 @@ export default function POSPage() {
     
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [cartItems]);
+  }, [cartItems]); // Add other dependencies if they are used in the handler and change
+
+  const getBrandName = (brand: ApiProduct['brand']) => typeof brand === 'object' ? brand.name : brand;
+
+  const uniqueColorsForSelectedProduct = useMemo(() => {
+    if (!selectedProduct) return [];
+    const colorMap = new Map<string, ApiVariant['colorId']>();
+    selectedProduct.variants.forEach(variant => {
+      if (variant.colorId && variant.colorId._id && !colorMap.has(variant.colorId._id)) {
+        colorMap.set(variant.colorId._id, variant.colorId);
+      }
+    });
+    return Array.from(colorMap.values()).filter(Boolean) as NonNullable<ApiVariant['colorId']>[];
+  }, [selectedProduct]);
+
+  const availableSizesForSelectedColor = useMemo(() => {
+    if (!selectedProduct || !selectedApiVariant?.colorId?._id) return [];
+    const sizeMap = new Map<string, ApiVariant['sizeId']>();
+    selectedProduct.variants.forEach(variant => {
+      if (variant.colorId?._id === selectedApiVariant.colorId?._id && variant.sizeId && variant.sizeId._id && variant.stock > 0) {
+        if(!sizeMap.has(variant.sizeId._id)){
+            sizeMap.set(variant.sizeId._id, variant.sizeId);
+        }
+      }
+    });
+    return Array.from(sizeMap.values()).filter(Boolean) as NonNullable<ApiVariant['sizeId']>[];
+  }, [selectedProduct, selectedApiVariant]);
+
 
   return (
     <div className="h-full">
@@ -437,16 +620,20 @@ export default function POSPage() {
             
             {/* Categories */}
             <div className="flex overflow-x-auto pb-2 scrollbar-thin gap-2">
-              {categories.map((category) => (
+              {dynamicCategories.map((category) => (
                 <button
-                  key={category.id}
+                  key={category._id}
                   className={cn(
                     'whitespace-nowrap px-4 py-2 rounded-md text-sm font-medium transition-all duration-200',
-                    activeCategory === category.id
+                    activeCategoryName === category.name // Compare with name
                       ? 'bg-primary text-white shadow-sm'
                       : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:text-primary'
                   )}
-                  onClick={() => setActiveCategory(category.id)}
+                  onClick={() => {
+                    setActiveCategoryName(category.name);
+                    setSelectedProduct(null); // Clear selection when category changes
+                    setSelectedApiVariant(null);
+                  }}
                 >
                   {category.name}
                 </button>
@@ -455,12 +642,15 @@ export default function POSPage() {
           </div>
           
           {/* Products list */}
-          <div className="bg-white rounded-lg p-6 flex-1 shadow-sm border border-border hover:shadow-md transition-shadow duration-300">
-            {selectedProduct ? (
+          <div className="bg-white rounded-lg p-6 flex-1 shadow-sm border border-border hover:shadow-md transition-shadow duration-300 min-h-[400px]">
+            {selectedProduct && selectedApiVariant ? ( // Ensure selectedApiVariant is also present
               <div className="mb-4">
                 <button
                   className="mb-4 text-sm text-primary font-medium flex items-center hover:text-primary/80 transition-colors"
-                  onClick={() => setSelectedProduct(null)}
+                  onClick={() => {
+                    setSelectedProduct(null);
+                    setSelectedApiVariant(null);
+                  }}
                 >
                   ← Quay lại danh sách sản phẩm
                 </button>
@@ -470,7 +660,7 @@ export default function POSPage() {
                   <div className="md:w-1/2">
                     <div className="relative h-80 w-full overflow-hidden rounded-lg bg-gray-50 group">
                       <Image
-                        src={selectedColor?.image || ''}
+                        src={selectedApiVariant?.images?.[0] || selectedProduct.variants[0]?.images?.[0] || '/placeholder.svg'}
                         alt={selectedProduct.name}
                         fill
                         className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -478,76 +668,85 @@ export default function POSPage() {
                     </div>
                     
                     {/* Colors */}
+                    {uniqueColorsForSelectedProduct.length > 0 && (
                     <div className="mt-6">
                       <h3 className="text-sm font-medium mb-3 !text-[#374151]/80">Màu sắc:</h3>
-                      <div className="flex gap-3">
-                        {selectedProduct.colors.map((color) => (
+                      <div className="flex gap-3 flex-wrap">
+                        {uniqueColorsForSelectedProduct.map((color) => (
                           <button
-                            key={color.id}
+                            key={color._id}
                             className={cn(
                               'h-10 w-10 rounded-full border-2 transition-all duration-200 hover:scale-110',
-                              selectedColor?.id === color.id
+                              selectedApiVariant?.colorId?._id === color._id
                                 ? 'border-primary shadow-md'
                                 : 'border-gray-200 hover:border-primary/50'
                             )}
                             style={{ backgroundColor: color.code }}
-                            onClick={() => handleColorSelect(color)}
+                            onClick={() => handleColorSelectFromDetail(color._id)}
                             title={color.name}
                           />
                         ))}
                       </div>
                     </div>
+                    )}
                   </div>
                   
                   {/* Product info */}
                   <div className="md:w-1/2">
                     <h2 className="text-2xl font-bold !text-[#374151]/80">{selectedProduct.name}</h2>
-                    <p className="text-gray-500 mb-4">{selectedProduct.brand}</p>
+                    <p className="text-gray-500 mb-4">{getBrandName(selectedProduct.brand)}</p>
                     
                     {selectedProduct.description && (
-                      <p className="text-gray-600 mb-4">{selectedProduct.description}</p>
+                      <p className="text-gray-600 mb-4 text-sm">{selectedProduct.description}</p>
                     )}
                     
                     {/* Sizes */}
+                    {availableSizesForSelectedColor.length > 0 && selectedApiVariant?.colorId && (
                     <div className="mb-4">
                       <h3 className="text-sm font-medium mb-3 !text-[#374151]/80">Kích thước:</h3>
                       <div className="flex flex-wrap gap-2">
-                        {selectedColor?.sizes.map((size) => (
+                        {availableSizesForSelectedColor.map((size) => {
+                          // Find the specific variant to check its stock for this size and current color
+                           const variantForThisSize = selectedProduct.variants.find(v => v.colorId?._id === selectedApiVariant.colorId?._id && v.sizeId?._id === size._id);
+                           const stockForThisSize = variantForThisSize?.stock || 0;
+                          return (
                           <button
-                            key={size.id}
+                            key={size._id}
                             className={cn(
                               'px-4 py-2 rounded-md text-sm font-medium transition-all duration-200',
-                              selectedSize?.id === size.id
+                              selectedApiVariant?.sizeId?._id === size._id
                                 ? 'bg-primary text-white shadow-sm'
                                 : 'bg-white text-gray-700 border border-gray-200 hover:border-primary/50 hover:text-primary',
-                              size.quantity === 0 && 'opacity-50 cursor-not-allowed'
+                              stockForThisSize === 0 && 'opacity-50 cursor-not-allowed'
                             )}
-                            onClick={() => handleSizeSelect(size)}
-                            disabled={size.quantity === 0}
+                            onClick={() => handleSizeSelectFromDetail(size._id)}
+                            disabled={stockForThisSize === 0}
                           >
-                            {size.size}
-                            {size.quantity === 0 && ' (Hết hàng)'}
+                            {size.name || size.value}
+                            {stockForThisSize === 0 && ' (Hết hàng)'}
                           </button>
-                        ))}
+                        );
+                        })}
                       </div>
                     </div>
+                    )}
                     
                     {/* Price and quantity */}
-                    {selectedSize && (
+                    {selectedApiVariant && ( // Check selectedApiVariant directly
                       <>
                         <div className="mb-4">
                           <h3 className="text-sm font-medium mb-1 !text-[#374151]/80">Giá:</h3>
                           <p className="text-2xl font-bold text-primary">
-                            {formatCurrency(selectedSize.price)}
+                            {formatCurrency(selectedApiVariant.price)}
                           </p>
                         </div>
                         
                         <div className="mb-4">
                           <h3 className="text-sm font-medium mb-1 !text-[#374151]/80">Số lượng trong kho:</h3>
                           <div className="flex items-center gap-2">
-                            <p className="text-gray-600">{selectedSize.quantity} sản phẩm</p>
-                            <Badge variant={selectedSize.quantity > 10 ? "secondary" : selectedSize.quantity > 0 ? "outline" : "destructive" }>
-                              {selectedSize.quantity > 10 ? "Còn hàng" : selectedSize.quantity > 0 ? "Sắp hết" : "Hết hàng"}
+                            <p className="text-gray-600">{selectedApiVariant.stock} sản phẩm</p>
+                            <Badge variant={selectedApiVariant.stock > 10 ? "secondary" : selectedApiVariant.stock > 0 ? "outline" : "destructive" }>
+                              {selectedApiVariant.stock > 10 ? "Còn hàng" : selectedApiVariant.stock > 0 ? "Sắp hết" : "Hết hàng"}
                             </Badge>
                           </div>
                         </div>
@@ -555,7 +754,7 @@ export default function POSPage() {
                         <Button
                           className="w-full py-6 text-base"
                           onClick={addToCart}
-                          disabled={selectedSize.quantity === 0}
+                          disabled={selectedApiVariant.stock === 0}
                         >
                           Thêm vào giỏ hàng
                         </Button>
@@ -579,15 +778,30 @@ export default function POSPage() {
                   </TabsList>
                   
                   <div className="text-sm text-gray-500">
-                    Hiển thị {filteredProducts.length} sản phẩm
+                    Hiển thị {apiIsLoading ? <Skeleton className="h-4 w-5 inline-block" /> : processedProducts.length} / {rawData?.data?.pagination?.totalItems || 0} sản phẩm
                   </div>
                 </div>
                 
+                {apiIsLoading ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                    {[...Array(pagination.limit)].map((_, index) => (
+                      <CardSkeleton key={index} />
+                    ))}
+                  </div>
+                ) : apiIsError ? (
+                  <div className="text-center py-10 text-red-500">Lỗi khi tải sản phẩm. Vui lòng thử lại.</div>
+                ) : processedProducts.length === 0 ? (
+                  <div className="text-center py-10 text-gray-500">Không tìm thấy sản phẩm nào.</div>
+                ) : (
+                <>
                 <TabsContent value="grid" className="mt-0">
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                    {filteredProducts.map((product) => (
+                    {processedProducts.map((product) => {
+                      const firstVariant = product.variants?.[0];
+                      const uniqueColorsCount = new Set(product.variants.map(v => v.colorId?._id)).size;
+                      return (
                       <motion.div
-                        key={product.id}
+                        key={product._id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3 }}
@@ -596,42 +810,48 @@ export default function POSPage() {
                       >
                         <div className="relative h-48 w-full bg-gray-50 overflow-hidden">
                           <Image
-                            src={product.colors[0].image || "/placeholder.svg"}
+                            src={firstVariant?.images?.[0] || "/placeholder.svg"}
                             alt={product.name}
                             fill
                             className="object-cover transition-transform duration-300 group-hover:scale-105"
                           />
+                          {uniqueColorsCount > 0 && (
                           <div className="absolute top-2 right-2">
                             <Badge variant="secondary" className="bg-white/80 backdrop-blur-sm">
-                              {product.colors.length} màu
+                              {uniqueColorsCount} màu
                             </Badge>
                           </div>
+                          )}
                         </div>
                         <div className="p-4">
-                          <h3 className="font-medium !text-[#374151]/80 group-hover:text-primary transition-colors">{product.name}</h3>
-                          <p className="text-gray-500 text-sm mb-2">{product.brand}</p>
+                          <h3 className="font-medium !text-[#374151]/80 group-hover:text-primary transition-colors truncate">{product.name}</h3>
+                          <p className="text-gray-500 text-sm mb-2 truncate">{getBrandName(product.brand)}</p>
                           <div className="flex justify-between items-center">
                             <p className="text-primary font-medium">
-                              {formatCurrency(product.colors[0].sizes[0].price)}
+                              {firstVariant ? formatCurrency(firstVariant.price) : 'N/A'}
                             </p>
+                            {product.variants.length > 0 && (
                             <div className="flex -space-x-1">
-                              {product.colors.slice(0, 3).map((color) => (
+                              {Array.from(new Map(product.variants.map(v => [v.colorId?._id, v.colorId])).values()).slice(0, 3).map((color, idx) => color && (
                                 <div 
-                                  key={color.id}
+                                  key={color._id || idx}
                                   className="h-5 w-5 rounded-full border border-white"
                                   style={{ backgroundColor: color.code }}
+                                  title={color.name}
                                 />
                               ))}
-                              {product.colors.length > 3 && (
+                              {uniqueColorsCount > 3 && (
                                 <div className="h-5 w-5 rounded-full bg-gray-100 border border-white flex items-center justify-center text-xs text-gray-500">
-                                  +{product.colors.length - 3}
+                                  +{uniqueColorsCount - 3}
                                 </div>
                               )}
                             </div>
+                            )}
                           </div>
                         </div>
                       </motion.div>
-                    ))}
+                    );
+                    })}
                   </div>
                 </TabsContent>
                 
@@ -649,9 +869,13 @@ export default function POSPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {filteredProducts.map((product) => (
+                        {processedProducts.map((product) => {
+                          const firstVariant = product.variants?.[0];
+                          const totalStock = product.variants.reduce((sum, v) => sum + v.stock, 0);
+                          const uniqueColorsCount = new Set(product.variants.map(v => v.colorId?._id)).size;
+                          return (
                           <tr 
-                            key={product.id} 
+                            key={product._id} 
                             className="border-t border-border hover:bg-muted/20 transition-colors cursor-pointer"
                             onClick={() => handleProductSelect(product)}
                           >
@@ -659,52 +883,84 @@ export default function POSPage() {
                               <div className="flex items-center gap-3">
                                 <div className="relative h-10 w-10 rounded-md overflow-hidden bg-gray-50">
                                   <Image
-                                    src={product.colors[0].image || "/placeholder.svg"}
+                                    src={firstVariant?.images?.[0] || "/placeholder.svg"}
                                     alt={product.name}
                                     fill
                                     className="object-cover"
                                   />
                                 </div>
-                                <span className="font-medium !text-[#374151]/80">{product.name}</span>
+                                <span className="font-medium !text-[#374151]/80 truncate max-w-[150px]">{product.name}</span>
                               </div>
                             </td>
-                            <td className="py-3 px-4 text-gray-600">{product.brand}</td>
-                            <td className="py-3 px-4 text-primary font-medium">{formatCurrency(product.colors[0].sizes[0].price)}</td>
+                            <td className="py-3 px-4 text-gray-600 truncate max-w-[100px]">{getBrandName(product.brand)}</td>
+                            <td className="py-3 px-4 text-primary font-medium">{firstVariant ? formatCurrency(firstVariant.price) : 'N/A'}</td>
                             <td className="py-3 px-4">
+                              {product.variants.length > 0 && (
                               <div className="flex -space-x-1">
-                                {product.colors.slice(0, 3).map((color) => (
+                                {Array.from(new Map(product.variants.map(v => [v.colorId?._id, v.colorId])).values()).slice(0, 3).map((color, idx) => color && (
                                   <div 
-                                    key={color.id}
+                                    key={color._id || idx}
                                     className="h-5 w-5 rounded-full border border-white"
                                     style={{ backgroundColor: color.code }}
+                                    title={color.name}
                                   />
                                 ))}
-                                {product.colors.length > 3 && (
+                                {uniqueColorsCount > 3 && (
                                   <div className="h-5 w-5 rounded-full bg-gray-100 border border-white flex items-center justify-center text-xs text-gray-500">
-                                    +{product.colors.length - 3}
+                                    +{uniqueColorsCount - 3}
                                   </div>
                                 )}
                               </div>
+                              )}
                             </td>
                             <td className="py-3 px-4">
-                              <Badge variant={product.colors[0].sizes[0].quantity > 10 ? "secondary" : product.colors[0].sizes[0].quantity > 0 ? "outline" : "destructive"} className="text-xs">
-                                {product.colors[0].sizes[0].quantity > 10 ? "Còn hàng" : product.colors[0].sizes[0].quantity > 0 ? "Sắp hết" : "Hết hàng"}
+                              <Badge variant={totalStock > 10 ? "secondary" : totalStock > 0 ? "outline" : "destructive"} className="text-xs">
+                                {totalStock > 10 ? "Còn hàng" : totalStock > 0 ? "Sắp hết" : "Hết hàng"}
                               </Badge>
                             </td>
                             <td className="py-3 px-4 text-center">
                               <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={(e) => {
-                                e.stopPropagation();
+                                e.stopPropagation(); // Prevent row click
                                 handleProductSelect(product);
                               }}>
                                 <Icon path={mdiPlus} size={0.8} className="text-gray-400" />
                               </Button>
                             </td>
                           </tr>
-                        ))}
+                        );
+                        })}
                       </tbody>
                     </table>
                   </div>
                 </TabsContent>
+                {/* Pagination (Simplified for now, can be expanded) */}
+                {rawData?.data?.pagination && rawData.data.pagination.totalPages > 1 && (
+                    <div className="flex justify-center mt-6">
+                        <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => setPagination(p => ({...p, page: p.page - 1}))} 
+                            disabled={pagination.page <= 1}
+                            className="mr-2"
+                        >
+                            Trước
+                        </Button>
+                        <span className="text-sm p-2">
+                            Trang {pagination.page} / {rawData.data.pagination.totalPages}
+                        </span>
+                        <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => setPagination(p => ({...p, page: p.page + 1}))} 
+                            disabled={pagination.page >= rawData.data.pagination.totalPages}
+                            className="ml-2"
+                        >
+                            Sau
+                        </Button>
+                    </div>
+                )}
+                </>
+                )}
               </Tabs>
             )}
           </div>
@@ -747,7 +1003,7 @@ export default function POSPage() {
                       </div>
                       <div className="flex-1">
                         <div className="flex justify-between">
-                          <h3 className="font-medium !text-[#374151]/80">{item.name}</h3>
+                          <h3 className="font-medium !text-[#374151]/80 truncate max-w-[150px]">{item.name}</h3>
                           <button
                             className="text-gray-400 hover:text-red-500 transition-colors"
                             onClick={() => removeCartItem(item.id)}
@@ -756,8 +1012,8 @@ export default function POSPage() {
                           </button>
                         </div>
                         <div className="text-sm text-gray-500">
-                          <span>Size: {item.size}</span> •{' '}
-                          <span>Màu: {item.color}</span>
+                          <span>Size: {item.sizeName}</span> •{' '}
+                          <span className="flex items-center">Màu: {item.colorCode && <div className="w-3 h-3 rounded-full mr-1.5 ml-1" style={{backgroundColor: item.colorCode}}></div>} {item.colorName}</span>
                         </div>
                         <div className="flex justify-between items-center mt-3">
                           <div className="flex items-center border border-border rounded-md">
@@ -853,7 +1109,7 @@ export default function POSPage() {
           <DialogHeader>
             <DialogTitle className="!text-[#374151]/80">Xác nhận thanh toán</DialogTitle>
             <DialogDescription>
-              Hoàn tất thông tin thanh toán để hoàn thành đơn hàng.
+              Tổng tiền: {formatCurrency(calculateTotal())}. Hoàn tất thông tin thanh toán để hoàn thành đơn hàng.
             </DialogDescription>
           </DialogHeader>
           
@@ -945,8 +1201,8 @@ export default function POSPage() {
             <Button variant="outline" onClick={() => setShowCheckoutDialog(false)}>
               Hủy
             </Button>
-            <Button onClick={handleCheckout} disabled={isLoading}>
-              {isLoading ? (
+            <Button onClick={handleCheckout} disabled={checkoutIsLoading}>
+              {checkoutIsLoading ? (
                 <>
                   <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -967,3 +1223,18 @@ export default function POSPage() {
     </div>
   );
 }
+
+// Skeleton component for product cards loading state
+const CardSkeleton = () => (
+  <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
+    <Skeleton className="h-48 w-full" />
+    <div className="p-4 space-y-2">
+      <Skeleton className="h-4 w-3/4" />
+      <Skeleton className="h-3 w-1/2" />
+      <div className="flex justify-between items-center">
+        <Skeleton className="h-6 w-1/3" />
+        <Skeleton className="h-5 w-10" />
+      </div>
+    </div>
+  </div>
+);
