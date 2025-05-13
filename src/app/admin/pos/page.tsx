@@ -21,7 +21,10 @@ import {
   mdiReceiptOutline,
   mdiClockOutline,
   mdiChevronDown,
-  mdiInformationOutline
+  mdiInformationOutline,
+  mdiReceipt,
+  mdiClock,
+  mdiAccount
 } from '@mdi/js';
 import { cn } from '@/lib/utils';
 import {
@@ -317,8 +320,8 @@ export default function POSPage() {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" size="icon" className="h-9 w-9">
-                    <Icon path={mdiClockOutline} size={0.9} className="text-gray-400" />
+                  <Button variant="outline" size="icon">
+                    <Icon path={mdiClock} size={0.9}  />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -331,7 +334,7 @@ export default function POSPage() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="outline" size="icon" className="h-9 w-9">
-                    <Icon path={mdiReceiptOutline} size={0.9} className="text-gray-400" />
+                    <Icon path={mdiReceipt} size={0.9}  />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -344,7 +347,7 @@ export default function POSPage() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="outline" size="icon" className="h-9 w-9">
-                    <Icon path={mdiAccountOutline} size={0.9} className="text-gray-400" />
+                    <Icon path={mdiAccount} size={0.9}/>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>

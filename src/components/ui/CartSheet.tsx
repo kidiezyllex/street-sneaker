@@ -51,7 +51,7 @@ const CartSheet: React.FC<CartSheetProps> = ({ open, onOpenChange }) => {
         });
         return;
       }
-      toast.info('Thanh toán đơn hàng của bạn');
+      toast.info('Đang chuyển đến trang thanh toán');
       router.push('/checkout/shipping');
       onOpenChange(false);
     } catch (error) {
