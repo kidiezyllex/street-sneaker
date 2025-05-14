@@ -87,7 +87,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'accounts',
-    name: 'Tài khoản',
+    name: 'Quản lý tài khoản',
     path: '/admin/accounts',
     icon: mdiAccount,
   },

@@ -512,7 +512,7 @@ export default function CreateOrderPage() {
       </form>
 
       <Dialog open={productListOpen} onOpenChange={setProductListOpen}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-w-4xl">
           <DialogHeader>
             <DialogTitle>Chọn sản phẩm</DialogTitle>
           </DialogHeader>

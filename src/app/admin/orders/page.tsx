@@ -1,38 +1,31 @@
-'use client';
+"use client"
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Icon } from '@mdi/react';
+import { useState, useEffect } from "react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Icon } from "@mdi/react"
 import {
   mdiMagnify,
   mdiFilterOutline,
   mdiEye,
   mdiPencil,
-  mdiDeleteOutline,
-  mdiClose,
   mdiFileExport,
   mdiPrinter,
   mdiCheck,
-} from '@mdi/js';
-import { format } from 'date-fns';
-import { vi } from 'date-fns/locale';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Badge } from '@/components/ui/badge';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { CalendarIcon } from '@radix-ui/react-icons';
-import { DateRange } from 'react-day-picker';
-import { cn } from '@/lib/utils';
+  mdiDelete,
+} from "@mdi/js"
+import { format } from "date-fns"
+import { vi } from "date-fns/locale"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Badge } from "@/components/ui/badge"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
+import { CalendarIcon } from "@radix-ui/react-icons"
+import type { DateRange } from "react-day-picker"
+import { cn } from "@/lib/utils"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -40,138 +33,332 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose } from '@/components/ui/dialog';
-import { Table, TableHeader, TableBody, TableRow, TableCell, TableHead } from '@/components/ui/table';
-import { Skeleton } from '@/components/ui/skeleton';
-import { motion, AnimatePresence } from 'framer-motion';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import Link from 'next/link';
-import { useOrders, useOrderDetail, useUpdateOrderStatus, useCancelOrder } from '@/hooks/order';
-import { IOrderFilter } from '@/interface/request/order';
-import { useQueryClient } from '@tanstack/react-query';
+} from "@/components/ui/breadcrumb"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Table, TableHeader, TableBody, TableRow, TableCell, TableHead } from "@/components/ui/table"
+import { Skeleton } from "@/components/ui/skeleton"
+import { motion, AnimatePresence } from "framer-motion"
+import { toast } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
+import Link from "next/link"
+import { useOrders, useOrderDetail, useUpdateOrderStatus, useCancelOrder } from "@/hooks/order"
+import type { IOrderFilter } from "@/interface/request/order"
+import { useQueryClient } from "@tanstack/react-query"
+import * as XLSX from "xlsx"
+import jsPDF from "jspdf"
+import { autoTable } from "jspdf-autotable"
+import { RobotoRegular } from "@/fonts/Roboto-Regular"
 
 export default function OrdersPage() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("")
   const [filters, setFilters] = useState<IOrderFilter>({
     page: 1,
-    limit: 10
-  });
-  const [selectedTab, setSelectedTab] = useState<string>('all');
-  const [showFilters, setShowFilters] = useState(false);
-  const [dateRange, setDateRange] = useState<DateRange | undefined>();
-  const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
-  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
-  const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
-  const [isConfirmCancelDialogOpen, setIsConfirmCancelDialogOpen] = useState(false);
-  const [orderToCancel, setOrderToCancel] = useState<string | null>(null);
-  const [statusToUpdate, setStatusToUpdate] = useState<string>('');
-  
-  const { data, isLoading, isError } = useOrders(filters);
-  const { data: orderDetail } = useOrderDetail(selectedOrder || '');
-  const updateOrderStatus = useUpdateOrderStatus();
-  const cancelOrder = useCancelOrder();
-  const queryClient = useQueryClient();
+    limit: 10,
+  })
+  const [selectedTab, setSelectedTab] = useState<string>("all")
+  const [showFilters, setShowFilters] = useState(false)
+  const [dateRange, setDateRange] = useState<DateRange | undefined>()
+  const [selectedOrder, setSelectedOrder] = useState<string | null>(null)
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
+  const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false)
+  const [isConfirmCancelDialogOpen, setIsConfirmCancelDialogOpen] = useState(false)
+  const [orderToCancel, setOrderToCancel] = useState<string | null>(null)
+  const [statusToUpdate, setStatusToUpdate] = useState<string>("")
+  const { data, isLoading, isError } = useOrders(filters)
+  const { data: orderDetail } = useOrderDetail(selectedOrder || "")
+  const updateOrderStatus = useUpdateOrderStatus()
+  const cancelOrder = useCancelOrder()
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     const debounce = setTimeout(() => {
       if (searchQuery.trim()) {
-        setFilters((prev) => ({ ...prev, search: searchQuery, page: 1 }));
+        setFilters((prev) => ({ ...prev, search: searchQuery, page: 1 }))
       } else {
-        const { search, ...rest } = filters;
-        setFilters({ ...rest, page: 1 });
+        if (filters.search !== undefined) {
+          const { search, ...rest } = filters
+          setFilters({ ...rest, page: 1 })
+        }
       }
-    }, 500);
+    }, 500)
 
-    return () => clearTimeout(debounce);
-  }, [searchQuery]);
+    return () => clearTimeout(debounce)
+  }, [searchQuery])
 
   useEffect(() => {
-    if (dateRange?.from && dateRange?.to) {
-      const fromDate = dateRange.from;
-      const toDate = dateRange.to;
-      setFilters(prev => ({
-        ...prev,
-        startDate: fromDate.toISOString().split('T')[0],
-        endDate: toDate.toISOString().split('T')[0],
-        page: 1
-      }));
-    } else if (!dateRange) {
-      const { startDate, endDate, ...rest } = filters;
-      setFilters({ ...rest, page: 1 });
+    const newFilters: Partial<IOrderFilter> = { page: 1 }
+    const today = new Date()
+    const currentDay = today.getDay()
+    const startOfWeek = new Date(today)
+    startOfWeek.setDate(today.getDate() - currentDay + (currentDay === 0 ? -6 : 1))
+    startOfWeek.setHours(0, 0, 0, 0)
+
+    const endOfWeek = new Date(startOfWeek)
+    endOfWeek.setDate(startOfWeek.getDate() + 6)
+    endOfWeek.setHours(23, 59, 59, 999)
+
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+    startOfMonth.setHours(0, 0, 0, 0)
+    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+    endOfMonth.setHours(23, 59, 59, 999)
+
+    today.setHours(0, 0, 0, 0)
+    const endOfToday = new Date()
+    endOfToday.setHours(23, 59, 59, 999)
+
+    if (selectedTab === "today") {
+      newFilters.startDate = today.toISOString().split("T")[0]
+      newFilters.endDate = endOfToday.toISOString().split("T")[0]
+    } else if (selectedTab === "week") {
+      newFilters.startDate = startOfWeek.toISOString().split("T")[0]
+      newFilters.endDate = endOfWeek.toISOString().split("T")[0]
+    } else if (selectedTab === "month") {
+      newFilters.startDate = startOfMonth.toISOString().split("T")[0]
+      newFilters.endDate = endOfMonth.toISOString().split("T")[0]
+    } else {
+      if (!dateRange?.from && !dateRange?.to) {
+        const { startDate, endDate, ...restExisting } = filters
+        setFilters((prev) => ({ ...restExisting, ...newFilters }))
+        return
+      }
     }
-  }, [dateRange]);
+
+    if (selectedTab === "all" && dateRange?.from && dateRange?.to) {
+      newFilters.startDate = dateRange.from.toISOString().split("T")[0]
+      newFilters.endDate = dateRange.to.toISOString().split("T")[0]
+    } else if (
+      dateRange?.from &&
+      dateRange?.to &&
+      selectedTab !== "today" &&
+      selectedTab !== "week" &&
+      selectedTab !== "month"
+    ) {
+      newFilters.startDate = dateRange.from.toISOString().split("T")[0]
+      newFilters.endDate = dateRange.to.toISOString().split("T")[0]
+    }
+
+    setFilters((prev) => ({ ...prev, ...newFilters }))
+  }, [selectedTab, dateRange])
 
   const handleFilterChange = (key: keyof IOrderFilter, value: string | undefined) => {
-    if (value === '' || value === 'all') {
-      const newFilters = { ...filters };
-      delete newFilters[key];
-      setFilters({ ...newFilters, page: 1 });
+    if (value === "" || value === "all") {
+      const newFilters = { ...filters }
+      delete newFilters[key]
+      setFilters({ ...newFilters, page: 1 })
     } else {
-      setFilters({ ...filters, [key]: value, page: 1 });
+      setFilters({ ...filters, [key]: value, page: 1 })
     }
-  };
+  }
 
   const handleViewOrder = (orderId: string) => {
-    setSelectedOrder(orderId);
-    setIsViewDialogOpen(true);
-  };
+    setSelectedOrder(orderId)
+    setIsViewDialogOpen(true)
+  }
 
   const handleChangeStatus = async () => {
-    if (!selectedOrder || !statusToUpdate) return;
-    
+    if (!selectedOrder || !statusToUpdate) return
+
     try {
-      await updateOrderStatus.mutateAsync({
-        orderId: selectedOrder,
-        payload: { status: statusToUpdate as any }
-      }, {
-        onSuccess: () => {
-          toast.success('Cập nhật trạng thái đơn hàng thành công');
-          queryClient.invalidateQueries({ queryKey: ['orders'] });
-          queryClient.invalidateQueries({ queryKey: ['order', selectedOrder] });
-          setIsStatusDialogOpen(false);
-        }
-      });
+      await updateOrderStatus.mutateAsync(
+        {
+          orderId: selectedOrder,
+          payload: { status: statusToUpdate as any },
+        },
+        {
+          onSuccess: () => {
+            toast.success("Cập nhật trạng thái đơn hàng thành công")
+            queryClient.invalidateQueries({ queryKey: ["orders"] })
+            queryClient.invalidateQueries({ queryKey: ["order", selectedOrder] })
+            setIsStatusDialogOpen(false)
+          },
+        },
+      )
     } catch (error) {
-      toast.error('Cập nhật trạng thái đơn hàng thất bại');
+      toast.error("Cập nhật trạng thái đơn hàng thất bại")
     }
-  };
+  }
 
   const handleCancelOrder = async () => {
-    if (!orderToCancel) return;
-    
+    if (!orderToCancel) return
+
     try {
       await cancelOrder.mutateAsync(orderToCancel, {
         onSuccess: () => {
-          toast.success('Hủy đơn hàng thành công');
-          queryClient.invalidateQueries({ queryKey: ['orders'] });
-          setIsConfirmCancelDialogOpen(false);
+          toast.success("Hủy đơn hàng thành công")
+          queryClient.invalidateQueries({ queryKey: ["orders"] })
+          setIsConfirmCancelDialogOpen(false)
           if (selectedOrder === orderToCancel) {
-            queryClient.invalidateQueries({ queryKey: ['order', selectedOrder] });
+            queryClient.invalidateQueries({ queryKey: ["order", selectedOrder] })
           }
-        }
-      });
+        },
+      })
     } catch (error) {
-      toast.error('Hủy đơn hàng thất bại');
+      toast.error("Hủy đơn hàng thất bại")
     }
-  };
+  }
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
       maximumFractionDigits: 0,
-    }).format(amount);
-  };
+    }).format(amount)
+  }
 
   const formatDate = (dateString: string) => {
-    return format(new Date(dateString), 'dd/MM/yyyy HH:mm', { locale: vi });
-  };
+    return format(new Date(dateString), "dd/MM/yyyy HH:mm", { locale: vi })
+  }
 
   const handleChangePage = (newPage: number) => {
-    setFilters({ ...filters, page: newPage });
-  };
+    setFilters((prev) => ({ ...prev, page: newPage }))
+  }
+
+  function handleExportExcel() {
+    if (!data?.data?.orders || data.data.orders.length === 0) {
+      toast.warn("Không có dữ liệu để xuất.")
+      return
+    }
+    const ordersToExport = data.data.orders
+    const dateStr = format(new Date(), "yyyyMMdd")
+    let fileNamePrefix = "orders_list"
+    if (ordersToExport.length === 1 && ordersToExport[0].code) {
+      fileNamePrefix = ordersToExport[0].code
+    }
+    const fileName = `${fileNamePrefix}_${dateStr}.xlsx`
+
+    const formattedOrders = ordersToExport.map((order) => ({
+      "Mã đơn hàng": order.code,
+      "Khách hàng": order.shippingAddress?.name || "N/A",
+      "Số điện thoại": order.shippingAddress?.phoneNumber || "N/A",
+      "Ngày tạo": formatDate(order.createdAt),
+      "Tổng tiền": formatCurrency(order.total),
+      "Trạng thái đơn hàng": order.orderStatus, // Consider mapping to readable status like in Badge
+      "Trạng thái thanh toán": order.paymentStatus, // Consider mapping to readable status
+    }))
+
+    const worksheet = XLSX.utils.json_to_sheet(formattedOrders)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Đơn hàng")
+    XLSX.writeFile(workbook, fileName)
+    toast.success(`Đã xuất file ${fileName} thành công!`)
+  }
+
+  function handleExportPDF() {
+    if (!data?.data?.orders || data.data.orders.length === 0) {
+      toast.warn("Không có dữ liệu để xuất.")
+      return
+    }
+    const ordersToExport = data.data.orders
+    const dateStr = format(new Date(), "yyyyMMdd")
+    let fileNamePrefix = "orders_list"
+    if (ordersToExport.length === 1 && ordersToExport[0].code) {
+      fileNamePrefix = ordersToExport[0].code
+    }
+    const fileName = `${fileNamePrefix}_${dateStr}.pdf`
+
+    // Create new jsPDF instance with UTF-8 support
+    const doc = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
+      putOnlyUsedFonts: true,
+      floatPrecision: 16, // or "smart", preserves precision for calculations
+    })
+
+    // Helper function for Order Status Label
+    const getOrderStatusLabelLocal = (status: string): string => {
+      switch (status) {
+        case "CHO_XAC_NHAN":
+          return "Chờ xác nhận"
+        case "CHO_GIAO_HANG":
+          return "Chờ giao hàng"
+        case "DANG_VAN_CHUYEN":
+          return "Đang vận chuyển"
+        case "DA_GIAO_HANG":
+          return "Đã giao hàng"
+        case "HOAN_THANH":
+          return "Hoàn thành"
+        case "DA_HUY":
+          return "Đã hủy"
+        default:
+          return status
+      }
+    }
+
+    // Helper function for Payment Status Label
+    const getPaymentStatusLabelLocal = (status: string): string => {
+      switch (status) {
+        case "PENDING":
+          return "Chưa thanh toán"
+        case "PARTIAL_PAID":
+          return "Thanh toán một phần"
+        case "PAID":
+          return "Đã thanh toán"
+        default:
+          return status
+      }
+    }
+
+    // Add a custom font that supports Vietnamese characters
+    try {
+      if (RobotoRegular && typeof RobotoRegular === "string" && RobotoRegular.length > 0) {
+        doc.addFileToVFS("Roboto-Regular.ttf", RobotoRegular)
+        doc.addFont("Roboto-Regular.ttf", "Roboto", "normal")
+        doc.setFont("Roboto")
+      }
+    } catch (error) {
+      console.error("Error loading Roboto font for PDF:", error)
+      toast.error("Lỗi khi tải font tùy chỉnh cho PDF, sử dụng font mặc định.")
+    }
+
+    // Set title
+    doc.setFontSize(18)
+    doc.text("Danh sách Đơn hàng", 14, 22)
+    doc.setFontSize(11)
+    doc.setTextColor(100)
+
+    const tableColumn = ["Mã đơn hàng", "Khách hàng", "Ngày tạo", "Tổng tiền", "Trạng thái ĐH", "Trạng thái TT"]
+    const tableRows = ordersToExport.map((order) => [
+      order.code || "N/A",
+      order.shippingAddress?.name || "N/A",
+      formatDate(order.createdAt),
+      formatCurrency(order.total),
+      getOrderStatusLabelLocal(order.orderStatus),
+      getPaymentStatusLabelLocal(order.paymentStatus),
+    ])
+
+    // Use autoTable with UTF-8 support
+    autoTable(doc, {
+      startY: 30,
+      head: [tableColumn],
+      body: tableRows,
+      theme: "grid",
+      headStyles: {
+        fillColor: [22, 160, 133],
+        textColor: [255, 255, 255],
+        fontStyle: "bold",
+      },
+      didDrawCell: (data) => {
+        // This is needed for proper UTF-8 rendering
+      },
+      // Enable UTF-8 support
+      styles: {
+        font: doc.getFont().fontName,
+        fontSize: 9,
+        cellPadding: 3,
+        overflow: "linebreak",
+        halign: "left",
+      },
+      columnStyles: {
+        3: { halign: "right" }, // Align price column to right
+        4: { halign: "center" }, // Center status columns
+        5: { halign: "center" },
+      },
+    })
+
+    doc.save(fileName)
+    toast.success(`Đã xuất file ${fileName} thành công!`)
+  }
 
   return (
     <div className="space-y-6">
@@ -198,8 +385,8 @@ export default function OrdersPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>Xuất Excel</DropdownMenuItem>
-              <DropdownMenuItem>Xuất PDF</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportExcel}>Xuất Excel</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportPDF}>Xuất PDF</DropdownMenuItem>
               <DropdownMenuItem>In danh sách</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -217,16 +404,44 @@ export default function OrdersPage() {
           <Tabs defaultValue="all" className="w-full" onValueChange={setSelectedTab}>
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-4">
               <TabsList className="h-9">
-                <TabsTrigger value="all" className="px-4">
+                <TabsTrigger
+                  value="all"
+                  className="px-4"
+                  onClick={() => {
+                    setDateRange(undefined)
+                    setSelectedTab("all")
+                  }}
+                >
                   Tất cả
                 </TabsTrigger>
-                <TabsTrigger value="today" className="px-4">
+                <TabsTrigger
+                  value="today"
+                  className="px-4"
+                  onClick={() => {
+                    setDateRange(undefined)
+                    setSelectedTab("today")
+                  }}
+                >
                   Hôm nay
                 </TabsTrigger>
-                <TabsTrigger value="week" className="px-4">
+                <TabsTrigger
+                  value="week"
+                  className="px-4"
+                  onClick={() => {
+                    setDateRange(undefined)
+                    setSelectedTab("week")
+                  }}
+                >
                   Tuần này
                 </TabsTrigger>
-                <TabsTrigger value="month" className="px-4">
+                <TabsTrigger
+                  value="month"
+                  className="px-4"
+                  onClick={() => {
+                    setDateRange(undefined)
+                    setSelectedTab("month")
+                  }}
+                >
                   Tháng này
                 </TabsTrigger>
               </TabsList>
@@ -254,15 +469,14 @@ export default function OrdersPage() {
                       variant={"outline"}
                       className={cn(
                         "w-full justify-start text-left font-normal",
-                        !dateRange && "text-muted-foreground"
+                        !dateRange && "text-muted-foreground",
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {dateRange?.from ? (
                         dateRange.to ? (
                           <>
-                            {format(dateRange.from, "dd/MM/yyyy")} -{" "}
-                            {format(dateRange.to, "dd/MM/yyyy")}
+                            {format(dateRange.from, "dd/MM/yyyy")} - {format(dateRange.to, "dd/MM/yyyy")}
                           </>
                         ) : (
                           format(dateRange.from, "dd/MM/yyyy")
@@ -283,13 +497,9 @@ export default function OrdersPage() {
                     />
                   </PopoverContent>
                 </Popover>
-                <Button
-                  variant="outline"
-                  className="flex items-center"
-                  onClick={() => setShowFilters(!showFilters)}
-                >
+                <Button variant="outline" className="flex items-center" onClick={() => setShowFilters(!showFilters)}>
                   <Icon path={mdiFilterOutline} size={0.9} className="mr-2" />
-                  {showFilters ? 'Ẩn bộ lọc' : 'Hiện bộ lọc'}
+                  {showFilters ? "Ẩn bộ lọc" : "Hiện bộ lọc"}
                 </Button>
               </div>
             </div>
@@ -298,19 +508,17 @@ export default function OrdersPage() {
               {showFilters && (
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
+                  animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.3 }}
                   className="mb-6 border-t pt-4"
                 >
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Trạng thái đơn hàng
-                      </label>
-                      <Select 
-                        value={filters.orderStatus || 'all'} 
-                        onValueChange={(value) => handleFilterChange('orderStatus', value)}
+                      <label className="block text-sm font-medium mb-1">Trạng thái đơn hàng</label>
+                      <Select
+                        value={filters.orderStatus || "all"}
+                        onValueChange={(value) => handleFilterChange("orderStatus", value)}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Tất cả trạng thái" />
@@ -327,12 +535,10 @@ export default function OrdersPage() {
                       </Select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Trạng thái thanh toán
-                      </label>
-                      <Select 
-                        value={filters.paymentStatus || 'all'} 
-                        onValueChange={(value) => handleFilterChange('paymentStatus', value)}
+                      <label className="block text-sm font-medium mb-1">Trạng thái thanh toán</label>
+                      <Select
+                        value={filters.paymentStatus || "all"}
+                        onValueChange={(value) => handleFilterChange("paymentStatus", value)}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Tất cả trạng thái" />
@@ -346,13 +552,11 @@ export default function OrdersPage() {
                       </Select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Khách hàng
-                      </label>
+                      <label className="block text-sm font-medium mb-1">Khách hàng</label>
                       <Input
                         type="text"
-                        value={filters.customer || ''}
-                        onChange={(e) => handleFilterChange('customer', e.target.value)}
+                        value={filters.customer || ""}
+                        onChange={(e) => handleFilterChange("customer", e.target.value)}
                         placeholder="Tìm theo tên khách hàng"
                       />
                     </div>
@@ -377,21 +581,21 @@ export default function OrdersPage() {
         </CardContent>
       </Card>
 
-      <OrderDetailDialog 
-        isOpen={isViewDialogOpen} 
+      <OrderDetailDialog
+        isOpen={isViewDialogOpen}
         onClose={() => setIsViewDialogOpen(false)}
         orderId={selectedOrder}
         orderDetail={orderDetail?.data}
         formatCurrency={formatCurrency}
         formatDate={formatDate}
         onUpdateStatus={(orderId, status) => {
-          setSelectedOrder(orderId);
-          setStatusToUpdate(status);
-          setIsStatusDialogOpen(true);
+          setSelectedOrder(orderId)
+          setStatusToUpdate(status)
+          setIsStatusDialogOpen(true)
         }}
         onCancelOrder={(orderId) => {
-          setOrderToCancel(orderId);
-          setIsConfirmCancelDialogOpen(true);
+          setOrderToCancel(orderId)
+          setIsConfirmCancelDialogOpen(true)
         }}
       />
 
@@ -416,7 +620,9 @@ export default function OrdersPage() {
             </Select>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsStatusDialogOpen(false)}>Hủy</Button>
+            <Button variant="outline" onClick={() => setIsStatusDialogOpen(false)}>
+              Hủy
+            </Button>
             <Button onClick={handleChangeStatus}>Cập nhật</Button>
           </DialogFooter>
         </DialogContent>
@@ -431,13 +637,17 @@ export default function OrdersPage() {
             <p>Bạn có chắc chắn muốn hủy đơn hàng này không? Hành động này không thể hoàn tác.</p>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsConfirmCancelDialogOpen(false)}>Không</Button>
-            <Button variant="destructive" onClick={handleCancelOrder}>Xác nhận hủy</Button>
+            <Button variant="outline" onClick={() => setIsConfirmCancelDialogOpen(false)}>
+              Không
+            </Button>
+            <Button variant="destructive" onClick={handleCancelOrder}>
+              Xác nhận hủy
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 
   function renderOrdersList() {
     if (isLoading) {
@@ -453,18 +663,22 @@ export default function OrdersPage() {
             </div>
           ))}
         </div>
-      );
+      )
     }
 
     if (isError) {
       return (
         <div className="text-center py-10">
           <p className="text-red-500">Đã xảy ra lỗi khi tải dữ liệu đơn hàng. Vui lòng thử lại sau.</p>
-          <Button variant="outline" className="mt-4" onClick={() => queryClient.invalidateQueries({ queryKey: ['orders'] })}>
+          <Button
+            variant="outline"
+            className="mt-4"
+            onClick={() => queryClient.invalidateQueries({ queryKey: ["orders"] })}
+          >
             Thử lại
           </Button>
         </div>
-      );
+      )
     }
 
     if (!data?.data.orders || data.data.orders.length === 0) {
@@ -472,12 +686,12 @@ export default function OrdersPage() {
         <div className="text-center py-10">
           <p className="text-gray-500">Không tìm thấy đơn hàng nào.</p>
         </div>
-      );
+      )
     }
 
     return (
       <>
-        <div className="rounded-md border overflow-hidden">
+        <div className="overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
@@ -496,8 +710,8 @@ export default function OrdersPage() {
                   <TableCell className="font-medium">{order.code}</TableCell>
                   <TableCell>
                     <div>
-                      <div className="font-medium">{order.customer.fullName}</div>
-                      <div className="text-sm text-gray-500">{order.customer.phoneNumber}</div>
+                      <div className="font-medium">{order.shippingAddress?.name}</div>
+                      <div className="text-sm text-gray-500">{order.shippingAddress?.phoneNumber}</div>
                     </div>
                   </TableCell>
                   <TableCell className="hidden md:table-cell">{formatDate(order.createdAt)}</TableCell>
@@ -510,28 +724,24 @@ export default function OrdersPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end space-x-2">
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => handleViewOrder(order._id)}
-                      >
+                      <Button variant="outline" size="icon" onClick={() => handleViewOrder(order._id)}>
                         <Icon path={mdiEye} size={0.9} />
                       </Button>
                       <Link href={`/admin/orders/edit/${order._id}`}>
-                        <Button variant="ghost" size="icon">
+                        <Button variant="outline" size="icon">
                           <Icon path={mdiPencil} size={0.9} />
                         </Button>
                       </Link>
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="outline"
                         size="icon"
-                        disabled={order.orderStatus === 'DA_HUY' || order.orderStatus === 'HOAN_THANH'}
+                        disabled={order.orderStatus === "DA_HUY" || order.orderStatus === "HOAN_THANH"}
                         onClick={() => {
-                          setOrderToCancel(order._id);
-                          setIsConfirmCancelDialogOpen(true);
+                          setOrderToCancel(order._id)
+                          setIsConfirmCancelDialogOpen(true)
                         }}
                       >
-                        <Icon path={mdiDeleteOutline} size={0.9} />
+                        <Icon path={mdiDelete} size={0.9} />
                       </Button>
                     </div>
                   </TableCell>
@@ -553,20 +763,21 @@ export default function OrdersPage() {
                 Trước
               </Button>
               {Array.from({ length: data.data.pagination.totalPages }, (_, i) => i + 1)
-                .filter(page => 
-                  page === 1 || 
-                  page === data.data.pagination.totalPages || 
-                  Math.abs(page - data.data.pagination.currentPage) <= 1
+                .filter(
+                  (page) =>
+                    page === 1 ||
+                    page === data.data.pagination.currentPage ||
+                    Math.abs(page - data.data.pagination.currentPage) <= 1,
                 )
                 .reduce((acc: (number | string)[], page, idx, arr) => {
                   if (idx > 0 && page - arr[idx - 1] > 1) {
-                    acc.push('...');
+                    acc.push("...")
                   }
-                  acc.push(page);
-                  return acc;
+                  acc.push(page)
+                  return acc
                 }, [])
-                .map((page, index) => 
-                  page === '...' ? (
+                .map((page, index) =>
+                  page === "..." ? (
                     <Button key={`ellipsis-${index}`} variant="outline" size="sm" disabled>
                       ...
                     </Button>
@@ -579,13 +790,14 @@ export default function OrdersPage() {
                     >
                       {page}
                     </Button>
-                  )
-                )
-              }
+                  ),
+                )}
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handleChangePage(Math.min(data.data.pagination.totalPages, data.data.pagination.currentPage + 1))}
+                onClick={() =>
+                  handleChangePage(Math.min(data.data.pagination.totalPages, data.data.pagination.currentPage + 1))
+                }
                 disabled={data.data.pagination.currentPage === data.data.pagination.totalPages}
               >
                 Sau
@@ -594,103 +806,95 @@ export default function OrdersPage() {
           </div>
         )}
       </>
-    );
+    )
   }
 }
 
 const OrderStatusBadge = ({ status }: { status: string }) => {
   const getStatusConfig = (status: string) => {
     switch (status) {
-      case 'CHO_XAC_NHAN':
-        return { label: 'Chờ xác nhận', variant: 'outline' as const };
-      case 'CHO_GIAO_HANG':
-        return { label: 'Chờ giao hàng', variant: 'secondary' as const };
-      case 'DANG_VAN_CHUYEN':
-        return { label: 'Đang vận chuyển', variant: 'default' as const };
-      case 'DA_GIAO_HANG':
-        return { label: 'Đã giao hàng', variant: 'secondary' as const };
-      case 'HOAN_THANH':
-        return { label: 'Hoàn thành', variant: 'default' as const };
-      case 'DA_HUY':
-        return { label: 'Đã hủy', variant: 'destructive' as const };
+      case "CHO_XAC_NHAN":
+        return { label: "Chờ xác nhận", className: "!bg-yellow-400 !text-yellow-900 !border-yellow-500" }
+      case "CHO_GIAO_HANG":
+        return { label: "Chờ giao hàng", className: "!bg-blue-400 !text-blue-900 !border-blue-500" }
+      case "DANG_VAN_CHUYEN":
+        return { label: "Đang vận chuyển", className: "!bg-orange-400 !text-orange-900 !border-orange-500" }
+      case "DA_GIAO_HANG":
+        return { label: "Đã giao hàng", className: "!bg-green-400 !text-green-900 !border-green-500" }
+      case "HOAN_THANH":
+        return { label: "Hoàn thành", className: "!bg-emerald-400 !text-emerald-900 !border-emerald-500" }
+      case "DA_HUY":
+        return { label: "Đã hủy", className: "!bg-red-400 !text-red-900 !border-red-500" }
       default:
-        return { label: 'Không xác định', variant: 'outline' as const };
+        return { label: "Không xác định", className: "!bg-gray-400 !text-gray-900 !border-gray-500" }
     }
-  };
+  }
 
-  const config = getStatusConfig(status);
-  
-  return (
-    <Badge variant={config.variant}>
-      {config.label}
-    </Badge>
-  );
-};
+  const config = getStatusConfig(status)
+
+  return <Badge className={config.className}>{config.label}</Badge>
+}
 
 const PaymentStatusBadge = ({ status }: { status: string }) => {
   const getStatusConfig = (status: string) => {
     switch (status) {
-      case 'PENDING':
-        return { label: 'Chưa thanh toán', variant: 'outline' as const };
-      case 'PARTIAL_PAID':
-        return { label: 'Thanh toán một phần', variant: 'secondary' as const };
-      case 'PAID':
-        return { label: 'Đã thanh toán', variant: 'default' as const };
+      case "PENDING":
+        return { label: "Chưa thanh toán", className: "!bg-yellow-400 !text-yellow-900 !border-yellow-500" }
+      case "PARTIAL_PAID":
+        return { label: "Thanh toán một phần", className: "!bg-blue-400 !text-blue-900 !border-blue-500" }
+      case "PAID":
+        return { label: "Đã thanh toán", className: "!bg-green-400 !text-green-900 !border-green-500" }
       default:
-        return { label: 'Không xác định', variant: 'outline' as const };
+        return { label: "Không xác định", className: "!bg-gray-400 !text-gray-900 !border-gray-500" }
     }
-  };
+  }
 
-  const config = getStatusConfig(status);
-  
-  return (
-    <Badge variant={config.variant}>
-      {config.label}
-    </Badge>
-  );
-};
+  const config = getStatusConfig(status)
+
+  return <Badge className={config.className}>{config.label}</Badge>
+}
 
 type OrderDetailDialogProps = {
-  isOpen: boolean;
-  onClose: () => void;
-  orderId: string | null;
-  orderDetail: any;
-  formatCurrency: (amount: number) => string;
-  formatDate: (dateString: string) => string;
-  onUpdateStatus: (orderId: string, status: string) => void;
-  onCancelOrder: (orderId: string) => void;
-};
+  isOpen: boolean
+  onClose: () => void
+  orderId: string | null
+  orderDetail: any
+  formatCurrency: (amount: number) => string
+  formatDate: (dateString: string) => string
+  onUpdateStatus: (orderId: string, status: string) => void
+  onCancelOrder: (orderId: string) => void
+}
 
-const OrderDetailDialog = ({ 
-  isOpen, 
-  onClose, 
-  orderId, 
-  orderDetail, 
-  formatCurrency, 
+const OrderDetailDialog = ({
+  isOpen,
+  onClose,
+  orderId,
+  orderDetail,
+  formatCurrency,
   formatDate,
   onUpdateStatus,
-  onCancelOrder
+  onCancelOrder,
 }: OrderDetailDialogProps) => {
-  if (!orderId || !orderDetail) return null;
+  if (!orderId || !orderDetail) return null
 
   const getPaymentMethodName = (method: string) => {
     switch (method) {
-      case 'CASH':
-        return 'Tiền mặt';
-      case 'BANK_TRANSFER':
-        return 'Chuyển khoản ngân hàng';
-      case 'COD':
-        return 'Thanh toán khi nhận hàng';
-      case 'MIXED':
-        return 'Thanh toán nhiều phương thức';
+      case "CASH":
+        return "Tiền mặt"
+      case "BANK_TRANSFER":
+        return "Chuyển khoản ngân hàng"
+      case "COD":
+        return "Thanh toán khi nhận hàng"
+      case "MIXED":
+        return "Thanh toán nhiều phương thức"
       default:
-        return 'Không xác định';
+        return "Không xác định"
     }
-  };
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex justify-between items-center">
             <span>Chi tiết đơn hàng: {orderDetail.orderNumber}</span>
@@ -743,9 +947,9 @@ const OrderDetailDialog = ({
                 <div className="mt-2 rounded-lg border p-4 space-y-3">
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-500">Tên khách hàng:</span>
-                    <span className="text-sm font-medium">{orderDetail.customer.fullName}</span>
+                    <span className="text-sm font-medium">{orderDetail.customer?.fullName}</span>
                   </div>
-                  {orderDetail.customer.email && (
+                  {orderDetail.customer?.email && (
                     <div className="flex justify-between">
                       <span className="text-sm text-gray-500">Email:</span>
                       <span className="text-sm font-medium">{orderDetail.customer.email}</span>
@@ -753,7 +957,7 @@ const OrderDetailDialog = ({
                   )}
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-500">Số điện thoại:</span>
-                    <span className="text-sm font-medium">{orderDetail.customer.phoneNumber}</span>
+                    <span className="text-sm font-medium">{orderDetail.customer?.phoneNumber}</span>
                   </div>
                 </div>
               </div>
@@ -765,7 +969,10 @@ const OrderDetailDialog = ({
                     <div className="space-y-2">
                       <p className="text-sm font-medium">{orderDetail.shippingAddress.name}</p>
                       <p className="text-sm">{orderDetail.shippingAddress.phoneNumber}</p>
-                      <p className="text-sm">{orderDetail.shippingAddress.specificAddress}, {orderDetail.shippingAddress.wardName}, {orderDetail.shippingAddress.districtName}, {orderDetail.shippingAddress.provinceName}</p>
+                      <p className="text-sm">
+                        {orderDetail.shippingAddress.specificAddress}, {orderDetail.shippingAddress.wardName},{" "}
+                        {orderDetail.shippingAddress.districtName}, {orderDetail.shippingAddress.provinceName}
+                      </p>
                     </div>
                   ) : (
                     <p className="text-sm text-gray-500">Không có thông tin địa chỉ giao hàng</p>
@@ -795,21 +1002,21 @@ const OrderDetailDialog = ({
                           <TableRow key={index}>
                             <TableCell>
                               <div className="flex items-center gap-2">
-                                {item.product.imageUrl && (
+                                {item.product && item.product.imageUrl && (
                                   <div className="w-10 h-10 rounded border overflow-hidden bg-gray-100">
-                                    <img 
-                                      src={item.product.imageUrl} 
+                                    <img
+                                      src={item.product.imageUrl || "/placeholder.svg"}
                                       alt={item.product.name}
                                       className="w-full h-full object-cover"
                                     />
                                   </div>
                                 )}
                                 <div>
-                                  <div className="font-medium text-sm">{item.product.name}</div>
+                                  <div className="font-medium text-sm">{item.product?.name}</div>
                                   <div className="text-xs text-gray-500">
-                                    {item.variant?.colorName && item.variant?.sizeName && 
-                                      `${item.variant.colorName} / ${item.variant.sizeName}`
-                                    }
+                                    {item.variant?.colorName &&
+                                      item.variant?.sizeName &&
+                                      `${item.variant.colorName} / ${item.variant.sizeName}`}
                                   </div>
                                 </div>
                               </div>
@@ -848,17 +1055,17 @@ const OrderDetailDialog = ({
               {/* Action buttons */}
               <div className="space-y-2">
                 <div className="grid grid-cols-2 gap-2">
-                  <Button 
-                    className="w-full" 
-                    disabled={['DA_HUY', 'HOAN_THANH'].includes(orderDetail.orderStatus)}
+                  <Button
+                    className="w-full"
+                    disabled={["DA_HUY", "HOAN_THANH"].includes(orderDetail.orderStatus)}
                     onClick={() => onUpdateStatus(orderId, orderDetail.orderStatus)}
                   >
                     Cập nhật trạng thái
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="w-full"
-                    disabled={['DA_HUY', 'HOAN_THANH'].includes(orderDetail.orderStatus)}
+                    disabled={["DA_HUY", "HOAN_THANH"].includes(orderDetail.orderStatus)}
                     onClick={() => onCancelOrder(orderId)}
                   >
                     Hủy đơn hàng
@@ -870,5 +1077,5 @@ const OrderDetailDialog = ({
         </div>
       </DialogContent>
     </Dialog>
-  );
-}; 
+  )
+}

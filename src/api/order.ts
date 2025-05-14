@@ -2,12 +2,14 @@ import {
   IOrderFilter,
   IOrderCreate,
   IOrderUpdate,
-  IOrderStatusUpdate
+  IOrderStatusUpdate,
+  IPOSOrderCreateRequest
 } from "@/interface/request/order";
 import {
   IOrdersResponse,
   IOrderResponse,
-  IActionResponse
+  IActionResponse,
+  IPOSOrderCreateResponse
 } from "@/interface/response/order";
 import { sendGet, sendPost, sendPut, sendPatch, sendDelete } from "./axios";
 
@@ -54,4 +56,16 @@ export const getOrdersByUser = async (
 ): Promise<IOrdersResponse> => {
   const res = await sendGet(`/orders/user/${userId}`, params);
   return res as IOrdersResponse;
+};
+
+/**
+ * 4.x. Create POS Order
+ * Endpoint: POST /api/orders/pos
+ * Authorization: staff, admin
+ */
+export const createPOSOrder = async (
+  payload: IPOSOrderCreateRequest
+): Promise<IPOSOrderCreateResponse> => {
+  const res = await sendPost("/orders/pos", payload);
+  return res as IPOSOrderCreateResponse;
 }; 

@@ -84,7 +84,7 @@ export function Header() {
                     className={`px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center ${language.code === currentLanguage.code ? "bg-gray-100" : ""}`}
                 >
                     <Image
-                        src={language.flag || "/placeholder.svg"}
+                        src={language.flag  }
                         alt={language.name}
                         className="object-contain mr-2"
                         height={11}
@@ -138,7 +138,7 @@ export function Header() {
                                     quality={100}
                                     height={16}
                                     width={24}
-                                    src={currentLanguage.flag || "/placeholder.svg"}
+                                    src={currentLanguage.flag  }
                                     alt={currentLanguage.name}
                                     className="object-contain mr-1"
                                 />
@@ -278,7 +278,7 @@ export function Header() {
                                         className={`py-1 cursor-pointer flex items-center ${language.code === currentLanguage.code ? "text-white" : "text-gray-400"}`}
                                     >
                                         <Image
-                                            src={language.flag || "/placeholder.svg"}
+                                            src={language.flag  }
                                             alt={language.name}
                                             className="object-contain mr-2"
                                             height={11}

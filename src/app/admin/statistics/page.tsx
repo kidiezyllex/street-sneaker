@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Icon } from '@mdi/react';
-import { mdiCashMultiple, mdiPackageVariantClosed, mdiAccountGroup, mdiTrendingUp, 
-         mdiCalendarRange, mdiChartBar, mdiSync, mdiFilterOutline, mdiLoading } from '@mdi/js';
-import { motion, AnimatePresence } from 'framer-motion';
+import {
+  mdiCashMultiple, mdiPackageVariantClosed, mdiAccountGroup, mdiTrendingUp,
+  mdiCalendarRange, mdiChartBar, mdiSync, mdiFilterOutline, mdiLoading
+} from '@mdi/js';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useStatistics, useRevenueReport, useTopProducts, useGenerateDailyStatistics } from '@/hooks/statistics';
@@ -21,7 +22,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from '@/components/ui/label';
-import { 
+import {
   BarChart,
   Bar,
   LineChart,
@@ -55,26 +56,15 @@ export default function StatisticsPage() {
     endDate: new Date().toISOString().split('T')[0],
     limit: 10
   });
-  const [showStatisticsFilters, setShowStatisticsFilters] = useState(false);
   const [isGenerateDialogOpen, setIsGenerateDialogOpen] = useState(false);
   const [generateDate, setGenerateDate] = useState(new Date().toISOString().split('T')[0]);
   const [activeTab, setActiveTab] = useState("overview");
-  
+
   const queryClient = useQueryClient();
   const statistics = useStatistics(statisticsFilters);
   const revenueReport = useRevenueReport(revenueFilters);
   const topProducts = useTopProducts(topProductsFilters);
   const generateDailyStatistics = useGenerateDailyStatistics();
-
-  const handleStatisticsFilterChange = (key: keyof IStatisticsFilter, value: any) => {
-    if (value === '') {
-      const newFilters = { ...statisticsFilters };
-      delete newFilters[key];
-      setStatisticsFilters({ ...newFilters, page: 1 });
-    } else {
-      setStatisticsFilters({ ...statisticsFilters, [key]: value, page: 1 });
-    }
-  };
 
   const handleRevenueFilterChange = (key: keyof IRevenueReportFilter, value: any) => {
     setRevenueFilters({ ...revenueFilters, [key]: value });
@@ -117,9 +107,9 @@ export default function StatisticsPage() {
       year: 'numeric',
     }).format(new Date(dateString));
   };
-  
+
   const formatPercentChange = (value: number) => {
-    return value > 0 
+    return value > 0
       ? <span className="text-green-600">+{value.toFixed(2)}%</span>
       : <span className="text-red-600">{value.toFixed(2)}%</span>;
   };
@@ -178,13 +168,6 @@ export default function StatisticsPage() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <Button
-          onClick={() => setIsGenerateDialogOpen(true)}
-          className="flex items-center gap-2"
-        >
-          <Icon path={mdiSync} size={0.9} />
-          Tạo thống kê thủ công
-        </Button>
       </div>
 
       <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
@@ -332,8 +315,8 @@ export default function StatisticsPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div>
                   <Label htmlFor="revType">Loại thống kê</Label>
-                  <Select 
-                    value={revenueFilters.type || 'MONTHLY'} 
+                  <Select
+                    value={revenueFilters.type || 'MONTHLY'}
                     onValueChange={(value) => handleRevenueFilterChange('type', value)}
                   >
                     <SelectTrigger id="revType">
@@ -470,8 +453,8 @@ export default function StatisticsPage() {
                 </div>
                 <div>
                   <Label htmlFor="prodLimit">Số lượng hiển thị</Label>
-                  <Select 
-                    value={topProductsFilters.limit?.toString() || '10'} 
+                  <Select
+                    value={topProductsFilters.limit?.toString() || '10'}
                     onValueChange={(value) => handleTopProductsFilterChange('limit', parseInt(value))}
                   >
                     <SelectTrigger id="prodLimit">

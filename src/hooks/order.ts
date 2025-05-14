@@ -12,17 +12,20 @@ import {
   updateOrderStatus,
   cancelOrder,
   getMyOrders,
-  getOrdersByUser
+  getOrdersByUser,
+  createPOSOrder
 } from "@/api/order";
 import {
   IOrderFilter,
   IOrderCreate,
   IOrderUpdate,
-  IOrderStatusUpdate
+  IOrderStatusUpdate,
+  IPOSOrderCreateRequest
 } from "@/interface/request/order";
 import {
   IOrdersResponse,
   IOrderResponse,
+  IPOSOrderCreateResponse
 } from "@/interface/response/order";
 
 export const useOrders = (params: IOrderFilter = {}): UseQueryResult<IOrdersResponse, Error> => {
@@ -87,5 +90,15 @@ export const useOrdersByUser = (
     queryKey: ["ordersByUser", userId, params],
     queryFn: () => getOrdersByUser(userId, params),
     enabled: !!userId,
+  });
+};
+
+export const useCreatePOSOrder = (): UseMutationResult<
+  IPOSOrderCreateResponse,
+  Error,
+  IPOSOrderCreateRequest
+> => {
+  return useMutation<IPOSOrderCreateResponse, Error, IPOSOrderCreateRequest>({
+    mutationFn: (payload) => createPOSOrder(payload),
   });
 }; 

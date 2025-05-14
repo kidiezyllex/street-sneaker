@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,8 @@ import {
   mdiLockReset,
   mdiEmail,
   mdiPhone,
+  mdiFilterOutline,
+  mdiLoading,
 } from '@mdi/js';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -37,6 +39,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from '@/components/ui/dialog';
 import {
   Select,
@@ -53,192 +56,94 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import Image from 'next/image';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
-//                                                                                                                     Types
-type AccountRole = 'admin' | 'manager' | 'staff' | 'customer';
-type AccountStatus = 'active' | 'inactive' | 'locked';
-
-interface Account {
-  id: string;
-  username: string;
-  fullName: string;
-  email: string;
-  phone?: string;
-  avatar?: string;
-  role: AccountRole;
-  status: AccountStatus;
-  createdAt: string;
-  lastLoginAt?: string;
-}
-
-//                                                                                                                     Mock data
-const mockAccounts: Account[] = [
-  {
-    id: '1',
-    username: 'admin',
-    fullName: 'Quản Trị Viên',
-    email: 'admin@streetsneaker.vn',
-    phone: '0987654321',
-    avatar: '/images/avatars/admin.jpg',
-    role: 'admin',
-    status: 'active',
-    createdAt: '2023-01-01T00:00:00Z',
-    lastLoginAt: '2023-11-05T08:30:00Z',
-  },
-  {
-    id: '2',
-    username: 'tranminh',
-    fullName: 'Trần Văn Minh',
-    email: 'minh.tran@streetsneaker.vn',
-    phone: '0912345678',
-    avatar: '/images/avatars/minh.jpg',
-    role: 'manager',
-    status: 'active',
-    createdAt: '2023-02-15T00:00:00Z',
-    lastLoginAt: '2023-11-04T14:20:00Z',
-  },
-  {
-    id: '3',
-    username: 'nguyenhuong',
-    fullName: 'Nguyễn Thị Hương',
-    email: 'huong.nguyen@streetsneaker.vn',
-    phone: '0923456789',
-    avatar: '/images/avatars/huong.jpg',
-    role: 'staff',
-    status: 'active',
-    createdAt: '2023-03-20T00:00:00Z',
-    lastLoginAt: '2023-11-05T09:45:00Z',
-  },
-  {
-    id: '4',
-    username: 'levanduc',
-    fullName: 'Lê Văn Đức',
-    email: 'duc.le@streetsneaker.vn',
-    phone: '0934567890',
-    role: 'staff',
-    status: 'inactive',
-    createdAt: '2023-04-05T00:00:00Z',
-    lastLoginAt: '2023-10-25T11:30:00Z',
-  },
-  {
-    id: '5',
-    username: 'phamthihoa',
-    fullName: 'Phạm Thị Hoa',
-    email: 'hoa.pham@streetsneaker.vn',
-    phone: '0945678901',
-    avatar: '/images/avatars/hoa.jpg',
-    role: 'staff',
-    status: 'locked',
-    createdAt: '2023-04-15T00:00:00Z',
-    lastLoginAt: '2023-09-10T10:15:00Z',
-  },
-  {
-    id: '6',
-    username: 'hoangnam',
-    fullName: 'Hoàng Văn Nam',
-    email: 'nam.hoang@streetsneaker.vn',
-    phone: '0956789012',
-    role: 'staff',
-    status: 'active',
-    createdAt: '2023-05-20T00:00:00Z',
-    lastLoginAt: '2023-11-03T16:40:00Z',
-  },
-  {
-    id: '7',
-    username: 'nguyenanh',
-    fullName: 'Nguyễn Văn Anh',
-    email: 'anh.nguyen@example.com',
-    phone: '0967890123',
-    role: 'customer',
-    status: 'active',
-    createdAt: '2023-06-10T00:00:00Z',
-    lastLoginAt: '2023-11-01T20:30:00Z',
-  },
-  {
-    id: '8',
-    username: 'tranthuy',
-    fullName: 'Trần Thị Thúy',
-    email: 'thuy.tran@example.com',
-    phone: '0978901234',
-    role: 'customer',
-    status: 'active',
-    createdAt: '2023-07-05T00:00:00Z',
-    lastLoginAt: '2023-10-28T19:15:00Z',
-  },
-];
+import { toast } from 'react-toastify';
+import { useAccounts, useDeleteAccount, useUpdateAccountStatus } from '@/hooks/account';
+import { IAccountFilter, IAccountStatusUpdate } from '@/interface/request/account';
+import { IAccount } from '@/interface/response/account';
+import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
+import { useQueryClient } from '@tanstack/react-query';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 
 export default function AccountsPage() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedRole, setSelectedRole] = useState<string>('all');
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [filters, setFilters] = useState<IAccountFilter>({
+    page: 1,
+    limit: 10
+  });
   const [showFilters, setShowFilters] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [accountToDelete, setAccountToDelete] = useState<Account | null>(null);
-  const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] = useState(false);
-  const [accountToResetPassword, setAccountToResetPassword] = useState<Account | null>(null);
+  const [accountToDelete, setAccountToDelete] = useState<IAccount | null>(null);
+  const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
+  const [accountToUpdateStatus, setAccountToUpdateStatus] = useState<IAccount | null>(null);
+  const [newStatus, setNewStatus] = useState<'HOAT_DONG' | 'KHONG_HOAT_DONG'>('HOAT_DONG');
 
-  //                                                                                                                     Format date
+  const { data, isLoading, error } = useAccounts(filters);
+  const deleteAccount = useDeleteAccount();
+  const updateAccountStatus = useUpdateAccountStatus(accountToUpdateStatus?._id || '');
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const debounce = setTimeout(() => {
+      if (searchQuery.trim()) {
+        setFilters((prev) => ({ ...prev, search: searchQuery, page: 1 }));
+      } else {
+        const { search, ...rest } = filters;
+        setFilters({ ...rest, page: 1 });
+      }
+    }, 500);
+
+    return () => clearTimeout(debounce);
+  }, [searchQuery]);
+
+  const handleFilterChange = (key: keyof IAccountFilter, value: string | number | undefined) => {
+    if (value === '') {
+      const newFilters = { ...filters };
+      delete newFilters[key];
+      setFilters({ ...newFilters, page: 1 });
+    } else {
+      setFilters({ ...filters, [key]: value, page: 1 });
+    }
+  };
+
+  const handleChangePage = (newPage: number) => {
+    setFilters({ ...filters, page: newPage });
+  };
+
+  // Format date
   const formatDate = (dateString?: string) => {
-    if (!dateString) return 'Chưa đăng nhập';
-    const date = new Date(dateString);
-    return format(date, 'dd/MM/yyyy HH:mm', { locale: vi });
+    if (!dateString) return 'Chưa xác định';
+    return format(new Date(dateString), 'dd/MM/yyyy HH:mm', { locale: vi });
   };
 
-  //                                                                                                                     Filter accounts based on search query, role, and status
-  const filteredAccounts = mockAccounts.filter((account) => {
-    //                                                                                                                     Filter by role
-    if (selectedRole !== 'all' && account.role !== selectedRole) {
-      return false;
-    }
-
-    //                                                                                                                     Filter by status
-    if (selectedStatus !== 'all' && account.status !== selectedStatus) {
-      return false;
-    }
-
-    //                                                                                                                     Search query filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      return (
-        account.username.toLowerCase().includes(query) ||
-        account.fullName.toLowerCase().includes(query) ||
-        account.email.toLowerCase().includes(query) ||
-        (account.phone && account.phone.includes(query))
-      );
-    }
-
-    return true;
-  });
-
-  //                                                                                                                     Get role badge
-  const getRoleBadge = (role: AccountRole) => {
+  // Get role badge
+  const getRoleBadge = (role: string) => {
     switch (role) {
-      case 'admin':
-        return <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">Quản trị viên</Badge>;
-      case 'manager':
-        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">Quản lý</Badge>;
-      case 'staff':
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Nhân viên</Badge>;
-      case 'customer':
-        return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">Khách hàng</Badge>;
+      case 'ADMIN':
+        return <Badge className="bg-purple-600 text-white hover:bg-purple-700">Quản trị viên</Badge>;
+      case 'STAFF':
+        return <Badge className="bg-blue-600 text-white hover:bg-blue-700">Nhân viên</Badge>;
+      case 'CUSTOMER':
+        return <Badge className="bg-slate-600 text-white hover:bg-slate-700">Khách hàng</Badge>;
+      default:
+        return <Badge className="bg-gray-500 text-white hover:bg-gray-600">{role}</Badge>;
     }
   };
 
-  //                                                                                                                     Get status badge
-  const getStatusBadge = (status: AccountStatus) => {
+  // Get status badge
+  const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'active':
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Hoạt động</Badge>;
-      case 'inactive':
-        return <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">Không hoạt động</Badge>;
-      case 'locked':
-        return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">Đã khóa</Badge>;
+      case 'HOAT_DONG':
+        return <Badge className="bg-green-600 text-white hover:bg-green-700">Hoạt động</Badge>;
+      case 'KHONG_HOAT_DONG':
+        return <Badge className="bg-red-600 text-white hover:bg-red-700">Không hoạt động</Badge>;
+      default:
+        return <Badge className="bg-gray-500 text-white hover:bg-gray-600">{status}</Badge>;
     }
   };
 
-  //                                                                                                                     Get initials for avatar fallback
+  // Get initials for avatar fallback
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -248,264 +153,416 @@ export default function AccountsPage() {
       .substring(0, 2);
   };
 
-  //                                                                                                                     Handle delete account
-  const handleDeleteAccount = (account: Account) => {
+  const getRandomAvatar = () => {
+    const avatarCount = 4; // Assuming you have dfavatar1.png to dfavatar4.png
+    const randomIndex = Math.floor(Math.random() * avatarCount) + 1;
+    return `/images/dfavatar${randomIndex}.png`;
+  };
+
+  const handleDeleteAccount = (account: IAccount) => {
     setAccountToDelete(account);
     setIsDeleteDialogOpen(true);
   };
 
-  //                                                                                                                     Confirm delete account
-  const confirmDeleteAccount = () => {
-    setIsDeleteDialogOpen(false);
-    setAccountToDelete(null);
+  const confirmDeleteAccount = async () => {
+    if (!accountToDelete) return;
+
+    try {
+      await deleteAccount.mutateAsync(accountToDelete._id, {
+        onSuccess: () => {
+          toast.success('Xóa tài khoản thành công');
+          setIsDeleteDialogOpen(false);
+          queryClient.invalidateQueries({ queryKey: ['accounts'] });
+        },
+        onError: (error) => {
+          console.error('Chi tiết lỗi:', error);
+          toast.error('Xóa tài khoản thất bại: ' + (error.message || 'Không xác định'));
+        }
+      });
+    } catch (error) {
+      console.error('Lỗi khi xóa tài khoản:', error);
+      toast.error('Xóa tài khoản thất bại');
+    }
   };
 
-  //                                                                                                                     Handle reset password
-  const handleResetPassword = (account: Account) => {
-    setAccountToResetPassword(account);
-    setIsResetPasswordDialogOpen(true);
+  const handleUpdateStatus = (account: IAccount, status: 'HOAT_DONG' | 'KHONG_HOAT_DONG') => {
+    setAccountToUpdateStatus(account);
+    setNewStatus(status);
+    setIsStatusDialogOpen(true);
   };
 
-  //                                                                                                                     Confirm reset password
-  const confirmResetPassword = () => {
-    setIsResetPasswordDialogOpen(false);
-    setAccountToResetPassword(null);
+  const confirmUpdateStatus = async () => {
+    if (!accountToUpdateStatus) return;
+
+    const statusUpdate: IAccountStatusUpdate = {
+      status: newStatus
+    };
+
+    try {
+      await updateAccountStatus.mutateAsync(statusUpdate, {
+        onSuccess: () => {
+          toast.success(`Cập nhật trạng thái tài khoản thành công`);
+          setIsStatusDialogOpen(false);
+          queryClient.invalidateQueries({ queryKey: ['accounts'] });
+        },
+        onError: (error) => {
+          console.error('Chi tiết lỗi:', error);
+          toast.error('Cập nhật trạng thái tài khoản thất bại: ' + (error.message || 'Không xác định'));
+        }
+      });
+    } catch (error) {
+      console.error('Lỗi khi cập nhật trạng thái tài khoản:', error);
+      toast.error('Cập nhật trạng thái tài khoản thất bại');
+    }
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-        <h1 className="text-2xl font-bold">Quản lý tài khoản</h1>
-        <Button className="flex items-center">
-          <Icon path={mdiPlus} size={0.8} className="mr-2" />
-          Tạo tài khoản mới
-        </Button>
+      <div className='flex justify-between items-start'>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/admin">Dashboard</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="#">Quản lý người dùng</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Danh sách tài khoản</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <Link href="/admin/accounts/create">
+          <Button className="flex items-center gap-2">
+            <Icon path={mdiPlus} size={0.9} />
+            Thêm tài khoản mới
+          </Button>
+        </Link>
       </div>
 
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-4">
-            <div className="flex flex-col sm:flex-row w-full gap-3">
-              <div className="relative w-full sm:w-80">
-                <Input
-                  placeholder="Tìm tài khoản..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 w-full"
-                />
-                <div className="absolute left-3 top-2.5 text-gray-400">
-                  <Icon path={mdiMagnify} size={0.9} />
-                </div>
-              </div>
+      <Card className="mb-4">
+        <CardContent className="py-4">
+          <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:justify-between md:items-center">
+            <div className="relative flex-1 max-w-md">
+              <Icon
+                path={mdiMagnify}
+                size={0.9}
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              />
+              <Input
+                type="text"
+                placeholder="Tìm kiếm theo tên, email, số điện thoại..."
+                className="pl-10 pr-4 py-2 w-full border rounded-md"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <Button
+              variant="outline"
+              className="flex items-center"
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              <Icon path={mdiFilterOutline} size={0.9} className="mr-2" />
+              {showFilters ? 'Ẩn bộ lọc' : 'Hiện bộ lọc'}
+            </Button>
+          </div>
 
-              <Button
-                variant="outline"
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center"
+          <AnimatePresence>
+            {showFilters && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="mt-4 pt-4 border-t"
               >
-                Bộ lọc
-                {(selectedRole !== 'all' || selectedStatus !== 'all') && (
-                  <Badge className="ml-2 bg-primary h-5 w-5 p-0 flex items-center justify-center">
-                    {(selectedRole !== 'all' ? 1 : 0) + (selectedStatus !== 'all' ? 1 : 0)}
-                  </Badge>
-                )}
-              </Button>
-            </div>
-          </div>
-
-          {showFilters && (
-            <div className="bg-slate-50 p-4 rounded-lg mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium mb-1 block">Vai trò</label>
-                <Select
-                  value={selectedRole}
-                  onValueChange={setSelectedRole}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Tất cả vai trò" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tất cả vai trò</SelectItem>
-                    <SelectItem value="admin">Quản trị viên</SelectItem>
-                    <SelectItem value="manager">Quản lý</SelectItem>
-                    <SelectItem value="staff">Nhân viên</SelectItem>
-                    <SelectItem value="customer">Khách hàng</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium mb-1 block">Trạng thái</label>
-                <Select
-                  value={selectedStatus}
-                  onValueChange={setSelectedStatus}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Tất cả trạng thái" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tất cả trạng thái</SelectItem>
-                    <SelectItem value="active">Hoạt động</SelectItem>
-                    <SelectItem value="inactive">Không hoạt động</SelectItem>
-                    <SelectItem value="locked">Đã khóa</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="md:col-span-2 flex justify-end">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setSelectedRole('all');
-                    setSelectedStatus('all');
-                  }}
-                  className="flex items-center text-gray-400"
-                >
-                  <Icon path={mdiClose} size={0.7} className="mr-1" />
-                  Đặt lại bộ lọc
-                </Button>
-              </div>
-            </div>
-          )}
-
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Người dùng</TableHead>
-                  <TableHead>Liên hệ</TableHead>
-                  <TableHead>Vai trò</TableHead>
-                  <TableHead>Trạng thái</TableHead>
-                  <TableHead>Ngày tạo</TableHead>
-                  <TableHead>Đăng nhập lần cuối</TableHead>
-                  <TableHead className="text-right">Thao tác</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredAccounts.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center h-24">
-                      <p className="text-gray-400">Không tìm thấy tài khoản nào phù hợp.</p>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredAccounts.map((account) => (
-                    <TableRow key={account.id} className="hover:bg-gray-50">
-                      <TableCell>
-                        <div className="flex items-center space-x-3">
-                          <Avatar className="h-9 w-9">
-                            <AvatarImage src={account.avatar} alt={account.fullName} />
-                            <AvatarFallback>{getInitials(account.fullName)}</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="font-medium">{account.fullName}</div>
-                            <div className="text-xs text-gray-400">@{account.username}</div>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <div className="flex items-center text-sm">
-                            <Icon path={mdiEmail} size={0.5} className="mr-1.5 text-gray-400" />
-                            <span>{account.email}</span>
-                          </div>
-                          {account.phone && (
-                            <div className="flex items-center text-sm mt-1">
-                              <Icon path={mdiPhone} size={0.5} className="mr-1.5 text-gray-400" />
-                              <span>{account.phone}</span>
-                            </div>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>{getRoleBadge(account.role)}</TableCell>
-                      <TableCell>{getStatusBadge(account.status)}</TableCell>
-                      <TableCell>{formatDate(account.createdAt)}</TableCell>
-                      <TableCell>{formatDate(account.lastLoginAt)}</TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
-                              <span className="sr-only">Mở menu</span>
-                              <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-4 w-4">
-                                <path d="M3.625 7.5C3.625 8.12132 3.12132 8.625 2.5 8.625C1.87868 8.625 1.375 8.12132 1.375 7.5C1.375 6.87868 1.87868 6.375 2.5 6.375C3.12132 6.375 3.625 6.87868 3.625 7.5ZM8.625 7.5C8.625 8.12132 8.12132 8.625 7.5 8.625C6.87868 8.625 6.375 8.12132 6.375 7.5C6.375 6.87868 6.87868 6.375 7.5 6.375C8.12132 6.375 8.625 6.87868 8.625 7.5ZM13.625 7.5C13.625 8.12132 13.1213 8.625 12.5 8.625C11.8787 8.625 11.375 8.12132 11.375 7.5C11.375 6.87868 11.8787 6.375 12.5 6.375C13.1213 6.375 13.625 6.87868 13.625 7.5Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
-                              </svg>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem className="flex items-center cursor-pointer">
-                              <Icon path={mdiPencil} size={0.7} className="mr-2" />
-                              <span>Chỉnh sửa</span>
-                            </DropdownMenuItem>
-
-                            <DropdownMenuItem 
-                              className="flex items-center cursor-pointer"
-                              onClick={() => handleResetPassword(account)}
-                            >
-                              <Icon path={mdiLockReset} size={0.7} className="mr-2" />
-                              <span>Đặt lại mật khẩu</span>
-                            </DropdownMenuItem>
-
-                            {account.status === 'active' ? (
-                              <DropdownMenuItem className="flex items-center cursor-pointer">
-                                <Icon path={mdiLock} size={0.7} className="mr-2" />
-                                <span>Khóa tài khoản</span>
-                              </DropdownMenuItem>
-                            ) : account.status === 'locked' ? (
-                              <DropdownMenuItem className="flex items-center cursor-pointer">
-                                <Icon path={mdiAccountKey} size={0.7} className="mr-2" />
-                                <span>Mở khóa tài khoản</span>
-                              </DropdownMenuItem>
-                            ) : null}
-
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem 
-                              className="flex items-center text-red-600 cursor-pointer"
-                              onClick={() => handleDeleteAccount(account)}
-                            >
-                              <Icon path={mdiDelete} size={0.7} className="mr-2" />
-                              <span>Xóa</span>
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm text-gray-700 mb-2 font-semibold">
+                      Vai trò
+                    </label>
+                    <Select value={filters.role || ''} onValueChange={(value) => handleFilterChange('role', value === 'all' ? undefined : value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Tất cả vai trò" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Tất cả vai trò</SelectItem>
+                        <SelectItem value="ADMIN">Quản trị viên</SelectItem>
+                        <SelectItem value="CUSTOMER">Khách hàng</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-700 mb-2 font-semibold">
+                      Trạng thái
+                    </label>
+                    <Select value={filters.status || ''} onValueChange={(value) => handleFilterChange('status', value === 'all' ? undefined : value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Tất cả trạng thái" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                        <SelectItem value="HOAT_DONG">Hoạt động</SelectItem>
+                        <SelectItem value="KHONG_HOAT_DONG">Không hoạt động</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </CardContent>
       </Card>
 
-      {/* Delete Confirmation Dialog */}
+      <Card>
+        <CardContent className="p-0">
+          {isLoading ? (
+            <div className="flex items-center justify-center h-64">
+              <Icon path={mdiLoading} size={2} className="animate-spin text-primary" />
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center h-64">
+              <h2 className="text-xl font-bold text-red-500">Đã xảy ra lỗi</h2>
+              <p className="text-gray-600">{error.message || 'Không thể tải dữ liệu tài khoản'}</p>
+            </div>
+          ) : (
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Tài khoản</TableHead>
+                    <TableHead>Liên hệ</TableHead>
+                    <TableHead>Vai trò</TableHead>
+                    <TableHead>Trạng thái</TableHead>
+                    <TableHead>Ngày tạo</TableHead>
+                    <TableHead className="text-right">Thao tác</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data?.data.accounts.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                        Không có tài khoản nào được tìm thấy
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    data?.data.accounts.map((account) => (
+                      <TableRow key={account._id} className="hover:bg-gray-50">
+                        <TableCell className="py-3 px-4">
+                          <div className="flex items-center space-x-4">
+                            <div className="p-0.5 rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600">
+                              <Avatar className="h-10 w-10 border-2 border-white rounded-full">
+                                <AvatarImage src={getRandomAvatar()} alt={`${account.fullName} avatar`} />
+                                <AvatarFallback className="bg-gray-200 text-gray-700">{getInitials(account.fullName)}</AvatarFallback>
+                              </Avatar>
+                            </div>
+                            <div>
+                              <div className="font-medium text-gray-800">{account.fullName}</div>
+                              <div className="text-sm text-gray-500">{account.email}</div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="py-3 px-4 text-sm text-gray-700">
+                          {account.phoneNumber && (
+                            <div className="flex items-center">
+                              <Icon path={mdiPhone} size={0.7} className="mr-2 text-gray-400" />
+                              {account.phoneNumber}
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell className="py-3 px-4">{getRoleBadge(account.role)}</TableCell>
+                        <TableCell className="py-3 px-4">{getStatusBadge(account.status)}</TableCell>
+                        <TableCell className="py-3 px-4 text-sm text-gray-600">{formatDate(account.createdAt)}</TableCell>
+                        <TableCell className="py-3 px-4 text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                size="icon"
+                                variant="outline"
+                              >
+                                <Icon path={mdiAccountKey} size={0.9} />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <Link href={`/admin/accounts/edit/${account._id}`} passHref>
+                                <DropdownMenuItem className="cursor-pointer text-maintext">
+                                  <Icon path={mdiPencil} size={0.9} className="mr-2" />
+                                  Chỉnh sửa
+                                </DropdownMenuItem>
+                              </Link>
+
+                              {account.status === 'HOAT_DONG' ? (
+                                <DropdownMenuItem
+                                  className="cursor-pointer text-maintext"
+                                  onClick={() => handleUpdateStatus(account, 'KHONG_HOAT_DONG')}
+                                >
+                                  <Icon path={mdiLock} size={0.9} className="mr-2" />
+                                  Vô hiệu hóa
+                                </DropdownMenuItem>
+                              ) : (
+                                <DropdownMenuItem
+                                  className="cursor-pointer text-maintext"
+                                  onClick={() => handleUpdateStatus(account, 'HOAT_DONG')}
+                                >
+                                  <Icon path={mdiLockReset} size={0.9} className="mr-2" />
+                                  Kích hoạt
+                                </DropdownMenuItem>
+                              )}
+
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="cursor-pointer text-red-600"
+                                onClick={() => handleDeleteAccount(account)}
+                              >
+                                <Icon path={mdiDelete} size={0.9} className="mr-2" />
+                                Xóa tài khoản
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+
+              {data?.data.pagination && data.data.pagination.totalPages > 1 && (
+                <div className="flex items-center justify-between px-4 py-3 border-t">
+                  <div className="text-sm text-gray-500">
+                    Hiển thị {(data.data.pagination.currentPage - 1) * (filters.limit || 10) + 1} đến{' '}
+                    {Math.min(data.data.pagination.currentPage * (filters.limit || 10), data.data.pagination.count)}{' '}
+                    trong tổng số {data.data.pagination.count} tài khoản
+                  </div>
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleChangePage(data.data.pagination.currentPage - 1)}
+                      disabled={data.data.pagination.currentPage === 1}
+                    >
+                      Trước
+                    </Button>
+                    {Array.from({ length: data.data.pagination.totalPages }, (_, i) => i + 1).map((page) => (
+                      <Button
+                        key={page}
+                        variant={page === data.data.pagination.currentPage ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => handleChangePage(page)}
+                      >
+                        {page}
+                      </Button>
+                    ))}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleChangePage(data.data.pagination.currentPage + 1)}
+                      disabled={data.data.pagination.currentPage === data.data.pagination.totalPages}
+                    >
+                      Sau
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Delete Account Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Xác nhận xóa tài khoản</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa tài khoản <span className="font-medium">{accountToDelete?.username}</span>? Hành động này không thể hoàn tác.
+              Bạn có chắc chắn muốn xóa tài khoản <span className="font-semibold">{accountToDelete?.fullName}</span>?
+              <br />
+              Hành động này không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Hủy</Button>
-            <Button variant="destructive" onClick={confirmDeleteAccount}>Xóa</Button>
+          <DialogFooter className="gap-2 sm:justify-end">
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                Hủy
+              </Button>
+            </DialogClose>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={confirmDeleteAccount}
+              disabled={deleteAccount.isPending}
+              className="flex items-center gap-2"
+            >
+              {deleteAccount.isPending ? (
+                <>
+                  <Icon path={mdiLoading} size={0.9} className="animate-spin" />
+                  Đang xử lý...
+                </>
+              ) : (
+                <>
+                  <Icon path={mdiDelete} size={0.9} />
+                  Xác nhận xóa
+                </>
+              )}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Reset Password Confirmation Dialog */}
-      <Dialog open={isResetPasswordDialogOpen} onOpenChange={setIsResetPasswordDialogOpen}>
+      {/* Update Status Dialog */}
+      <Dialog open={isStatusDialogOpen} onOpenChange={setIsStatusDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Đặt lại mật khẩu</DialogTitle>
+            <DialogTitle>
+              {newStatus === 'HOAT_DONG' ? 'Kích hoạt tài khoản' : 'Vô hiệu hóa tài khoản'}
+            </DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn đặt lại mật khẩu cho tài khoản <span className="font-medium">{accountToResetPassword?.username}</span>? Người dùng sẽ nhận được email với mật khẩu mới.
+              {newStatus === 'HOAT_DONG' ? (
+                <>
+                  Bạn có chắc chắn muốn kích hoạt tài khoản <span className="font-semibold">{accountToUpdateStatus?.fullName}</span>?
+                  <br />
+                  Tài khoản này sẽ có thể đăng nhập và sử dụng hệ thống.
+                </>
+              ) : (
+                <>
+                  Bạn có chắc chắn muốn vô hiệu hóa tài khoản <span className="font-semibold">{accountToUpdateStatus?.fullName}</span>?
+                  <br />
+                  Tài khoản này sẽ không thể đăng nhập và sử dụng hệ thống cho đến khi được kích hoạt lại.
+                </>
+              )}
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsResetPasswordDialogOpen(false)}>Hủy</Button>
-            <Button onClick={confirmResetPassword}>Xác nhận</Button>
+          <DialogFooter className="gap-2 sm:justify-end">
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                Hủy
+              </Button>
+            </DialogClose>
+            <Button
+              type="button"
+              variant={newStatus === 'HOAT_DONG' ? 'default' : 'destructive'}
+              onClick={confirmUpdateStatus}
+              disabled={updateAccountStatus.isPending}
+              className="flex items-center gap-2"
+            >
+              {updateAccountStatus.isPending ? (
+                <>
+                  <Icon path={mdiLoading} size={0.9} className="animate-spin" />
+                  Đang xử lý...
+                </>
+              ) : newStatus === 'HOAT_DONG' ? (
+                <>
+                  <Icon path={mdiCheck} size={0.9} />
+                  Kích hoạt
+                </>
+              ) : (
+                <>
+                  <Icon path={mdiLock} size={0.9} />
+                  Vô hiệu hóa
+                </>
+              )}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

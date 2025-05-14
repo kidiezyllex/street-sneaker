@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { CartItem as OldCartItem } from '@/components/POSPage/mockData'; // Keep old CartItem as reference if needed or for gradual update
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -22,9 +21,10 @@ import {
   mdiInformationOutline,
   mdiReceipt,
   mdiClock,
-  mdiAccount
+  mdiAccount,
+  mdiContentCopy
 } from '@mdi/js';
-import { cn } from '@/lib/utils';
+import { checkImageUrl, cn } from '@/lib/utils';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -65,11 +65,26 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from '@/components/ui/skeleton'; // For loading states
-
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"; // Added pagination imports
+import { Table, TableHeader, TableBody, TableRow, TableCell, TableHead } from '@/components/ui/table'; // Added table imports
+import { useVouchers, useIncrementVoucherUsage } from '@/hooks/voucher';
+import { useQuery } from '@tanstack/react-query';
+import { getAllVouchers } from '@/api/voucher';
+import { IVouchersResponse } from "@/interface/response/voucher";
 import { useProducts, useSearchProducts } from '@/hooks/product';
 import { IProductFilter } from '@/interface/request/product';
+import { usePosStore } from '@/stores/posStore'; // Added import for Zustand store
+import { useCreatePOSOrder } from '@/hooks/order'; // Changed from useCreateOrder
+import { IPOSOrderCreateRequest } from '@/interface/request/order'; // Changed from IOrderCreate
 
-// Define types based on expected API response
 interface ApiVariant {
   _id: string;
   colorId?: { _id: string; name: string; code: string; images?: string[] };
@@ -78,6 +93,7 @@ interface ApiVariant {
   stock: number;
   images?: string[];
   sku?: string;
+  actualSizeId?: string; // Added for order payload
 }
 
 interface ApiProduct {
@@ -103,6 +119,23 @@ interface UpdatedCartItem {
   quantity: number;
   image: string; 
   stock: number; 
+  actualColorId?: string; // Added for order payload
+  actualSizeId?: string; // Added for order payload
+}
+
+interface IVoucherData { // Define this based on your actual voucher structure in IVouchersResponse
+  _id: string;
+  code: string;
+  name: string;
+  type: 'PERCENTAGE' | 'FIXED_AMOUNT';
+  value: number;
+  quantity: number;
+  usedCount: number;
+  startDate: string;
+  endDate: string;
+  minOrderValue: number;
+  status: string;
+  maxValue?: number; // Optional, if your percentage vouchers have a max value
 }
 
 export default function POSPage() {
@@ -117,27 +150,26 @@ export default function POSPage() {
   const [showCheckoutDialog, setShowCheckoutDialog] = useState<boolean>(false);
   const [customerName, setCustomerName] = useState<string>('');
   const [customerPhone, setCustomerPhone] = useState<string>('');
-  const [checkoutIsLoading, setCheckoutIsLoading] = useState<boolean>(false); // Renamed from isLoading
-
-  // New states for API data handling
-  const [pagination, setPagination] = useState({ page: 1, limit: 12 });
+  const [checkoutIsLoading, setCheckoutIsLoading] = useState<boolean>(false); 
+  const [pagination, setPagination] = useState({ page: 1, limit: 6 }); 
   const [filters, setFilters] = useState<IProductFilter>({ status: 'HOAT_DONG' });
   const [sortOption, setSortOption] = useState<string>('newest'); 
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [activeCategoryName, setActiveCategoryName] = useState<string>('Tất cả sản phẩm');
+  const [showVouchersDialog, setShowVouchersDialog] = useState<boolean>(false); // State for vouchers dialog
+  const [appliedVoucher, setAppliedVoucher] = useState<IVoucherData | null>(null); // Store applied voucher details
 
-  const [stats, setStats] = useState({
-    dailySales: 12500000,
-    totalOrders: 24,
-    averageOrder: 520000,
-    pendingOrders: 3
-  });
+  const stats = usePosStore((state) => state.stats); // Use Zustand store for stats
+  const updateStatsOnCheckout = usePosStore((state) => state.updateStatsOnCheckout); // Use Zustand store action
+  const createOrderMutation = useCreatePOSOrder(); // Changed from useCreateOrder()
 
   const [recentTransactions, setRecentTransactions] = useState([
     { id: 'TX-1234', customer: 'Nguyễn Văn A', amount: 1250000, time: '10:25', status: 'completed' },
     { id: 'TX-1233', customer: 'Trần Thị B', amount: 850000, time: '09:40', status: 'completed' },
     { id: 'TX-1232', customer: 'Lê Văn C', amount: 2100000, time: '09:15', status: 'pending' }
   ]);
+
+  const { mutate: incrementVoucherUsageMutation } = useIncrementVoucherUsage();
 
   useEffect(() => {
     const timerId = setTimeout(() => {
@@ -147,16 +179,23 @@ export default function POSPage() {
   }, [searchQuery]);
 
   useEffect(() => {
-    if (activeCategoryName === 'Tất cả sản phẩm') {
-      // Remove categories filter if 'All' is selected
-      const { categories, ...restFilters } = filters;
-      setFilters(restFilters);
-    } else {
-      // Assuming category name is used as filter value. If API needs ID, adjust accordingly.
-      setFilters(prev => ({ ...prev, categories: [activeCategoryName] }));
-    }
+    setFilters(prevFilters => {
+      if (activeCategoryName === 'Tất cả sản phẩm') {
+        const { categories, ...restFilters } = prevFilters;
+        // Only return a new object if 'categories' actually existed and needs to be removed
+        if (prevFilters.categories) {
+          return restFilters;
+        }
+        return prevFilters; // Return previous state if no change needed
+      } else {
+        if (!prevFilters.categories || prevFilters.categories.length !== 1 || prevFilters.categories[0] !== activeCategoryName) {
+          return { ...prevFilters, categories: [activeCategoryName] };
+        }
+        return prevFilters; // Return previous state if no change needed
+      }
+    });
     setPagination(prev => ({ ...prev, page: 1 }));
-  }, [activeCategoryName]);
+  }, [activeCategoryName]); // Removed 'filters' from dependency array
 
   const productsHookParams: IProductFilter = {
     ...pagination,
@@ -193,11 +232,6 @@ export default function POSPage() {
             return priceB - priceA;
           case 'newest':
             return dateB - dateA;
-          // Add 'popularity' or other client-side sort cases if needed
-          // case 'popularity':
-          //   const stockA = a.variants.reduce((total: number, variant: any) => total + variant.stock, 0);
-          //   const stockB = b.variants.reduce((total: number, variant: any) => total + variant.stock, 0);
-          //   return stockB - stockA; 
           default:
             return 0;
         }
@@ -309,6 +343,8 @@ export default function POSPage() {
         quantity: 1,
         image: images?.[0] || selectedProduct.variants[0]?.images?.[0] || '/placeholder.svg',
         stock: stock,
+        actualColorId: colorId?._id, // Populate actualColorId
+        actualSizeId: sizeId?._id,   // Populate actualSizeId
       };
       setCartItems([...cartItems, newItem]);
       toast.success('Đã thêm sản phẩm vào giỏ hàng');
@@ -331,32 +367,123 @@ export default function POSPage() {
       return item;
     }).filter(item => item.quantity > 0); 
     setCartItems(updatedItems);
+    // Recalculate discount if cart changes
+    if(appliedVoucher) {
+        const subtotal = updatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        if (subtotal < appliedVoucher.minOrderValue) {
+            toast.warn(`Đơn hàng không còn đủ điều kiện cho mã "${appliedVoucher.code}". Đã xóa mã.`);
+            setAppliedVoucher(null);
+            setAppliedDiscount(0);
+        } else {
+            let newDiscountAmount = 0;
+            if (appliedVoucher.type === 'PERCENTAGE') {
+                newDiscountAmount = (subtotal * appliedVoucher.value) / 100;
+                if ((appliedVoucher as any).maxValue && newDiscountAmount > (appliedVoucher as any).maxValue) {
+                    newDiscountAmount = (appliedVoucher as any).maxValue;
+                }
+            } else if (appliedVoucher.type === 'FIXED_AMOUNT') {
+                newDiscountAmount = appliedVoucher.value;
+            }
+            newDiscountAmount = Math.min(newDiscountAmount, subtotal);
+            setAppliedDiscount(newDiscountAmount);
+        }
+    }
   };
 
   const removeCartItem = (id: string) => {
-    setCartItems(cartItems.filter(item => item.id !== id));
+    const updatedItems = cartItems.filter(item => item.id !== id);
+    setCartItems(updatedItems);
     toast.success('Đã xóa sản phẩm khỏi giỏ hàng');
+    // Recalculate discount if cart changes
+    if(appliedVoucher) {
+        const subtotal = updatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        if (subtotal < appliedVoucher.minOrderValue || updatedItems.length === 0) {
+            toast.warn(`Đơn hàng không còn đủ điều kiện cho mã "${appliedVoucher.code}" hoặc giỏ hàng trống. Đã xóa mã.`);
+            setAppliedVoucher(null);
+            setAppliedDiscount(0);
+        } else {
+            let newDiscountAmount = 0;
+            if (appliedVoucher.type === 'PERCENTAGE') {
+                newDiscountAmount = (subtotal * appliedVoucher.value) / 100;
+                if ((appliedVoucher as any).maxValue && newDiscountAmount > (appliedVoucher as any).maxValue) {
+                    newDiscountAmount = (appliedVoucher as any).maxValue;
+                }
+            } else if (appliedVoucher.type === 'FIXED_AMOUNT') {
+                newDiscountAmount = appliedVoucher.value;
+            }
+            newDiscountAmount = Math.min(newDiscountAmount, subtotal);
+            setAppliedDiscount(newDiscountAmount);
+        }
+    }
   };
 
-  const applyCoupon = () => {
-    if (couponCode.toUpperCase() === 'SUMMER23') {
+  const { data: foundVoucherData, isLoading: isFetchingVoucher, refetch: fetchVoucherByCode } = useQuery<IVouchersResponse, Error>({
+    queryKey: ['voucherByCodeToApply', couponCode],
+    queryFn: () => getAllVouchers({ code: couponCode, status: 'HOAT_DONG', limit: 1, page: 1 }),
+    enabled: false,
+  });
+
+  const applyCoupon = async () => {
+    if (!couponCode) {
+      toast.error('Vui lòng nhập mã giảm giá.');
+      return;
+    }
+
+    // Manually trigger the fetch for the specific coupon code
+    const { data: voucherDataResult, isError: voucherFetchError } = await fetchVoucherByCode();
+
+    if (voucherFetchError) {
+      toast.error('Có lỗi xảy ra khi tìm mã giảm giá.');
+      setAppliedVoucher(null);
+      setAppliedDiscount(0);
+      return;
+    }
+
+    const voucher = voucherDataResult?.data?.vouchers?.[0];
+
+    if (voucher) {
       const subtotal = calculateSubtotal();
-      if (subtotal >= 1000000) {
-        setAppliedDiscount(15);
-        toast.success('Đã áp dụng mã giảm giá SUMMER23: Giảm 15%');
-      } else {
-        toast.error('Đơn hàng chưa đạt giá trị tối thiểu 1,000,000đ');
+      if (subtotal < voucher.minOrderValue) {
+        toast.error(`Đơn hàng chưa đạt giá trị tối thiểu ${formatCurrency(voucher.minOrderValue)} để áp dụng mã này.`);
+        setAppliedVoucher(null);
+        setAppliedDiscount(0);
+        return;
       }
-    } else if (couponCode.toUpperCase() === 'NEWCUSTOMER') {
-      const subtotal = calculateSubtotal();
-      if (subtotal >= 500000) {
-        setAppliedDiscount(10);
-        toast.success('Đã áp dụng mã giảm giá NEWCUSTOMER: Giảm 10%');
-      } else {
-        toast.error('Đơn hàng chưa đạt giá trị tối thiểu 500,000đ');
+
+      if (voucher.quantity <= voucher.usedCount) {
+        toast.error('Mã giảm giá này đã hết lượt sử dụng.');
+        setAppliedVoucher(null);
+        setAppliedDiscount(0);
+        return;
       }
+      
+      // Check expiry date
+      if (new Date(voucher.endDate) < new Date()) {
+        toast.error('Mã giảm giá đã hết hạn.');
+        setAppliedVoucher(null);
+        setAppliedDiscount(0);
+        return;
+      }
+
+      let discountAmount = 0;
+      if (voucher.type === 'PERCENTAGE') {
+        discountAmount = (subtotal * voucher.value) / 100;
+        if ((voucher as any).maxValue && discountAmount > (voucher as any).maxValue) {
+          discountAmount = (voucher as any).maxValue;
+        }
+      } else if (voucher.type === 'FIXED_AMOUNT') {
+        discountAmount = voucher.value;
+      }
+      
+      discountAmount = Math.min(discountAmount, subtotal);
+
+      setAppliedDiscount(discountAmount); // Store the actual discount amount
+      setAppliedVoucher(voucher); // Store the whole voucher object
+      toast.success(`Đã áp dụng mã giảm giá "${voucher.code}".`);
     } else {
-      toast.error('Mã giảm giá không hợp lệ');
+      toast.error('Mã giảm giá không hợp lệ hoặc không tìm thấy.');
+      setAppliedVoucher(null);
+      setAppliedDiscount(0);
     }
   };
 
@@ -365,7 +492,7 @@ export default function POSPage() {
   };
 
   const calculateDiscount = () => {
-    return (calculateSubtotal() * appliedDiscount) / 100;
+    return appliedDiscount;
   };
 
   const calculateTotal = () => {
@@ -380,43 +507,98 @@ export default function POSPage() {
     }).format(amount);
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (cartItems.length === 0) {
       toast.error('Giỏ hàng đang trống');
       return;
     }
-    
+
     setCheckoutIsLoading(true);
-    
-    setTimeout(() => {
+
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const generatedOrderId = `POS${hours}${minutes}${seconds}`;
+
+    const orderPayload: IPOSOrderCreateRequest = {
+      orderId: generatedOrderId,
+      customer: customerName || 'Khách tại quầy',
+      items: cartItems.map(item => ({
+        product: item.productId,
+        quantity: item.quantity,
+        price: item.price,
+        variant: {
+          colorId: item.actualColorId || '',
+          sizeId: item.actualSizeId || '',
+        }
+      })),
+      subTotal: calculateSubtotal(),
+      total: calculateTotal(),
+      shippingAddress: {
+        name: customerName || 'Khách lẻ',
+        phoneNumber: customerPhone || 'N/A',
+        provinceId: 'N/A',
+        districtId: 'N/A',
+        wardId: 'N/A',
+        specificAddress: 'Tại quầy'
+      },
+      paymentMethod: paymentMethod === 'cash' ? 'CASH' :
+                     (paymentMethod === 'card' || paymentMethod === 'transfer') ? 'BANK_TRANSFER' : 'CASH',
+      discount: appliedDiscount,
+      voucher: appliedVoucher?._id || '',
+    };
+
+    try {
+      const orderResponse = await createOrderMutation.mutateAsync(orderPayload);
+
+      if (orderResponse.success && orderResponse.data) {
+        const orderId = orderResponse.data._id;
+        const orderCode = orderResponse.data.orderNumber || `POS-${Math.floor(1000 + Math.random() * 9000)}`;
+
+        updateStatsOnCheckout(calculateTotal());
+        const newTransaction = {
+          id: orderCode,
+          customer: customerName || 'Khách lẻ',
+          amount: calculateTotal(),
+          time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+          status: 'completed'
+        };
+        setRecentTransactions([newTransaction, ...recentTransactions.slice(0, 2)]);
+        toast.success(`Đã tạo đơn hàng ${orderCode} và thanh toán thành công!`);
+
+        if (appliedVoucher) {
+          incrementVoucherUsageMutation(
+            appliedVoucher._id,
+            {
+              onSuccess: () => {
+                toast.info(`Đã cập nhật lượt sử dụng cho mã giảm giá "${appliedVoucher.code}".`);
+              },
+              onError: (error) => {
+                toast.error(`Lỗi khi cập nhật mã giảm giá: ${error.message}`);
+              },
+            }
+          );
+        }
+
+        setCartItems([]);
+        setAppliedDiscount(0);
+        setCouponCode('');
+        setAppliedVoucher(null);
+        setCustomerName('');
+        setCustomerPhone('');
+        setPaymentMethod('cash');
+        setShowCheckoutDialog(false);
+
+      } else {
+        toast.error((orderResponse as any).message || 'Không thể tạo đơn hàng. Vui lòng thử lại.');
+      }
+    } catch (error: any) {
+      console.error("Checkout error:", error);
+      toast.error(error.response?.data?.message || error.message || 'Có lỗi xảy ra trong quá trình thanh toán.');
+    } finally {
       setCheckoutIsLoading(false);
-      setShowCheckoutDialog(false);
-      
-      setStats(prev => ({
-        ...prev,
-        dailySales: prev.dailySales + calculateTotal(),
-        totalOrders: prev.totalOrders + 1,
-        averageOrder: Math.round((prev.dailySales + calculateTotal()) / (prev.totalOrders + 1))
-      }));
-      
-      const newTransaction = {
-        id: `TX-${Math.floor(1000 + Math.random() * 9000)}`,
-        customer: customerName || 'Khách lẻ',
-        amount: calculateTotal(),
-        time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
-        status: 'completed'
-      };
-      
-      setRecentTransactions([newTransaction, ...recentTransactions.slice(0, 2)]);
-      
-      toast.success('Đã thanh toán thành công');
-      setCartItems([]);
-      setAppliedDiscount(0);
-      setCouponCode('');
-      setCustomerName('');
-      setCustomerPhone('');
-      setPaymentMethod('cash');
-    }, 1500);
+    }
   };
 
   const handleProceedToCheckout = () => {
@@ -434,11 +616,14 @@ export default function POSPage() {
       }
       
       if (e.altKey && e.key === 'c') {
-        if (cartItems.length > 0) {
+        if (cartItems.length > 0 || appliedVoucher) {
           setCartItems([]);
           setSelectedProduct(null);
           setSelectedApiVariant(null);
-          toast.success('Đã xóa giỏ hàng');
+          setAppliedVoucher(null);
+          setAppliedDiscount(0);
+          setCouponCode('');
+          toast.success('Đã xóa giỏ hàng và mã giảm giá.');
         }
       }
       
@@ -453,7 +638,7 @@ export default function POSPage() {
     
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [cartItems]); // Add other dependencies if they are used in the handler and change
+  }, [cartItems, appliedVoucher]); // Add other dependencies if they are used in the handler and change
 
   const getBrandName = (brand: ApiProduct['brand']) => typeof brand === 'object' ? brand.name : brand;
 
@@ -660,10 +845,10 @@ export default function POSPage() {
                   <div className="md:w-1/2">
                     <div className="relative h-80 w-full overflow-hidden rounded-lg bg-gray-50 group">
                       <Image
-                        src={selectedApiVariant?.images?.[0] || selectedProduct.variants[0]?.images?.[0] || '/placeholder.svg'}
+                        src={checkImageUrl(selectedApiVariant?.images?.[0] || selectedProduct.variants[0]?.images?.[0])}
                         alt={selectedProduct.name}
                         fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        className="object-contain transition-transform duration-300 group-hover:scale-105"
                       />
                     </div>
                     
@@ -810,10 +995,10 @@ export default function POSPage() {
                       >
                         <div className="relative h-48 w-full bg-gray-50 overflow-hidden">
                           <Image
-                            src={firstVariant?.images?.[0] || "/placeholder.svg"}
+                            src={checkImageUrl(firstVariant?.images?.[0]  )}
                             alt={product.name}
                             fill
-                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                            className="object-contain transition-transform duration-300 group-hover:scale-105"
                           />
                           {uniqueColorsCount > 0 && (
                           <div className="absolute top-2 right-2">
@@ -883,10 +1068,10 @@ export default function POSPage() {
                               <div className="flex items-center gap-3">
                                 <div className="relative h-10 w-10 rounded-md overflow-hidden bg-gray-50">
                                   <Image
-                                    src={firstVariant?.images?.[0] || "/placeholder.svg"}
+                                    src={checkImageUrl(firstVariant?.images?.[0]  )}
                                     alt={product.name}
                                     fill
-                                    className="object-cover"
+                                    className="object-contain"
                                   />
                                 </div>
                                 <span className="font-medium !text-[#374151]/80 truncate max-w-[150px]">{product.name}</span>
@@ -900,7 +1085,7 @@ export default function POSPage() {
                                 {Array.from(new Map(product.variants.map(v => [v.colorId?._id, v.colorId])).values()).slice(0, 3).map((color, idx) => color && (
                                   <div 
                                     key={color._id || idx}
-                                    className="h-5 w-5 rounded-full border border-white"
+                                    className="h-5 w-5 rounded-full border"
                                     style={{ backgroundColor: color.code }}
                                     title={color.name}
                                   />
@@ -914,8 +1099,8 @@ export default function POSPage() {
                               )}
                             </td>
                             <td className="py-3 px-4">
-                              <Badge variant={totalStock > 10 ? "secondary" : totalStock > 0 ? "outline" : "destructive"} className="text-xs">
-                                {totalStock > 10 ? "Còn hàng" : totalStock > 0 ? "Sắp hết" : "Hết hàng"}
+                              <Badge variant={totalStock > 10 ? "secondary" : totalStock > 0 ? "outline" : "destructive"} className="text-xs !flex-shrink-0">
+                                <span className="flex-shrink-0">{totalStock > 10 ? "Còn hàng" : totalStock > 0 ? "Sắp hết" : "Hết hàng"}</span>
                               </Badge>
                             </td>
                             <td className="py-3 px-4 text-center">
@@ -935,29 +1120,128 @@ export default function POSPage() {
                 </TabsContent>
                 {/* Pagination (Simplified for now, can be expanded) */}
                 {rawData?.data?.pagination && rawData.data.pagination.totalPages > 1 && (
-                    <div className="flex justify-center mt-6">
-                        <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => setPagination(p => ({...p, page: p.page - 1}))} 
+                  <div className="flex justify-center mt-6">
+                    <Pagination>
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationPrevious
+                            href="#"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              if (pagination.page > 1) {
+                                setPagination(p => ({ ...p, page: p.page - 1 }));
+                              }
+                            }}
                             disabled={pagination.page <= 1}
-                            className="mr-2"
-                        >
-                            Trước
-                        </Button>
-                        <span className="text-sm p-2">
-                            Trang {pagination.page} / {rawData.data.pagination.totalPages}
-                        </span>
-                        <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => setPagination(p => ({...p, page: p.page + 1}))} 
+                          />
+                        </PaginationItem>
+                        {(() => {
+                          const pages = [];
+                          const totalPages = rawData.data.pagination.totalPages;
+                          const currentPage = pagination.page;
+                          const pageLimit = 5; // Max number of page links to show
+
+                          if (totalPages <= pageLimit) {
+                            for (let i = 1; i <= totalPages; i++) {
+                              pages.push(
+                                <PaginationItem key={i}>
+                                  <PaginationLink
+                                    href="#"
+                                    isActive={currentPage === i}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      setPagination(p => ({ ...p, page: i }));
+                                    }}
+                                  >
+                                    {i}
+                                  </PaginationLink>
+                                </PaginationItem>
+                              );
+                            }
+                          } else {
+                            pages.push(
+                              <PaginationItem key={1}>
+                                <PaginationLink
+                                  href="#"
+                                  isActive={currentPage === 1}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    setPagination(p => ({ ...p, page: 1 }));
+                                  }}
+                                >
+                                  1
+                                </PaginationLink>
+                              </PaginationItem>
+                            );
+
+                            if (currentPage > 3) {
+                              pages.push(<PaginationItem key="start-ellipsis"><PaginationEllipsis /></PaginationItem>);
+                            }
+
+                            let startPage = Math.max(2, currentPage - 1);
+                            let endPage = Math.min(totalPages - 1, currentPage + 1);
+
+                            if (currentPage <= 2) {
+                                endPage = Math.min(totalPages -1, 3);
+                            }
+                            if (currentPage >= totalPages - 1) {
+                                startPage = Math.max(2, totalPages - 2);
+                            }
+
+
+                            for (let i = startPage; i <= endPage; i++) {
+                              pages.push(
+                                <PaginationItem key={i}>
+                                  <PaginationLink
+                                    href="#"
+                                    isActive={currentPage === i}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      setPagination(p => ({ ...p, page: i }));
+                                    }}
+                                  >
+                                    {i}
+                                  </PaginationLink>
+                                </PaginationItem>
+                              );
+                            }
+
+                            if (currentPage < totalPages - 2) {
+                              pages.push(<PaginationItem key="end-ellipsis"><PaginationEllipsis /></PaginationItem>);
+                            }
+
+                            pages.push(
+                              <PaginationItem key={totalPages}>
+                                <PaginationLink
+                                  href="#"
+                                  isActive={currentPage === totalPages}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    setPagination(p => ({ ...p, page: totalPages }));
+                                  }}
+                                >
+                                  {totalPages}
+                                </PaginationLink>
+                              </PaginationItem>
+                            );
+                          }
+                          return pages;
+                        })()}
+                        <PaginationItem>
+                          <PaginationNext
+                            href="#"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              if (pagination.page < rawData.data.pagination.totalPages) {
+                                setPagination(p => ({ ...p, page: p.page + 1 }));
+                              }
+                            }}
                             disabled={pagination.page >= rawData.data.pagination.totalPages}
-                            className="ml-2"
-                        >
-                            Sau
-                        </Button>
-                    </div>
+                          />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
+                  </div>
                 )}
                 </>
                 )}
@@ -995,10 +1279,10 @@ export default function POSPage() {
                     >
                       <div className="relative h-20 w-20 overflow-hidden rounded-md bg-gray-50 group">
                         <Image
-                          src={item.image || "/placeholder.svg"}
+                          src={item.image  }
                           alt={item.name}
                           fill
-                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          className="object-contain transition-transform duration-300 group-hover:scale-105"
                         />
                       </div>
                       <div className="flex-1">
@@ -1059,10 +1343,18 @@ export default function POSPage() {
                   variant="secondary"
                   className="px-4 py-2.5"
                   onClick={applyCoupon}
+                  disabled={isFetchingVoucher}
                 >
-                  Áp dụng
+                  {isFetchingVoucher ? 'Đang kiểm tra...' : 'Áp dụng'}
                 </Button>
               </div>
+              <Button 
+                variant="link" 
+                className="text-sm text-primary mt-1 px-0"
+                onClick={() => setShowVouchersDialog(true)}
+              >
+                Xem danh sách mã giảm giá
+              </Button>
             </div>
             
             {/* Order summary */}
@@ -1071,9 +1363,9 @@ export default function POSPage() {
                 <span>Tạm tính:</span>
                 <span>{formatCurrency(calculateSubtotal())}</span>
               </div>
-              {appliedDiscount > 0 && (
+              {appliedVoucher && appliedDiscount > 0 && ( // Check appliedVoucher as well
                 <div className="flex justify-between text-primary">
-                  <span>Giảm giá ({appliedDiscount}%):</span>
+                  <span>Giảm giá ({appliedVoucher.code}):</span>
                   <span>-{formatCurrency(calculateDiscount())}</span>
                 </div>
               )}
@@ -1184,9 +1476,9 @@ export default function POSPage() {
                 <span>Tạm tính:</span>
                 <span>{formatCurrency(calculateSubtotal())}</span>
               </div>
-              {appliedDiscount > 0 && (
+              {appliedVoucher && appliedDiscount > 0 && ( // Check appliedVoucher as well
                 <div className="flex justify-between text-sm text-primary">
-                  <span>Giảm giá ({appliedDiscount}%):</span>
+                  <span>Giảm giá ({appliedVoucher.code}):</span>
                   <span>-{formatCurrency(calculateDiscount())}</span>
                 </div>
               )}
@@ -1220,6 +1512,15 @@ export default function POSPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <VouchersListDialog 
+        open={showVouchersDialog} 
+        onOpenChange={setShowVouchersDialog}
+        onSelectVoucher={(code) => {
+          setCouponCode(code); // Auto-fill the copied code into the input
+          // applyCoupon(); // Optionally auto-apply the coupon
+        }}
+      />
     </div>
   );
 }
@@ -1238,3 +1539,104 @@ const CardSkeleton = () => (
     </div>
   </div>
 );
+
+// Vouchers Dialog Component
+const VouchersListDialog = ({ open, onOpenChange, onSelectVoucher }: { open: boolean, onOpenChange: (open: boolean) => void, onSelectVoucher: (code: string) => void }) => {
+  const { data: vouchersData, isLoading, isError } = useVouchers({ page: 1, limit: 100, status: 'HOAT_DONG' }); // Fetch active vouchers
+
+  const handleCopyCode = (code: string) => {
+    navigator.clipboard.writeText(code).then(() => {
+      toast.success(`Đã sao chép mã: ${code}`);
+      onSelectVoucher(code); // Optionally auto-fill copied code
+      onOpenChange(false); // Close dialog after copying
+    }).catch(err => {
+      toast.error('Không thể sao chép mã.');
+      console.error('Failed to copy: ', err);
+    });
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Intl.DateTimeFormat('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }).format(new Date(dateString));
+  };
+
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[700px]">
+        <DialogHeader>
+          <DialogTitle className="!text-[#374151]/80">Danh sách mã giảm giá</DialogTitle>
+        </DialogHeader>
+        <div className="max-h-[60vh] overflow-y-auto">
+          {isLoading ? (
+            <div className="space-y-2 py-4">
+              {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}
+            </div>
+          ) : isError ? (
+            <p className="text-red-500 text-center py-4">Lỗi khi tải danh sách mã giảm giá.</p>
+          ) : !vouchersData?.data?.vouchers || vouchersData.data.vouchers.length === 0 ? (
+            <p className="text-gray-500 text-center py-4">Không có mã giảm giá nào đang hoạt động.</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Mã</TableHead>
+                  <TableHead>Tên</TableHead>
+                  <TableHead>Giá trị</TableHead>
+                  <TableHead>Đơn tối thiểu</TableHead>
+                  <TableHead>Còn lại</TableHead>
+                  <TableHead>Hết hạn</TableHead>
+                  <TableHead className="text-right">Thao tác</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {vouchersData.data.vouchers.map((voucher) => (
+                  <TableRow key={voucher._id}>
+                    <TableCell className="font-mono">{voucher.code}</TableCell>
+                    <TableCell>{voucher.name}</TableCell>
+                    <TableCell>
+                      {voucher.type === 'PERCENTAGE' ? `${voucher.value}%` : formatCurrency(voucher.value)}
+                      {voucher.type === 'PERCENTAGE' && (voucher as any).maxValue && (
+                        <span className="text-xs text-gray-500 block"> (Tối đa {formatCurrency((voucher as any).maxValue)})</span>
+                      )}
+                    </TableCell>
+                    <TableCell>{formatCurrency(voucher.minOrderValue)}</TableCell>
+                    <TableCell>{voucher.quantity - voucher.usedCount > 0 ? voucher.quantity - voucher.usedCount : <Badge variant="destructive">Hết</Badge>}</TableCell>
+                    <TableCell>{formatDate(voucher.endDate)}</TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleCopyCode(voucher.code)}
+                        title="Sao chép và chọn mã"
+                        disabled={voucher.quantity - voucher.usedCount <= 0 || new Date(voucher.endDate) < new Date()}
+                      >
+                        <Icon path={mdiContentCopy} size={0.8} className="mr-1" /> Chọn
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Đóng
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};

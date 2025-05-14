@@ -12,7 +12,7 @@ export interface IAccountCreate {
   password: string;
   phoneNumber: string;
   role?: 'CUSTOMER' | 'STAFF' | 'ADMIN';
-  gender?: 'Nam' | 'Nữ' | 'Khác';
+  gender?: 'male' | 'female' | 'other';
   birthday?: string | Date;
   citizenId?: string;
 }
@@ -21,7 +21,7 @@ export interface IAccountUpdate {
   fullName?: string;
   email?: string;
   phoneNumber?: string;
-  gender?: 'Nam' | 'Nữ' | 'Khác';
+  gender?: 'male' | 'female' | 'other';
   birthday?: string | Date;
   citizenId?: string;
   avatar?: string;

@@ -24,7 +24,7 @@ export const Newsletter = () => {
   return (
     <section className="py-20 bg-gradient-to-br from-primary/10 via-primary/5 to-extra/5 dark:from-primary/20 dark:via-primary/10 dark:to-extra/10">
       <div className="container mx-auto">
-        <div className="max-w-3xl mx-auto text-center">
+        <div className="max-w-4xl mx-auto text-center">
           <motion.div
             ref={ref}
             initial={{ opacity: 0, y: 20 }}

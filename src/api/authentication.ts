@@ -12,7 +12,7 @@ import { sendGet, sendPost } from "./axios";
  * Đăng ký tài khoản mới
  */
 export const register = async (payload: IRegister): Promise<IAuthResponse> => {
-  const res = await sendPost("/accounts/register", payload);
+  const res = await sendPost("/auth/register", payload);
   return res as IAuthResponse;
 };
 

@@ -1,4 +1,5 @@
-import { IShippingAddress, IOrderItem } from "../request/order";
+// import { IShippingAddress, IOrderItem } from "../request/order"; // Remove this line
+import { IVoucher } from "./voucher";
 
 export interface IOrderProduct {
   _id: string;
@@ -21,12 +22,38 @@ export interface IOrderStaff {
   fullName: string;
 }
 
+// Define IOrderItem locally for IPopulatedOrderItem
+export interface IOrderItem {
+  _id: string;
+  product: string; // This will be replaced by IOrderProduct in IPopulatedOrderItem
+  variant?: { // Assuming variant is optional here and might have colorId/sizeId
+    colorId?: string;
+    sizeId?: string;
+  };
+  quantity: number;
+  price: number;
+  // Add other necessary fields if IOrderItem is used elsewhere or has more props
+}
+
 export interface IPopulatedOrderItem extends Omit<IOrderItem, 'product'> {
   product: IOrderProduct;
 }
 
+// Define IShippingAddress locally for IOrder
+export interface IShippingAddress {
+  name: string;
+  phoneNumber: string;
+  provinceId: string; // Or full Province object if populated
+  districtId: string; // Or full District object
+  wardId: string;     // Or full Ward object
+  specificAddress: string;
+  // country?: string;
+  // zipCode?: string;
+}
+
 export interface IOrder {
   _id: string;
+  orderNumber: string;
   code: string;
   customer: IOrderCustomer;
   staff?: IOrderStaff;
@@ -82,4 +109,10 @@ export interface IActionResponse {
   success: boolean;
   message: string;
   data?: any;
+}
+
+export interface IPOSOrderCreateResponse {
+  success: boolean;
+  message: string;
+  data: IOrder;
 } 

@@ -1,0 +1,358 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAccount, useUpdateAccount, useUpdateAccountStatus } from '@/hooks/account';
+import { IAccountUpdate, IAccountStatusUpdate } from '@/interface/request/account';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Switch } from '@/components/ui/switch';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Icon } from '@mdi/react';
+import { mdiArrowLeft, mdiLoading } from '@mdi/js';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
+interface Props {
+  params: {
+    id: string;
+  };
+}
+
+export default function EditAccountPage({ params }: Props) {
+  const { id } = params;
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState("info");
+  const { data: accountData, isLoading, error } = useAccount(id);
+  const updateAccount = useUpdateAccount(id);
+  const updateAccountStatus = useUpdateAccountStatus(id);
+  
+  const [formData, setFormData] = useState<IAccountUpdate>({
+    fullName: '',
+    email: '',
+    phoneNumber: '',
+    gender: 'male',
+    status: 'HOAT_DONG'
+  });
+
+  useEffect(() => {
+    if (accountData?.data) {
+      const account = accountData.data;
+      setFormData({
+        fullName: account.fullName,
+        email: account.email,
+        phoneNumber: account.phoneNumber,
+        gender: account.gender as 'male' | 'female' | 'other' || 'male',
+        birthday: account.birthday,
+        citizenId: account.citizenId,
+        avatar: account.avatar,
+        status: account.status
+      });
+    }
+  }, [accountData]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectChange = (name: string, value: any) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email || '')) {
+      toast.error('Email không hợp lệ');
+      return;
+    }
+
+    // Phone number validation (Vietnamese format)
+    const phoneRegex = /(84|0[3|5|7|8|9])+([0-9]{8})\b/;
+    if (formData.phoneNumber && !phoneRegex.test(formData.phoneNumber)) {
+      toast.error('Số điện thoại không hợp lệ');
+      return;
+    }
+
+    try {
+      await updateAccount.mutateAsync(formData, {
+        onSuccess: () => {
+          toast.success('Cập nhật tài khoản thành công');
+        },
+        onError: (error) => {
+          console.error('Chi tiết lỗi:', error);
+          toast.error('Cập nhật tài khoản thất bại: ' + (error.message || 'Không xác định'));
+        }
+      });
+    } catch (error) {
+      console.error('Lỗi khi cập nhật tài khoản:', error);
+      toast.error('Cập nhật tài khoản thất bại');
+    }
+  };
+
+  const handleToggleStatus = async () => {
+    const newStatus: IAccountStatusUpdate = {
+      status: formData.status === 'HOAT_DONG' ? 'KHONG_HOAT_DONG' : 'HOAT_DONG'
+    };
+
+    try {
+      await updateAccountStatus.mutateAsync(newStatus, {
+        onSuccess: () => {
+          setFormData(prev => ({ ...prev, status: newStatus.status }));
+          toast.success(`Tài khoản đã được ${newStatus.status === 'HOAT_DONG' ? 'kích hoạt' : 'vô hiệu hóa'}`);
+        },
+        onError: (error) => {
+          console.error('Chi tiết lỗi:', error);
+          toast.error('Cập nhật trạng thái thất bại: ' + (error.message || 'Không xác định'));
+        }
+      });
+    } catch (error) {
+      console.error('Lỗi khi cập nhật trạng thái:', error);
+      toast.error('Cập nhật trạng thái thất bại');
+    }
+  };
+
+  // Hàm lấy chữ cái đầu tiên của họ tên
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((word) => word[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Icon path={mdiLoading} size={2} className="animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error || !accountData) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full">
+        <h2 className="text-xl font-bold">Không thể tải thông tin tài khoản</h2>
+        <p className="text-gray-600">Có lỗi xảy ra: {error?.message || "Không tìm thấy tài khoản"}</p>
+        <Button 
+          variant="outline" 
+          onClick={() => router.back()}
+          className="mt-4"
+        >
+          Quay lại
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className='flex justify-between items-start'>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/admin">Dashboard</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/admin/accounts">Quản lý tài khoản</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Chỉnh sửa tài khoản</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <Button
+          variant="outline"
+          onClick={() => router.back()}
+          className="flex items-center gap-2"
+        >
+          <Icon path={mdiArrowLeft} size={0.9} />
+          Quay lại
+        </Button>
+      </div>
+
+      <div className="flex items-center space-x-6 bg-white p-8 rounded-xl shadow-md">
+        <Avatar className="w-24 h-24 border-2 border-primary">
+          <AvatarImage src={formData.avatar} />
+          <AvatarFallback className="text-2xl">
+            {getInitials(formData.fullName || '')}
+          </AvatarFallback>
+        </Avatar>
+        <div className="space-y-1">
+          <h2 className="text-3xl font-bold">{formData.fullName}</h2>
+          <p className="text-gray-600 text-lg">{accountData.data.role === 'ADMIN' ? 'Quản trị viên' : accountData.data.role === 'STAFF' ? 'Nhân viên' : 'Khách hàng'}</p>
+          <div className="flex items-center pt-3">
+            <Switch
+              checked={formData.status === 'HOAT_DONG'}
+              onCheckedChange={handleToggleStatus}
+              id="status"
+              className="data-[state=checked]:bg-green-500"
+            />
+            <Label htmlFor="status" className="ml-3 text-sm font-medium">
+              {formData.status === 'HOAT_DONG' ? 'Đang hoạt động' : 'Không hoạt động'}
+            </Label>
+          </div>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 bg-white">
+          <TabsList className="grid w-full md:w-[400px] grid-cols-2">
+            <TabsTrigger value="info">Thông tin cơ bản</TabsTrigger>
+            <TabsTrigger value="advanced">Thông tin bổ sung</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="info" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Thông tin cơ bản</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">Họ và tên <span className="text-red-500">*</span></Label>
+                    <Input
+                      id="fullName"
+                      name="fullName"
+                      value={formData.fullName}
+                      onChange={handleInputChange}
+                      placeholder="Nhập họ và tên"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email <span className="text-red-500">*</span></Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      placeholder="Nhập email"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="phoneNumber">Số điện thoại <span className="text-red-500">*</span></Label>
+                    <Input
+                      id="phoneNumber"
+                      name="phoneNumber"
+                      value={formData.phoneNumber}
+                      onChange={handleInputChange}
+                      placeholder="Nhập số điện thoại"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Giới tính</Label>
+                    <RadioGroup 
+                      value={formData.gender || 'Nam'} 
+                      onValueChange={(value) => handleSelectChange('gender', value)}
+                      className="flex space-x-4"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Nam" id="gender-nam" />
+                        <Label htmlFor="gender-nam">Nam</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Nữ" id="gender-nu" />
+                        <Label htmlFor="gender-nu">Nữ</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Khác" id="gender-khac" />
+                        <Label htmlFor="gender-khac">Khác</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="advanced" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Thông tin bổ sung</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="citizenId">CCCD/CMND</Label>
+                    <Input
+                      id="citizenId"
+                      name="citizenId"
+                      value={formData.citizenId || ''}
+                      onChange={handleInputChange}
+                      placeholder="Nhập số CCCD/CMND"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="birthday">Ngày sinh</Label>
+                    <Input
+                      id="birthday"
+                      name="birthday"
+                      type="date"
+                      value={formData.birthday ? (typeof formData.birthday === 'string' ? formData.birthday.split('T')[0] : formData.birthday.toISOString().split('T')[0]) : ''}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="avatar">URL Ảnh đại diện</Label>
+                    <Input
+                      id="avatar"
+                      name="avatar"
+                      value={formData.avatar || ''}
+                      onChange={handleInputChange}
+                      placeholder="Nhập URL ảnh đại diện"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+
+        <div className="mt-4 flex justify-end space-x-4">
+          <Button 
+            variant="outline" 
+            type="button" 
+            onClick={() => router.back()}
+          >
+            Hủy
+          </Button>
+          <Button 
+            type="submit" 
+            disabled={updateAccount.isPending}
+            className="flex items-center gap-2"
+          >
+            {updateAccount.isPending ? (
+              <>
+                <Icon path={mdiLoading} size={0.9} className="animate-spin" />
+                Đang xử lý...
+              </>
+            ) : (
+              'Lưu thay đổi'
+            )}
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+} 

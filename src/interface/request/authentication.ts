@@ -9,7 +9,7 @@ export interface IRegister {
   password: string
   phoneNumber: string
   role?: 'CUSTOMER' | 'STAFF' | 'ADMIN'
-  gender?: 'Nam' | 'Nữ' | 'Khác'
+  gender?: 'male' | 'female' | 'other'
   birthday?: Date
   citizenId?: string
 }
