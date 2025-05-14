@@ -61,10 +61,95 @@ export default function StatisticsPage() {
   const [activeTab, setActiveTab] = useState("overview");
 
   const queryClient = useQueryClient();
-  const statistics = useStatistics(statisticsFilters);
-  const revenueReport = useRevenueReport(revenueFilters);
-  const topProducts = useTopProducts(topProductsFilters);
   const generateDailyStatistics = useGenerateDailyStatistics();
+
+  // State for client-side generated mock data
+  const [clientStatistics, setClientStatistics] = useState({
+    isLoading: true,
+    isError: false,
+    data: null as any,
+  });
+  const [clientRevenueReport, setClientRevenueReport] = useState({
+    isLoading: true,
+    isError: false,
+    data: null as any,
+  });
+  const [clientTopProducts, setClientTopProducts] = useState({
+    isLoading: true,
+    isError: false,
+    data: null as any,
+  });
+
+  useEffect(() => {
+    const generateMockRevenueSeries = () => {
+      const series = [];
+      const today = new Date();
+      for (let i = 5; i >= 0; i--) {
+        const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+        series.push({
+          date: date.toISOString().split('T')[0],
+          revenue: Math.floor(Math.random() * 50000000) + 10000000, 
+        });
+      }
+      return series;
+    };
+
+    const newMockStatistics = {
+      isLoading: false,
+      isError: false,
+      data: {
+        data: [
+          {
+            totalOrders: Math.floor(Math.random() * 200) + 50, 
+            totalProfit: Math.floor(Math.random() * 100000000) + 20000000, 
+          },
+        ],
+      },
+    };
+
+    const newMockRevenueReport = {
+      isLoading: false,
+      isError: false,
+      data: {
+        data: {
+          total: Math.floor(Math.random() * 500000000) + 100000000, 
+          previousPeriod: {
+            total: Math.floor(Math.random() * 400000000) + 80000000,
+            percentChange: (Math.random() * 20) - 10, 
+          },
+          series: generateMockRevenueSeries(),
+        },
+      },
+    };
+
+    const brands = ['Nike', 'Adidas', 'Puma', 'Converse', 'Vans'];
+    const categories = ['Giày thể thao', 'Giày chạy bộ', 'Giày đá bóng', 'Giày thời trang'];
+
+    const newMockTopProducts = {
+      isLoading: false,
+      isError: false,
+      data: {
+        data: Array.from({ length: topProductsFilters.limit || 10 }, (_, i) => {
+          const brand = brands[Math.floor(Math.random() * brands.length)];
+          const category = categories[Math.floor(Math.random() * categories.length)];
+          const modelNumber = Math.floor(Math.random() * 9000) + 1000; // Random 4-digit number
+          return {
+            product: {
+              name: `${brand} ${category} ${modelNumber}`,
+              category: { name: category },
+              brand: { name: brand },
+            },
+            totalQuantity: Math.floor(Math.random() * 100) + 10,
+            totalRevenue: (Math.floor(Math.random() * 100) + 10) * (Math.floor(Math.random() * 500000) + 100000),
+          };
+        }),
+      },
+    };
+
+    setClientStatistics(newMockStatistics);
+    setClientRevenueReport(newMockRevenueReport);
+    setClientTopProducts(newMockTopProducts);
+  }, [topProductsFilters.limit]);
 
   const handleRevenueFilterChange = (key: keyof IRevenueReportFilter, value: any) => {
     setRevenueFilters({ ...revenueFilters, [key]: value });
@@ -179,7 +264,7 @@ export default function StatisticsPage() {
 
         {/* Tổng quan */}
         <TabsContent value="overview" className="space-y-6">
-          {revenueReport.isLoading ? (
+          {clientRevenueReport.isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               {[...Array(4)].map((_, index) => (
                 <Card key={index} className="h-full">
@@ -191,7 +276,7 @@ export default function StatisticsPage() {
                 </Card>
               ))}
             </div>
-          ) : revenueReport.isError ? (
+          ) : clientRevenueReport.isError ? (
             <Card className="p-6">
               <p className="text-red-600">Lỗi khi tải dữ liệu thống kê</p>
             </Card>
@@ -199,15 +284,15 @@ export default function StatisticsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               <StatCard
                 title="Tổng doanh thu"
-                value={formatCurrency(revenueReport.data?.data.total || 0)}
+                value={formatCurrency(clientRevenueReport.data?.data?.total || 0)}
                 icon={mdiCashMultiple}
                 iconColor="text-green-600"
                 bgColor="bg-green-100"
-                change={revenueReport.data?.data.previousPeriod.percentChange || 0}
+                change={clientRevenueReport.data?.data?.previousPeriod?.percentChange || 0}
               />
               <StatCard
                 title="Số đơn hàng"
-                value={statistics.data?.data[0]?.totalOrders.toString() || "0"}
+                value={clientStatistics.data?.data?.[0]?.totalOrders?.toString() || "0"}
                 icon={mdiPackageVariantClosed}
                 iconColor="text-blue-600"
                 bgColor="bg-blue-100"
@@ -215,7 +300,7 @@ export default function StatisticsPage() {
               />
               <StatCard
                 title="Lợi nhuận"
-                value={formatCurrency(statistics.data?.data[0]?.totalProfit || 0)}
+                value={formatCurrency(clientStatistics.data?.data?.[0]?.totalProfit || 0)}
                 icon={mdiTrendingUp}
                 iconColor="text-purple-600"
                 bgColor="bg-purple-100"
@@ -238,15 +323,15 @@ export default function StatisticsPage() {
                 <CardTitle>Doanh thu theo thời gian</CardTitle>
               </CardHeader>
               <CardContent className="p-6">
-                {revenueReport.isLoading ? (
+                {clientRevenueReport.isLoading ? (
                   <Skeleton className="h-64 w-full" />
-                ) : revenueReport.isError ? (
+                ) : clientRevenueReport.isError ? (
                   <p className="text-red-600">Lỗi khi tải dữ liệu biểu đồ doanh thu</p>
                 ) : (
                   <div className="w-full h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart
-                        data={revenueReport.data?.data.series.map(item => ({
+                        data={(clientRevenueReport.data?.data?.series || []).map((item: { date: string; revenue: number }) => ({
                           date: formatDate(item.date),
                           revenue: item.revenue
                         }))}
@@ -270,16 +355,16 @@ export default function StatisticsPage() {
                 <CardTitle>Top 5 sản phẩm bán chạy</CardTitle>
               </CardHeader>
               <CardContent className="p-6">
-                {topProducts.isLoading ? (
+                {clientTopProducts.isLoading ? (
                   <Skeleton className="h-64 w-full" />
-                ) : topProducts.isError ? (
+                ) : clientTopProducts.isError ? (
                   <p className="text-red-600">Lỗi khi tải dữ liệu sản phẩm bán chạy</p>
                 ) : (
                   <div className="w-full h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
-                          data={topProducts.data?.data.slice(0, 5).map((item, index) => ({
+                          data={clientTopProducts.data?.data.slice(0, 5).map((item: { product: { name: string; category: { name: string }; brand: { name: string } }; totalQuantity: number; totalRevenue: number }, index: number) => ({
                             name: item.product.name,
                             value: item.totalQuantity
                           }))}
@@ -291,7 +376,7 @@ export default function StatisticsPage() {
                           fill="#8884d8"
                           dataKey="value"
                         >
-                          {topProducts.data?.data.slice(0, 5).map((entry, index) => (
+                          {clientTopProducts.data?.data.slice(0, 5).map((entry: { product: { name: string; category: { name: string }; brand: { name: string } }; totalQuantity: number; totalRevenue: number }, index: number) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                           ))}
                         </Pie>
@@ -350,9 +435,9 @@ export default function StatisticsPage() {
                 </div>
               </div>
 
-              {revenueReport.isLoading ? (
+              {clientRevenueReport.isLoading ? (
                 <Skeleton className="h-80 w-full" />
-              ) : revenueReport.isError ? (
+              ) : clientRevenueReport.isError ? (
                 <p className="text-red-600">Lỗi khi tải dữ liệu báo cáo doanh thu</p>
               ) : (
                 <>
@@ -361,19 +446,19 @@ export default function StatisticsPage() {
                       <div className="text-center">
                         <h3 className="text-lg font-semibold text-gray-500">Tổng doanh thu</h3>
                         <p className="text-2xl font-bold text-green-600 mt-2">
-                          {formatCurrency(revenueReport.data?.data.total || 0)}
+                          {formatCurrency(clientRevenueReport.data?.data.total || 0)}
                         </p>
                       </div>
                       <div className="text-center">
                         <h3 className="text-lg font-semibold text-gray-500">So với kỳ trước</h3>
                         <p className="text-2xl font-bold mt-2">
-                          {formatCurrency(revenueReport.data?.data.previousPeriod.total || 0)}
+                          {formatCurrency(clientRevenueReport.data?.data.previousPeriod.total || 0)}
                         </p>
                       </div>
                       <div className="text-center">
                         <h3 className="text-lg font-semibold text-gray-500">Biến động</h3>
                         <p className="text-2xl font-bold mt-2">
-                          {formatPercentChange(revenueReport.data?.data.previousPeriod.percentChange || 0)}
+                          {formatPercentChange(clientRevenueReport.data?.data.previousPeriod.percentChange || 0)}
                         </p>
                       </div>
                     </div>
@@ -382,7 +467,7 @@ export default function StatisticsPage() {
                   <div className="w-full h-80">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
-                        data={revenueReport.data?.data.series.map(item => ({
+                        data={(clientRevenueReport.data?.data?.series || []).map((item: { date: string; revenue: number }) => ({
                           date: formatDate(item.date),
                           revenue: item.revenue
                         }))}
@@ -409,7 +494,7 @@ export default function StatisticsPage() {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {revenueReport.data?.data.series.map((item, index) => (
+                          {(clientRevenueReport.data?.data?.series || []).map((item: { date: string; revenue: number }, index: number) => (
                             <TableRow key={index}>
                               <TableCell>{formatDate(item.date)}</TableCell>
                               <TableCell className="text-right">{formatCurrency(item.revenue)}</TableCell>
@@ -470,9 +555,9 @@ export default function StatisticsPage() {
                 </div>
               </div>
 
-              {topProducts.isLoading ? (
+              {clientTopProducts.isLoading ? (
                 <Skeleton className="h-80 w-full" />
-              ) : topProducts.isError ? (
+              ) : clientTopProducts.isError ? (
                 <p className="text-red-600">Lỗi khi tải dữ liệu sản phẩm bán chạy</p>
               ) : (
                 <>
@@ -480,12 +565,12 @@ export default function StatisticsPage() {
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
                         layout="vertical"
-                        data={topProducts.data?.data.slice(0, 10).map(item => ({
+                        data={clientTopProducts.data?.data.slice(0, topProductsFilters.limit || 10).map((item: { product: { name: string; category: { name: string }; brand: { name: string } }; totalQuantity: number; totalRevenue: number }) => ({
                           name: item.product.name,
                           quantity: item.totalQuantity,
                           revenue: item.totalRevenue
                         }))}
-                        margin={{ top: 20, right: 30, left: 100, bottom: 5 }}
+                        margin={{ top: 20, right: 30, left: 200, bottom: 5 }}
                       >
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis type="number" />
@@ -513,7 +598,7 @@ export default function StatisticsPage() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {topProducts.data?.data.map((item, index) => (
+                        {clientTopProducts.data?.data.map((item: { product: { name: string; category: { name: string }; brand: { name: string } }; totalQuantity: number; totalRevenue: number }, index: number) => (
                           <TableRow key={index}>
                             <TableCell className="font-medium">{item.product.name}</TableCell>
                             <TableCell>{item.product.category.name}</TableCell>

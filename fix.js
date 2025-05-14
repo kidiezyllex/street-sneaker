@@ -36,5 +36,3 @@ content = content.replace(originalFunction, fixedFunction);
 
 // Write the file
 fs.writeFileSync(filePath, content, 'utf8');
-
-console.log('Fixed camelizeConvert function to prevent stack overflow'); 

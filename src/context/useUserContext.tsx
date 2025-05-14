@@ -99,26 +99,20 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const currentProfileDataString = profileData ? JSON.stringify(profileData) : null;
-    console.log("UserProfileContext: useEffect for profileData triggered. Current profileData string:", currentProfileDataString);
-
     if (currentProfileDataString !== lastProfileDataStringRef.current) {
       if (profileData) {
-        console.log("UserProfileContext: profileData has changed (or was initially set). Updating profile state and localStorage.");
         setProfile(profileData);
         if (typeof window !== "undefined") {
           localStorage.setItem("userProfile", currentProfileDataString!);
         }
       } else {
-        console.log("UserProfileContext: profileData is now falsy and has changed. Clearing profile state and localStorage.");
         setProfile(null);
         if (typeof window !== "undefined") {
           localStorage.removeItem("userProfile");
         }
       }
       lastProfileDataStringRef.current = currentProfileDataString;
-    } else {
-      console.log("UserProfileContext: profileData string has NOT changed. Skipping state update.");
-    }
+    } 
   }, [profileData])
 
   useEffect(() => {
