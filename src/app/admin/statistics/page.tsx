@@ -570,12 +570,12 @@ export default function StatisticsPage() {
                           quantity: item.totalQuantity,
                           revenue: item.totalRevenue
                         }))}
-                        margin={{ top: 20, right: 30, left: 200, bottom: 5 }}
+                        margin={{ top: 20, right: 30, left: 100, bottom: 5 }}
                       >
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis type="number" />
-                        <YAxis dataKey="name" type="category" />
-                        <Tooltip formatter={(value: number, name: string) => [
+                        <YAxis dataKey="name" type="category" width={180} interval={0} />
+                        <Tooltip offset={60} formatter={(value: number, name: string) => [
                           name === 'revenue' ? formatCurrency(value) : `${value} sản phẩm`,
                           name === 'revenue' ? 'Doanh thu' : 'Số lượng'
                         ]} />
