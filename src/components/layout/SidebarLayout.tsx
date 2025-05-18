@@ -195,30 +195,9 @@ export default function SidebarLayout({
         </div>
       </div>
       {/* Main content */}
-      <div className="w-full flex-1 flex flex-col">
+      <div className="w-full flex-1 flex flex-col bg-[#1C2B38]">
         <AdminHeader />
-        <main 
-        style={{
-          backgroundImage: 'url(/images/background.jpg)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          position: 'relative',
-          backgroundColor: 'rgba(0,0,0,0.18)',
-        }}
-        className="p-6 bg-[#E9F3EB]/50 min-h-[calc(100vh-66px)]">
-          <div
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              background: 'rgba(0,0,0,0.18)',
-              zIndex: 1,
-              pointerEvents: 'none',
-            }}
-          />
+        <main className="p-6 min-h-[calc(100vh-66px)]">
           <div style={{ position: 'relative', zIndex: 2 }}>
             {children}
           </div>

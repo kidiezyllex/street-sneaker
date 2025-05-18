@@ -40,14 +40,14 @@ export const menuItems: MenuItem[] = [
         path: '/admin/products',
       },
       {
-        id: 'products-soles',
-        name: 'Đế giày',
-        path: '/admin/products/soles',
+        id: 'products-brands',
+        name: 'Thương hiệu',
+        path: '/admin/products/brands',
       },
       {
-        id: 'products-types',
-        name: 'Loại giày',
-        path: '/admin/products/types',
+        id: 'products-categories',
+        name: 'Danh mục',
+        path: '/admin/products/categories',
       },
       {
         id: 'products-materials',
@@ -55,9 +55,14 @@ export const menuItems: MenuItem[] = [
         path: '/admin/products/materials',
       },
       {
-        id: 'products-brands',
-        name: 'Thương hiệu',
-        path: '/admin/products/brands',
+        id: 'products-colors',
+        name: 'Màu sắc',
+        path: '/admin/products/colors',
+      },
+      {
+        id: 'products-sizes',
+        name: 'Kích thước',
+        path: '/admin/products/sizes',
       },
     ],
   },

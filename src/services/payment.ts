@@ -10,7 +10,7 @@ export const createVNPayUrl = async (orderId: string, amount: number, orderInfo:
         message: 'Vui lòng đăng nhập để tiếp tục',
       };
     }
-    const apiUrl = 'https://street-sneaker-be.onrender.com/api/payments/create-vnpay-url';
+    const apiUrl = 'http://localhost:5000/api/payments/create-vnpay-url';
     try {
       const response = await fetch(apiUrl, {
         method: 'POST',
