@@ -32,7 +32,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
-//                                                                                                                     Types
 type DiscountType = 'percentage' | 'fixed';
 type DiscountStatus = 'active' | 'scheduled' | 'expired' | 'draft';
 

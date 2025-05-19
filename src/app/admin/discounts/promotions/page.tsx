@@ -34,7 +34,6 @@ const promotions = [
     ],
     productCategories: ['Thể thao', 'Chạy bộ']
   },
-  //                                                                                                                     Thêm các khuyến mãi khác ở đây
 ];
 
 export default function PromotionsPage() {
