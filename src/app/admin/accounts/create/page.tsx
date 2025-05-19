@@ -97,7 +97,7 @@ export default function CreateAccountPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className='flex justify-between items-start'>
         <Breadcrumb>
           <BreadcrumbList>

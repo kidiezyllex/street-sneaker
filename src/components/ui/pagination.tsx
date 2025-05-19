@@ -55,7 +55,7 @@ export function PaginationPrevious({ className, href, disabled, ...props }: Reac
         className={cn(
           "px-3 py-1.5 rounded border text-sm font-medium transition-colors",
           disabled
-            ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+            ? "bg-gray-100 text-maintext border-gray-200 cursor-not-allowed"
             : "bg-white text-maintext border-gray-300 hover:bg-primary/10 hover:text-primary",
         )}
         aria-disabled={disabled}
@@ -76,7 +76,7 @@ export function PaginationNext({ className, href, disabled, ...props }: React.Co
         className={cn(
           "px-3 py-1.5 rounded border text-sm font-medium transition-colors",
           disabled
-            ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+            ? "bg-gray-100 text-maintext border-gray-200 cursor-not-allowed"
             : "bg-white text-maintext border-gray-300 hover:bg-primary/10 hover:text-primary",
         )}
         aria-disabled={disabled}
@@ -91,7 +91,7 @@ export function PaginationNext({ className, href, disabled, ...props }: React.Co
 
 export function PaginationEllipsis({ className }: { className?: string }) {
   return (
-    <span className={cn("px-2 text-gray-400 text-lg select-none", className)}>
+    <span className={cn("px-2 text-maintext text-lg select-none", className)}>
       ...
     </span>
   );

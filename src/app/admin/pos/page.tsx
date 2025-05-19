@@ -828,10 +828,10 @@ export default function POSPage() {
         
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-          <div className="bg-white rounded-lg p-4 shadow-sm border border-border hover:shadow-md transition-shadow duration-300">
+          <div className="bg-white rounded-[6px] p-4 shadow-sm border border-border hover:shadow-md transition-shadow duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 mb-1">Doanh số hôm nay</p>
+                <p className="text-sm text-maintext mb-1">Doanh số hôm nay</p>
                 <p className="text-xl font-semibold !text-[#374151]/80">{formatCurrency(stats.dailySales)}</p>
               </div>
               <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -840,10 +840,10 @@ export default function POSPage() {
             </div>
           </div>
           
-          <div className="bg-white rounded-lg p-4 shadow-sm border border-border hover:shadow-md transition-shadow duration-300">
+          <div className="bg-white rounded-[6px] p-4 shadow-sm border border-border hover:shadow-md transition-shadow duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 mb-1">Tổng đơn hàng</p>
+                <p className="text-sm text-maintext mb-1">Tổng đơn hàng</p>
                 <p className="text-xl font-semibold !text-[#374151]/80">{stats.totalOrders} đơn</p>
               </div>
               <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
@@ -852,10 +852,10 @@ export default function POSPage() {
             </div>
           </div>
           
-          <div className="bg-white rounded-lg p-4 shadow-sm border border-border hover:shadow-md transition-shadow duration-300">
+          <div className="bg-white rounded-[6px] p-4 shadow-sm border border-border hover:shadow-md transition-shadow duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 mb-1">Giá trị trung bình</p>
+                <p className="text-sm text-maintext mb-1">Giá trị trung bình</p>
                 <p className="text-xl font-semibold !text-[#374151]/80">{formatCurrency(stats.averageOrder)}</p>
               </div>
               <div className="h-10 w-10 rounded-full bg-green-50 flex items-center justify-center">
@@ -864,10 +864,10 @@ export default function POSPage() {
             </div>
           </div>
           
-          <div className="bg-white rounded-lg p-4 shadow-sm border border-border hover:shadow-md transition-shadow duration-300">
+          <div className="bg-white rounded-[6px] p-4 shadow-sm border border-border hover:shadow-md transition-shadow duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 mb-1">Đơn chờ xử lý</p>
+                <p className="text-sm text-maintext mb-1">Đơn chờ xử lý</p>
                 <p className="text-xl font-semibold !text-[#374151]/80">{stats.pendingOrders} đơn</p>
               </div>
               <div className="h-10 w-10 rounded-full bg-amber-50 flex items-center justify-center">
@@ -878,25 +878,25 @@ export default function POSPage() {
         </div>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         
         <div className="lg:col-span-2 overflow-hidden flex flex-col">
           
-          <div className="bg-white rounded-lg p-6 mb-4 shadow-sm border border-border hover:shadow-md transition-shadow duration-300">
+          <div className="bg-white rounded-[6px] p-4 mb-4 shadow-sm border border-border hover:shadow-md transition-shadow duration-300">
             <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
               <div className="relative flex-1">
-                <Icon path={mdiMagnify} size={1} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Icon path={mdiMagnify} size={1} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext" />
                 <Input
                   id="product-search"
                   type="text"
                   placeholder="Tìm kiếm sản phẩm..."
-                  className="w-full pl-10 pr-4 py-2.5 rounded-md border border-border focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-[6px] border border-border focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
               <button 
-                className="px-4 py-2.5 bg-primary text-white rounded-md hover:bg-primary/90 transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
+                className="px-4 py-2.5 bg-primary text-white rounded-[6px] hover:bg-primary/90 transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
               >
                 <Icon path={mdiQrcodeScan} size={0.8} className="text-white" />
                 <span>Quét mã QR</span>
@@ -909,7 +909,7 @@ export default function POSPage() {
                 <button
                   key={category._id}
                   className={cn(
-                    'whitespace-nowrap px-4 py-2 rounded-md text-sm font-medium transition-all duration-200',
+                    'whitespace-nowrap px-4 py-2 rounded-[6px] text-sm font-medium transition-all duration-200',
                     activeCategoryName === category.name 
                       ? 'bg-primary text-white shadow-sm'
                       : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:text-primary'
@@ -927,7 +927,7 @@ export default function POSPage() {
           </div>
           
           
-          <div className="bg-white rounded-lg p-6 flex-1 shadow-sm border border-border hover:shadow-md transition-shadow duration-300 min-h-[400px]">
+          <div className="bg-white rounded-[6px] p-4 flex-1 shadow-sm border border-border hover:shadow-md transition-shadow duration-300 min-h-[400px]">
             {selectedProduct && selectedApiVariant ? ( 
               <div className="mb-4">
                 <button
@@ -943,7 +943,7 @@ export default function POSPage() {
                 <div className="flex flex-col md:flex-row gap-8">
                   
                   <div className="md:w-1/2">
-                    <div className="relative h-80 w-full overflow-hidden rounded-lg bg-gray-50 group">
+                    <div className="relative h-80 w-full overflow-hidden rounded-[6px] bg-gray-50 group">
                       <Image
                         src={checkImageUrl(selectedApiVariant?.images?.[0] || selectedProduct.variants[0]?.images?.[0])}
                         alt={selectedProduct.name}
@@ -956,7 +956,7 @@ export default function POSPage() {
                     {uniqueColorsForSelectedProduct.length > 0 && (
                     <div className="mt-6">
                       <h3 className="text-sm font-medium mb-3 !text-[#374151]/80">Màu sắc:</h3>
-                      <div className="flex gap-3 flex-wrap">
+                      <div className="flex gap-2 flex-wrap">
                         {uniqueColorsForSelectedProduct.map((color) => (
                           <button
                             key={color._id}
@@ -979,7 +979,7 @@ export default function POSPage() {
                   
                   <div className="md:w-1/2">
                     <h2 className="text-2xl font-bold !text-[#374151]/80">{selectedProduct.name}</h2>
-                    <p className="text-gray-500 mb-4">{getBrandName(selectedProduct.brand)}</p>
+                    <p className="text-maintext mb-4">{getBrandName(selectedProduct.brand)}</p>
                     
                     {selectedProduct.description && (
                       <p className="text-gray-600 mb-4 text-sm">{selectedProduct.description}</p>
@@ -997,7 +997,7 @@ export default function POSPage() {
                           <button
                             key={size._id}
                             className={cn(
-                              'px-4 py-2 rounded-md text-sm font-medium transition-all duration-200',
+                              'px-4 py-2 rounded-[6px] text-sm font-medium transition-all duration-200',
                               selectedApiVariant?.sizeId?._id === size._id
                                 ? 'bg-primary text-white shadow-sm'
                                 : 'bg-white text-gray-700 border border-gray-200 hover:border-primary/50 hover:text-primary',
@@ -1036,7 +1036,7 @@ export default function POSPage() {
                         </div>
                         
                         <Button
-                          className="w-full py-6 text-base"
+                          className="w-full py-4 text-base"
                           onClick={addToCart}
                           disabled={selectedApiVariant.stock === 0}
                         >
@@ -1052,22 +1052,22 @@ export default function POSPage() {
                 <div className="flex justify-between items-center mb-4">
                   <TabsList>
                     <TabsTrigger value="grid" className="flex items-center gap-1">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400"><rect width="7" height="7" x="3" y="3" rx="1" /><rect width="7" height="7" x="14" y="3" rx="1" /><rect width="7" height="7" x="14" y="14" rx="1" /><rect width="7" height="7" x="3" y="14" rx="1" /></svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-maintext"><rect width="7" height="7" x="3" y="3" rx="1" /><rect width="7" height="7" x="14" y="3" rx="1" /><rect width="7" height="7" x="14" y="14" rx="1" /><rect width="7" height="7" x="3" y="14" rx="1" /></svg>
                       Lưới
                     </TabsTrigger>
                     <TabsTrigger value="table" className="flex items-center gap-1">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400"><path d="M3 3h18v18H3z" /><path d="M3 9h18" /><path d="M3 15h18" /><path d="M9 3v18" /><path d="M15 3v18" /></svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-maintext"><path d="M3 3h18v18H3z" /><path d="M3 9h18" /><path d="M3 15h18" /><path d="M9 3v18" /><path d="M15 3v18" /></svg>
                       Bảng
                     </TabsTrigger>
                   </TabsList>
                   
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-maintext">
                     Hiển thị {apiIsLoading ? <Skeleton className="h-4 w-5 inline-block" /> : processedProducts.length} / {rawData?.data?.pagination?.totalItems || 0} sản phẩm
                   </div>
                 </div>
                 
                 {apiIsLoading ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     {[...Array(pagination.limit)].map((_, index) => (
                       <CardSkeleton key={index} />
                     ))}
@@ -1075,11 +1075,11 @@ export default function POSPage() {
                 ) : apiIsError ? (
                   <div className="text-center py-10 text-red-500">Lỗi khi tải sản phẩm. Vui lòng thử lại.</div>
                 ) : processedProducts.length === 0 ? (
-                  <div className="text-center py-10 text-gray-500">Không tìm thấy sản phẩm nào.</div>
+                  <div className="text-center py-10 text-maintext">Không tìm thấy sản phẩm nào.</div>
                 ) : (
                 <>
                 <TabsContent value="grid" className="mt-0">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     {processedProducts.map((product) => {
                       const firstVariant = product.variants?.[0];
                       const uniqueColorsCount = new Set(product.variants.map(v => v.colorId?._id)).size;
@@ -1089,7 +1089,7 @@ export default function POSPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="bg-white rounded-lg border border-border shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 group"
+                        className="bg-white rounded-[6px] border border-border shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 group"
                       >
                         <div 
                           className="relative h-48 w-full bg-gray-50 overflow-hidden cursor-pointer"
@@ -1116,7 +1116,7 @@ export default function POSPage() {
                           >
                             {product.name}
                           </h3>
-                          <p className="text-gray-500 text-sm mb-2 truncate">{getBrandName(product.brand)}</p>
+                          <p className="text-maintext text-sm mb-2 truncate">{getBrandName(product.brand)}</p>
                           <div className="flex justify-between items-center">
                             <p className="text-primary font-medium">
                               {firstVariant ? formatCurrency(firstVariant.price) : 'N/A'}
@@ -1132,7 +1132,7 @@ export default function POSPage() {
                                 />
                               ))}
                               {uniqueColorsCount > 3 && (
-                                <div className="h-5 w-5 rounded-full bg-gray-100 border border-white flex items-center justify-center text-xs text-gray-500">
+                                <div className="h-5 w-5 rounded-full bg-gray-100 border border-white flex items-center justify-center text-xs text-maintext">
                                   +{uniqueColorsCount - 3}
                                 </div>
                               )}
@@ -1198,7 +1198,7 @@ export default function POSPage() {
                 </TabsContent>
                 
                 <TabsContent value="table" className="mt-0">
-                  <div className="border border-border rounded-md overflow-hidden">
+                  <div className="border border-border rounded-[6px] overflow-hidden">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="bg-muted/50">
@@ -1222,8 +1222,8 @@ export default function POSPage() {
                             className="border-t border-border hover:bg-muted/20 transition-colors cursor-pointer"
                           >
                             <td className="py-3 px-4" onClick={() => handleProductSelect(product)}>
-                              <div className="flex items-center gap-3">
-                                <div className="relative h-10 w-10 rounded-md overflow-hidden bg-gray-50">
+                              <div className="flex items-center gap-2">
+                                <div className="relative h-10 w-10 rounded-[6px] overflow-hidden bg-gray-50">
                                   <Image
                                     src={checkImageUrl(firstVariant?.images?.[0]  )}
                                     alt={product.name}
@@ -1248,7 +1248,7 @@ export default function POSPage() {
                                   />
                                 ))}
                                 {uniqueColorsCount > 3 && (
-                                  <div className="h-5 w-5 rounded-full bg-gray-100 border border-white flex items-center justify-center text-xs text-gray-500">
+                                  <div className="h-5 w-5 rounded-full bg-gray-100 border border-white flex items-center justify-center text-xs text-maintext">
                                     +{uniqueColorsCount - 3}
                                   </div>
                                 )}
@@ -1274,7 +1274,7 @@ export default function POSPage() {
                                           handleProductSelect(product);
                                         }}
                                       >
-                                        <Icon path={mdiInformationOutline} size={0.8} className="text-gray-400" />
+                                        <Icon path={mdiInformationOutline} size={0.8} className="text-maintext" />
                                       </Button>
                                     </TooltipTrigger>
                                     <TooltipContent>
@@ -1332,7 +1332,7 @@ export default function POSPage() {
                                           }
                                         }}
                                       >
-                                        <Icon path={mdiPlus} size={0.8} className="text-gray-400" />
+                                        <Icon path={mdiPlus} size={0.8} className="text-maintext" />
                                       </Button>
                                     </TooltipTrigger>
                                     <TooltipContent>
@@ -1482,22 +1482,22 @@ export default function POSPage() {
         </div>
         
         
-        <div className="bg-white rounded-lg shadow-sm flex flex-col h-full border border-border hover:shadow-md transition-shadow duration-300">
-          <div className="p-6 border-b border-border">
+        <div className="bg-white rounded-[6px] shadow-sm flex flex-col h-full border border-border hover:shadow-md transition-shadow duration-300">
+          <div className="p-4 border-b border-border">
             <h2 className="text-lg font-medium !text-[#374151]/80">Giỏ hàng</h2>
           </div>
           
-          <div className="flex-1 overflow-y-auto p-6 scrollbar-thin">
+          <div className="flex-1 overflow-y-auto p-4 scrollbar-thin">
             {cartItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-40">
                 <div className="h-16 w-16 rounded-full bg-gray-50 flex items-center justify-center mb-4">
-                  <Icon path={mdiCashRegister} size={1.2} className="text-gray-400" />
+                  <Icon path={mdiCashRegister} size={1.2} className="text-maintext" />
                 </div>
-                <p className="text-gray-400 mb-2">Giỏ hàng trống</p>
-                <p className="text-xs text-gray-400">Thêm sản phẩm để bắt đầu đơn hàng</p>
+                <p className="text-maintext mb-2">Giỏ hàng trống</p>
+                <p className="text-xs text-maintext">Thêm sản phẩm để bắt đầu đơn hàng</p>
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <AnimatePresence initial={false}>
                   {cartItems.map((item) => (
                     <motion.div 
@@ -1508,7 +1508,7 @@ export default function POSPage() {
                       exit={{ opacity: 0, height: 0 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <div className="relative h-20 w-20 overflow-hidden rounded-md bg-gray-50 group">
+                      <div className="relative h-20 w-20 overflow-hidden rounded-[6px] bg-gray-50 group">
                         <Image
                           src={item.image  }
                           alt={item.name}
@@ -1520,27 +1520,27 @@ export default function POSPage() {
                         <div className="flex justify-between">
                           <h3 className="font-medium !text-[#374151]/80 truncate max-w-[150px]">{item.name}</h3>
                           <button
-                            className="text-gray-400 hover:text-red-500 transition-colors"
+                            className="text-maintext hover:text-red-500 transition-colors"
                             onClick={() => removeCartItem(item.id)}
                           >
                             <Icon path={mdiDelete} size={0.8} />
                           </button>
                         </div>
-                        <div className="text-sm text-gray-500">
+                        <div className="text-sm text-maintext">
                           <span>Size: {item.sizeName}</span> •{' '}
                           <span className="flex items-center">Màu: {item.colorCode && <div className="w-3 h-3 rounded-full mr-1.5 ml-1" style={{backgroundColor: item.colorCode}}></div>} {item.colorName}</span>
                         </div>
                         <div className="flex justify-between items-center mt-3">
-                          <div className="flex items-center border border-border rounded-md">
+                          <div className="flex items-center border border-border rounded-[6px]">
                             <button
-                              className="px-3 py-1.5 text-gray-400 hover:text-primary transition-colors"
+                              className="px-3 py-1.5 text-maintext hover:text-primary transition-colors"
                               onClick={() => updateCartItemQuantity(item.id, -1)}
                             >
                               <Icon path={mdiMinus} size={0.7} />
                             </button>
                             <span className="px-3 min-w-[30px] text-center">{item.quantity}</span>
                             <button
-                              className="px-3 py-1.5 text-gray-400 hover:text-primary transition-colors"
+                              className="px-3 py-1.5 text-maintext hover:text-primary transition-colors"
                               onClick={() => updateCartItemQuantity(item.id, 1)}
                             >
                               <Icon path={mdiPlus} size={0.7} />
@@ -1556,16 +1556,16 @@ export default function POSPage() {
             )}
           </div>
           
-          <div className="p-6 border-t border-border">
+          <div className="p-4 border-t border-border">
             
             <div className="mb-4">
               <div className="flex gap-2">
                 <div className="relative flex-1">
-                  <Icon path={mdiTag} size={0.8} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <Icon path={mdiTag} size={0.8} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext" />
                   <Input
                     type="text"
                     placeholder="Mã giảm giá"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-md border border-border focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-[6px] border border-border focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value)}
                   />
@@ -1608,7 +1608,7 @@ export default function POSPage() {
             
             
             <Button
-              className="w-full py-6 text-base flex items-center justify-center gap-2"
+              className="w-full py-4 text-base flex items-center justify-center gap-2"
               onClick={handleProceedToCheckout}
               disabled={cartItems.length === 0}
             >
@@ -1618,8 +1618,8 @@ export default function POSPage() {
             </Button>
             
             
-            <div className="mt-4 text-xs text-gray-500 flex items-center justify-center">
-              <Icon path={mdiInformationOutline} size={0.6} className="mr-1 text-gray-400" />
+            <div className="mt-4 text-xs text-maintext flex items-center justify-center">
+              <Icon path={mdiInformationOutline} size={0.6} className="mr-1 text-maintext" />
               <span>Alt+S: Tìm kiếm | Alt+C: Xóa giỏ hàng</span>
             </div>
           </div>
@@ -1682,19 +1682,19 @@ export default function POSPage() {
                 <SelectContent>
                   <SelectItem value="cash">
                     <div className="flex items-center gap-2">
-                      <Icon path={mdiCashMultiple} size={0.8} className="text-gray-400" />
+                      <Icon path={mdiCashMultiple} size={0.8} className="text-maintext" />
                       <span>Tiền mặt</span>
                     </div>
                   </SelectItem>
                   <SelectItem value="card">
                     <div className="flex items-center gap-2">
-                      <Icon path={mdiCreditCardOutline} size={0.8} className="text-gray-400" />
+                      <Icon path={mdiCreditCardOutline} size={0.8} className="text-maintext" />
                       <span>Thẻ tín dụng</span>
                     </div>
                   </SelectItem>
                   <SelectItem value="transfer">
                     <div className="flex items-center gap-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400"><path d="M4 10V4a2 2 0 0 1 2-2h8.5L20 7.5V20a2 2 0 0 1-2 2H4" /><polyline points="14 2 14 8 20 8" /><path d="m10 18 3-3-3-3" /><path d="M4 18v-1a2 2 0 0 1 2-2h6" /></svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-maintext"><path d="M4 10V4a2 2 0 0 1 2-2h8.5L20 7.5V20a2 2 0 0 1-2 2H4" /><polyline points="14 2 14 8 20 8" /><path d="m10 18 3-3-3-3" /><path d="M4 18v-1a2 2 0 0 1 2-2h6" /></svg>
                       <span>Chuyển khoản</span>
                     </div>
                   </SelectItem>
@@ -1794,7 +1794,7 @@ export default function POSPage() {
 
 
 const CardSkeleton = () => (
-  <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
+  <div className="bg-white rounded-[6px] border border-border shadow-sm overflow-hidden">
     <Skeleton className="h-48 w-full" />
     <div className="p-4 space-y-2">
       <Skeleton className="h-4 w-3/4" />
@@ -1853,7 +1853,7 @@ const VouchersListDialog = ({ open, onOpenChange, onSelectVoucher }: { open: boo
           ) : isError ? (
             <p className="text-red-500 text-center py-4">Lỗi khi tải danh sách mã giảm giá.</p>
           ) : !vouchersData?.data?.vouchers || vouchersData.data.vouchers.length === 0 ? (
-            <p className="text-gray-500 text-center py-4">Không có mã giảm giá nào đang hoạt động.</p>
+            <p className="text-maintext text-center py-4">Không có mã giảm giá nào đang hoạt động.</p>
           ) : (
             <Table>
               <TableHeader>
@@ -1875,7 +1875,7 @@ const VouchersListDialog = ({ open, onOpenChange, onSelectVoucher }: { open: boo
                     <TableCell>
                       {voucher.type === 'PERCENTAGE' ? `${voucher.value}%` : formatCurrency(voucher.value)}
                       {voucher.type === 'PERCENTAGE' && (voucher as any).maxValue && (
-                        <span className="text-xs text-gray-500 block"> (Tối đa {formatCurrency((voucher as any).maxValue)})</span>
+                        <span className="text-xs text-maintext block"> (Tối đa {formatCurrency((voucher as any).maxValue)})</span>
                       )}
                     </TableCell>
                     <TableCell>{formatCurrency(voucher.minOrderValue)}</TableCell>
@@ -2011,7 +2011,7 @@ const InvoiceDialog = ({
         <DialogHeader>
           <DialogTitle className="!text-[#374151]/80 text-center text-2xl font-semibold">Hoá đơn bán hàng</DialogTitle>
         </DialogHeader>
-        <CustomScrollArea className="flex-1 min-h-0 p-6 overflow-y-auto">
+        <CustomScrollArea className="flex-1 min-h-0 p-4 overflow-y-auto">
           <div ref={invoiceRef} className="p-4 bg-white" id="invoice-content" data-loaded={!!invoiceData}>
             <div className="text-center mb-6">
               <h2 className="text-xl font-bold">{invoiceData.shopInfo.name}</h2>

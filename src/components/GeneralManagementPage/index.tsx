@@ -117,7 +117,7 @@ const OrderStatusBadge = ({ status }: { status: string }) => {
   const config = statusConfig[status] || { label: status, className: 'bg-gray-400 text-gray-900 border-gray-500' };
 
   return (
-    <Badge className={`${config.className} rounded-md font-normal`}>
+    <Badge className={`${config.className} rounded-[6px] font-normal`}>
       {config.label}
     </Badge>
   );
@@ -219,8 +219,8 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
               </div>
             </DialogHeader>
 
-            <div className="py-4 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="py-4 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Thông tin khách hàng */}
                 <Card>
                   <CardHeader className="pb-3">
@@ -374,13 +374,13 @@ const OverviewTab = () => {
   const userData = profile?.data;
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-semibold">Thông tin tài khoản</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start">
+        <CardContent className="space-y-4">
+          <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-start">
             <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center text-primary text-2xl font-semibold">
               {userData?.fullName?.charAt(0) || userData?.email?.charAt(0) || "U"}
             </div>
@@ -402,7 +402,7 @@ const OverviewTab = () => {
           
           <hr className="border-t border-border" />
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Button variant="outline" className="flex items-center gap-2 justify-center" asChild>
               <a href="#account-tabs?tab=profile">
                 <Icon path={mdiAccountEdit} size={0.9} />
@@ -528,7 +528,7 @@ const ProfileTab = () => {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
               <div className="sm:w-1/3 flex flex-col items-center space-y-3">
                 <div className="h-32 w-32 rounded-full bg-primary/10 flex items-center justify-center text-primary text-4xl font-semibold">
@@ -790,7 +790,7 @@ const VouchersTab = () => {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {[...Array(3)].map((_, index) => (
           <Card key={index}>
             <CardHeader>
@@ -843,7 +843,7 @@ const VouchersTab = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <Card>
         <CardHeader>
             <CardTitle className="flex items-center gap-2 text-xl font-semibold">
@@ -1118,7 +1118,7 @@ export default function GeneralManagementPage() {
   return (
     <AccountTabContext.Provider value={{ activeTab, setActiveTab }}>
       <div className="container mx-auto py-8 px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <motion.div 
             className="md:col-span-1"
             initial="hidden"

@@ -217,7 +217,7 @@ export default function AccountsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className='flex justify-between items-start'>
         <Breadcrumb>
           <BreadcrumbList>
@@ -249,12 +249,12 @@ export default function AccountsPage() {
               <Icon
                 path={mdiMagnify}
                 size={0.9}
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext"
               />
               <Input
                 type="text"
                 placeholder="Tìm kiếm theo tên, email, số điện thoại..."
-                className="pl-10 pr-4 py-2 w-full border rounded-md"
+                className="pl-10 pr-4 py-2 w-full border rounded-[6px]"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -343,7 +343,7 @@ export default function AccountsPage() {
                 <TableBody>
                   {data?.data.accounts.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                      <TableCell colSpan={6} className="text-center py-8 text-maintext">
                         Không có tài khoản nào được tìm thấy
                       </TableCell>
                     </TableRow>
@@ -360,14 +360,14 @@ export default function AccountsPage() {
                             </div>
                             <div>
                               <div className="font-medium text-gray-800">{account.fullName}</div>
-                              <div className="text-sm text-gray-500">{account.email}</div>
+                              <div className="text-sm text-maintext">{account.email}</div>
                             </div>
                           </div>
                         </TableCell>
                         <TableCell className="py-3 px-4 text-sm text-gray-700">
                           {account.phoneNumber && (
                             <div className="flex items-center">
-                              <Icon path={mdiPhone} size={0.7} className="mr-2 text-gray-400" />
+                              <Icon path={mdiPhone} size={0.7} className="mr-2 text-maintext" />
                               {account.phoneNumber}
                             </div>
                           )}
@@ -430,7 +430,7 @@ export default function AccountsPage() {
 
               {data?.data.pagination && data.data.pagination.totalPages > 1 && (
                 <div className="flex items-center justify-between px-4 py-3 border-t">
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-maintext">
                     Hiển thị {(data.data.pagination.currentPage - 1) * (filters.limit || 10) + 1} đến{' '}
                     {Math.min(data.data.pagination.currentPage * (filters.limit || 10), data.data.pagination.count)}{' '}
                     trong tổng số {data.data.pagination.count} tài khoản

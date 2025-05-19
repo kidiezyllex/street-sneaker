@@ -146,7 +146,7 @@ const RatingStars = ({ rating }: { rating: number }) => {
           className={i < rating ? "text-amber-500" : "text-gray-300"}
         />
       ))}
-      <span className="text-xs text-gray-400 ml-1">({rating}.0)</span>
+      <span className="text-xs text-maintext ml-1">({rating}.0)</span>
     </div>
   );
 };
@@ -219,7 +219,7 @@ const ProductCard = ({ product, index }: { product: typeof bestSellerData[0], in
       initial={{ opacity: 0, y: 50 }}
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
-      className="group relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 pb-4 flex flex-col border border-gray-100"
+      className="group relative bg-white dark:bg-gray-800 rounded-[6px] overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 pb-4 flex flex-col border border-gray-100"
     >
       <Link href={`/products/${product.slug}`} className="block relative overflow-hidden">
         <div className="relative aspect-square w-full overflow-hidden">
@@ -285,7 +285,7 @@ const ProductCard = ({ product, index }: { product: typeof bestSellerData[0], in
             {formatPrice(product.price)}
           </span>
           {product.discount > 0 && (
-            <span className="text-sm text-gray-400 line-through">
+            <span className="text-sm text-maintext line-through">
               {formatPrice(product.originalPrice)}
             </span>
           )}
@@ -348,7 +348,7 @@ export const BestSeller = () => {
         </motion.div>
         
         {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {bestSellerData.map((product, index) => (
             <ProductCard key={product.id} product={product} index={index} />
           ))}

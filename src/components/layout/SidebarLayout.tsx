@@ -81,7 +81,7 @@ export default function SidebarLayout({
                       <button
                         onClick={() => toggleSubMenu(menu.id)}
                         className={cn(
-                          'flex items-center font-medium justify-between w-full rounded-md p-2 text-left text-base transition-colors',
+                          'flex items-center font-medium justify-between w-full rounded-[6px] p-2 text-left text-base transition-colors',
                           isMenuActive(menu)
                             ? 'bg-primary/10 text-primary !font-medium'
                             : 'hover:bg-gray-100'
@@ -93,7 +93,7 @@ export default function SidebarLayout({
                             size={0.8}
                             className={cn(
                               'mr-2',
-                              isMenuActive(menu) ? 'text-primary !font-medium' : 'text-gray-400'
+                              isMenuActive(menu) ? 'text-primary !font-medium' : 'text-maintext'
                             )}
                           />
                           <span className={cn('font-medium', isMenuActive(menu) ? 'text-primary !font-medium' : '')}>{menu.name}</span>
@@ -101,7 +101,7 @@ export default function SidebarLayout({
                         <Icon
                           path={openMenus[menu.id] ? mdiChevronUp : mdiChevronDown}
                           size={0.8}
-                          className="text-gray-400"
+                          className="text-maintext"
                         />
                       </button>
                       <AnimatePresence>
@@ -123,7 +123,7 @@ export default function SidebarLayout({
                                 <Link href={subItem.path}>
                                   <div
                                     className={cn(
-                                      'flex items-center rounded-md p-2 text-base transition-colors font-medium',
+                                      'flex items-center rounded-[6px] p-2 text-base transition-colors font-medium',
                                       isSubMenuActive(subItem.path)
                                         ? 'bg-active/10 text-active !font-medium'
                                         : 'text-gray-700 hover:bg-gray-100'
@@ -133,7 +133,7 @@ export default function SidebarLayout({
                                       <Icon
                                         path={subItem.icon}
                                         size={0.8}
-                                        className="mr-2 text-gray-400"
+                                        className="mr-2 text-maintext"
                                       />
                                     )}
                                     <span className={cn('font-medium', isSubMenuActive(subItem.path) ? 'text-active !font-medium' : '')}>{subItem.name}</span>
@@ -154,7 +154,7 @@ export default function SidebarLayout({
                       <Link href={menu.path}>
                         <div
                           className={cn(
-                            'flex items-center rounded-md p-2 text-base font-medium transition-colors ',
+                            'flex items-center rounded-[6px] p-2 text-base font-medium transition-colors ',
                             isMenuActive(menu)
                               ? 'bg-primary/10 text-primary !font-medium'
                               : 'text-gray-700 hover:bg-gray-100',
@@ -166,7 +166,7 @@ export default function SidebarLayout({
                             size={0.8}
                             className={cn(
                               isOpen ? 'mr-2' : 'mr-0',
-                              isMenuActive(menu) ? 'text-primary !font-medium' : 'text-gray-400'
+                              isMenuActive(menu) ? 'text-primary !font-medium' : 'text-maintext'
                             )}
                           />
                           {isOpen && <span>{menu.name}</span>}
@@ -179,7 +179,7 @@ export default function SidebarLayout({
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -5 }}
                             transition={{ duration: 0.2 }}
-                            className="fixed ml-16 mt-[-30px] bg-white border border-primary/20 text-main-text text-xs py-1.5 px-3 rounded-md shadow-light-grey z-50 whitespace-nowrap flex items-center"
+                            className="fixed ml-16 mt-[-30px] bg-white border border-primary/20 text-main-text text-xs py-1.5 px-3 rounded-[6px] shadow-light-grey z-50 whitespace-nowrap flex items-center"
                           >
                             <span className="w-1.5 h-1.5 rounded-full bg-primary mr-1.5"></span>
                             <span className="font-medium">{menu.name}</span>
@@ -197,7 +197,7 @@ export default function SidebarLayout({
       {/* Main content */}
       <div className="w-full flex-1 flex flex-col bg-[#1C2B38]">
         <AdminHeader />
-        <main className="p-6 min-h-[calc(100vh-66px)]">
+        <main className="p-4 min-h-[calc(100vh-66px)]">
           <div style={{ position: 'relative', zIndex: 2 }}>
             {children}
           </div>

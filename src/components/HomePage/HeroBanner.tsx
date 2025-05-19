@@ -20,7 +20,7 @@ export const HeroBanner = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5 }}
-                            className="space-y-6"
+                            className="space-y-4"
                         >
                             <h2 className="text-4xl lg:text-5xl font-bold tracking-tight text-gray-900">
                                 <span className="block text-primary">Ưu đãi khách hàng mới</span>

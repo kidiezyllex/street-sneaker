@@ -88,7 +88,7 @@ export const HotDeals = () => {
           {/* Right Column - Content */}
           <motion.div 
             variants={containerVariants}
-            className="w-full md:w-1/2 flex flex-col space-y-6"
+            className="w-full md:w-1/2 flex flex-col space-y-4"
           >
             <motion.div variants={itemVariants}>
               <span className="inline-block px-4 py-1.5 mb-4 text-xs font-semibold tracking-wider text-[#F2A024] uppercase bg-amber-100 dark:bg-amber-900/30 rounded-full">
@@ -102,7 +102,7 @@ export const HotDeals = () => {
             <motion.div variants={itemVariants} className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-2xl font-bold text-primary">1.300.000₫</span>
-                <span className="text-lg text-gray-400 line-through">3.000.000₫</span>
+                <span className="text-lg text-maintext line-through">3.000.000₫</span>
               </div>
               
               <div className="flex items-center">
@@ -131,7 +131,7 @@ export const HotDeals = () => {
             
             <motion.p 
               variants={itemVariants}
-              className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed"
+              className="text-gray-600 dark:text-maintext text-sm leading-relaxed"
             >
               Giày thể thao phiên bản giới hạn với thiết kế độc đáo và công nghệ tiên tiến. Sự kết hợp hoàn hảo giữa phong cách hiện đại và hiệu suất cao cấp mang đến trải nghiệm thoải mái nhất cho người sử dụng.
             </motion.p>

@@ -168,7 +168,7 @@ export default function EditReturnPage({ params }: { params: { id: string } }) {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div className="flex justify-between items-start">
           <Skeleton className="h-6 w-[250px]" />
           <Skeleton className="h-10 w-[100px]" />
@@ -190,7 +190,7 @@ export default function EditReturnPage({ params }: { params: { id: string } }) {
 
   if (isError || !returnDetail) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div className="flex justify-between items-start">
           <Breadcrumb>
             <BreadcrumbList>
@@ -220,7 +220,7 @@ export default function EditReturnPage({ params }: { params: { id: string } }) {
           <CardContent className="flex items-center justify-center py-12">
             <div className="text-center">
               <h3 className="text-lg font-medium text-red-500 mb-2">Đã xảy ra lỗi</h3>
-              <p className="text-gray-500">Không thể tải thông tin yêu cầu trả hàng. Vui lòng thử lại sau.</p>
+              <p className="text-maintext">Không thể tải thông tin yêu cầu trả hàng. Vui lòng thử lại sau.</p>
               <Button 
                 className="mt-4" 
                 onClick={() => router.push('/admin/returns')}
@@ -244,7 +244,7 @@ export default function EditReturnPage({ params }: { params: { id: string } }) {
     : returnData.originalOrder;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className='flex justify-between items-start'>
         <Breadcrumb>
           <BreadcrumbList>
@@ -278,16 +278,16 @@ export default function EditReturnPage({ params }: { params: { id: string } }) {
               <CardTitle>Thông tin yêu cầu trả hàng #{returnData.code}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <h3 className="font-medium mb-2">Thông tin đơn hàng</h3>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Mã yêu cầu:</span>
+                      <span className="text-maintext">Mã yêu cầu:</span>
                       <span className="font-medium">{returnData.code}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Trạng thái:</span>
+                      <span className="text-maintext">Trạng thái:</span>
                       <span>
                         {returnData.status === 'CHO_XU_LY' ? (
                           <Badge variant="outline" className="bg-yellow-50 text-yellow-600 border-yellow-200">Chờ xử lý</Badge>
@@ -299,11 +299,11 @@ export default function EditReturnPage({ params }: { params: { id: string } }) {
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Đơn hàng gốc:</span>
+                      <span className="text-maintext">Đơn hàng gốc:</span>
                       <span>{orderInfo.code}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Ngày tạo:</span>
+                      <span className="text-maintext">Ngày tạo:</span>
                       <span>{formatDate(returnData.createdAt)}</span>
                     </div>
                   </div>
@@ -312,15 +312,15 @@ export default function EditReturnPage({ params }: { params: { id: string } }) {
                   <h3 className="font-medium mb-2">Thông tin khách hàng</h3>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Tên khách hàng:</span>
+                      <span className="text-maintext">Tên khách hàng:</span>
                       <span className="font-medium">{customerInfo.fullName}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Email:</span>
+                      <span className="text-maintext">Email:</span>
                       <span>{customerInfo.email || 'Không có'}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Số điện thoại:</span>
+                      <span className="text-maintext">Số điện thoại:</span>
                       <span>{customerInfo.phoneNumber || 'Không có'}</span>
                     </div>
                   </div>
@@ -352,7 +352,7 @@ export default function EditReturnPage({ params }: { params: { id: string } }) {
                         <TableRow key={index}>
                           <TableCell>
                             {item.product.images && item.product.images.length > 0 ? (
-                              <div className="relative h-16 w-16 rounded-md overflow-hidden">
+                              <div className="relative h-16 w-16 rounded-[6px] overflow-hidden">
                                 <Image
                                   src={item.product.images[0]}
                                   alt={item.product.name}
@@ -361,12 +361,12 @@ export default function EditReturnPage({ params }: { params: { id: string } }) {
                                 />
                               </div>
                             ) : (
-                              <div className="h-16 w-16 bg-gray-100 rounded-md"></div>
+                              <div className="h-16 w-16 bg-gray-100 rounded-[6px]"></div>
                             )}
                           </TableCell>
                           <TableCell>
                             <div className="font-medium">{item.product.name}</div>
-                            <div className="text-sm text-gray-500">SKU: {item.product.code}</div>
+                            <div className="text-sm text-maintext">SKU: {item.product.code}</div>
                           </TableCell>
                           <TableCell>
                             <div>Màu: {item.variant.colorId}</div>
@@ -411,7 +411,7 @@ export default function EditReturnPage({ params }: { params: { id: string } }) {
                     <p className="text-red-500 text-sm">{errors.reason}</p>
                   )}
 
-                  <div className="bg-gray-50 p-4 rounded-md">
+                  <div className="bg-gray-50 p-4 rounded-[6px]">
                     <div className="flex justify-between font-medium">
                       <span>Tổng tiền hoàn trả:</span>
                       <span className="text-primary text-lg">{formatCurrency(returnRequest.totalRefund || 0)}</span>
@@ -419,8 +419,8 @@ export default function EditReturnPage({ params }: { params: { id: string } }) {
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-4 bg-gray-50 rounded-md">
-                  <p className="text-gray-500">Không có sản phẩm nào được chọn</p>
+                <div className="text-center py-4 bg-gray-50 rounded-[6px]">
+                  <p className="text-maintext">Không có sản phẩm nào được chọn</p>
                 </div>
               )}
             </CardContent>

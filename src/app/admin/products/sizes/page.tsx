@@ -59,7 +59,7 @@ export default function SizesPage() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             <div className='flex justify-between items-start'>
                 <Breadcrumb>
                     <BreadcrumbList>
@@ -93,16 +93,16 @@ export default function SizesPage() {
             </Dialog>
 
             {isLoading ? (
-                <div className="bg-white rounded-lg shadow-sm overflow-visible">
+                <div className="bg-white rounded-[6px] shadow-sm overflow-visible">
                     <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">ID</TableHead>
-                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Kích cỡ</TableHead>
-                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Trạng thái</TableHead>
-                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Ngày cập nhật</TableHead>
-                                    <TableHead className="px-4 py-4 text-right text-sm font-medium text-gray-500">Thao tác</TableHead>
+                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">ID</TableHead>
+                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Kích cỡ</TableHead>
+                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Trạng thái</TableHead>
+                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Ngày cập nhật</TableHead>
+                                    <TableHead className="px-4 py-4 text-right text-sm font-medium text-maintext">Thao tác</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -113,7 +113,7 @@ export default function SizesPage() {
                                         </TableCell>
                                         <TableCell className="px-4 py-4 whitespace-nowrap">
                                             <div className="flex items-center">
-                                                <Skeleton className="h-8 w-8 rounded-md" />
+                                                <Skeleton className="h-8 w-8 rounded-[6px]" />
                                             </div>
                                         </TableCell>
                                         <TableCell className="px-4 py-4 whitespace-nowrap">
@@ -124,8 +124,8 @@ export default function SizesPage() {
                                         </TableCell>
                                         <TableCell className="px-4 py-4 whitespace-nowrap text-right">
                                             <div className="flex items-center justify-end space-x-2">
-                                                <Skeleton className="h-8 w-8 rounded-md" />
-                                                <Skeleton className="h-8 w-8 rounded-md" />
+                                                <Skeleton className="h-8 w-8 rounded-[6px]" />
+                                                <Skeleton className="h-8 w-8 rounded-[6px]" />
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -135,7 +135,7 @@ export default function SizesPage() {
                     </div>
                 </div>
             ) : isError ? (
-                <div className="bg-white rounded-lg shadow-sm p-6 text-center">
+                <div className="bg-white rounded-[6px] shadow-sm p-4 text-center">
                     <p className="text-red-500">Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại sau.</p>
                     <Button
                         variant="outline"
@@ -146,28 +146,28 @@ export default function SizesPage() {
                     </Button>
                 </div>
             ) : (
-                <div className="bg-white rounded-lg shadow-sm overflow-visible">
+                <div className="bg-white rounded-[6px] shadow-sm overflow-visible">
                     <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">ID</TableHead>
-                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Kích cỡ</TableHead>
-                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Trạng thái</TableHead>
-                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Ngày cập nhật</TableHead>
-                                    <TableHead className="px-4 py-4 text-right text-sm font-medium text-gray-500">Thao tác</TableHead>
+                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">ID</TableHead>
+                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Kích cỡ</TableHead>
+                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Trạng thái</TableHead>
+                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Ngày cập nhật</TableHead>
+                                    <TableHead className="px-4 py-4 text-right text-sm font-medium text-maintext">Thao tác</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {filteredSizes?.length ? (
                                     filteredSizes.map((size) => (
                                         <TableRow key={size._id} className="hover:bg-gray-50">
-                                            <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-maintext">
                                                 {size._id}
                                             </TableCell>
                                             <TableCell className="px-4 py-4 whitespace-nowrap">
                                                 <div className="flex items-center">
-                                                    <div className="h-8 w-8 rounded-md bg-gray-100 flex items-center justify-center border border-gray-200">
+                                                    <div className="h-8 w-8 rounded-[6px] bg-gray-100 flex items-center justify-center border border-gray-200">
                                                         <span className="text-sm font-medium">{size.value}</span>
                                                     </div>
                                                 </div>
@@ -180,7 +180,7 @@ export default function SizesPage() {
                                                     {size.status === 'HOAT_DONG' ? 'Hoạt động' : 'Không hoạt động'}
                                                 </span>
                                             </TableCell>
-                                            <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-maintext">
                                                 {formatDate(size.updatedAt)}
                                             </TableCell>
                                             <TableCell className="px-4 py-4 whitespace-nowrap text-right">
@@ -223,7 +223,7 @@ export default function SizesPage() {
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                                        <TableCell colSpan={5} className="px-4 py-8 text-center text-maintext">
                                             Không tìm thấy kích cỡ nào
                                         </TableCell>
                                     </TableRow>
@@ -325,7 +325,7 @@ function CreateSizeDialog({ isOpen, onClose }: CreateSizeDialogProps) {
             <DialogHeader>
                 <DialogTitle>Thêm kích cỡ mới</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
                     <Label htmlFor="create-value">Giá trị kích cỡ</Label>
                     <Input

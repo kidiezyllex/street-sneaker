@@ -149,7 +149,7 @@ function ProfileForm() {
         <div className="pt-4">
           <Button
             type="submit"
-            className="bg-primary hover:bg-secondary transition-all duration-300 text-base font-semibold w-full py-6"
+            className="bg-primary hover:bg-secondary transition-all duration-300 text-base font-semibold w-full py-4"
             disabled={updateProfileMutation.isPending}
           >
             {updateProfileMutation.isPending ? (
@@ -190,7 +190,7 @@ export default function ProfilePage() {
       >
         <div className="mb-8 flex flex-col items-center text-center">
           <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Hồ sơ tài khoản</h1>
-          <p className="text-gray-600 dark:text-gray-400 max-w-2xl">
+          <p className="text-gray-600 dark:text-maintext max-w-2xl">
             Quản lý thông tin cá nhân, địa chỉ và thay đổi mật khẩu của bạn
           </p>
         </div>
@@ -248,7 +248,7 @@ export default function ProfilePage() {
                 <div className="flex flex-col items-center justify-center py-8">
                   <Icon path={mdiShieldAccount} size={3} className="text-primary mb-4 opacity-80" />
                   <h3 className="text-xl font-medium mb-2">Thay đổi mật khẩu tài khoản</h3>
-                  <p className="text-gray-600 dark:text-gray-400 text-center mb-4 max-w-md">
+                  <p className="text-gray-600 dark:text-maintext text-center mb-4 max-w-md">
                     Cập nhật mật khẩu mới để bảo vệ tài khoản của bạn khỏi các truy cập trái phép
                   </p>
                   <Link href="/profile/change-password">

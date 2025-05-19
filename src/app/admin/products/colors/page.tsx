@@ -73,7 +73,7 @@ export default function ColorsPage() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             <div className='flex justify-between items-start'>
                 <Breadcrumb>
                     <BreadcrumbList>
@@ -100,12 +100,12 @@ export default function ColorsPage() {
                             <Icon
                                 path={mdiMagnify}
                                 size={0.9}
-                                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext"
                             />
                             <Input
                                 type="text"
                                 placeholder="Tìm kiếm theo tên hoặc mã màu sắc..."
-                                className="pl-10 pr-4 py-2 w-full border rounded-md"
+                                className="pl-10 pr-4 py-2 w-full border rounded-[6px]"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
@@ -143,17 +143,17 @@ export default function ColorsPage() {
             </Card>
 
             {isLoading ? (
-                <div className="bg-white rounded-lg shadow-sm overflow-visible">
+                <div className="bg-white rounded-[6px] shadow-sm overflow-visible">
                     <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">ID</TableHead>
-                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Màu sắc</TableHead>
-                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Mã màu</TableHead>
-                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Trạng thái</TableHead>
-                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Ngày cập nhật</TableHead>
-                                    <TableHead className="px-4 py-4 text-right text-sm font-medium text-gray-500">Thao tác</TableHead>
+                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">ID</TableHead>
+                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Màu sắc</TableHead>
+                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Mã màu</TableHead>
+                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Trạng thái</TableHead>
+                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Ngày cập nhật</TableHead>
+                                    <TableHead className="px-4 py-4 text-right text-sm font-medium text-maintext">Thao tác</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -179,8 +179,8 @@ export default function ColorsPage() {
                                         </TableCell>
                                         <TableCell className="px-4 py-4 whitespace-nowrap text-right">
                                             <div className="flex items-center justify-end space-x-2">
-                                                <Skeleton className="h-8 w-8 rounded-md" />
-                                                <Skeleton className="h-8 w-8 rounded-md" />
+                                                <Skeleton className="h-8 w-8 rounded-[6px]" />
+                                                <Skeleton className="h-8 w-8 rounded-[6px]" />
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -190,7 +190,7 @@ export default function ColorsPage() {
                     </div>
                 </div>
             ) : isError ? (
-                <div className="bg-white rounded-lg shadow-sm p-6 text-center">
+                <div className="bg-white rounded-[6px] shadow-sm p-4 text-center">
                     <p className="text-red-500">Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại sau.</p>
                     <Button
                         variant="outline"
@@ -201,24 +201,24 @@ export default function ColorsPage() {
                     </Button>
                 </div>
             ) : (
-                <div className="bg-white rounded-lg shadow-sm overflow-visible">
+                <div className="bg-white rounded-[6px] shadow-sm overflow-visible">
                     <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">ID</TableHead>
-                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Màu sắc</TableHead>
-                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Mã màu</TableHead>
-                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Trạng thái</TableHead>
-                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Ngày cập nhật</TableHead>
-                                    <TableHead className="px-4 py-4 text-right text-sm font-medium text-gray-500">Thao tác</TableHead>
+                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">ID</TableHead>
+                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Màu sắc</TableHead>
+                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Mã màu</TableHead>
+                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Trạng thái</TableHead>
+                                    <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Ngày cập nhật</TableHead>
+                                    <TableHead className="px-4 py-4 text-right text-sm font-medium text-maintext">Thao tác</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {filteredColors?.length ? (
                                     filteredColors.map((color) => (
                                         <TableRow key={color._id} className="hover:bg-gray-50">
-                                            <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-maintext">
                                                 {color._id}
                                             </TableCell>
                                             <TableCell className="px-4 py-4 whitespace-nowrap">
@@ -230,7 +230,7 @@ export default function ColorsPage() {
                                                     <div className="text-sm font-medium text-gray-900">{color.name}</div>
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-maintext">
                                                 {color.code}
                                             </TableCell>
                                             <TableCell className="px-4 py-4 whitespace-nowrap">
@@ -241,7 +241,7 @@ export default function ColorsPage() {
                                                     {color.status === 'HOAT_DONG' ? 'Hoạt động' : 'Không hoạt động'}
                                                 </span>
                                             </TableCell>
-                                            <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-maintext">
                                                 {formatDate(color.updatedAt)}
                                             </TableCell>
                                             <TableCell className="px-4 py-4 whitespace-nowrap text-right">
@@ -312,7 +312,7 @@ export default function ColorsPage() {
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                                        <TableCell colSpan={6} className="px-4 py-8 text-center text-maintext">
                                             Không tìm thấy màu sắc nào
                                         </TableCell>
                                     </TableRow>
@@ -442,7 +442,7 @@ function EditColorDialog({ colorId, isOpen, onClose }: EditColorDialogProps) {
                 <DialogHeader>
                     <DialogTitle><Skeleton className="h-8 w-[200px]" /></DialogTitle>
                 </DialogHeader>
-                <div className="space-y-6">
+                <div className="space-y-4">
                     <div className="space-y-2">
                         <Skeleton className="h-4 w-[100px]" />
                         <Skeleton className="h-10 w-full" />
@@ -470,7 +470,7 @@ function EditColorDialog({ colorId, isOpen, onClose }: EditColorDialogProps) {
                 <DialogHeader>
                     <DialogTitle>Lỗi</DialogTitle>
                 </DialogHeader>
-                <div className="py-6 text-center">
+                <div className="py-4 text-center">
                     <p className="text-red-500 mb-4">Đã xảy ra lỗi khi tải dữ liệu màu sắc.</p>
                     <div className="flex justify-center space-x-4">
                         <Button variant="outline" onClick={onClose}>
@@ -490,7 +490,7 @@ function EditColorDialog({ colorId, isOpen, onClose }: EditColorDialogProps) {
             <DialogHeader>
                 <DialogTitle>Chỉnh sửa màu sắc: {colorData.data.name}</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
                     <Label htmlFor="name">Tên màu sắc</Label>
                     <Input
@@ -516,7 +516,7 @@ function EditColorDialog({ colorId, isOpen, onClose }: EditColorDialogProps) {
                             className={errors.code ? 'border-red-500' : ''}
                         />
                         <div
-                            className="w-10 h-10 rounded-md border border-gray-200"
+                            className="w-10 h-10 rounded-[6px] border border-gray-200"
                             style={{ backgroundColor: formData.code }}
                         />
                     </div>
@@ -671,7 +671,7 @@ function CreateColorDialog({ isOpen, onClose }: CreateColorDialogProps) {
             <DialogHeader>
                 <DialogTitle>Thêm màu sắc mới</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
                     <Label htmlFor="create-name">Tên màu sắc</Label>
                     <Input
@@ -698,7 +698,7 @@ function CreateColorDialog({ isOpen, onClose }: CreateColorDialogProps) {
                             className={errors.code ? 'border-red-500' : ''}
                         />
                         <div
-                            className="w-10 h-10 rounded-md border border-gray-200"
+                            className="w-10 h-10 rounded-[6px] border border-gray-200"
                             style={{ backgroundColor: formData.code }}
                         />
                     </div>

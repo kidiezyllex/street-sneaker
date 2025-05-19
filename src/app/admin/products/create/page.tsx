@@ -153,7 +153,7 @@ export default function CreateProductPage() {
 
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className='flex justify-between items-start'>
         <Breadcrumb>
           <BreadcrumbList>
@@ -318,7 +318,7 @@ export default function CreateProductPage() {
                   Thêm biến thể
                 </Button>
               </CardHeader>
-              <CardContent className="space-y-6 text-maintext">
+              <CardContent className="space-y-4 text-maintext">
                 <AnimatePresence>
                   {product.variants.map((variant, index) => (
                     <motion.div
@@ -327,7 +327,7 @@ export default function CreateProductPage() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -20 }}
                       transition={{ duration: 0.2 }}
-                      className="border p-4 rounded-lg"
+                      className="border p-4 rounded-[6px]"
                     >
                       <div className="flex justify-between items-center mb-4">
                         <h3 className="text-lg font-medium">Biến thể #{index + 1}</h3>

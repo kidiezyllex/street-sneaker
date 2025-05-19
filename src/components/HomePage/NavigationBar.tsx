@@ -28,8 +28,8 @@ const Tab = ({ text, selected, setSelected }: TabProps) => {
             onClick={() => setSelected(text)}
             className={`${selected
                 ? 'text-white'
-                : 'text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
-                } relative rounded-md px-3 py-1.5 text-sm font-medium transition-colors`}
+                : 'text-maintext hover:text-gray-900 dark:hover:text-gray-100'
+                } relative rounded-[6px] px-3 py-1.5 text-sm font-medium transition-colors`}
         >
             <span className="relative z-10">{text}</span>
             {selected && (

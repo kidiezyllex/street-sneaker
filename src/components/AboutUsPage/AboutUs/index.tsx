@@ -14,7 +14,7 @@ import 'swiper/css/navigation';
 //                                                                                                                     Component cho các tính năng
 const FeatureCard = ({ icon, title, description }: { icon: string; title: string; description: string }) => (
     <motion.div
-        className="bg-white backdrop-blur-md p-8 rounded-md transition-all duration-300 border border-white/20"
+        className="bg-white backdrop-blur-md p-8 rounded-[6px] transition-all duration-300 border border-white/20"
         whileHover={{ y: -10, scale: 1.02 }}
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -27,14 +27,14 @@ const FeatureCard = ({ icon, title, description }: { icon: string; title: string
             </div>
             <h3 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h3>
         </div>
-        <p className="text-gray-600 dark:text-gray-400">{description}</p>
+        <p className="text-gray-600 dark:text-maintext">{description}</p>
     </motion.div>
 );
 
 //                                                                                                                     Component cho thành viên nhóm
 const TeamMember = ({ name, id, role }: { name: string; id: string; role: string }) => (
     <motion.div
-        className=" bg-gradient-to-r from-[#2C8B3D80] to-[#88C14080] flex flex-col items-center justify-center gap-2 p-4 px-2 rounded-md relative overflow-hidden cursor-pointer"
+        className=" bg-gradient-to-r from-[#2C8B3D80] to-[#88C14080] flex flex-col items-center justify-center gap-2 p-4 px-2 rounded-[6px] relative overflow-hidden cursor-pointer"
         whileHover={{ y: -10, scale: 1.02 }}
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -65,7 +65,7 @@ const TestimonialCard = ({ rating, title, description, image, name, role }: {
     role: string;
 }) => (
     <motion.div
-        className="bg-white/15 backdrop-blur-md p-8 rounded-xl shadow-lg transition-all duration-300 border border-white/20 h-full"
+        className="bg-white/15 backdrop-blur-md p-8 rounded-[6px] shadow-lg transition-all duration-300 border border-white/20 h-full"
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
@@ -217,13 +217,13 @@ export const AboutUs = () => {
                             transition={{ duration: 0.8 }}
                         >
                             <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-8">Câu chuyện của chúng tôi</h2>
-                            <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
+                            <p className="text-lg text-gray-600 dark:text-maintext mb-8">
                                 StreetSneaker được thành lập với sứ mệnh mang đến cho khách hàng những sản phẩm giày chất lượng cao với giá cả phải chăng. Chúng tôi tin rằng mỗi người đều xứng đáng được sở hữu những đôi giày thoải mái và thời trang.
                             </p>
-                            <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
+                            <p className="text-lg text-gray-600 dark:text-maintext mb-8">
                                 Với hơn 5 năm kinh nghiệm trong ngành, chúng tôi đã xây dựng được mạng lưới cung cấp sản phẩm rộng khắp, đảm bảo luôn có sẵn các mẫu giày mới nhất và phổ biến nhất trên thị trường.
                             </p>
-                            <div className="flex flex-wrap gap-6">
+                            <div className="flex flex-wrap gap-4">
                                 <motion.div
                                     className="flex items-center"
                                     whileHover={{ x: 5 }}
@@ -281,7 +281,7 @@ export const AboutUs = () => {
                         transition={{ duration: 0.5 }}
                     >
                         <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Tại sao chọn StreetSneaker?</h2>
-                        <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                        <p className="text-lg text-gray-600 dark:text-maintext max-w-2xl mx-auto">
                             Chúng tôi cam kết mang đến trải nghiệm mua sắm tốt nhất cho khách hàng với những dịch vụ và sản phẩm chất lượng cao.
                         </p>
                     </motion.div>
@@ -321,7 +321,7 @@ export const AboutUs = () => {
                         transition={{ duration: 0.5 }}
                     >
                         <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Đội ngũ của chúng tôi</h2>
-                        <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                        <p className="text-lg text-gray-600 dark:text-maintext max-w-2xl mx-auto">
                             StreetSneaker được vận hành bởi một đội ngũ trẻ trung, năng động và đầy nhiệt huyết. Chúng tôi luôn nỗ lực để mang đến những sản phẩm và dịch vụ tốt nhất cho khách hàng.
                         </p>
                     </motion.div>
@@ -395,7 +395,7 @@ export const AboutUs = () => {
             <section className="py-24">
                 <div className="container mx-auto px-4">
                     <motion.div
-                        className="bg-gradient-to-r from-[#2C8B3D] via-[#88C140] to-[#F2A024] rounded-2xl p-16 text-center relative overflow-hidden"
+                        className="bg-gradient-to-r from-[#2C8B3D] via-[#88C140] to-[#F2A024] rounded-[6px] p-16 text-center relative overflow-hidden"
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}

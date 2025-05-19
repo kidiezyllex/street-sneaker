@@ -12,13 +12,13 @@ export default function AdminHeader() {
   const { toggle } = useMenuSidebar();
 
   return (
-    <header className="h-16 border-b bg-white flex items-center justify-between px-6 shadow-sm">
+    <header className="h-16 border-b bg-white flex items-center justify-between px-4 shadow-sm">
       <div className="flex items-center">
         <button 
           onClick={toggle}
           className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 mr-4"
         >
-          <IconLayoutSidebarRightExpandFilled size={20} stroke={1.5} className='text-gray-400'/>
+          <IconLayoutSidebarRightExpandFilled size={20} stroke={1.5} className='text-maintext'/>
         </button>
       </div>
       

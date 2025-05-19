@@ -131,7 +131,7 @@ const DiscountTag = ({ discount }: { discount: number }) => {
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ type: "spring", stiffness: 400, damping: 10 }}
-        className="bg-red-medium text-white px-2 py-1 rounded-lg text-xs font-bold"
+        className="bg-red-medium text-white px-2 py-1 rounded-[6px] text-xs font-bold"
       >
         -{discount}%
       </motion.div>
@@ -210,7 +210,7 @@ const CategoryCard = ({ category, index }: { category: typeof categories[0], ind
       variants={cardVariants}
       initial="hidden"
       animate={isInView ? "visible" : "hidden"}
-      className="relative overflow-hidden rounded-md shadow-lg hover:shadow-xl transition-all duration-300 h-full"
+      className="relative overflow-hidden rounded-[6px] shadow-lg hover:shadow-xl transition-all duration-300 h-full"
     >
       <Link href={`/categories/${category.slug}`} className="block group h-full">
         <div className="aspect-[4/5] relative overflow-hidden h-full">
@@ -231,7 +231,7 @@ const CategoryCard = ({ category, index }: { category: typeof categories[0], ind
           </motion.div>
 
           <div className="absolute inset-0 bg-gradient-to-t from-main-dark-blue/90 via-main-dark-blue/50 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-300">
-            <div className="absolute bottom-0 left-0 right-0 p-6">
+            <div className="absolute bottom-0 left-0 right-0 p-4">
               <motion.div
                 variants={textVariants}
                 className="text-white space-y-2"
@@ -386,7 +386,7 @@ export const Categories = () => {
               >
                 <Button
                   variant="outline"
-                  className="uppercase group border border-primary text-primary hover:bg-primary hover:text-white transition-all duration-300 text-sm font-medium rounded-full px-6 py-2 h-auto"
+                  className="uppercase group border border-primary text-primary hover:bg-primary hover:text-white transition-all duration-300 text-sm font-medium rounded-full px-4 py-2 h-auto"
                 >
                   Xem tất cả danh mục
                   <Icon path={mdiArrowRight} size={0.8} className="ml-2 group-hover:translate-x-1 transition-transform" />

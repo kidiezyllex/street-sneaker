@@ -192,7 +192,7 @@ export default function CreateReturnPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className='flex justify-between items-start'>
         <Breadcrumb>
           <BreadcrumbList>
@@ -294,7 +294,7 @@ export default function CreateReturnPage() {
                   </div>
                 ) : searchResult && searchResult.data && searchResult.data.length === 0 ? (
                   <div className="text-center py-4">
-                    <p className="text-gray-500">Không tìm thấy đơn hàng nào phù hợp</p>
+                    <p className="text-maintext">Không tìm thấy đơn hàng nào phù hợp</p>
                   </div>
                 ) : null}
               </CardContent>
@@ -313,15 +313,15 @@ export default function CreateReturnPage() {
                       <h3 className="font-medium mb-2">Thông tin đơn hàng</h3>
                       <div className="space-y-2">
                         <div className="flex justify-between">
-                          <span className="text-gray-500">Mã đơn hàng:</span>
+                          <span className="text-maintext">Mã đơn hàng:</span>
                           <span className="font-medium">{orderInfo.code}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-500">Ngày đặt:</span>
+                          <span className="text-maintext">Ngày đặt:</span>
                           <span>{new Date(orderInfo.createdAt).toLocaleDateString('vi-VN')}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-500">Tổng tiền:</span>
+                          <span className="text-maintext">Tổng tiền:</span>
                           <span>{formatCurrency(orderInfo.totalAmount)}</span>
                         </div>
                       </div>
@@ -330,15 +330,15 @@ export default function CreateReturnPage() {
                       <h3 className="font-medium mb-2">Thông tin khách hàng</h3>
                       <div className="space-y-2">
                         <div className="flex justify-between">
-                          <span className="text-gray-500">Khách hàng:</span>
+                          <span className="text-maintext">Khách hàng:</span>
                           <span className="font-medium">{orderInfo.customer.fullName}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-500">Email:</span>
+                          <span className="text-maintext">Email:</span>
                           <span>{orderInfo.customer.email}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-500">Số điện thoại:</span>
+                          <span className="text-maintext">Số điện thoại:</span>
                           <span>{orderInfo.customer.phoneNumber}</span>
                         </div>
                       </div>
@@ -346,7 +346,7 @@ export default function CreateReturnPage() {
                   </div>
                 ) : (
                   <div className="text-center py-4">
-                    <p className="text-gray-500">Vui lòng chọn đơn hàng trước</p>
+                    <p className="text-maintext">Vui lòng chọn đơn hàng trước</p>
                   </div>
                 )}
               </CardContent>
@@ -376,7 +376,7 @@ export default function CreateReturnPage() {
                         <TableRow key={index}>
                           <TableCell>
                             {item.product.images && item.product.images.length > 0 ? (
-                              <div className="relative h-16 w-16 rounded-md overflow-hidden">
+                              <div className="relative h-16 w-16 rounded-[6px] overflow-hidden">
                                 <Image
                                   src={item.product.images[0]}
                                   alt={item.product.name}
@@ -385,14 +385,14 @@ export default function CreateReturnPage() {
                                 />
                               </div>
                             ) : (
-                              <div className="h-16 w-16 bg-gray-100 rounded-md flex items-center justify-center">
-                                <Icon path={mdiMagnify} size={1} className="text-gray-400" />
+                              <div className="h-16 w-16 bg-gray-100 rounded-[6px] flex items-center justify-center">
+                                <Icon path={mdiMagnify} size={1} className="text-maintext" />
                               </div>
                             )}
                           </TableCell>
                           <TableCell>
                             <div className="font-medium">{item.product.name}</div>
-                            <div className="text-sm text-gray-500">SKU: {item.product.code}</div>
+                            <div className="text-sm text-maintext">SKU: {item.product.code}</div>
                           </TableCell>
                           <TableCell>
                             <div>Màu: {item.variant.colorId}</div>
@@ -447,7 +447,7 @@ export default function CreateReturnPage() {
                               <TableRow key={index}>
                                 <TableCell>
                                   {item.product.images && item.product.images.length > 0 ? (
-                                    <div className="relative h-16 w-16 rounded-md overflow-hidden">
+                                    <div className="relative h-16 w-16 rounded-[6px] overflow-hidden">
                                       <Image
                                         src={item.product.images[0]}
                                         alt={item.product.name}
@@ -456,12 +456,12 @@ export default function CreateReturnPage() {
                                       />
                                     </div>
                                   ) : (
-                                    <div className="h-16 w-16 bg-gray-100 rounded-md"></div>
+                                    <div className="h-16 w-16 bg-gray-100 rounded-[6px]"></div>
                                   )}
                                 </TableCell>
                                 <TableCell>
                                   <div className="font-medium">{item.product.name}</div>
-                                  <div className="text-sm text-gray-500">SKU: {item.product.code}</div>
+                                  <div className="text-sm text-maintext">SKU: {item.product.code}</div>
                                 </TableCell>
                                 <TableCell>
                                   <div>Màu: {item.variant.colorId}</div>
@@ -513,7 +513,7 @@ export default function CreateReturnPage() {
                           <p className="text-red-500 text-sm">{errors.reason}</p>
                         )}
 
-                        <div className="bg-gray-50 p-4 rounded-md">
+                        <div className="bg-gray-50 p-4 rounded-[6px]">
                           <div className="flex justify-between font-medium">
                             <span>Tổng tiền hoàn trả:</span>
                             <span className="text-primary text-lg">{formatCurrency(calculateTotalRefund())}</span>
@@ -521,8 +521,8 @@ export default function CreateReturnPage() {
                         </div>
                       </div>
                     ) : (
-                      <div className="text-center py-4 bg-gray-50 rounded-md">
-                        <p className="text-gray-500">Chưa có sản phẩm nào được chọn</p>
+                      <div className="text-center py-4 bg-gray-50 rounded-[6px]">
+                        <p className="text-maintext">Chưa có sản phẩm nào được chọn</p>
                       </div>
                     )}
                   </AnimatePresence>

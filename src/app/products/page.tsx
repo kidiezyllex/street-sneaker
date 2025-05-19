@@ -295,7 +295,7 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6">
+      <div className="flex flex-col lg:flex-row gap-4">
         {/* Filters - Mobile */}
         <AnimatePresence>
           {isFilterOpen && (
@@ -306,7 +306,7 @@ export default function ProductsPage() {
               transition={{ duration: 0.3 }}
               className="lg:hidden w-full"
             >
-              <div className="bg-white rounded-lg shadow-sm border p-4 mb-4">
+              <div className="bg-white rounded-[6px] shadow-sm border p-4 mb-4">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="font-medium">Bộ lọc sản phẩm</h2>
                   <Button variant="ghost" size="sm" onClick={toggleFilter}>
@@ -323,7 +323,7 @@ export default function ProductsPage() {
         </AnimatePresence>
 
         <div className="hidden lg:block w-full lg:w-1/4 xl:w-1/5">
-          <div className="bg-white rounded-lg shadow-sm border p-4 sticky top-20">
+          <div className="bg-white rounded-[6px] shadow-sm border p-4 sticky top-20">
             <h2 className="font-medium mb-4">Bộ lọc sản phẩm</h2>
             <ProductFilters
               filters={filters}
@@ -348,7 +348,7 @@ export default function ProductsPage() {
               <Icon
                 path={mdiMagnify}
                 size={0.9}
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext"
               />
               <Input
                 placeholder="Tìm kiếm sản phẩm..."
@@ -376,7 +376,7 @@ export default function ProductsPage() {
           </div>
 
           {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {[...Array(8)].map((_, index) => (
                 <Card key={index} className="overflow-hidden h-full">
                   <div className="aspect-square w-full">
@@ -400,7 +400,7 @@ export default function ProductsPage() {
           ) : filteredProducts.length > 0 ? (
             <>
               <div className="flex justify-between items-center mb-4">
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-maintext">
                   Tìm thấy {filteredProducts.length} sản phẩm
                 </p>
               </div>
@@ -529,7 +529,7 @@ export default function ProductsPage() {
                 </Pagination>
               </div>
 
-              <div className="lg:hidden mt-8 bg-white rounded-lg shadow-sm border p-4">
+              <div className="lg:hidden mt-8 bg-white rounded-[6px] shadow-sm border p-4">
                 <VoucherForm
                   orderValue={filteredProducts
                     .reduce((sum, product) => sum + (product.variants[0]?.price || 0), 0)}
@@ -541,7 +541,7 @@ export default function ProductsPage() {
             </>
           ) : (
             <div className="text-center py-12">
-              <p className="text-gray-500 mb-4">Không tìm thấy sản phẩm nào</p>
+              <p className="text-maintext mb-4">Không tìm thấy sản phẩm nào</p>
               {(searchQuery || Object.keys(filters).length > 0) && (
                 <Button onClick={() => {
                   setSearchQuery('');
@@ -564,7 +564,7 @@ export default function ProductsPage() {
 
 const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: ProductCardProps) => {
   return (
-    <Card className="group overflow-hidden border border-gray-200 rounded-md hover:border-primary/70 hover:shadow-2xl shadow-md transition-all duration-300 h-full flex flex-col transform hover:-translate-y-2 bg-white relative">
+    <Card className="group overflow-hidden border border-gray-200 rounded-[6px] hover:border-primary/70 hover:shadow-2xl shadow-md transition-all duration-300 h-full flex flex-col transform hover:-translate-y-2 bg-white relative">
       <div className="relative overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100">
         <Link href={`/products/${product.name.toLowerCase().replace(/\s+/g, '-')}-${product._id}`} className="block">
           <div className="aspect-square overflow-hidden relative flex items-center justify-center">
@@ -634,7 +634,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
 
       {/* Thông tin sản phẩm */}
       <div className="p-4 flex flex-col flex-grow bg-gradient-to-t from-gray-50 via-white to-white border-t rounded-b-2xl">
-        <div className="text-xs text-gray-500 mb-1 uppercase tracking-wide font-semibold flex items-center gap-1">
+        <div className="text-xs text-maintext mb-1 uppercase tracking-wide font-semibold flex items-center gap-1">
           <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary/70"></span>
           {typeof product.brand === 'string' ? product.brand : product.brand.name}
         </div>
@@ -653,7 +653,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
               {formatPrice(product.variants[0]?.price || 0)}
             </div>
             {product.originalPrice && (
-              <div className="text-sm text-gray-400 line-through font-medium">
+              <div className="text-sm text-maintext line-through font-medium">
                 {formatPrice(product.originalPrice)}
               </div>
             )}
@@ -683,7 +683,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
               {Array.from(new Set(product.variants.map((v: any) =>
                 typeof v.colorId === 'object' ? v.colorId._id : v.colorId
               ))).length > 4 && (
-                  <span className="text-xs text-gray-500 ml-1">
+                  <span className="text-xs text-maintext ml-1">
                     +{Array.from(new Set(product.variants.map((v: any) =>
                       typeof v.colorId === 'object' ? v.colorId._id : v.colorId
                     ))).length - 4}
@@ -853,7 +853,7 @@ const ProductFilters = ({ filters, onChange }: ProductFiltersProps) => {
 
   if (productsQuery.isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         <Skeleton className="h-20 w-full" />
         <Skeleton className="h-40 w-full" />
         <Skeleton className="h-40 w-full" />
@@ -862,7 +862,7 @@ const ProductFilters = ({ filters, onChange }: ProductFiltersProps) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
         <h3 className="text-sm font-medium mb-3">Giá</h3>
         <div className="px-2">
@@ -874,7 +874,7 @@ const ProductFilters = ({ filters, onChange }: ProductFiltersProps) => {
             value={selectedPriceRange}
             onValueChange={(value) => handlePriceChange(value as [number, number])}
           />
-          <div className="flex justify-between mt-2 text-sm text-gray-500">
+          <div className="flex justify-between mt-2 text-sm text-maintext">
             <span>{formatPrice(selectedPriceRange[0])}</span>
             <span>{formatPrice(selectedPriceRange[1])}</span>
           </div>

@@ -158,7 +158,7 @@ export default function ReturnsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className='flex justify-between items-start'>
         <Breadcrumb>
           <BreadcrumbList>
@@ -184,7 +184,7 @@ export default function ReturnsPage() {
           <Card>
             <CardContent className="p-4">
               <div className="flex flex-col">
-                <p className="text-sm text-gray-500">Tổng số đơn trả</p>
+                <p className="text-sm text-maintext">Tổng số đơn trả</p>
                 <h3 className="text-2xl font-bold">{statsData.data.totalReturns}</h3>
               </div>
             </CardContent>
@@ -192,7 +192,7 @@ export default function ReturnsPage() {
           <Card>
             <CardContent className="p-4">
               <div className="flex flex-col">
-                <p className="text-sm text-gray-500">Đang chờ xử lý</p>
+                <p className="text-sm text-maintext">Đang chờ xử lý</p>
                 <h3 className="text-2xl font-bold">{statsData.data.pendingReturns}</h3>
               </div>
             </CardContent>
@@ -200,7 +200,7 @@ export default function ReturnsPage() {
           <Card>
             <CardContent className="p-4">
               <div className="flex flex-col">
-                <p className="text-sm text-gray-500">Đã hoàn tiền</p>
+                <p className="text-sm text-maintext">Đã hoàn tiền</p>
                 <h3 className="text-2xl font-bold">{statsData.data.refundedReturns}</h3>
               </div>
             </CardContent>
@@ -208,7 +208,7 @@ export default function ReturnsPage() {
           <Card>
             <CardContent className="p-4">
               <div className="flex flex-col">
-                <p className="text-sm text-gray-500">Tổng tiền hoàn trả</p>
+                <p className="text-sm text-maintext">Tổng tiền hoàn trả</p>
                 <h3 className="text-2xl font-bold">{formatCurrency(statsData.data.totalRefundAmount)}</h3>
               </div>
             </CardContent>
@@ -243,7 +243,7 @@ export default function ReturnsPage() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10 w-full"
                   />
-                  <div className="absolute left-3 top-2.5 text-gray-400">
+                  <div className="absolute left-3 top-2.5 text-maintext">
                     <Icon path={mdiMagnify} size={0.9} />
                   </div>
                 </div>
@@ -271,7 +271,7 @@ export default function ReturnsPage() {
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="bg-slate-50 p-4 rounded-lg mb-4"
+                  className="bg-slate-50 p-4 rounded-[6px] mb-4"
                 >
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
@@ -291,7 +291,7 @@ export default function ReturnsPage() {
               <div className="space-y-4">
                 {[...Array(5)].map((_, index) => (
                   <div key={index} className="flex items-center space-x-4">
-                    <Skeleton className="h-12 w-12 rounded-md" />
+                    <Skeleton className="h-12 w-12 rounded-[6px]" />
                     <div className="space-y-2">
                       <Skeleton className="h-4 w-[250px]" />
                       <Skeleton className="h-4 w-[200px]" />
@@ -305,7 +305,7 @@ export default function ReturnsPage() {
               </div>
             ) : data?.data.returns.length === 0 ? (
               <div className="text-center py-10">
-                <p className="text-gray-500">Không có yêu cầu trả hàng nào</p>
+                <p className="text-maintext">Không có yêu cầu trả hàng nào</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -501,25 +501,25 @@ function ReturnDetailContent({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Thông tin yêu cầu</h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-gray-500">Mã yêu cầu</p>
+              <p className="text-sm text-maintext">Mã yêu cầu</p>
               <p className="font-medium">{returnData.code}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Ngày tạo</p>
+              <p className="text-sm text-maintext">Ngày tạo</p>
               <p className="font-medium">{formatDate(returnData.createdAt)}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Đơn hàng gốc</p>
+              <p className="text-sm text-maintext">Đơn hàng gốc</p>
               <p className="font-medium">{order.code}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Trạng thái</p>
+              <p className="text-sm text-maintext">Trạng thái</p>
               <div className="mt-1">
                 {returnData.status === 'CHO_XU_LY' ? (
                   <Badge variant="outline" className="bg-yellow-50 text-yellow-600 border-yellow-200">Chờ xử lý</Badge>
@@ -531,7 +531,7 @@ function ReturnDetailContent({
               </div>
             </div>
             <div className="col-span-2">
-              <p className="text-sm text-gray-500">Tổng tiền hoàn trả</p>
+              <p className="text-sm text-maintext">Tổng tiền hoàn trả</p>
               <p className="font-medium text-lg text-green-600">{formatCurrency(returnData.totalRefund)}</p>
             </div>
           </div>
@@ -541,15 +541,15 @@ function ReturnDetailContent({
           <h3 className="text-lg font-semibold">Thông tin khách hàng</h3>
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
-              <p className="text-sm text-gray-500">Tên khách hàng</p>
+              <p className="text-sm text-maintext">Tên khách hàng</p>
               <p className="font-medium">{customer.fullName}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Email</p>
+              <p className="text-sm text-maintext">Email</p>
               <p className="font-medium">{customer.email || 'Không có'}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Số điện thoại</p>
+              <p className="text-sm text-maintext">Số điện thoại</p>
               <p className="font-medium">{customer.phoneNumber || 'Không có'}</p>
             </div>
           </div>
@@ -586,18 +586,18 @@ function ReturnDetailContent({
                             src={product.images[0]}
                             alt={product.name}
                             fill
-                            className="object-cover rounded-md"
+                            className="object-cover rounded-[6px]"
                           />
                         </div>
                       ) : (
-                        <div className="w-16 h-16 bg-gray-100 rounded-md flex items-center justify-center">
-                          <Icon path={mdiMagnify} size={1} className="text-gray-400" />
+                        <div className="w-16 h-16 bg-gray-100 rounded-[6px] flex items-center justify-center">
+                          <Icon path={mdiMagnify} size={1} className="text-maintext" />
                         </div>
                       )}
                     </TableCell>
                     <TableCell className="font-medium">
                       {product.name}
-                      <div className="text-xs text-gray-500">SKU: {product.code}</div>
+                      <div className="text-xs text-maintext">SKU: {product.code}</div>
                     </TableCell>
                     <TableCell>
                       {item.variant ? (

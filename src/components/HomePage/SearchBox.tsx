@@ -74,7 +74,7 @@ export const SearchBox = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3, type: 'spring' }}
-            className="fixed top-0 left-0 right-0 bg-white shadow-lg p-4 md:p-6 z-50"
+            className="fixed top-0 left-0 right-0 bg-white shadow-lg p-4 md:p-4 z-50"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="container mx-auto">
@@ -84,7 +84,7 @@ export const SearchBox = () => {
                   variant="ghost" 
                   size="icon" 
                   onClick={() => setIsOpen(false)}
-                  className="text-gray-400 hover:text-gray-900"
+                  className="text-maintext hover:text-gray-900"
                 >
                   <Icon path={mdiClose} size={1} />
                 </Button>
@@ -92,7 +92,7 @@ export const SearchBox = () => {
 
               <div className="relative">
                 <div className="flex items-center border-b-2 border-primary focus-within:border-extra transition-colors">
-                  <Icon path={mdiMagnify} size={1} className="text-gray-400 mr-2" />
+                  <Icon path={mdiMagnify} size={1} className="text-maintext mr-2" />
                   <Input 
                     type="text" 
                     placeholder="Tìm kiếm sản phẩm, danh mục..." 
@@ -105,10 +105,10 @@ export const SearchBox = () => {
 
                 {searchValue.trim() !== '' && (
                   <div className="mt-6">
-                    <h4 className="text-sm text-gray-400 mb-2">Kết quả ({filteredResults.length})</h4>
+                    <h4 className="text-sm text-maintext mb-2">Kết quả ({filteredResults.length})</h4>
                     
                     {filteredResults.length === 0 ? (
-                      <p className="text-gray-400 italic">Không tìm thấy kết quả nào phù hợp.</p>
+                      <p className="text-maintext italic">Không tìm thấy kết quả nào phù hợp.</p>
                     ) : (
                       <ul className="space-y-2 divide-y divide-gray-100">
                         {filteredResults.map((result) => (
@@ -122,7 +122,7 @@ export const SearchBox = () => {
                             <div className="flex justify-between">
                               <div>
                                 <p className="font-medium text-gray-900">{result.name}</p>
-                                <span className="text-xs text-gray-400">{result.category}</span>
+                                <span className="text-xs text-maintext">{result.category}</span>
                               </div>
                               <span className="text-primary font-semibold">{formatPrice(result.price)}</span>
                             </div>

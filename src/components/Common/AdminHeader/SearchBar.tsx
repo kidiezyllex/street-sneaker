@@ -16,7 +16,7 @@ export default function SearchBar() {
       className="relative w-full max-w-md"
     >
       <div className="relative">
-        <IconSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+        <IconSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext" size={18} />
         <Input
           type="text"
           placeholder="Tìm kiếm..."

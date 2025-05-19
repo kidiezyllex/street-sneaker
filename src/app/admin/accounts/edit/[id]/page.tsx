@@ -156,7 +156,7 @@ export default function EditAccountPage({ params }: Props) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className='flex justify-between items-start'>
         <Breadcrumb>
           <BreadcrumbList>
@@ -183,7 +183,7 @@ export default function EditAccountPage({ params }: Props) {
         </Button>
       </div>
 
-      <div className="flex items-center space-x-6 bg-white p-8 rounded-xl shadow-md">
+      <div className="flex items-center space-x-4 bg-white p-8 rounded-[6px] shadow-md">
         <Avatar className="w-24 h-24 border-2 border-primary">
           <AvatarImage src={formData.avatar} />
           <AvatarFallback className="text-2xl">
@@ -207,7 +207,7 @@ export default function EditAccountPage({ params }: Props) {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md">
+      <form onSubmit={handleSubmit} className="bg-white p-4 rounded-[6px] shadow-md">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 bg-white">
           <TabsList className="grid w-full md:w-[400px] grid-cols-2">
             <TabsTrigger value="info">Thông tin cơ bản</TabsTrigger>

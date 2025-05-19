@@ -90,7 +90,7 @@ const QrCodeScanner = ({ onQrCodeDetected }: QrCodeScannerProps) => {
                 className="flex flex-col items-center"
               >
                 <div id="qr-reader" className="w-full max-w-sm mx-auto"></div>
-                <div className="text-xs text-gray-500 mt-2 text-center">
+                <div className="text-xs text-maintext mt-2 text-center">
                   Đặt mã QR vào ô quét và giữ yên thiết bị của bạn.
                 </div>
               </motion.div>

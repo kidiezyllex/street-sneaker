@@ -37,8 +37,8 @@ export const OutOfStockProducts = () => {
         </CardHeader>
         <CardContent>
           {outOfStockProducts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-6 text-center">
-              <p className="text-gray-400">Không có sản phẩm nào hết hàng</p>
+            <div className="flex flex-col items-center justify-center py-4 text-center">
+              <p className="text-maintext">Không có sản phẩm nào hết hàng</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -48,10 +48,10 @@ export const OutOfStockProducts = () => {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
-                  className="flex items-center gap-2 rounded-lg border p-3"
+                  className="flex items-center gap-2 rounded-[6px] border p-3"
                 >
                   <div 
-                    className="relative h-14 w-14 overflow-hidden rounded-md bg-gray-100 cursor-pointer transition-transform hover:scale-105"
+                    className="relative h-14 w-14 overflow-hidden rounded-[6px] bg-gray-100 cursor-pointer transition-transform hover:scale-105"
                     onClick={() => openLightbox(index)}
                   >
                     <Image
@@ -68,7 +68,7 @@ export const OutOfStockProducts = () => {
                       <span>Hết hàng</span>
                     </div>
                   </div>
-                  <button className="rounded-md bg-primary px-3 py-1 text-xs font-medium text-white hover:bg-primary/90 transition-colors">
+                  <button className="rounded-[6px] bg-primary px-3 py-1 text-xs font-medium text-white hover:bg-primary/90 transition-colors">
                     Nhập hàng
                   </button>
                 </motion.div>

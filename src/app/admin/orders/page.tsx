@@ -48,6 +48,7 @@ import * as XLSX from "xlsx"
 import jsPDF from "jspdf"
 import { autoTable } from "jspdf-autotable"
 import { RobotoRegular } from "@/fonts/Roboto-Regular"
+import { useRouter } from "next/navigation"
 
 export default function OrdersPage() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -69,6 +70,7 @@ export default function OrdersPage() {
   const updateOrderStatus = useUpdateOrderStatus()
   const cancelOrder = useCancelOrder()
   const queryClient = useQueryClient()
+  const router = useRouter()
 
   useEffect(() => {
     const debounce = setTimeout(() => {
@@ -151,8 +153,7 @@ export default function OrdersPage() {
   }
 
   const handleViewOrder = (orderId: string) => {
-    setSelectedOrder(orderId)
-    setIsViewDialogOpen(true)
+    router.push(`/admin/orders/${orderId}`);
   }
 
   const handleChangeStatus = async () => {
@@ -361,7 +362,7 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div className="mb-0 md:mb-0">
           <Breadcrumb>
@@ -376,10 +377,9 @@ export default function OrdersPage() {
             </BreadcrumbList>
           </Breadcrumb>
         </div>
-     
       </div>
       <Card>
-        <CardContent className="p-6">
+        <CardContent className="p-4">
           <Tabs defaultValue="all" className="w-full" onValueChange={setSelectedTab}>
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-4">
               <TabsList className="h-9">
@@ -431,7 +431,7 @@ export default function OrdersPage() {
                 <Icon
                   path={mdiMagnify}
                   size={0.9}
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext"
                 />
                 <Input
                   type="text"
@@ -649,7 +649,7 @@ export default function OrdersPage() {
         <div className="space-y-4">
           {[...Array(5)].map((_, index) => (
             <div key={index} className="flex items-center space-x-4">
-              <Skeleton className="h-12 w-12 rounded-md" />
+              <Skeleton className="h-12 w-12 rounded-[6px]" />
               <div className="space-y-2">
                 <Skeleton className="h-4 w-[250px]" />
                 <Skeleton className="h-4 w-[200px]" />
@@ -678,7 +678,7 @@ export default function OrdersPage() {
     if (!data?.data.orders || data.data.orders.length === 0) {
       return (
         <div className="text-center py-10">
-          <p className="text-gray-500">Không tìm thấy đơn hàng nào.</p>
+          <p className="text-maintext">Không tìm thấy đơn hàng nào.</p>
         </div>
       )
     }
@@ -705,7 +705,7 @@ export default function OrdersPage() {
                   <TableCell>
                     <div>
                       <div className="font-medium">{order.shippingAddress?.name}</div>
-                      <div className="text-sm text-gray-500">{order.shippingAddress?.phoneNumber}</div>
+                      <div className="text-sm text-maintext">{order.shippingAddress?.phoneNumber}</div>
                     </div>
                   </TableCell>
                   <TableCell className="hidden md:table-cell">{formatDate(order.createdAt)}</TableCell>
@@ -721,11 +721,6 @@ export default function OrdersPage() {
                       <Button variant="outline" size="icon" onClick={() => handleViewOrder(order._id)}>
                         <Icon path={mdiEye} size={0.9} />
                       </Button>
-                      <Link href={`/admin/orders/edit/${order._id}`}>
-                        <Button variant="outline" size="icon">
-                          <Icon path={mdiPencil} size={0.9} />
-                        </Button>
-                      </Link>
                       <Button
                         variant="outline"
                         size="icon"
@@ -808,19 +803,19 @@ const OrderStatusBadge = ({ status }: { status: string }) => {
   const getStatusConfig = (status: string) => {
     switch (status) {
       case "CHO_XAC_NHAN":
-        return { label: "Chờ xác nhận", className: "!bg-yellow-400 !text-yellow-900 !border-yellow-500" }
+        return { label: "Chờ xác nhận", className: "!bg-amber-50 !text-amber-500 !border-amber-500" }
       case "CHO_GIAO_HANG":
-        return { label: "Chờ giao hàng", className: "!bg-blue-400 !text-blue-900 !border-blue-500" }
+        return { label: "Chờ giao hàng", className: "!bg-blue-50 !text-blue-500 !border-blue-500" }
       case "DANG_VAN_CHUYEN":
-        return { label: "Đang vận chuyển", className: "!bg-orange-400 !text-orange-900 !border-orange-500" }
+        return { label: "Đang vận chuyển", className: "!bg-orange-50 !text-orange-500 !border-orange-500" }
       case "DA_GIAO_HANG":
-        return { label: "Đã giao hàng", className: "!bg-green-400 !text-green-900 !border-green-500" }
+        return { label: "Đã giao hàng", className: "!bg-green-50 !text-green-500 !border-green-500" }
       case "HOAN_THANH":
-        return { label: "Hoàn thành", className: "!bg-emerald-400 !text-emerald-900 !border-emerald-500" }
+        return { label: "Hoàn thành", className: "!bg-green-50 !text-green-500 !border-green-500" }
       case "DA_HUY":
-        return { label: "Đã hủy", className: "!bg-red-400 !text-red-900 !border-red-500" }
+        return { label: "Đã hủy", className: "!bg-red-50 !text-red-500 !border-red-500" }
       default:
-        return { label: "Không xác định", className: "!bg-gray-400 !text-gray-900 !border-gray-500" }
+        return { label: "Không xác định", className: "!bg-gray-50 !text-maintext !border-gray-500" }
     }
   }
 
@@ -833,13 +828,13 @@ const PaymentStatusBadge = ({ status }: { status: string }) => {
   const getStatusConfig = (status: string) => {
     switch (status) {
       case "PENDING":
-        return { label: "Chưa thanh toán", className: "!bg-yellow-400 !text-yellow-900 !border-yellow-500" }
+        return { label: "Chưa thanh toán", className: "!bg-yellow-50 !text-yellow-500 !border-yellow-500" }
       case "PARTIAL_PAID":
-        return { label: "Thanh toán một phần", className: "!bg-blue-400 !text-blue-900 !border-blue-500" }
+        return { label: "Thanh toán một phần", className: "!bg-blue-50 !text-blue-500 !border-blue-500" }
       case "PAID":
-        return { label: "Đã thanh toán", className: "!bg-green-400 !text-green-900 !border-green-500" }
+        return { label: "Đã thanh toán", className: "!bg-green-50 !text-green-500 !border-green-500" }
       default:
-        return { label: "Không xác định", className: "!bg-gray-400 !text-gray-900 !border-gray-500" }
+        return { label: "Không xác định", className: "!bg-gray-50 !text-maintext !border-gray-500" }
     }
   }
 
@@ -911,54 +906,54 @@ const OrderDetailDialog = ({
           <div>
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-medium text-gray-500">Thông tin đơn hàng</h3>
-                <div className="mt-2 rounded-lg border p-4 space-y-3">
+                <h3 className="text-sm font-medium text-maintext">Thông tin đơn hàng</h3>
+                <div className="mt-2 rounded-[6px] border p-4 space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-500">Mã đơn hàng:</span>
+                    <span className="text-sm text-maintext">Mã đơn hàng:</span>
                     <span className="text-sm font-medium">{orderDetail.orderNumber}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-500">Ngày tạo:</span>
+                    <span className="text-sm text-maintext">Ngày tạo:</span>
                     <span className="text-sm font-medium">{formatDate(orderDetail.createdAt)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-500">Trạng thái đơn hàng:</span>
+                    <span className="text-sm text-maintext">Trạng thái đơn hàng:</span>
                     <OrderStatusBadge status={orderDetail.orderStatus} />
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-500">Trạng thái thanh toán:</span>
+                    <span className="text-sm text-maintext">Trạng thái thanh toán:</span>
                     <PaymentStatusBadge status={orderDetail.paymentStatus} />
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-500">Phương thức thanh toán:</span>
+                    <span className="text-sm text-maintext">Phương thức thanh toán:</span>
                     <span className="text-sm font-medium">{getPaymentMethodName(orderDetail.paymentMethod)}</span>
                   </div>
                 </div>
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-gray-500">Thông tin khách hàng</h3>
-                <div className="mt-2 rounded-lg border p-4 space-y-3">
+                <h3 className="text-sm font-medium text-maintext">Thông tin khách hàng</h3>
+                <div className="mt-2 rounded-[6px] border p-4 space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-500">Tên khách hàng:</span>
+                    <span className="text-sm text-maintext">Tên khách hàng:</span>
                     <span className="text-sm font-medium">{orderDetail.customer?.fullName}</span>
                   </div>
                   {orderDetail.customer?.email && (
                     <div className="flex justify-between">
-                      <span className="text-sm text-gray-500">Email:</span>
+                      <span className="text-sm text-maintext">Email:</span>
                       <span className="text-sm font-medium">{orderDetail.customer.email}</span>
                     </div>
                   )}
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-500">Số điện thoại:</span>
+                    <span className="text-sm text-maintext">Số điện thoại:</span>
                     <span className="text-sm font-medium">{orderDetail.customer?.phoneNumber}</span>
                   </div>
                 </div>
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-gray-500">Địa chỉ giao hàng</h3>
-                <div className="mt-2 rounded-lg border p-4">
+                <h3 className="text-sm font-medium text-maintext">Địa chỉ giao hàng</h3>
+                <div className="mt-2 rounded-[6px] border p-4">
                   {orderDetail.shippingAddress ? (
                     <div className="space-y-2">
                       <p className="text-sm font-medium">{orderDetail.shippingAddress.name}</p>
@@ -969,7 +964,7 @@ const OrderDetailDialog = ({
                       </p>
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-500">Không có thông tin địa chỉ giao hàng</p>
+                    <p className="text-sm text-maintext">Không có thông tin địa chỉ giao hàng</p>
                   )}
                 </div>
               </div>
@@ -979,8 +974,8 @@ const OrderDetailDialog = ({
           <div>
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-medium text-gray-500">Sản phẩm đã đặt</h3>
-                <div className="mt-2 rounded-lg border">
+                <h3 className="text-sm font-medium text-maintext">Sản phẩm đã đặt</h3>
+                <div className="mt-2 rounded-[6px] border">
                   <div className="max-h-[300px] overflow-y-auto">
                     <Table>
                       <TableHeader>
@@ -1007,7 +1002,7 @@ const OrderDetailDialog = ({
                                 )}
                                 <div>
                                   <div className="font-medium text-sm">{item.product?.name}</div>
-                                  <div className="text-xs text-gray-500">
+                                  <div className="text-xs text-maintext">
                                     {item.variant?.colorName &&
                                       item.variant?.sizeName &&
                                       `${item.variant.colorName} / ${item.variant.sizeName}`}
@@ -1027,15 +1022,15 @@ const OrderDetailDialog = ({
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-gray-500">Tổng tiền</h3>
-                <div className="mt-2 rounded-lg border p-4 space-y-3">
+                <h3 className="text-sm font-medium text-maintext">Tổng tiền</h3>
+                <div className="mt-2 rounded-[6px] border p-4 space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-500">Tổng tiền hàng:</span>
+                    <span className="text-sm text-maintext">Tổng tiền hàng:</span>
                     <span className="text-sm font-medium">{formatCurrency(orderDetail.subTotal)}</span>
                   </div>
                   {orderDetail.voucher && (
                     <div className="flex justify-between">
-                      <span className="text-sm text-gray-500">Mã giảm giá ({orderDetail.voucher.code}):</span>
+                      <span className="text-sm text-maintext">Mã giảm giá ({orderDetail.voucher.code}):</span>
                       <span className="text-sm font-medium text-red-500">-{formatCurrency(orderDetail.discount)}</span>
                     </div>
                   )}

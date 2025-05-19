@@ -163,7 +163,7 @@ export default function EditVoucherPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div className="flex justify-between items-start">
           <Skeleton className="h-6 w-64" />
           <Skeleton className="h-10 w-24" />
@@ -189,7 +189,7 @@ export default function EditVoucherPage() {
 
   if (isError || !voucherData) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div className="flex justify-between items-start">
           <Breadcrumb>
             <BreadcrumbList>
@@ -221,7 +221,7 @@ export default function EditVoucherPage() {
         </div>
 
         <Card>
-          <CardContent className="p-6 text-center">
+          <CardContent className="p-4 text-center">
             <p className="text-red-500 mb-4">Đã xảy ra lỗi khi tải thông tin mã giảm giá. Vui lòng thử lại sau.</p>
             <Button
               variant="outline"
@@ -236,7 +236,7 @@ export default function EditVoucherPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className='flex justify-between items-start'>
         <Breadcrumb>
           <BreadcrumbList>
@@ -275,30 +275,30 @@ export default function EditVoucherPage() {
           <CardContent className="space-y-4 text-maintext">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="code" className="text-gray-500">Mã voucher</Label>
-                <div className="p-2.5 border rounded-md bg-gray-50 mt-1">
+                <Label htmlFor="code" className="text-maintext">Mã voucher</Label>
+                <div className="p-2.5 border rounded-[6px] bg-gray-50 mt-1">
                   {originalVoucher.code}
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Mã voucher không thể thay đổi sau khi tạo</p>
+                <p className="text-xs text-maintext mt-1">Mã voucher không thể thay đổi sau khi tạo</p>
               </div>
 
               <div>
-                <Label htmlFor="type" className="text-gray-500">Loại voucher</Label>
-                <div className="p-2.5 border rounded-md bg-gray-50 mt-1">
+                <Label htmlFor="type" className="text-maintext">Loại voucher</Label>
+                <div className="p-2.5 border rounded-[6px] bg-gray-50 mt-1">
                   {originalVoucher.type === 'PERCENTAGE' ? 'Phần trăm (%)' : 'Số tiền cố định (VNĐ)'}
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Loại voucher không thể thay đổi sau khi tạo</p>
+                <p className="text-xs text-maintext mt-1">Loại voucher không thể thay đổi sau khi tạo</p>
               </div>
 
               <div>
-                <Label htmlFor="value" className="text-gray-500">Giá trị</Label>
-                <div className="p-2.5 border rounded-md bg-gray-50 mt-1 flex">
+                <Label htmlFor="value" className="text-maintext">Giá trị</Label>
+                <div className="p-2.5 border rounded-[6px] bg-gray-50 mt-1 flex">
                   <span>{originalVoucher.value}</span>
                   <span className="ml-2">
                     {originalVoucher.type === 'PERCENTAGE' ? '%' : 'VNĐ'}
                   </span>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Giá trị không thể thay đổi sau khi tạo</p>
+                <p className="text-xs text-maintext mt-1">Giá trị không thể thay đổi sau khi tạo</p>
               </div>
 
               <div className="space-y-2">
@@ -327,7 +327,7 @@ export default function EditVoucherPage() {
                   />
                 </div>
                 {errors.quantity && <p className="text-red-500 text-sm">{errors.quantity}</p>}
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-maintext">
                   Đã sử dụng: {originalVoucher.usedCount}/{voucher.quantity} voucher
                 </p>
               </div>
@@ -350,7 +350,7 @@ export default function EditVoucherPage() {
                     </div>
                   </div>
                   {errors.maxDiscount && <p className="text-red-500 text-sm">{errors.maxDiscount}</p>}
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-maintext">
                     Giới hạn số tiền giảm tối đa (để trống nếu không giới hạn)
                   </p>
                 </div>
@@ -373,7 +373,7 @@ export default function EditVoucherPage() {
                   </div>
                 </div>
                 {errors.minOrderValue && <p className="text-red-500 text-sm">{errors.minOrderValue}</p>}
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-maintext">
                   Giá trị đơn hàng tối thiểu để áp dụng voucher (0 = không giới hạn)
                 </p>
               </div>
@@ -421,13 +421,13 @@ export default function EditVoucherPage() {
                   </SelectContent>
                 </Select>
                 {errors.status && <p className="text-red-500 text-sm">{errors.status}</p>}
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-maintext">
                   Trạng thái của voucher (người dùng chỉ có thể sử dụng voucher đang hoạt động)
                 </p>
               </div>
             </div>
           </CardContent>
-          <CardFooter className="border-t px-6 py-4 flex justify-between">
+          <CardFooter className="border-t px-4 py-4 flex justify-between">
             <Button
               variant="outline"
               onClick={() => router.back()}

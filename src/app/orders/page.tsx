@@ -134,7 +134,7 @@ export default function OrdersPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {orders.map((order) => (
             <Card key={order._id} className="cursor-pointer hover:shadow-md transition-shadow"
                   onClick={() => router.push(`/orders/${order._id}`)}>

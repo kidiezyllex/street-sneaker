@@ -43,7 +43,7 @@ export const TopProducts = () => {
           <CardTitle className='text-lg font-medium text-gray-700 mb-2'>Sản phẩm bán chạy</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-6">
+          <div className="space-y-4">
             {topProducts.map((product, index) => (
               <motion.div
                 key={product.id}
@@ -53,7 +53,7 @@ export const TopProducts = () => {
                 className="flex items-center gap-4"
               >
                 <div 
-                  className="relative h-16 w-16 overflow-hidden rounded-md bg-gray-100 cursor-pointer transition-transform hover:scale-105"
+                  className="relative h-16 w-16 overflow-hidden rounded-[6px] bg-gray-100 cursor-pointer transition-transform hover:scale-105"
                   onClick={() => openLightbox(index)}
                 >
                   <Image
@@ -70,7 +70,7 @@ export const TopProducts = () => {
                       {formatCurrency(product.revenue)}
                     </span>
                   </div>
-                  <div className="flex items-center text-sm text-gray-400">
+                  <div className="flex items-center text-sm text-maintext">
                     <span>{product.sold} đã bán</span>
                     <div className="mx-2 h-1 w-1 rounded-full bg-gray-300"></div>
                     <span>{formatCurrency(product.revenue / product.sold)}/sản phẩm</span>

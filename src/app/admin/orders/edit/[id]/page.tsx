@@ -125,7 +125,7 @@ export default function EditOrderPage() {
     return (
       <div className="container py-10">
         <div className="flex items-center justify-center h-64">
-          <p>Đang tải thông tin đơn hàng...</p>
+          <p className="text-white">Đang tải thông tin đơn hàng...</p>
         </div>
       </div>
     );
@@ -144,7 +144,7 @@ export default function EditOrderPage() {
   const order = orderData.data;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex justify-between items-start">
         <Breadcrumb>
           <BreadcrumbList>
@@ -168,8 +168,8 @@ export default function EditOrderPage() {
       </div>
 
       <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2 space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle>Thông tin giao hàng</CardTitle>
@@ -269,20 +269,20 @@ export default function EditOrderPage() {
                 <CardTitle>Các sản phẩm trong đơn hàng</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="border rounded-md">
+                <div className="border rounded-[6px]">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-medium text-maintext uppercase tracking-wider">
                           Sản phẩm
                         </th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-right text-xs font-medium text-maintext uppercase tracking-wider">
                           Đơn giá
                         </th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-right text-xs font-medium text-maintext uppercase tracking-wider">
                           Số lượng
                         </th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-right text-xs font-medium text-maintext uppercase tracking-wider">
                           Thành tiền
                         </th>
                       </tr>
@@ -290,12 +290,12 @@ export default function EditOrderPage() {
                     <tbody className="bg-white divide-y divide-gray-200">
                       {order.items.map((item, index) => (
                         <tr key={index} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-4 py-4 whitespace-nowrap">
                             <div className="flex items-center space-x-3">
                               {item.product.imageUrl && (
                                 <div className="flex-shrink-0 h-10 w-10">
                                   <img 
-                                    className="h-10 w-10 rounded-md object-cover" 
+                                    className="h-10 w-10 rounded-[6px] object-cover" 
                                     src={item.product.imageUrl} 
                                     alt={item.product.name} 
                                   />
@@ -306,7 +306,7 @@ export default function EditOrderPage() {
                                   {item.product.name}
                                 </div>
                                 {item.variant && (
-                                  <div className="text-sm text-gray-500">
+                                  <div className="text-sm text-maintext">
                                     {item.variant.colorName && item.variant.sizeName && 
                                       `${item.variant.colorName} / ${item.variant.sizeName}`
                                     }
@@ -315,13 +315,13 @@ export default function EditOrderPage() {
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                          <td className="px-4 py-4 whitespace-nowrap text-right text-sm text-maintext">
                             {formatCurrency(item.price)}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                          <td className="px-4 py-4 whitespace-nowrap text-right text-sm text-maintext">
                             {item.quantity}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                             {formatCurrency(item.price * item.quantity)}
                           </td>
                         </tr>
@@ -350,7 +350,7 @@ export default function EditOrderPage() {
             </Card>
           </div>
           
-          <div className="space-y-6">
+          <div className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle>Thông tin đơn hàng</CardTitle>

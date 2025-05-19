@@ -115,7 +115,7 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <FormField
           control={form.control}
           name="username"
@@ -191,7 +191,7 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
                   <button
                     type="button"
                     onClick={togglePasswordVisibility}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-maintext hover:text-gray-700 focus:outline-none"
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -227,7 +227,7 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
         <div className="flex justify-center flex-1 h-full items-end mt-4">
           <Button
             type="submit"
-            className="bg-primary hover:bg-secondary transition-all duration-300 text-base font-semibold w-full py-6"
+            className="bg-primary hover:bg-secondary transition-all duration-300 text-base font-semibold w-full py-4"
             disabled={signUpMutation.isPending}
           >
             {signUpMutation.isPending ? (
@@ -281,7 +281,7 @@ export default function AuthPage() {
                   <span className="absolute -bottom-1 left-0 w-12 h-1 bg-gradient-to-r from-primary to-secondary rounded-full"></span>
                 </span>
               </CardTitle>
-              <CardDescription className="text-gray-600 dark:text-gray-400 pt-3">
+              <CardDescription className="text-gray-600 dark:text-maintext pt-3">
                 Đăng ký để khám phá Street Sneaker!
               </CardDescription>
             </CardHeader>

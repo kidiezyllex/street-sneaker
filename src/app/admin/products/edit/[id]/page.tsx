@@ -186,7 +186,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -224,7 +224,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
 
   if (isError || !productData?.data) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -253,7 +253,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
           </Button>
         </div>
 
-        <Card className="text-center p-6">
+        <Card className="text-center p-4">
           <p className="text-red-500 mb-4">Đã xảy ra lỗi khi tải thông tin sản phẩm.</p>
           <Button
             variant="outline"
@@ -269,7 +269,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
   const product = productData.data;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className='flex justify-between items-start'>
         <Breadcrumb>
           <BreadcrumbList>
@@ -429,7 +429,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
             <CardHeader>
               <CardTitle>Biến thể sản phẩm</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4">
               <AnimatePresence>
                 {product.variants.map((variant) => (
                   <motion.div
@@ -437,14 +437,14 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.2 }}
-                    className="border p-4 rounded-lg"
+                    className="border p-4 rounded-[6px]"
                   >
                     <div className="flex justify-between items-center mb-4">
                       <div>
                         <h3 className="text-lg font-medium">
                           {variant.colorId.name} - {variant.sizeId.name}
                         </h3>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-maintext">
                           Giá: {new Intl.NumberFormat('vi-VN', {
                             style: 'currency',
                             currency: 'VND',
@@ -526,7 +526,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                             variant.images.map((image, index) => (
                               <div
                                 key={index}
-                                className="relative group rounded-md overflow-hidden border border-gray-200"
+                                className="relative group rounded-[6px] overflow-hidden border border-gray-200"
                                 style={{ aspectRatio: '1/1' }}
                               >
                                 <img
@@ -554,7 +554,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                             ))
                           ) : (
                             <div
-                              className="flex items-center justify-center border border-dashed border-gray-300 rounded-md text-gray-400"
+                              className="flex items-center justify-center border border-dashed border-gray-300 rounded-[6px] text-maintext"
                               style={{ aspectRatio: '1/1' }}
                             >
                               <div className="flex flex-col items-center p-4">
@@ -578,11 +578,11 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
             <CardHeader>
               <CardTitle>Trạng thái sản phẩm</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center justify-between px-4 py-3 border rounded-md">
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between px-4 py-3 border rounded-[6px]">
                 <div>
                   <h3 className="font-medium text-maintext">Trạng thái hoạt động</h3>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-maintext">
                     {productUpdate.status === 'HOAT_DONG'
                       ? 'Sản phẩm đang được hiển thị và có thể mua'
                       : 'Sản phẩm đang bị ẩn và không thể mua'}

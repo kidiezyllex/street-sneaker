@@ -144,7 +144,7 @@ export default function CreateVoucherPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className='flex justify-between items-start'>
         <Breadcrumb>
           <BreadcrumbList>
@@ -220,7 +220,7 @@ export default function CreateVoucherPage() {
                   </Button>
                 </div>
                 {errors.code && <p className="text-red-500 text-sm">{errors.code}</p>}
-                <p className="text-xs text-gray-500">Mã voucher chỉ bao gồm chữ hoa, số, gạch dưới và gạch ngang</p>
+                <p className="text-xs text-maintext">Mã voucher chỉ bao gồm chữ hoa, số, gạch dưới và gạch ngang</p>
               </div>
 
               <div className="space-y-2">
@@ -277,7 +277,7 @@ export default function CreateVoucherPage() {
                   )}
                 </div>
                 {errors.value && <p className="text-red-500 text-sm">{errors.value}</p>}
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-maintext">
                   {voucher.type === 'PERCENTAGE' 
                     ? 'Phần trăm giảm giá (0-100%)' 
                     : 'Số tiền giảm giá cố định'}
@@ -296,7 +296,7 @@ export default function CreateVoucherPage() {
                   className={errors.quantity ? 'border-red-500' : ''}
                 />
                 {errors.quantity && <p className="text-red-500 text-sm">{errors.quantity}</p>}
-                <p className="text-xs text-gray-500">Tổng số voucher có thể sử dụng</p>
+                <p className="text-xs text-maintext">Tổng số voucher có thể sử dụng</p>
               </div>
 
               {voucher.type === 'PERCENTAGE' && (
@@ -317,7 +317,7 @@ export default function CreateVoucherPage() {
                     </div>
                   </div>
                   {errors.maxDiscount && <p className="text-red-500 text-sm">{errors.maxDiscount}</p>}
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-maintext">
                     Giới hạn số tiền giảm tối đa (để trống nếu không giới hạn)
                   </p>
                 </div>
@@ -340,7 +340,7 @@ export default function CreateVoucherPage() {
                   </div>
                 </div>
                 {errors.minOrderValue && <p className="text-red-500 text-sm">{errors.minOrderValue}</p>}
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-maintext">
                   Giá trị đơn hàng tối thiểu để áp dụng voucher (0 = không giới hạn)
                 </p>
               </div>
@@ -386,11 +386,11 @@ export default function CreateVoucherPage() {
                   </SelectContent>
                 </Select>
                 {errors.status && <p className="text-red-500 text-sm">{errors.status}</p>}
-                <p className="text-xs text-gray-500">Trạng thái của voucher (người dùng chỉ có thể sử dụng voucher đang hoạt động)</p>
+                <p className="text-xs text-maintext">Trạng thái của voucher (người dùng chỉ có thể sử dụng voucher đang hoạt động)</p>
               </div>
             </div>
           </CardContent>
-          <CardFooter className="border-t px-6 py-4 flex justify-between">
+          <CardFooter className="border-t px-4 py-4 flex justify-between">
             <Button
               variant="outline"
               onClick={() => router.back()}

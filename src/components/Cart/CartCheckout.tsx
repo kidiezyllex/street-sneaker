@@ -112,7 +112,7 @@ export const CartCheckout: React.FC<CartCheckoutProps> = ({ onClose }) => {
 
   return (
     <div className="mt-6">
-      <div className="border-t border-gray-200 py-6 px-4 sm:px-6">
+      <div className="border-t border-gray-200 py-4 px-4 sm:px-4">
         <h3 className="text-lg font-medium text-gray-900 mb-4">Thông tin giao hàng</h3>
         
         <div className="space-y-4">
@@ -126,7 +126,7 @@ export const CartCheckout: React.FC<CartCheckoutProps> = ({ onClose }) => {
               id="name"
               value={shippingAddress.name}
               onChange={handleInputChange}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="mt-1 block w-full border-gray-300 rounded-[6px] shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
           </div>
 
@@ -140,7 +140,7 @@ export const CartCheckout: React.FC<CartCheckoutProps> = ({ onClose }) => {
               id="phoneNumber"
               value={shippingAddress.phoneNumber}
               onChange={handleInputChange}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="mt-1 block w-full border-gray-300 rounded-[6px] shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
           </div>
 
@@ -154,7 +154,7 @@ export const CartCheckout: React.FC<CartCheckoutProps> = ({ onClose }) => {
               id="specificAddress"
               value={shippingAddress.specificAddress}
               onChange={handleInputChange}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="mt-1 block w-full border-gray-300 rounded-[6px] shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
           </div>
 
@@ -166,17 +166,17 @@ export const CartCheckout: React.FC<CartCheckoutProps> = ({ onClose }) => {
             <p>Tổng tiền</p>
             <p>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total)}</p>
           </div>
-          <p className="mt-0.5 text-sm text-gray-500">Đã bao gồm phí vận chuyển và thuế</p>
+          <p className="mt-0.5 text-sm text-maintext">Đã bao gồm phí vận chuyển và thuế</p>
           <div className="mt-6">
             <button
               onClick={handleCheckout}
               disabled={isProcessing || items.length === 0}
-              className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400"
+              className="w-full flex justify-center items-center px-4 py-3 border border-transparent rounded-[6px] shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400"
             >
               {isProcessing ? 'Đang xử lý...' : 'Thanh toán'}
             </button>
           </div>
-          <div className="mt-6 flex justify-center text-sm text-center text-gray-500">
+          <div className="mt-6 flex justify-center text-sm text-center text-maintext">
             <p>
               hoặc{' '}
               <button

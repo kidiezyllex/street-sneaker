@@ -100,7 +100,7 @@ export default function NotificationDropdown() {
         <Button 
         variant="ghost"
         className="relative flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 bg-gray-100">
-          <Icon path={mdiBell} size={0.8} className='text-gray-400'/>
+          <Icon path={mdiBell} size={0.8} className='text-maintext'/>
           {unreadCount > 0 && (
             <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center w-4 h-4 text-white text-xs rounded-full">
               {unreadCount}
@@ -136,13 +136,13 @@ export default function NotificationDropdown() {
                   <span className={cn("text-sm font-medium px-2 py-0.5 rounded", getTypeStyles(notification.type))}>
                     {notification.title}
                   </span>
-                  <span className="text-xs text-gray-400">{notification.time}</span>
+                  <span className="text-xs text-maintext">{notification.time}</span>
                 </div>
                 <p className="text-sm text-gray-700 mt-1">{notification.content}</p>
               </DropdownMenuItem>
             ))
           ) : (
-            <div className="p-4 text-center text-gray-400">
+            <div className="p-4 text-center text-maintext">
               Không có thông báo nào
             </div>
           )}

@@ -85,7 +85,7 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
               className={({ checked }) =>
                 `${
                   checked ? 'bg-indigo-50 border-indigo-500' : 'border-gray-200'
-                } relative border rounded-lg p-4 flex cursor-pointer focus:outline-none`
+                } relative border rounded-[6px] p-4 flex cursor-pointer focus:outline-none`
               }
             >
               {({ checked }) => (
@@ -101,7 +101,7 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
                         </RadioGroup.Label>
                         <RadioGroup.Description
                           as="span"
-                          className="text-gray-500"
+                          className="text-maintext"
                         >
                           {method.description}
                         </RadioGroup.Description>
@@ -109,7 +109,7 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
                     </div>
                     <div
                       className={`${
-                        checked ? 'text-indigo-500' : 'text-gray-400'
+                        checked ? 'text-indigo-500' : 'text-maintext'
                       } flex-shrink-0`}
                     >
                       <method.icon className="w-6 h-6" />
@@ -125,7 +125,7 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
       <button
         onClick={handlePayment}
         disabled={isProcessing}
-        className="mt-6 w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-indigo-300 disabled:cursor-not-allowed"
+        className="mt-6 w-full bg-indigo-600 text-white py-2 px-4 rounded-[6px] hover:bg-indigo-700 disabled:bg-indigo-300 disabled:cursor-not-allowed"
       >
         {isProcessing ? 'Đang xử lý...' : 'Tiến hành thanh toán'}
       </button>

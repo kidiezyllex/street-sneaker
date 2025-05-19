@@ -114,7 +114,7 @@ export function Header() {
 
     return (
         <>
-            <header className="bg-[#232F3E] text-gray-400 px-4 py-2">
+            <header className="bg-[#232F3E] text-maintext px-4 py-2">
                 {/* Desktop Header */}
                 <div className="hidden md:flex items-center justify-between gap-2">
                     <Link href="/" className="flex-shrink-0">
@@ -153,17 +153,17 @@ export function Header() {
                                 {!isMounted ? null : (
                                     <>
                                         {!user && <span
-                                            className="text-xs text-gray-400 transition-all duration-300 cursor-pointer">Xin chào. Đăng nhập</span>}
+                                            className="text-xs text-maintext transition-all duration-300 cursor-pointer">Xin chào. Đăng nhập</span>}
                                         {user && <span
                                             onClick={() => router.push("/seller/products/storehouse")}
-                                            className="font-bold text-sm text-gray-400 hover:!text-white/80 transition-all duration-300">Bảng điều khiển của tôi</span>}
-                                        {!user && <span className="font-bold text-sm text-gray-400 hover:!text-white/80 transition-all duration-300">Tài khoản và danh sách mong muốn</span>}
+                                            className="font-bold text-sm text-maintext hover:!text-white/80 transition-all duration-300">Bảng điều khiển của tôi</span>}
+                                        {!user && <span className="font-bold text-sm text-maintext hover:!text-white/80 transition-all duration-300">Tài khoản và danh sách mong muốn</span>}
                                     </>
                                 )}
                             </div>
                         </Link>
                         {isMounted && user && (
-                            <div className="font-bold text-sm text-gray-400 cursor-pointer hover:!text-white/80 transition-all duration-300" onClick={() => logout()}>
+                            <div className="font-bold text-sm text-maintext cursor-pointer hover:!text-white/80 transition-all duration-300" onClick={() => logout()}>
                                 Đăng xuất
                             </div>
                         )}
@@ -171,7 +171,7 @@ export function Header() {
                         {/* Currency Selector */}
                         <Dropdown menu={{ items: currencyMenu as unknown as ItemType[] }} trigger={["click"]} placement="bottomRight">
                             <div className="flex items-center cursor-pointer px-2">
-                                <span className="mr-1 text-gray-400 text-sm transition-all duration-300 hover:!text-white/80 font-bold">
+                                <span className="mr-1 text-maintext text-sm transition-all duration-300 hover:!text-white/80 font-bold">
                                     {currentCurrency.name} {currentCurrency.symbol}
                                 </span>
                                 <Icon path={mdiChevronDown} size={0.6} />
@@ -275,7 +275,7 @@ export function Header() {
                                     <li
                                         key={language.code}
                                         onClick={() => handleLanguageChange(language)}
-                                        className={`py-1 cursor-pointer flex items-center ${language.code === currentLanguage.code ? "text-white" : "text-gray-400"}`}
+                                        className={`py-1 cursor-pointer flex items-center ${language.code === currentLanguage.code ? "text-white" : "text-maintext"}`}
                                     >
                                         <Image
                                             src={language.flag  }
@@ -298,7 +298,7 @@ export function Header() {
                                     <li
                                         key={currency.code}
                                         onClick={() => handleCurrencyChange(currency)}
-                                        className={`py-1 cursor-pointer ${currency.code === currentCurrency.code ? "text-white" : "text-gray-400"}`}
+                                        className={`py-1 cursor-pointer ${currency.code === currentCurrency.code ? "text-white" : "text-maintext"}`}
                                     >
                                         <span>
                                             {currency.name} {currency.symbol}

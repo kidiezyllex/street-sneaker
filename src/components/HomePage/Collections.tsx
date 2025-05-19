@@ -77,7 +77,7 @@ const CollectionCard = ({ collection, animation }: {
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20 group-hover:from-black/60 group-hover:via-black/30 group-hover:to-black/10 transition-colors duration-500 z-10" />
 
             {/* Content */}
-            <div className="relative h-full flex flex-col justify-end p-6 z-20">
+            <div className="relative h-full flex flex-col justify-end p-4 z-20">
                 <AnimatePresence>
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -87,7 +87,7 @@ const CollectionCard = ({ collection, animation }: {
                         <Button
                             asChild
                             variant="ghost"
-                            className="self-start mb-4 text-white hover:text-primary-foreground bg-white/10 hover:bg-primary transition-all duration-300 group rounded-full px-6 py-5"
+                            className="self-start mb-4 text-white hover:text-primary-foreground bg-white/10 hover:bg-primary transition-all duration-300 group rounded-full px-4 py-5"
                         >
                             <Link href={collection.url}>
                                 <span className="flex items-center text-sm font-medium">
@@ -156,7 +156,7 @@ export const Collections = () => {
                             >
                                 <Button
                                     variant="outline"
-                                    className="uppercase group border border-primary text-primary hover:bg-primary hover:text-white transition-all duration-300 text-sm font-medium rounded-full px-6 py-2 h-auto"
+                                    className="uppercase group border border-primary text-primary hover:bg-primary hover:text-white transition-all duration-300 text-sm font-medium rounded-full px-4 py-2 h-auto"
                                 >
                                     Xem tất cả bộ sưu tập
                                     <Icon path={mdiArrowRight} size={0.8} className="ml-2 group-hover:translate-x-1 transition-transform" />
@@ -188,7 +188,7 @@ export const Collections = () => {
                 >
                     <Button
                         variant="outline"
-                        className="uppercase group border-2 border-primary text-primary hover:bg-primary hover:text-white transition-all duration-300 text-sm font-medium rounded-full px-6 py-5 h-auto"
+                        className="uppercase group border-2 border-primary text-primary hover:bg-primary hover:text-white transition-all duration-300 text-sm font-medium rounded-full px-4 py-5 h-auto"
                     >
                         Xem tất cả bộ sưu tập
                         <Icon path={mdiArrowRight} size={0.8} className="ml-2 group-hover:translate-x-1 transition-transform" />

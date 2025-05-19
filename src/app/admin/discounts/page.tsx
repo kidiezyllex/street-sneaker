@@ -56,7 +56,6 @@ interface Discount {
   updatedAt: string;
 }
 
-//                                                                                                                     Mock data
 const mockDiscounts: Discount[] = [
   {
     id: '1',
@@ -246,7 +245,7 @@ export default function DiscountsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <Button className="flex items-center">
           <Icon path={mdiPlus} size={0.8} className="mr-2" />
@@ -255,7 +254,7 @@ export default function DiscountsPage() {
       </div>
 
       <Card>
-        <CardContent className="p-6">
+        <CardContent className="p-4">
           <Tabs defaultValue="all" className="w-full" onValueChange={setSelectedTab}>
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-4">
               <TabsList className="h-9">
@@ -280,7 +279,7 @@ export default function DiscountsPage() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 w-full"
                 />
-                <div className="absolute left-3 top-2.5 text-gray-400">
+                <div className="absolute left-3 top-2.5 text-maintext">
                   <Icon path={mdiMagnify} size={0.9} />
                 </div>
               </div>
@@ -363,7 +362,7 @@ const DiscountTable: React.FC<DiscountTableProps> = ({
   if (discounts.length === 0) {
     return (
       <div className="text-center py-10">
-        <p className="text-gray-400">Không tìm thấy mã giảm giá nào phù hợp.</p>
+        <p className="text-maintext">Không tìm thấy mã giảm giá nào phù hợp.</p>
       </div>
     );
   }
@@ -373,14 +372,14 @@ const DiscountTable: React.FC<DiscountTableProps> = ({
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b">
-            <th className="px-4 py-3 text-left font-medium text-gray-400">Mã giảm giá</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-400">Tên</th>
-            <th className="px-4 py-3 text-center font-medium text-gray-400">Giá trị</th>
-            <th className="px-4 py-3 text-center font-medium text-gray-400">Áp dụng</th>
-            <th className="px-4 py-3 text-center font-medium text-gray-400">Thời gian</th>
-            <th className="px-4 py-3 text-center font-medium text-gray-400">Sử dụng</th>
-            <th className="px-4 py-3 text-center font-medium text-gray-400">Trạng thái</th>
-            <th className="px-4 py-3 text-center font-medium text-gray-400">Thao tác</th>
+            <th className="px-4 py-3 text-left font-medium text-maintext">Mã giảm giá</th>
+            <th className="px-4 py-3 text-left font-medium text-maintext">Tên</th>
+            <th className="px-4 py-3 text-center font-medium text-maintext">Giá trị</th>
+            <th className="px-4 py-3 text-center font-medium text-maintext">Áp dụng</th>
+            <th className="px-4 py-3 text-center font-medium text-maintext">Thời gian</th>
+            <th className="px-4 py-3 text-center font-medium text-maintext">Sử dụng</th>
+            <th className="px-4 py-3 text-center font-medium text-maintext">Trạng thái</th>
+            <th className="px-4 py-3 text-center font-medium text-maintext">Thao tác</th>
           </tr>
         </thead>
         <tbody className="divide-y">
@@ -391,7 +390,7 @@ const DiscountTable: React.FC<DiscountTableProps> = ({
                 <div>
                   <div className="font-medium">{discount.name}</div>
                   {discount.description && (
-                    <div className="text-gray-400 text-xs truncate max-w-[200px]">{discount.description}</div>
+                    <div className="text-maintext text-xs truncate max-w-[200px]">{discount.description}</div>
                   )}
                 </div>
               </td>
@@ -402,7 +401,7 @@ const DiscountTable: React.FC<DiscountTableProps> = ({
                   <span>{formatCurrency(discount.discountValue)}</span>
                 )}
                 {discount.minOrderValue && (
-                  <div className="text-xs text-gray-400">
+                  <div className="text-xs text-maintext">
                     Đơn tối thiểu: {formatCurrency(discount.minOrderValue)}
                   </div>
                 )}
@@ -416,10 +415,10 @@ const DiscountTable: React.FC<DiscountTableProps> = ({
               </td>
               <td className="px-4 py-4 text-center">
                 <div className="flex items-center justify-center">
-                  <Icon path={mdiCalendarClock} size={0.7} className="mr-1 text-gray-400" />
+                  <Icon path={mdiCalendarClock} size={0.7} className="mr-1 text-maintext" />
                   <div>
                     <div>{formatDate(discount.startDate)}</div>
-                    <div className="text-xs text-gray-400">{formatDate(discount.endDate)}</div>
+                    <div className="text-xs text-maintext">{formatDate(discount.endDate)}</div>
                   </div>
                 </div>
               </td>
@@ -427,7 +426,7 @@ const DiscountTable: React.FC<DiscountTableProps> = ({
                 <div>
                   <span>{discount.usageCount}</span>
                   {discount.usageLimit && (
-                    <span className="text-gray-400">/{discount.usageLimit}</span>
+                    <span className="text-maintext">/{discount.usageLimit}</span>
                   )}
                 </div>
               </td>

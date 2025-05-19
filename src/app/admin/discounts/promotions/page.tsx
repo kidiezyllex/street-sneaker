@@ -85,7 +85,7 @@ export default function PromotionsPage() {
 
       <div className="flex justify-between items-center mb-4">
         <Link href="/admin/discounts/promotions/new">
-          <button className="bg-primary text-white px-4 py-2 rounded-lg flex items-center gap-2">
+          <button className="bg-primary text-white px-4 py-2 rounded-[6px] flex items-center gap-2">
             <Icon path={mdiPlus} size={1} />
             Thêm khuyến mãi
           </button>
@@ -96,17 +96,17 @@ export default function PromotionsPage() {
         <CardContent className="p-4">
           <div className="flex gap-4 items-center">
             <div className="relative flex-1">
-              <Icon path={mdiMagnify} size={1} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <Icon path={mdiMagnify} size={1} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext" />
               <input
                 type="text"
                 placeholder="Tìm kiếm khuyến mãi..."
-                className="w-full pl-10 pr-4 py-2 border rounded-lg"
+                className="w-full pl-10 pr-4 py-2 border rounded-[6px]"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
             <button
-              className="p-2 border rounded-lg"
+              className="p-2 border rounded-[6px]"
               onClick={() => setShowFilters(!showFilters)}
             >
               <Icon path={mdiFilterOutline} size={1} />
@@ -131,7 +131,7 @@ export default function PromotionsPage() {
                     <p className="text-gray-600">
                       Giảm {promotion.discount}{promotion.type === 'percentage' ? '%' : 'đ'}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-maintext">
                       {formatDate(promotion.startDate)} - {formatDate(promotion.endDate)}
                     </p>
                     <div className="space-y-1">
@@ -155,13 +155,13 @@ export default function PromotionsPage() {
                   </div>
                   <div className="flex gap-2">
                     <button
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-[6px]"
                       onClick={() => {}}
                     >
                       <Icon path={mdiPencilOutline} size={1} />
                     </button>
                     <button
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-[6px]"
                       onClick={() => handleDeletePromotion(promotion.id)}
                     >
                       <Icon path={mdiTrashCanOutline} size={1} />

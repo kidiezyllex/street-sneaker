@@ -149,10 +149,10 @@ export default function ProductDetail() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col sm:flex-row gap-8">
           <div className="w-full sm:w-1/2">
-            <Skeleton className="aspect-square w-full rounded-lg" />
+            <Skeleton className="aspect-square w-full rounded-[6px]" />
             <div className="grid grid-cols-4 gap-2 mt-4">
               {[...Array(4)].map((_, index) => (
-                <Skeleton key={index} className="aspect-square w-full rounded-lg" />
+                <Skeleton key={index} className="aspect-square w-full rounded-[6px]" />
               ))}
             </div>
           </div>
@@ -213,7 +213,7 @@ export default function ProductDetail() {
         {/* Phần hình ảnh sản phẩm */}
         <div className="w-full lg:w-3/5">
           {/* Ảnh chính */}
-          <div className="relative aspect-square rounded-xl overflow-hidden bg-gray-50 border">
+          <div className="relative aspect-square rounded-[6px] overflow-hidden bg-gray-50 border">
             {selectedVariant && selectedVariant.images && selectedVariant.images.length > 0 ? (
               <>
                 <Image
@@ -248,7 +248,7 @@ export default function ProductDetail() {
               </>
             ) : (
               <div className="flex items-center justify-center h-full">
-                <p className="text-gray-400">Không có hình ảnh</p>
+                <p className="text-maintext">Không có hình ảnh</p>
               </div>
             )}
           </div>
@@ -261,7 +261,7 @@ export default function ProductDetail() {
                   key={index}
                   onClick={() => handleImageChange(index)}
                   className={`
-                    relative aspect-square rounded-lg overflow-hidden cursor-pointer
+                    relative aspect-square rounded-[6px] overflow-hidden cursor-pointer
                     border-2 transition-all duration-200 hover:opacity-80
                     ${currentImageIndex === index 
                       ? 'border-primary ring-2 ring-primary/20 shadow-md' 
@@ -284,7 +284,7 @@ export default function ProductDetail() {
         </div>
 
         {/* Thông tin sản phẩm */}
-        <div className="w-full lg:w-2/5 space-y-6">
+        <div className="w-full lg:w-2/5 space-y-4">
           <div className="space-y-2">
             <h1 className="text-3xl font-bold">{product.name}</h1>
             <div className="flex items-center gap-2">
@@ -376,13 +376,13 @@ export default function ProductDetail() {
                     onClick={() => handleSizeSelect(variant.sizeId._id)}
                     disabled={variant.stock === 0}
                     className={`
-                      min-w-[3.5rem] h-11 px-3 rounded-lg border-2 font-medium
+                      min-w-[3.5rem] h-11 px-3 rounded-[6px] border-2 font-medium
                       transition-all duration-200
                       ${
                         selectedSize === variant.sizeId._id
                           ? 'border-primary bg-primary/5 text-primary'
                           : variant.stock === 0
-                          ? 'border-gray-100 bg-gray-50 text-gray-400 cursor-not-allowed'
+                          ? 'border-gray-100 bg-gray-50 text-maintext cursor-not-allowed'
                           : 'border-gray-100 bg-white hover:border-gray-200 hover:bg-gray-50'
                       }
                     `}
@@ -449,7 +449,7 @@ export default function ProductDetail() {
           </div>
 
           {/* Chia sẻ */}
-          <div className="pt-4 flex items-center gap-2 text-sm text-gray-500">
+          <div className="pt-4 flex items-center gap-2 text-sm text-maintext">
             <span>Chia sẻ:</span>
             <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
               <Icon path={mdiShareVariant} size={0.9} />
@@ -457,7 +457,7 @@ export default function ProductDetail() {
           </div>
 
           {/* Thông tin chi tiết */}
-          <div className="bg-gray-50 p-4 rounded-xl space-y-3">
+          <div className="bg-gray-50 p-4 rounded-[6px] space-y-3">
             <h3 className="font-medium">Thông tin sản phẩm</h3>
             <table className="min-w-full">
               <tbody className="divide-y divide-gray-200">

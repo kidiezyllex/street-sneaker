@@ -86,7 +86,7 @@ export const Newsletter = () => {
               transition={{ delay: 0.5 }}
             >
               <div className="relative flex-1 group">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-extra/20 rounded-lg blur-md group-hover:blur-lg transition-all duration-300 opacity-0 group-hover:opacity-100" />
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-extra/20 rounded-[6px] blur-md group-hover:blur-lg transition-all duration-300 opacity-0 group-hover:opacity-100" />
                 <Input 
                   type="email" 
                   value={email}
@@ -106,7 +106,7 @@ export const Newsletter = () => {
             </motion.form>
             
             <motion.p 
-              className="text-sm text-gray-400 dark:text-gray-400 mt-4"
+              className="text-sm text-maintext dark:text-maintext mt-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}

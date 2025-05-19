@@ -73,7 +73,7 @@ export default function MaterialsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className='flex justify-between items-start'>
         <Breadcrumb>
           <BreadcrumbList>
@@ -100,12 +100,12 @@ export default function MaterialsPage() {
               <Icon
                 path={mdiMagnify}
                 size={0.9}
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext"
               />
               <Input
                 type="text"
                 placeholder="Tìm kiếm theo tên chất liệu..."
-                className="pl-10 pr-4 py-2 w-full border rounded-md"
+                className="pl-10 pr-4 py-2 w-full border rounded-[6px]"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -143,16 +143,16 @@ export default function MaterialsPage() {
       </Card>
 
       {isLoading ? (
-        <div className="bg-white rounded-lg shadow-sm overflow-visible">
+        <div className="bg-white rounded-[6px] shadow-sm overflow-visible">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">ID</TableHead>
-                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Tên chất liệu</TableHead>
-                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Trạng thái</TableHead>
-                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Ngày cập nhật</TableHead>
-                  <TableHead className="px-4 py-4 text-right text-sm font-medium text-gray-500">Thao tác</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">ID</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Tên chất liệu</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Trạng thái</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Ngày cập nhật</TableHead>
+                  <TableHead className="px-4 py-4 text-right text-sm font-medium text-maintext">Thao tác</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -172,8 +172,8 @@ export default function MaterialsPage() {
                     </TableCell>
                     <TableCell className="px-4 py-4 whitespace-nowrap text-right">
                       <div className="flex items-center justify-end space-x-2">
-                        <Skeleton className="h-8 w-8 rounded-md" />
-                        <Skeleton className="h-8 w-8 rounded-md" />
+                        <Skeleton className="h-8 w-8 rounded-[6px]" />
+                        <Skeleton className="h-8 w-8 rounded-[6px]" />
                       </div>
                     </TableCell>
                   </TableRow>
@@ -183,7 +183,7 @@ export default function MaterialsPage() {
           </div>
         </div>
       ) : isError ? (
-        <div className="bg-white rounded-lg shadow-sm p-6 text-center">
+        <div className="bg-white rounded-[6px] shadow-sm p-4 text-center">
           <p className="text-red-500">Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại sau.</p>
           <Button
             variant="outline"
@@ -194,23 +194,23 @@ export default function MaterialsPage() {
           </Button>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-sm overflow-visible">
+        <div className="bg-white rounded-[6px] shadow-sm overflow-visible">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">ID</TableHead>
-                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Tên chất liệu</TableHead>
-                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Trạng thái</TableHead>
-                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Ngày cập nhật</TableHead>
-                  <TableHead className="px-4 py-4 text-right text-sm font-medium text-gray-500">Thao tác</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">ID</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Tên chất liệu</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Trạng thái</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Ngày cập nhật</TableHead>
+                  <TableHead className="px-4 py-4 text-right text-sm font-medium text-maintext">Thao tác</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredMaterials?.length ? (
                   filteredMaterials.map((material) => (
                     <TableRow key={material._id} className="hover:bg-gray-50">
-                      <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-maintext">
                         {material._id}
                       </TableCell>
                       <TableCell className="px-4 py-4 whitespace-nowrap">
@@ -224,7 +224,7 @@ export default function MaterialsPage() {
                           {material.status === 'HOAT_DONG' ? 'Hoạt động' : 'Không hoạt động'}
                         </span>
                       </TableCell>
-                      <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-maintext">
                         {formatDate(material.updatedAt)}
                       </TableCell>
                       <TableCell className="px-4 py-4 whitespace-nowrap text-right">
@@ -295,7 +295,7 @@ export default function MaterialsPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                    <TableCell colSpan={5} className="px-4 py-8 text-center text-maintext">
                       Không tìm thấy chất liệu nào
                     </TableCell>
                   </TableRow>
@@ -400,7 +400,7 @@ function EditMaterialDialog({ materialId, isOpen, onClose }: EditMaterialDialogP
         <DialogHeader>
           <DialogTitle><Skeleton className="h-8 w-[200px]" /></DialogTitle>
         </DialogHeader>
-        <div className="space-y-6">
+        <div className="space-y-4">
           <div className="space-y-2">
             <Skeleton className="h-4 w-[100px]" />
             <Skeleton className="h-10 w-full" />
@@ -424,7 +424,7 @@ function EditMaterialDialog({ materialId, isOpen, onClose }: EditMaterialDialogP
         <DialogHeader>
           <DialogTitle>Lỗi</DialogTitle>
         </DialogHeader>
-        <div className="py-6 text-center">
+        <div className="py-4 text-center">
           <p className="text-red-500 mb-4">Đã xảy ra lỗi khi tải dữ liệu chất liệu.</p>
           <div className="flex justify-center space-x-4">
             <Button variant="outline" onClick={onClose}>
@@ -444,7 +444,7 @@ function EditMaterialDialog({ materialId, isOpen, onClose }: EditMaterialDialogP
       <DialogHeader>
         <DialogTitle>Chỉnh sửa chất liệu: {materialData.data.name}</DialogTitle>
       </DialogHeader>
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="name">Tên chất liệu</Label>
           <Input
@@ -566,7 +566,7 @@ function CreateMaterialDialog({ isOpen, onClose }: CreateMaterialDialogProps) {
       <DialogHeader>
         <DialogTitle>Thêm chất liệu mới</DialogTitle>
       </DialogHeader>
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="create-name">Tên chất liệu</Label>
           <Input

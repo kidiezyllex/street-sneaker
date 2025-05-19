@@ -138,7 +138,7 @@ export default function VouchersPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className='flex justify-between items-start'>
         <Breadcrumb>
           <BreadcrumbList>
@@ -180,12 +180,12 @@ export default function VouchersPage() {
               <Icon
                 path={mdiMagnify}
                 size={0.9}
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext"
               />
               <Input
                 type="text"
                 placeholder="Tìm kiếm theo tên hoặc mã voucher..."
-                className="pl-10 pr-4 py-2 w-full border rounded-md"
+                className="pl-10 pr-4 py-2 w-full border rounded-[6px]"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -282,10 +282,10 @@ export default function VouchersPage() {
       </Card>
 
       {isLoading ? (
-        <div className="bg-white rounded-lg shadow-sm p-6 space-y-4">
+        <div className="bg-white rounded-[6px] shadow-sm p-4 space-y-4">
           {[...Array(5)].map((_, index) => (
             <div key={index} className="flex items-center space-x-4">
-              <Skeleton className="h-12 w-12 rounded-md" />
+              <Skeleton className="h-12 w-12 rounded-[6px]" />
               <div className="space-y-2">
                 <Skeleton className="h-4 w-[250px]" />
                 <Skeleton className="h-4 w-[200px]" />
@@ -294,7 +294,7 @@ export default function VouchersPage() {
           ))}
         </div>
       ) : isError ? (
-        <div className="bg-white rounded-lg shadow-sm p-6 text-center">
+        <div className="bg-white rounded-[6px] shadow-sm p-4 text-center">
           <p className="text-red-500">Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại sau.</p>
           <Button
             variant="outline"
@@ -305,19 +305,19 @@ export default function VouchersPage() {
           </Button>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div className="bg-white rounded-[6px] shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Mã</TableHead>
-                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Tên</TableHead>
-                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Loại</TableHead>
-                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Giá trị</TableHead>
-                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Sử dụng</TableHead>
-                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Thời gian</TableHead>
-                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Trạng thái</TableHead>
-                  <TableHead className="px-4 py-4 text-center text-sm font-medium text-gray-500">Thao tác</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Mã</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Tên</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Loại</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Giá trị</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Sử dụng</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Thời gian</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Trạng thái</TableHead>
+                  <TableHead className="px-4 py-4 text-center text-sm font-medium text-maintext">Thao tác</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -548,31 +548,31 @@ export default function VouchersPage() {
             </div>
             
             {validationResult && (
-              <div className="border rounded-md p-4 mt-2">
+              <div className="border rounded-[6px] p-4 mt-2">
                 <h4 className="text-md font-semibold mb-2">Kết quả kiểm tra:</h4>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Mã giảm giá:</span>
+                    <span className="text-maintext">Mã giảm giá:</span>
                     <span className="font-medium">{validationResult.data.voucher.code}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Tên:</span>
+                    <span className="text-maintext">Tên:</span>
                     <span className="font-medium">{validationResult.data.voucher.name}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Loại:</span>
+                    <span className="text-maintext">Loại:</span>
                     <span className="font-medium">
                       {validationResult.data.voucher.type === 'PERCENTAGE' ? 'Phần trăm' : 'Số tiền cố định'}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Giá trị giảm:</span>
+                    <span className="text-maintext">Giá trị giảm:</span>
                     <span className="font-medium text-green-600">
                       {formatCurrency(validationResult.data.discountValue)}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Thời hạn:</span>
+                    <span className="text-maintext">Thời hạn:</span>
                     <span className="font-medium">
                       {formatDate(validationResult.data.voucher.startDate)} - {formatDate(validationResult.data.voucher.endDate)}
                     </span>

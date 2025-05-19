@@ -178,7 +178,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardHeader>
             <CardTitle>Thông tin giao hàng</CardTitle>

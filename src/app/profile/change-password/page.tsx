@@ -83,7 +83,7 @@ function PasswordStrengthIndicator({ password }: { password: string }) {
           style={{ width: `${Math.min(strength, 100)}%` }}
         ></div>
       </div>
-      <p className="text-xs mt-1 text-gray-600 dark:text-gray-400">
+      <p className="text-xs mt-1 text-gray-600 dark:text-maintext">
         {message}
       </p>
     </div>
@@ -145,7 +145,7 @@ function ChangePasswordForm() {
                   <button
                     type="button"
                     onClick={() => setShowOldPassword(!showOldPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-maintext hover:text-gray-700 focus:outline-none"
                   >
                     {showOldPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -173,7 +173,7 @@ function ChangePasswordForm() {
                   <button
                     type="button"
                     onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-maintext hover:text-gray-700 focus:outline-none"
                   >
                     {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -202,7 +202,7 @@ function ChangePasswordForm() {
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-maintext hover:text-gray-700 focus:outline-none"
                   >
                     {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -218,7 +218,7 @@ function ChangePasswordForm() {
             <Button
               type="button"
               variant="outline"
-              className="border-gray-300 dark:border-gray-700 py-6 px-6"
+              className="border-gray-300 dark:border-gray-700 py-4 px-4"
             >
               <ArrowLeft size={18} className="mr-2" />
               Quay lại
@@ -226,7 +226,7 @@ function ChangePasswordForm() {
           </Link>
           <Button
             type="submit"
-            className="bg-primary hover:bg-secondary transition-all duration-300 text-base font-semibold flex-1 py-6"
+            className="bg-primary hover:bg-secondary transition-all duration-300 text-base font-semibold flex-1 py-4"
             disabled={changePasswordMutation.isPending}
           >
             {changePasswordMutation.isPending ? (
@@ -267,7 +267,7 @@ export default function ChangePasswordPage() {
       >
         <div className="mb-8 flex flex-col items-center text-center">
           <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Đổi mật khẩu</h1>
-          <p className="text-gray-600 dark:text-gray-400 max-w-md">
+          <p className="text-gray-600 dark:text-maintext max-w-md">
             Cập nhật mật khẩu mới để bảo vệ tài khoản của bạn
           </p>
         </div>

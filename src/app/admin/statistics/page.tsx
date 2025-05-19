@@ -212,10 +212,10 @@ export default function StatisticsPage() {
   const StatCard = ({ title, value, icon, iconColor, bgColor, change }: StatCardProps) => {
     return (
       <Card className="h-full">
-        <CardContent className="p-6">
+        <CardContent className="p-4">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-base text-gray-500">{title}</p>
+              <p className="text-base text-maintext">{title}</p>
               <h3 className="text-2xl font-bold mt-2">{value}</h3>
               <div className="flex items-center mt-2">
                 <Icon
@@ -240,7 +240,7 @@ export default function StatisticsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex justify-between items-start">
         <Breadcrumb>
           <BreadcrumbList>
@@ -263,12 +263,12 @@ export default function StatisticsPage() {
         </TabsList>
 
         {/* Tổng quan */}
-        <TabsContent value="overview" className="space-y-6">
+        <TabsContent value="overview" className="space-y-4">
           {clientRevenueReport.isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               {[...Array(4)].map((_, index) => (
                 <Card key={index} className="h-full">
-                  <CardContent className="p-6">
+                  <CardContent className="p-4">
                     <Skeleton className="h-5 w-32 mb-2" />
                     <Skeleton className="h-8 w-24 mb-2" />
                     <Skeleton className="h-5 w-40" />
@@ -277,7 +277,7 @@ export default function StatisticsPage() {
               ))}
             </div>
           ) : clientRevenueReport.isError ? (
-            <Card className="p-6">
+            <Card className="p-4">
               <p className="text-red-600">Lỗi khi tải dữ liệu thống kê</p>
             </Card>
           ) : (
@@ -322,7 +322,7 @@ export default function StatisticsPage() {
               <CardHeader>
                 <CardTitle>Doanh thu theo thời gian</CardTitle>
               </CardHeader>
-              <CardContent className="p-6">
+              <CardContent className="p-4">
                 {clientRevenueReport.isLoading ? (
                   <Skeleton className="h-64 w-full" />
                 ) : clientRevenueReport.isError ? (
@@ -354,7 +354,7 @@ export default function StatisticsPage() {
               <CardHeader>
                 <CardTitle>Top 5 sản phẩm bán chạy</CardTitle>
               </CardHeader>
-              <CardContent className="p-6">
+              <CardContent className="p-4">
                 {clientTopProducts.isLoading ? (
                   <Skeleton className="h-64 w-full" />
                 ) : clientTopProducts.isError ? (
@@ -391,12 +391,12 @@ export default function StatisticsPage() {
         </TabsContent>
 
         {/* Tab Doanh thu */}
-        <TabsContent value="revenue" className="space-y-6">
+        <TabsContent value="revenue" className="space-y-4">
           <Card className="mb-6">
             <CardHeader>
               <CardTitle>Báo cáo doanh thu</CardTitle>
             </CardHeader>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div>
                   <Label htmlFor="revType">Loại thống kê</Label>
@@ -441,22 +441,22 @@ export default function StatisticsPage() {
                 <p className="text-red-600">Lỗi khi tải dữ liệu báo cáo doanh thu</p>
               ) : (
                 <>
-                  <div className="p-4 bg-slate-50 rounded-lg mb-6">
+                  <div className="p-4 bg-slate-50 rounded-[6px] mb-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="text-center">
-                        <h3 className="text-lg font-semibold text-gray-500">Tổng doanh thu</h3>
+                        <h3 className="text-lg font-semibold text-maintext">Tổng doanh thu</h3>
                         <p className="text-2xl font-bold text-green-600 mt-2">
                           {formatCurrency(clientRevenueReport.data?.data.total || 0)}
                         </p>
                       </div>
                       <div className="text-center">
-                        <h3 className="text-lg font-semibold text-gray-500">So với kỳ trước</h3>
+                        <h3 className="text-lg font-semibold text-maintext">So với kỳ trước</h3>
                         <p className="text-2xl font-bold mt-2">
                           {formatCurrency(clientRevenueReport.data?.data.previousPeriod.total || 0)}
                         </p>
                       </div>
                       <div className="text-center">
-                        <h3 className="text-lg font-semibold text-gray-500">Biến động</h3>
+                        <h3 className="text-lg font-semibold text-maintext">Biến động</h3>
                         <p className="text-2xl font-bold mt-2">
                           {formatPercentChange(clientRevenueReport.data?.data.previousPeriod.percentChange || 0)}
                         </p>
@@ -511,12 +511,12 @@ export default function StatisticsPage() {
         </TabsContent>
 
         {/* Tab Sản phẩm bán chạy */}
-        <TabsContent value="products" className="space-y-6">
+        <TabsContent value="products" className="space-y-4">
           <Card className="mb-6">
             <CardHeader>
               <CardTitle>Sản phẩm bán chạy</CardTitle>
             </CardHeader>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div>
                   <Label htmlFor="prodStartDate">Từ ngày</Label>
@@ -633,7 +633,7 @@ export default function StatisticsPage() {
                 onChange={(e) => setGenerateDate(e.target.value)}
               />
             </div>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-maintext">
               Lưu ý: Chức năng này thường được hệ thống tự động thực hiện. Chỉ sử dụng khi cần thiết.
             </p>
           </div>

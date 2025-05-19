@@ -142,7 +142,7 @@ export default function AddressManager() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-medium">Địa chỉ của tôi</h2>
@@ -158,9 +158,9 @@ export default function AddressManager() {
         </div>
 
         {addresses.length === 0 ? (
-          <div className="flex flex-col items-center justify-center p-12 border border-dashed border-gray-300 dark:border-gray-700 rounded-md">
-            <Icon path={mdiMapMarker} size={3} className="text-gray-400 mb-4" />
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+          <div className="flex flex-col items-center justify-center p-12 border border-dashed border-gray-300 dark:border-gray-700 rounded-[6px]">
+            <Icon path={mdiMapMarker} size={3} className="text-maintext mb-4" />
+            <p className="text-gray-600 dark:text-maintext mb-4">
               Bạn chưa có địa chỉ nào
             </p>
             <DialogTrigger asChild>
@@ -210,7 +210,7 @@ export default function AddressManager() {
                     <CardContent className="p-4 pt-2">
                       <div className="text-sm space-y-1">
                         <p className="font-medium">{address.fullName} | {address.phoneNumber}</p>
-                        <p className="text-gray-600 dark:text-gray-400">
+                        <p className="text-gray-600 dark:text-maintext">
                           {address.addressDetail}, {address.ward}, {address.district}, {address.province}
                         </p>
                       </div>
@@ -396,7 +396,7 @@ export default function AddressManager() {
                     control={form.control}
                     name="isDefault"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                      <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-[6px] border p-4">
                         <FormControl>
                           <Input
                             type="checkbox"
@@ -407,7 +407,7 @@ export default function AddressManager() {
                         </FormControl>
                         <div className="space-y-1 leading-none">
                           <FormLabel className="cursor-pointer">Đặt làm địa chỉ mặc định</FormLabel>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                          <p className="text-sm text-maintext dark:text-maintext">
                             Địa chỉ này sẽ được sử dụng mặc định khi mua hàng
                           </p>
                         </div>

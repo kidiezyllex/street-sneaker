@@ -102,7 +102,7 @@ export const Footer = () => {
           </div>
 
           {/* Social links - Mobile */}
-          <div className="gap-5 sm:hidden flex justify-center items-center mt-3">
+          <div className="gap-4 sm:hidden flex justify-center items-center mt-3">
             {socialLinks.map((link, index) => (
               <a key={index} href={link.href} target="_blank" rel="noreferrer">
                 <Image

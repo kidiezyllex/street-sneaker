@@ -121,7 +121,7 @@ export default function ProductsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className='flex justify-between items-start'>
         <Breadcrumb>
           <BreadcrumbList>
@@ -156,12 +156,12 @@ export default function ProductsPage() {
               <Icon
                 path={mdiMagnify}
                 size={0.9}
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext"
               />
               <Input
                 type="text"
                 placeholder="Tìm kiếm theo tên sản phẩm..."
-                className="pl-10 pr-4 py-2 w-full border rounded-md"
+                className="pl-10 pr-4 py-2 w-full border rounded-[6px]"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -241,10 +241,10 @@ export default function ProductsPage() {
       </Card>
 
       {isLoading ? (
-        <div className="bg-white rounded-lg shadow-sm p-6 space-y-4">
+        <div className="bg-white rounded-[6px] shadow-sm p-4 space-y-4">
           {[...Array(5)].map((_, index) => (
             <div key={index} className="flex items-center space-x-4">
-              <Skeleton className="h-12 w-12 rounded-md" />
+              <Skeleton className="h-12 w-12 rounded-[6px]" />
               <div className="space-y-2">
                 <Skeleton className="h-4 w-[250px]" />
                 <Skeleton className="h-4 w-[200px]" />
@@ -253,7 +253,7 @@ export default function ProductsPage() {
           ))}
         </div>
       ) : isError ? (
-        <div className="bg-white rounded-lg shadow-sm p-6 text-center">
+        <div className="bg-white rounded-[6px] shadow-sm p-4 text-center">
           <p className="text-red-500">Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại sau.</p>
           <Button
             variant="outline"
@@ -264,7 +264,7 @@ export default function ProductsPage() {
           </Button>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-sm overflow-visible">
+        <div className="bg-white rounded-[6px] shadow-sm overflow-visible">
           <div className="overflow-x-auto" style={{ 
             width: '100%', 
             display: 'block',
@@ -277,13 +277,13 @@ export default function ProductsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Hình ảnh</TableHead>
-                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Sản phẩm</TableHead>
-                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Thương hiệu</TableHead>
-                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Danh mục</TableHead>
-                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Trạng thái</TableHead>
-                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Ngày cập nhật</TableHead>
-                  <TableHead className="px-4 py-4 text-right text-sm font-medium text-gray-500">Thao tác</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Hình ảnh</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Sản phẩm</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Thương hiệu</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Danh mục</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Trạng thái</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Ngày cập nhật</TableHead>
+                  <TableHead className="px-4 py-4 text-right text-sm font-medium text-maintext">Thao tác</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -292,7 +292,7 @@ export default function ProductsPage() {
                     <TableRow key={product._id} className="hover:bg-gray-50">
                       <TableCell className="px-4 py-4 whitespace-nowrap">
                         <div
-                          className="relative h-12 w-12 rounded-md overflow-hidden bg-gray-100 cursor-pointer group"
+                          className="relative h-12 w-12 rounded-[6px] overflow-hidden bg-gray-100 cursor-pointer group"
                           onClick={() => handleOpenLightbox(product, 0, 0)}
                           title="Xem ảnh lớn"
                         >
@@ -306,14 +306,14 @@ export default function ProductsPage() {
                       </TableCell>
                       <TableCell className="px-4 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">{product.name}</div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-maintext">
                           {product.variants.length} biến thể
                         </div>
                       </TableCell>
-                      <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-maintext">
                         {typeof product.brand === 'string' ? product.brand : product.brand.name}
                       </TableCell>
-                      <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-maintext">
                         {typeof product.category === 'string' ? product.category : product.category.name}
                       </TableCell>
                       <TableCell className="px-4 py-4 whitespace-nowrap">
@@ -324,7 +324,7 @@ export default function ProductsPage() {
                           {product.status === 'HOAT_DONG' ? 'Hoạt động' : 'Không hoạt động'}
                         </span>
                       </TableCell>
-                      <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-maintext">
                         {formatDate(product.updatedAt)}
                       </TableCell>
                       <TableCell className="px-4 py-4 whitespace-nowrap text-right">
@@ -376,7 +376,7 @@ export default function ProductsPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={8} className="px-4 py-8 text-center text-gray-500">
+                    <TableCell colSpan={8} className="px-4 py-8 text-center text-maintext">
                       Không tìm thấy sản phẩm nào
                     </TableCell>
                   </TableRow>

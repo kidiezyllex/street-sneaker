@@ -177,7 +177,7 @@ export default function CreateOrderPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex justify-between items-start">
         <Breadcrumb>
           <BreadcrumbList>
@@ -201,8 +201,8 @@ export default function CreateOrderPage() {
       </div>
 
       <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2 space-y-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Sản phẩm</CardTitle>
@@ -216,11 +216,11 @@ export default function CreateOrderPage() {
               </CardHeader>
               <CardContent>
                 {selectedProducts.length === 0 ? (
-                  <div className="text-center py-6 border rounded-md">
-                    <p className="text-gray-500">Chưa có sản phẩm nào. Vui lòng thêm sản phẩm vào đơn hàng.</p>
+                  <div className="text-center py-4 border rounded-[6px]">
+                    <p className="text-maintext">Chưa có sản phẩm nào. Vui lòng thêm sản phẩm vào đơn hàng.</p>
                   </div>
                 ) : (
-                  <div className="border rounded-md">
+                  <div className="border rounded-[6px]">
                     <Table>
                       <TableHeader>
                         <TableRow>
@@ -446,7 +446,7 @@ export default function CreateOrderPage() {
             </Card>
           </div>
           
-          <div className="space-y-6">
+          <div className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle>Thanh toán</CardTitle>
@@ -481,11 +481,11 @@ export default function CreateOrderPage() {
                 
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-500">Tổng tiền sản phẩm:</span>
+                    <span className="text-sm text-maintext">Tổng tiền sản phẩm:</span>
                     <span>{formatCurrency(subTotal)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-500">Giảm giá:</span>
+                    <span className="text-sm text-maintext">Giảm giá:</span>
                     <span>{formatCurrency(discount)}</span>
                   </div>
                   <div className="flex justify-between font-medium pt-3 border-t">
@@ -525,8 +525,8 @@ export default function CreateOrderPage() {
             />
             
             {!productsData || productsData.data.products.length === 0 ? (
-              <div className="text-center py-6">
-                <p className="text-gray-500">Không tìm thấy sản phẩm phù hợp.</p>
+              <div className="text-center py-4">
+                <p className="text-maintext">Không tìm thấy sản phẩm phù hợp.</p>
               </div>
             ) : (
               <div className="max-h-[400px] overflow-y-auto">
@@ -547,12 +547,12 @@ export default function CreateOrderPage() {
                               <img 
                                 src={product.images[0]} 
                                 alt={product.name}
-                                className="h-10 w-10 rounded-md object-cover" 
+                                className="h-10 w-10 rounded-[6px] object-cover" 
                               />
                             )}
                             <div>
                               <div className="font-medium">{product.name}</div>
-                              <div className="text-sm text-gray-500">{product.code}</div>
+                              <div className="text-sm text-maintext">{product.code}</div>
                             </div>
                           </div>
                         </TableCell>

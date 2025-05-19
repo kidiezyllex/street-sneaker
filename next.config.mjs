@@ -30,7 +30,7 @@ const nextConfig = {
     ],
   },
   async rewrites() {
-    const domain = "https://street-sneaker-be.onrender.com";
+    const domain = "http://localhost:5000";
     return [
       {
         source: "/api/:path*",

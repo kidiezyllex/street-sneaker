@@ -17,7 +17,7 @@ export const RatingStars = ({ rating }: RatingStarsProps) => {
           className={i < rating ? "text-amber-500" : "text-gray-300"}
         />
       ))}
-      <span className="text-xs text-gray-400 ml-1">({rating}.0)</span>
+      <span className="text-xs text-maintext ml-1">({rating}.0)</span>
     </div>
   );
 }; 

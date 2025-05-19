@@ -40,7 +40,7 @@ export default function UserMenu() {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{profileData?.data.fullName}</p>
-            <p className="text-xs leading-none text-gray-400">{profileData?.data.email}</p>
+            <p className="text-xs leading-none text-maintext">{profileData?.data.email}</p>
             <p className="text-xs leading-none text-primary mt-1">{profileData?.data.role}</p>
           </div>
         </DropdownMenuLabel>
