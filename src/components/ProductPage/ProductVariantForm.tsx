@@ -11,6 +11,7 @@ import Image from 'next/image';
 import { checkImageUrl } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useColors, useSizes } from '@/hooks/attributes';
 
 interface ProductVariantFormProps {
   variant: IProductVariant;
@@ -28,10 +29,11 @@ const ProductVariantForm: React.FC<ProductVariantFormProps> = ({
   uploading
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+  const { data: colorsData } = useColors();
+  const { data: sizesData } = useSizes();
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    
+
     if (name === 'price' || name === 'stock') {
       onChange({
         ...variant,
@@ -85,16 +87,8 @@ const ProductVariantForm: React.FC<ProductVariantFormProps> = ({
               <SelectValue placeholder="Chọn màu sắc" />
             </SelectTrigger>
             <SelectContent>
-              {[
-                { id: 'black', name: 'Đen' },
-                { id: 'white', name: 'Trắng' },
-                { id: 'red', name: 'Đỏ' },
-                { id: 'blue', name: 'Xanh dương' },
-                { id: 'green', name: 'Xanh lá' },
-                { id: 'yellow', name: 'Vàng' },
-                { id: 'gray', name: 'Xám' }
-              ].map(color => (
-                <SelectItem key={color.id} value={color.id}>
+              {(colorsData?.data || []).map(color => (
+                <SelectItem key={color._id} value={color._id}>
                   {color.name}
                 </SelectItem>
               ))}
@@ -113,21 +107,9 @@ const ProductVariantForm: React.FC<ProductVariantFormProps> = ({
               <SelectValue placeholder="Chọn kích thước" />
             </SelectTrigger>
             <SelectContent>
-              {[
-                { id: 'eu35', name: 'EU 35' },
-                { id: 'eu36', name: 'EU 36' },
-                { id: 'eu37', name: 'EU 37' },
-                { id: 'eu38', name: 'EU 38' },
-                { id: 'eu39', name: 'EU 39' },
-                { id: 'eu40', name: 'EU 40' },
-                { id: 'eu41', name: 'EU 41' },
-                { id: 'eu42', name: 'EU 42' },
-                { id: 'eu43', name: 'EU 43' },
-                { id: 'eu44', name: 'EU 44' },
-                { id: 'eu45', name: 'EU 45' },
-              ].map(size => (
-                <SelectItem key={size.id} value={size.id}>
-                  {size.name}
+              {(sizesData?.data || []).map(size => (
+                <SelectItem key={size._id} value={size._id}>
+                  {size.value}
                 </SelectItem>
               ))}
             </SelectContent>

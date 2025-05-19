@@ -48,7 +48,7 @@ export const OutOfStockProducts = () => {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
-                  className="flex items-center gap-3 rounded-lg border p-3"
+                  className="flex items-center gap-2 rounded-lg border p-3"
                 >
                   <div 
                     className="relative h-14 w-14 overflow-hidden rounded-md bg-gray-100 cursor-pointer transition-transform hover:scale-105"

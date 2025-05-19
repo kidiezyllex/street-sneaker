@@ -21,6 +21,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import ProductVariantForm from '@/components/ProductPage/ProductVariantForm';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import cookies from 'js-cookie';
+import { useBrands, useCategories, useColors, useMaterials, useSizes } from '@/hooks/attributes';
 
 const initialProduct: IProductCreate = {
   name: '',
@@ -45,8 +46,6 @@ export default function CreateProductPage() {
   const [product, setProduct] = useState<IProductCreate>(initialProduct);
   const [activeTab, setActiveTab] = useState('info');
   const [uploading, setUploading] = useState(false);
-  const [tokenValid, setTokenValid] = useState<boolean | null>(null);
-  const accessToken = cookies.get('accessToken');
   const createProduct = useCreateProduct();
   const uploadImage = useUploadImage();
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -57,7 +56,10 @@ export default function CreateProductPage() {
       setProduct({ ...product, [name]: value });
     }
   };
+  const { data: brandsData } = useBrands();
+  const { data: categoriesData } = useCategories();
 
+  const { data: materialsData } = useMaterials();
   const handleAddVariant = () => {
     setProduct({
       ...product,
@@ -116,8 +118,6 @@ export default function CreateProductPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Kiểm tra dữ liệu trước khi gửi
     if (!product.name || !product.brand || !product.category) {
       toast.error('Vui lòng điền đầy đủ thông tin sản phẩm');
       setActiveTab('info');
@@ -138,12 +138,10 @@ export default function CreateProductPage() {
         },
         onError: (error) => {
           console.error('Chi tiết lỗi:', error);
-          toast.error('Tạo sản phẩm thất bại: ' + (error.message || 'Không xác định'));
         }
       });
     } catch (error) {
-      console.error('Lỗi khi tạo sản phẩm:', error);
-      toast.error('Tạo sản phẩm thất bại');
+      toast.error('Tên sản phẩm đã tồn tại');
     }
   };
 
@@ -217,9 +215,9 @@ export default function CreateProductPage() {
                         <SelectValue placeholder="Chọn thương hiệu" />
                       </SelectTrigger>
                       <SelectContent>
-                        {['Nike', 'Adidas', 'Puma', 'Converse', 'Vans'].map(brand => (
-                          <SelectItem key={brand} value={brand}>
-                            {brand}
+                        {(brandsData?.data || []).map(brand => (
+                          <SelectItem key={brand._id} value={brand._id}>
+                            {brand.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -235,9 +233,9 @@ export default function CreateProductPage() {
                         <SelectValue placeholder="Chọn danh mục" />
                       </SelectTrigger>
                       <SelectContent>
-                        {['Giày thể thao', 'Giày chạy bộ', 'Giày đá bóng', 'Giày thời trang'].map(category => (
-                          <SelectItem key={category} value={category}>
-                            {category}
+                        {(categoriesData?.data || []).map(category => (
+                          <SelectItem key={category._id} value={category._id}>
+                            {category.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -253,9 +251,9 @@ export default function CreateProductPage() {
                         <SelectValue placeholder="Chọn chất liệu" />
                       </SelectTrigger>
                       <SelectContent>
-                        {['Canvas', 'Da', 'Vải', 'Nhựa', 'Cao su'].map(material => (
-                          <SelectItem key={material} value={material}>
-                            {material}
+                        {(materialsData?.data || []).map(material => (
+                          <SelectItem key={material._id} value={material._id}>
+                            {material.name}
                           </SelectItem>
                         ))}
                       </SelectContent>

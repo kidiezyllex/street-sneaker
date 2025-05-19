@@ -83,7 +83,7 @@ export const NavigationBar = () => {
                     ))}
                 </div>
                 {/* User Actions */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                     {!isAuthenticated ? (
                         <div className="hidden md:flex items-center gap-2">
                             <Link href="/auth/login">

@@ -396,7 +396,7 @@ function EditMaterialDialog({ materialId, isOpen, onClose }: EditMaterialDialogP
 
   if (isLoading) {
     return (
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle><Skeleton className="h-8 w-[200px]" /></DialogTitle>
         </DialogHeader>
@@ -420,7 +420,7 @@ function EditMaterialDialog({ materialId, isOpen, onClose }: EditMaterialDialogP
 
   if (isError || !materialData) {
     return (
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle>Lỗi</DialogTitle>
         </DialogHeader>
@@ -440,7 +440,7 @@ function EditMaterialDialog({ materialId, isOpen, onClose }: EditMaterialDialogP
   }
 
   return (
-    <DialogContent className="sm:max-w-[425px]">
+    <DialogContent className="sm:max-w-4xl">
       <DialogHeader>
         <DialogTitle>Chỉnh sửa chất liệu: {materialData.data.name}</DialogTitle>
       </DialogHeader>
@@ -545,7 +545,6 @@ function CreateMaterialDialog({ isOpen, onClose }: CreateMaterialDialogProps) {
           onSuccess: () => {
             toast.success('Thêm chất liệu thành công');
             queryClient.invalidateQueries({ queryKey: ['materials'] });
-            // Reset form
             setFormData({
               name: '',
               status: 'HOAT_DONG'
@@ -558,12 +557,12 @@ function CreateMaterialDialog({ isOpen, onClose }: CreateMaterialDialogProps) {
         }
       );
     } catch (error) {
-      toast.error('Đã xảy ra lỗi khi thêm chất liệu');
+      console.error(error);
     }
   };
 
   return (
-    <DialogContent className="sm:max-w-[425px]">
+    <DialogContent className="sm:max-w-4xl">
       <DialogHeader>
         <DialogTitle>Thêm chất liệu mới</DialogTitle>
       </DialogHeader>

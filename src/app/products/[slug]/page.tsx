@@ -255,7 +255,7 @@ export default function ProductDetail() {
 
           {/* Ảnh thumbnail */}
           {selectedVariant && selectedVariant.images && selectedVariant.images.length > 1 && (
-            <div className="grid grid-cols-5 gap-3 mt-4">
+            <div className="grid grid-cols-5 gap-2 mt-4">
               {selectedVariant.images.map((image: string, index: number) => (
                 <div
                   key={index}
@@ -325,7 +325,7 @@ export default function ProductDetail() {
                 </span>
               )}
             </div>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2">
               {product.variants
                 .filter((variant, index, self) => 
                   index === self.findIndex((v) => v.colorId._id === variant.colorId._id)
@@ -403,7 +403,7 @@ export default function ProductDetail() {
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="icon"

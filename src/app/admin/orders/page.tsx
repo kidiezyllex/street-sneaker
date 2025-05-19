@@ -376,29 +376,8 @@ export default function OrdersPage() {
             </BreadcrumbList>
           </Breadcrumb>
         </div>
-        <div className="flex flex-col sm:flex-row gap-3">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                <Icon path={mdiFileExport} size={0.8} className="mr-2" />
-                Xuất dữ liệu
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={handleExportExcel}>Xuất Excel</DropdownMenuItem>
-              <DropdownMenuItem onClick={handleExportPDF}>Xuất PDF</DropdownMenuItem>
-              <DropdownMenuItem>In danh sách</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Link href="/admin/orders/create">
-            <Button>
-              <Icon path={mdiCheck} size={0.8} className="mr-2" />
-              Tạo đơn hàng mới
-            </Button>
-          </Link>
-        </div>
+     
       </div>
-
       <Card>
         <CardContent className="p-6">
           <Tabs defaultValue="all" className="w-full" onValueChange={setSelectedTab}>
@@ -462,7 +441,7 @@ export default function OrdersPage() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <div className="flex gap-3 w-full md:w-auto">
+              <div className="flex gap-2 w-full md:w-auto">
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -501,6 +480,21 @@ export default function OrdersPage() {
                   <Icon path={mdiFilterOutline} size={0.9} className="mr-2" />
                   {showFilters ? "Ẩn bộ lọc" : "Hiện bộ lọc"}
                 </Button>
+                <div className="flex flex-col sm:flex-row gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <Icon path={mdiFileExport} size={0.8} className="mr-2" />
+                Xuất dữ liệu
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={handleExportExcel}>Xuất Excel</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportPDF}>Xuất PDF</DropdownMenuItem>
+              <DropdownMenuItem>In danh sách</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
               </div>
             </div>
 

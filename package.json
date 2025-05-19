@@ -45,6 +45,7 @@
     "dayjs": "^1.11.13",
     "flag-icons": "^7.3.2",
     "framer-motion": "^12.6.3",
+    "html-to-image": "^1.11.13",
     "html5-qrcode": "^2.3.8",
     "js-cookie": "^3.0.5",
     "jspdf": "^3.0.1",

@@ -22,7 +22,8 @@ import {
   mdiReceipt,
   mdiClock,
   mdiAccount,
-  mdiContentCopy
+  mdiContentCopy,
+  mdiPrinter
 } from '@mdi/js';
 import { checkImageUrl, cn } from '@/lib/utils';
 import {
@@ -64,7 +65,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from '@/components/ui/skeleton'; // For loading states
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Pagination,
   PaginationContent,
@@ -73,17 +74,24 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"; // Added pagination imports
-import { Table, TableHeader, TableBody, TableRow, TableCell, TableHead } from '@/components/ui/table'; // Added table imports
+} from "@/components/ui/pagination"; 
+import { Table, TableHeader, TableBody, TableRow, TableCell, TableHead } from '@/components/ui/table'; 
 import { useVouchers, useIncrementVoucherUsage } from '@/hooks/voucher';
 import { useQuery } from '@tanstack/react-query';
 import { getAllVouchers } from '@/api/voucher';
 import { IVouchersResponse } from "@/interface/response/voucher";
 import { useProducts, useSearchProducts } from '@/hooks/product';
 import { IProductFilter } from '@/interface/request/product';
-import { usePosStore } from '@/stores/posStore'; // Added import for Zustand store
-import { useCreatePOSOrder } from '@/hooks/order'; // Changed from useCreateOrder
-import { IPOSOrderCreateRequest } from '@/interface/request/order'; // Changed from IOrderCreate
+import { usePosStore } from '@/stores/posStore'; 
+import { useCreatePOSOrder } from '@/hooks/order'; 
+import { IPOSOrderCreateRequest } from '@/interface/request/order'; 
+
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import { RobotoRegular } from "@/fonts/Roboto-Regular";
+import { CustomScrollArea } from '@/components/ui/custom-scroll-area';
+import { toPng } from 'html-to-image';
+import { useRef } from 'react';
 
 interface ApiVariant {
   _id: string;
@@ -93,7 +101,7 @@ interface ApiVariant {
   stock: number;
   images?: string[];
   sku?: string;
-  actualSizeId?: string; // Added for order payload
+  actualSizeId?: string; 
 }
 
 interface ApiProduct {
@@ -119,11 +127,11 @@ interface UpdatedCartItem {
   quantity: number;
   image: string; 
   stock: number; 
-  actualColorId?: string; // Added for order payload
-  actualSizeId?: string; // Added for order payload
+  actualColorId?: string; 
+  actualSizeId?: string; 
 }
 
-interface IVoucherData { // Define this based on your actual voucher structure in IVouchersResponse
+interface IVoucherData { 
   _id: string;
   code: string;
   name: string;
@@ -135,7 +143,44 @@ interface IVoucherData { // Define this based on your actual voucher structure i
   endDate: string;
   minOrderValue: number;
   status: string;
-  maxValue?: number; // Optional, if your percentage vouchers have a max value
+  maxValue?: number; 
+}
+
+interface InvoiceShopInfo {
+  name: string;
+  address: string;
+  phone: string;
+  email: string;
+}
+
+interface InvoiceCustomerInfo {
+  name: string;
+  phone: string;
+}
+
+interface InvoiceItem {
+  name: string;
+  quantity: number;
+  price: number;
+  total: number;
+  color: string;
+  size: string;
+}
+
+interface InvoiceData {
+  shopInfo: InvoiceShopInfo;
+  customerInfo: InvoiceCustomerInfo;
+  orderId: string;
+  employee: string; 
+  createdAt: string; 
+  items: InvoiceItem[];
+  subTotal: number;
+  discount: number;
+  voucherCode?: string;
+  total: number;
+  cashReceived: number;
+  changeGiven: number;
+  paymentMethod: string;
 }
 
 export default function POSPage() {
@@ -156,12 +201,16 @@ export default function POSPage() {
   const [sortOption, setSortOption] = useState<string>('newest'); 
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [activeCategoryName, setActiveCategoryName] = useState<string>('Tất cả sản phẩm');
-  const [showVouchersDialog, setShowVouchersDialog] = useState<boolean>(false); // State for vouchers dialog
-  const [appliedVoucher, setAppliedVoucher] = useState<IVoucherData | null>(null); // Store applied voucher details
+  const [showVouchersDialog, setShowVouchersDialog] = useState<boolean>(false); 
+  const [appliedVoucher, setAppliedVoucher] = useState<IVoucherData | null>(null); 
 
-  const stats = usePosStore((state) => state.stats); // Use Zustand store for stats
-  const updateStatsOnCheckout = usePosStore((state) => state.updateStatsOnCheckout); // Use Zustand store action
-  const createOrderMutation = useCreatePOSOrder(); // Changed from useCreateOrder()
+  const [cashReceived, setCashReceived] = useState<number | string>('');
+  const [showInvoiceDialog, setShowInvoiceDialog] = useState<boolean>(false);
+  const [currentInvoiceData, setCurrentInvoiceData] = useState<InvoiceData | null>(null);
+
+  const stats = usePosStore((state) => state.stats); 
+  const updateStatsOnCheckout = usePosStore((state) => state.updateStatsOnCheckout); 
+  const createOrderMutation = useCreatePOSOrder(); 
 
   const [recentTransactions, setRecentTransactions] = useState([
     { id: 'TX-1234', customer: 'Nguyễn Văn A', amount: 1250000, time: '10:25', status: 'completed' },
@@ -182,20 +231,19 @@ export default function POSPage() {
     setFilters(prevFilters => {
       if (activeCategoryName === 'Tất cả sản phẩm') {
         const { categories, ...restFilters } = prevFilters;
-        // Only return a new object if 'categories' actually existed and needs to be removed
         if (prevFilters.categories) {
           return restFilters;
         }
-        return prevFilters; // Return previous state if no change needed
+        return prevFilters; 
       } else {
         if (!prevFilters.categories || prevFilters.categories.length !== 1 || prevFilters.categories[0] !== activeCategoryName) {
           return { ...prevFilters, categories: [activeCategoryName] };
         }
-        return prevFilters; // Return previous state if no change needed
+        return prevFilters; 
       }
     });
     setPagination(prev => ({ ...prev, page: 1 }));
-  }, [activeCategoryName]); // Removed 'filters' from dependency array
+  }, [activeCategoryName]); 
 
   const productsHookParams: IProductFilter = {
     ...pagination,
@@ -209,15 +257,13 @@ export default function POSPage() {
 
   const {
     data: rawData,
-    isLoading: apiIsLoading, // Use this for product list loading
+    isLoading: apiIsLoading, 
     isError: apiIsError,
-    // refetch 
   } = isSearching ? searchQueryHook : productsQuery;
 
   const processedProducts = useMemo(() => {
     let productsToProcess = (rawData?.data?.products || []) as ApiProduct[];
 
-    // Client-side sorting
     if (sortOption !== 'default' && productsToProcess.length > 0) {
       productsToProcess = [...productsToProcess].sort((a, b) => {
         const priceA = a.variants[0]?.price || 0;
@@ -244,10 +290,10 @@ export default function POSPage() {
     const baseCategories = [{ _id: 'all', name: 'Tất cả sản phẩm' }];
     if (rawData?.data?.products) {
         const uniqueCatObjects = new Map<string, { _id: string; name:string }>();
-        rawData.data.products.forEach((p: ApiProduct) => { // Explicitly type p
+        rawData.data.products.forEach((p: ApiProduct) => { 
             if (p.category && typeof p.category === 'object' && p.category._id && p.category.name) {
                 uniqueCatObjects.set(p.category._id, { _id: p.category._id, name: p.category.name });
-            } else if (typeof p.category === 'string') { // Handle if category is just a string name
+            } else if (typeof p.category === 'string') { 
                  uniqueCatObjects.set(p.category, { _id: p.category, name: p.category });
             }
         });
@@ -274,10 +320,9 @@ export default function POSPage() {
     if (variantWithThisColor) {
       setSelectedApiVariant(variantWithThisColor);
     } else {
-      // Fallback or keep current variant if no stock for new color
       const firstVariantOfThisColor = selectedProduct.variants.find(v => v.colorId?._id === colorId);
       if (firstVariantOfThisColor) {
-          setSelectedApiVariant(firstVariantOfThisColor); // Select even if out of stock to show details
+          setSelectedApiVariant(firstVariantOfThisColor); 
           if (firstVariantOfThisColor.stock === 0) toast.warn("Màu này đã hết hàng.");
       }
     }
@@ -343,8 +388,8 @@ export default function POSPage() {
         quantity: 1,
         image: images?.[0] || selectedProduct.variants[0]?.images?.[0] || '/placeholder.svg',
         stock: stock,
-        actualColorId: colorId?._id, // Populate actualColorId
-        actualSizeId: sizeId?._id,   // Populate actualSizeId
+        actualColorId: colorId?._id, 
+        actualSizeId: sizeId?._id,   
       };
       setCartItems([...cartItems, newItem]);
       toast.success('Đã thêm sản phẩm vào giỏ hàng');
@@ -357,7 +402,7 @@ export default function POSPage() {
     const updatedItems = cartItems.map(item => {
       if (item.id === id) {
         const newQuantity = item.quantity + amount;
-        if (newQuantity <= 0) return item; // Logic to remove if quantity becomes 0 is handled by filter below
+        if (newQuantity <= 0) return item; 
         if (newQuantity > item.stock) {
             toast.warn(`Chỉ còn ${item.stock} sản phẩm trong kho.`);
             return {...item, quantity: item.stock };
@@ -367,7 +412,6 @@ export default function POSPage() {
       return item;
     }).filter(item => item.quantity > 0); 
     setCartItems(updatedItems);
-    // Recalculate discount if cart changes
     if(appliedVoucher) {
         const subtotal = updatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
         if (subtotal < appliedVoucher.minOrderValue) {
@@ -394,7 +438,6 @@ export default function POSPage() {
     const updatedItems = cartItems.filter(item => item.id !== id);
     setCartItems(updatedItems);
     toast.success('Đã xóa sản phẩm khỏi giỏ hàng');
-    // Recalculate discount if cart changes
     if(appliedVoucher) {
         const subtotal = updatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
         if (subtotal < appliedVoucher.minOrderValue || updatedItems.length === 0) {
@@ -429,7 +472,6 @@ export default function POSPage() {
       return;
     }
 
-    // Manually trigger the fetch for the specific coupon code
     const { data: voucherDataResult, isError: voucherFetchError } = await fetchVoucherByCode();
 
     if (voucherFetchError) {
@@ -457,7 +499,6 @@ export default function POSPage() {
         return;
       }
       
-      // Check expiry date
       if (new Date(voucher.endDate) < new Date()) {
         toast.error('Mã giảm giá đã hết hạn.');
         setAppliedVoucher(null);
@@ -477,8 +518,8 @@ export default function POSPage() {
       
       discountAmount = Math.min(discountAmount, subtotal);
 
-      setAppliedDiscount(discountAmount); // Store the actual discount amount
-      setAppliedVoucher(voucher); // Store the whole voucher object
+      setAppliedDiscount(discountAmount); 
+      setAppliedVoucher(voucher); 
       toast.success(`Đã áp dụng mã giảm giá "${voucher.code}".`);
     } else {
       toast.error('Mã giảm giá không hợp lệ hoặc không tìm thấy.');
@@ -507,11 +548,29 @@ export default function POSPage() {
     }).format(amount);
   };
 
+  const formatDateTimeForInvoice = (dateString: string) => {
+    return new Intl.DateTimeFormat('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(new Date(dateString));
+  };
+
   const handleCheckout = async () => {
     if (cartItems.length === 0) {
       toast.error('Giỏ hàng đang trống');
       return;
     }
+    const totalAmount = calculateTotal();
+    const cashReceivedNum = parseFloat(cashReceived.toString());
+
+    if (paymentMethod === 'cash' && (isNaN(cashReceivedNum) || cashReceivedNum < totalAmount)) {
+        toast.error('Số tiền khách đưa không đủ hoặc không hợp lệ.');
+        return;
+    }
+
 
     setCheckoutIsLoading(true);
 
@@ -534,7 +593,7 @@ export default function POSPage() {
         }
       })),
       subTotal: calculateSubtotal(),
-      total: calculateTotal(),
+      total: totalAmount,
       shippingAddress: {
         name: customerName || 'Khách lẻ',
         phoneNumber: customerPhone || 'N/A',
@@ -545,6 +604,7 @@ export default function POSPage() {
       },
       paymentMethod: paymentMethod === 'cash' ? 'CASH' :
                      (paymentMethod === 'card' || paymentMethod === 'transfer') ? 'BANK_TRANSFER' : 'CASH',
+      orderStatus: "HOAN_THANH",
       discount: appliedDiscount,
       voucher: appliedVoucher?._id || '',
     };
@@ -556,11 +616,11 @@ export default function POSPage() {
         const orderId = orderResponse.data._id;
         const orderCode = orderResponse.data.orderNumber || `POS-${Math.floor(1000 + Math.random() * 9000)}`;
 
-        updateStatsOnCheckout(calculateTotal());
+        updateStatsOnCheckout(totalAmount);
         const newTransaction = {
           id: orderCode,
           customer: customerName || 'Khách lẻ',
-          amount: calculateTotal(),
+          amount: totalAmount,
           time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
           status: 'completed'
         };
@@ -574,12 +634,47 @@ export default function POSPage() {
               onSuccess: () => {
                 toast.info(`Đã cập nhật lượt sử dụng cho mã giảm giá "${appliedVoucher.code}".`);
               },
-              onError: (error) => {
+              onError: (error: Error) => {
                 toast.error(`Lỗi khi cập nhật mã giảm giá: ${error.message}`);
               },
             }
           );
         }
+        
+        const currentChangeDue = paymentMethod === 'cash' && !isNaN(cashReceivedNum) && cashReceivedNum >= totalAmount ? cashReceivedNum - totalAmount : 0;
+        const invoiceData: InvoiceData = {
+          shopInfo: { 
+            name: 'Street Sneaker',
+            address: '1 Võ Văn Ngân, Linh Chiểu, Thủ Đức, TP.HCM',
+            phone: '0123 456 789',
+            email: 'contact@streetsneaker.vn'
+          },
+          customerInfo: {
+            name: customerName || 'Khách lẻ',
+            phone: customerPhone || 'N/A',
+          },
+          orderId: orderCode, 
+          employee: 'Nhân viên Bán Hàng', 
+          createdAt: new Date().toISOString(),
+          items: cartItems.map(item => ({
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price,
+            total: item.price * item.quantity,
+            color: item.colorName,
+            size: item.sizeName,
+          })),
+          subTotal: calculateSubtotal(),
+          discount: appliedDiscount,
+          voucherCode: appliedVoucher?.code,
+          total: totalAmount,
+          cashReceived: paymentMethod === 'cash' ? cashReceivedNum : totalAmount,
+          changeGiven: currentChangeDue,
+          paymentMethod: paymentMethod === 'cash' ? 'Tiền mặt' : paymentMethod === 'card' ? 'Thẻ tín dụng' : 'Chuyển khoản',
+        };
+        setCurrentInvoiceData(invoiceData);
+        setShowInvoiceDialog(true);
+
 
         setCartItems([]);
         setAppliedDiscount(0);
@@ -588,6 +683,7 @@ export default function POSPage() {
         setCustomerName('');
         setCustomerPhone('');
         setPaymentMethod('cash');
+        setCashReceived('');
         setShowCheckoutDialog(false);
 
       } else {
@@ -606,6 +702,7 @@ export default function POSPage() {
       toast.error('Giỏ hàng đang trống');
       return;
     }
+    setCashReceived('');
     setShowCheckoutDialog(true);
   };
 
@@ -638,7 +735,7 @@ export default function POSPage() {
     
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [cartItems, appliedVoucher]); // Add other dependencies if they are used in the handler and change
+  }, [cartItems, appliedVoucher, handleProceedToCheckout]); 
 
   const getBrandName = (brand: ApiProduct['brand']) => typeof brand === 'object' ? brand.name : brand;
 
@@ -666,10 +763,13 @@ export default function POSPage() {
     return Array.from(sizeMap.values()).filter(Boolean) as NonNullable<ApiVariant['sizeId']>[];
   }, [selectedProduct, selectedApiVariant]);
 
+  const totalAmount = calculateTotal();
+  const cashReceivedNum = parseFloat(cashReceived.toString());
+  const changeDue = paymentMethod === 'cash' && !isNaN(cashReceivedNum) && cashReceivedNum >= totalAmount ? cashReceivedNum - totalAmount : 0;
 
   return (
     <div className="h-full">
-      {/* Header with breadcrumb and stats */}
+      
       <div className="mb-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
           <Breadcrumb>
@@ -726,7 +826,7 @@ export default function POSPage() {
           </div>
         </div>
         
-        {/* Stats cards */}
+        
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           <div className="bg-white rounded-lg p-4 shadow-sm border border-border hover:shadow-md transition-shadow duration-300">
             <div className="flex items-center justify-between">
@@ -779,9 +879,9 @@ export default function POSPage() {
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Products section */}
+        
         <div className="lg:col-span-2 overflow-hidden flex flex-col">
-          {/* Search bar and categories */}
+          
           <div className="bg-white rounded-lg p-6 mb-4 shadow-sm border border-border hover:shadow-md transition-shadow duration-300">
             <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
               <div className="relative flex-1">
@@ -803,20 +903,20 @@ export default function POSPage() {
               </button>
             </div>
             
-            {/* Categories */}
+            
             <div className="flex overflow-x-auto pb-2 scrollbar-thin gap-2">
               {dynamicCategories.map((category) => (
                 <button
                   key={category._id}
                   className={cn(
                     'whitespace-nowrap px-4 py-2 rounded-md text-sm font-medium transition-all duration-200',
-                    activeCategoryName === category.name // Compare with name
+                    activeCategoryName === category.name 
                       ? 'bg-primary text-white shadow-sm'
                       : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:text-primary'
                   )}
                   onClick={() => {
                     setActiveCategoryName(category.name);
-                    setSelectedProduct(null); // Clear selection when category changes
+                    setSelectedProduct(null); 
                     setSelectedApiVariant(null);
                   }}
                 >
@@ -826,9 +926,9 @@ export default function POSPage() {
             </div>
           </div>
           
-          {/* Products list */}
+          
           <div className="bg-white rounded-lg p-6 flex-1 shadow-sm border border-border hover:shadow-md transition-shadow duration-300 min-h-[400px]">
-            {selectedProduct && selectedApiVariant ? ( // Ensure selectedApiVariant is also present
+            {selectedProduct && selectedApiVariant ? ( 
               <div className="mb-4">
                 <button
                   className="mb-4 text-sm text-primary font-medium flex items-center hover:text-primary/80 transition-colors"
@@ -841,7 +941,7 @@ export default function POSPage() {
                 </button>
                 
                 <div className="flex flex-col md:flex-row gap-8">
-                  {/* Product image */}
+                  
                   <div className="md:w-1/2">
                     <div className="relative h-80 w-full overflow-hidden rounded-lg bg-gray-50 group">
                       <Image
@@ -852,7 +952,7 @@ export default function POSPage() {
                       />
                     </div>
                     
-                    {/* Colors */}
+                    
                     {uniqueColorsForSelectedProduct.length > 0 && (
                     <div className="mt-6">
                       <h3 className="text-sm font-medium mb-3 !text-[#374151]/80">Màu sắc:</h3>
@@ -876,7 +976,7 @@ export default function POSPage() {
                     )}
                   </div>
                   
-                  {/* Product info */}
+                  
                   <div className="md:w-1/2">
                     <h2 className="text-2xl font-bold !text-[#374151]/80">{selectedProduct.name}</h2>
                     <p className="text-gray-500 mb-4">{getBrandName(selectedProduct.brand)}</p>
@@ -885,13 +985,12 @@ export default function POSPage() {
                       <p className="text-gray-600 mb-4 text-sm">{selectedProduct.description}</p>
                     )}
                     
-                    {/* Sizes */}
+                    
                     {availableSizesForSelectedColor.length > 0 && selectedApiVariant?.colorId && (
                     <div className="mb-4">
                       <h3 className="text-sm font-medium mb-3 !text-[#374151]/80">Kích thước:</h3>
                       <div className="flex flex-wrap gap-2">
                         {availableSizesForSelectedColor.map((size) => {
-                          // Find the specific variant to check its stock for this size and current color
                            const variantForThisSize = selectedProduct.variants.find(v => v.colorId?._id === selectedApiVariant.colorId?._id && v.sizeId?._id === size._id);
                            const stockForThisSize = variantForThisSize?.stock || 0;
                           return (
@@ -916,8 +1015,8 @@ export default function POSPage() {
                     </div>
                     )}
                     
-                    {/* Price and quantity */}
-                    {selectedApiVariant && ( // Check selectedApiVariant directly
+                    
+                    {selectedApiVariant && ( 
                       <>
                         <div className="mb-4">
                           <h3 className="text-sm font-medium mb-1 !text-[#374151]/80">Giá:</h3>
@@ -990,10 +1089,12 @@ export default function POSPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="bg-white rounded-lg border border-border shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 cursor-pointer group"
-                        onClick={() => handleProductSelect(product)}
+                        className="bg-white rounded-lg border border-border shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 group"
                       >
-                        <div className="relative h-48 w-full bg-gray-50 overflow-hidden">
+                        <div 
+                          className="relative h-48 w-full bg-gray-50 overflow-hidden cursor-pointer"
+                          onClick={() => handleProductSelect(product)}
+                        >
                           <Image
                             src={checkImageUrl(firstVariant?.images?.[0]  )}
                             alt={product.name}
@@ -1009,7 +1110,12 @@ export default function POSPage() {
                           )}
                         </div>
                         <div className="p-4">
-                          <h3 className="font-medium !text-[#374151]/80 group-hover:text-primary transition-colors truncate">{product.name}</h3>
+                          <h3 
+                            className="font-medium !text-[#374151]/80 group-hover:text-primary transition-colors truncate cursor-pointer"
+                            onClick={() => handleProductSelect(product)}
+                          >
+                            {product.name}
+                          </h3>
                           <p className="text-gray-500 text-sm mb-2 truncate">{getBrandName(product.brand)}</p>
                           <div className="flex justify-between items-center">
                             <p className="text-primary font-medium">
@@ -1033,6 +1139,57 @@ export default function POSPage() {
                             </div>
                             )}
                           </div>
+                          <Button 
+                            variant="outline" 
+                            className="w-full mt-3 flex items-center justify-center gap-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const firstAvailableVariant = product.variants.find(v => v.stock > 0) || product.variants[0];
+                              if (firstAvailableVariant) {
+                                const cartItemId = `${product._id}-${firstAvailableVariant._id}`;
+                                const existingItemIndex = cartItems.findIndex(item => item.id === cartItemId);
+                                
+                                if (existingItemIndex >= 0) {
+                                  if (cartItems[existingItemIndex].quantity < firstAvailableVariant.stock) {
+                                    const updatedItems = [...cartItems];
+                                    updatedItems[existingItemIndex].quantity += 1;
+                                    setCartItems(updatedItems);
+                                    toast.success('Đã cập nhật số lượng sản phẩm.');
+                                  } else {
+                                    toast.warn('Số lượng sản phẩm trong kho không đủ.');
+                                  }
+                                } else {
+                                  if (firstAvailableVariant.stock > 0) {
+                                    const newItem: UpdatedCartItem = {
+                                      id: cartItemId,
+                                      productId: product._id,
+                                      variantId: firstAvailableVariant._id,
+                                      name: product.name,
+                                      colorName: firstAvailableVariant.colorId?.name || 'N/A',
+                                      colorCode: firstAvailableVariant.colorId?.code,
+                                      sizeName: firstAvailableVariant.sizeId?.name || firstAvailableVariant.sizeId?.value || 'N/A',
+                                      price: firstAvailableVariant.price,
+                                      quantity: 1,
+                                      image: firstAvailableVariant.images?.[0] || product.variants[0]?.images?.[0] || '/placeholder.svg',
+                                      stock: firstAvailableVariant.stock,
+                                      actualColorId: firstAvailableVariant.colorId?._id,
+                                      actualSizeId: firstAvailableVariant.sizeId?._id,
+                                    };
+                                    setCartItems([...cartItems, newItem]);
+                                    toast.success('Đã thêm sản phẩm vào giỏ hàng');
+                                  } else {
+                                    toast.warn('Sản phẩm này đã hết hàng.');
+                                  }
+                                }
+                              } else {
+                                toast.warn('Sản phẩm này không có biến thể hoặc đã hết hàng.');
+                              }
+                            }}
+                            disabled={product.variants.every(v => v.stock === 0)}
+                          >
+                            <Icon path={mdiPlus} size={0.8} />
+                            Thêm vào giỏ
+                          </Button>
                         </div>
                       </motion.div>
                     );
@@ -1058,13 +1215,13 @@ export default function POSPage() {
                           const firstVariant = product.variants?.[0];
                           const totalStock = product.variants.reduce((sum, v) => sum + v.stock, 0);
                           const uniqueColorsCount = new Set(product.variants.map(v => v.colorId?._id)).size;
+                          const firstAvailableVariant = product.variants.find(v => v.stock > 0) || product.variants[0];
                           return (
                           <tr 
                             key={product._id} 
                             className="border-t border-border hover:bg-muted/20 transition-colors cursor-pointer"
-                            onClick={() => handleProductSelect(product)}
                           >
-                            <td className="py-3 px-4">
+                            <td className="py-3 px-4" onClick={() => handleProductSelect(product)}>
                               <div className="flex items-center gap-3">
                                 <div className="relative h-10 w-10 rounded-md overflow-hidden bg-gray-50">
                                   <Image
@@ -1077,9 +1234,9 @@ export default function POSPage() {
                                 <span className="font-medium !text-[#374151]/80 truncate max-w-[150px]">{product.name}</span>
                               </div>
                             </td>
-                            <td className="py-3 px-4 text-gray-600 truncate max-w-[100px]">{getBrandName(product.brand)}</td>
-                            <td className="py-3 px-4 text-primary font-medium">{firstVariant ? formatCurrency(firstVariant.price) : 'N/A'}</td>
-                            <td className="py-3 px-4">
+                            <td className="py-3 px-4 text-gray-600 truncate max-w-[100px]" onClick={() => handleProductSelect(product)}>{getBrandName(product.brand)}</td>
+                            <td className="py-3 px-4 text-primary font-medium" onClick={() => handleProductSelect(product)}>{firstVariant ? formatCurrency(firstVariant.price) : 'N/A'}</td>
+                            <td className="py-3 px-4" onClick={() => handleProductSelect(product)}>
                               {product.variants.length > 0 && (
                               <div className="flex -space-x-1">
                                 {Array.from(new Map(product.variants.map(v => [v.colorId?._id, v.colorId])).values()).slice(0, 3).map((color, idx) => color && (
@@ -1098,18 +1255,92 @@ export default function POSPage() {
                               </div>
                               )}
                             </td>
-                            <td className="py-3 px-4">
+                            <td className="py-3 px-4" onClick={() => handleProductSelect(product)}>
                               <Badge variant={totalStock > 10 ? "secondary" : totalStock > 0 ? "outline" : "destructive"} className="text-xs !flex-shrink-0">
                                 <span className="flex-shrink-0">{totalStock > 10 ? "Còn hàng" : totalStock > 0 ? "Sắp hết" : "Hết hàng"}</span>
                               </Badge>
                             </td>
                             <td className="py-3 px-4 text-center">
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={(e) => {
-                                e.stopPropagation(); // Prevent row click
-                                handleProductSelect(product);
-                              }}>
-                                <Icon path={mdiPlus} size={0.8} className="text-gray-400" />
-                              </Button>
+                              <div className="flex items-center justify-center gap-2">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        className="h-8 w-8 p-0"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleProductSelect(product);
+                                        }}
+                                      >
+                                        <Icon path={mdiInformationOutline} size={0.8} className="text-gray-400" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Chi tiết</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                                
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        className="h-8 w-8 p-0" 
+                                        disabled={product.variants.every(v => v.stock === 0)}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          if (firstAvailableVariant) {
+                                            const cartItemId = `${product._id}-${firstAvailableVariant._id}`;
+                                            const existingItemIndex = cartItems.findIndex(item => item.id === cartItemId);
+                                            
+                                            if (existingItemIndex >= 0) {
+                                              if (cartItems[existingItemIndex].quantity < firstAvailableVariant.stock) {
+                                                const updatedItems = [...cartItems];
+                                                updatedItems[existingItemIndex].quantity += 1;
+                                                setCartItems(updatedItems);
+                                                toast.success('Đã cập nhật số lượng sản phẩm.');
+                                              } else {
+                                                toast.warn('Số lượng sản phẩm trong kho không đủ.');
+                                              }
+                                            } else {
+                                              if (firstAvailableVariant.stock > 0) {
+                                                const newItem: UpdatedCartItem = {
+                                                  id: cartItemId,
+                                                  productId: product._id,
+                                                  variantId: firstAvailableVariant._id,
+                                                  name: product.name,
+                                                  colorName: firstAvailableVariant.colorId?.name || 'N/A',
+                                                  colorCode: firstAvailableVariant.colorId?.code,
+                                                  sizeName: firstAvailableVariant.sizeId?.name || firstAvailableVariant.sizeId?.value || 'N/A',
+                                                  price: firstAvailableVariant.price,
+                                                  quantity: 1,
+                                                  image: firstAvailableVariant.images?.[0] || product.variants[0]?.images?.[0] || '/placeholder.svg',
+                                                  stock: firstAvailableVariant.stock,
+                                                  actualColorId: firstAvailableVariant.colorId?._id,
+                                                  actualSizeId: firstAvailableVariant.sizeId?._id,
+                                                };
+                                                setCartItems([...cartItems, newItem]);
+                                                toast.success('Đã thêm sản phẩm vào giỏ hàng');
+                                              } else {
+                                                toast.warn('Sản phẩm này đã hết hàng.');
+                                              }
+                                            }
+                                          }
+                                        }}
+                                      >
+                                        <Icon path={mdiPlus} size={0.8} className="text-gray-400" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Thêm vào giỏ</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
                             </td>
                           </tr>
                         );
@@ -1118,7 +1349,7 @@ export default function POSPage() {
                     </table>
                   </div>
                 </TabsContent>
-                {/* Pagination (Simplified for now, can be expanded) */}
+                
                 {rawData?.data?.pagination && rawData.data.pagination.totalPages > 1 && (
                   <div className="flex justify-center mt-6">
                     <Pagination>
@@ -1139,7 +1370,7 @@ export default function POSPage() {
                           const pages = [];
                           const totalPages = rawData.data.pagination.totalPages;
                           const currentPage = pagination.page;
-                          const pageLimit = 5; // Max number of page links to show
+                          const pageLimit = 5; 
 
                           if (totalPages <= pageLimit) {
                             for (let i = 1; i <= totalPages; i++) {
@@ -1250,7 +1481,7 @@ export default function POSPage() {
           </div>
         </div>
         
-        {/* Cart */}
+        
         <div className="bg-white rounded-lg shadow-sm flex flex-col h-full border border-border hover:shadow-md transition-shadow duration-300">
           <div className="p-6 border-b border-border">
             <h2 className="text-lg font-medium !text-[#374151]/80">Giỏ hàng</h2>
@@ -1326,7 +1557,7 @@ export default function POSPage() {
           </div>
           
           <div className="p-6 border-t border-border">
-            {/* Coupon code */}
+            
             <div className="mb-4">
               <div className="flex gap-2">
                 <div className="relative flex-1">
@@ -1341,7 +1572,7 @@ export default function POSPage() {
                 </div>
                 <Button
                   variant="secondary"
-                  className="px-4 py-2.5"
+                  className="px-4 py-2.5 font-semibold text-white"
                   onClick={applyCoupon}
                   disabled={isFetchingVoucher}
                 >
@@ -1357,13 +1588,13 @@ export default function POSPage() {
               </Button>
             </div>
             
-            {/* Order summary */}
+            
             <div className="space-y-3 mb-4">
               <div className="flex justify-between text-gray-600">
                 <span>Tạm tính:</span>
                 <span>{formatCurrency(calculateSubtotal())}</span>
               </div>
-              {appliedVoucher && appliedDiscount > 0 && ( // Check appliedVoucher as well
+              {appliedVoucher && appliedDiscount > 0 && ( 
                 <div className="flex justify-between text-primary">
                   <span>Giảm giá ({appliedVoucher.code}):</span>
                   <span>-{formatCurrency(calculateDiscount())}</span>
@@ -1375,7 +1606,7 @@ export default function POSPage() {
               </div>
             </div>
             
-            {/* Checkout button */}
+            
             <Button
               className="w-full py-6 text-base flex items-center justify-center gap-2"
               onClick={handleProceedToCheckout}
@@ -1386,7 +1617,7 @@ export default function POSPage() {
               <span className="text-xs opacity-70 ml-1">(Alt+P)</span>
             </Button>
             
-            {/* Keyboard shortcuts help */}
+            
             <div className="mt-4 text-xs text-gray-500 flex items-center justify-center">
               <Icon path={mdiInformationOutline} size={0.6} className="mr-1 text-gray-400" />
               <span>Alt+S: Tìm kiếm | Alt+C: Xóa giỏ hàng</span>
@@ -1395,13 +1626,13 @@ export default function POSPage() {
         </div>
       </div>
       
-      {/* Checkout dialog */}
+      
       <Dialog open={showCheckoutDialog} onOpenChange={setShowCheckoutDialog}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-4xl">
           <DialogHeader>
             <DialogTitle className="!text-[#374151]/80">Xác nhận thanh toán</DialogTitle>
             <DialogDescription>
-              Tổng tiền: {formatCurrency(calculateTotal())}. Hoàn tất thông tin thanh toán để hoàn thành đơn hàng.
+              Tổng tiền: {formatCurrency(totalAmount)}. Hoàn tất thông tin thanh toán để hoàn thành đơn hàng.
             </DialogDescription>
           </DialogHeader>
           
@@ -1436,7 +1667,14 @@ export default function POSPage() {
               </label>
               <Select
                 value={paymentMethod}
-                onValueChange={setPaymentMethod}
+                onValueChange={(value) => {
+                  setPaymentMethod(value);
+                  if (value !== 'cash') {
+                    setCashReceived(totalAmount.toString());
+                  } else {
+                    setCashReceived('');
+                  }
+                }}
               >
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Chọn phương thức thanh toán" />
@@ -1463,10 +1701,23 @@ export default function POSPage() {
                 </SelectContent>
               </Select>
             </div>
-            
-            <Separator className="my-2" />
-            
-            {/* Order summary */}
+
+            {paymentMethod === 'cash' && (
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="cash-received" className="text-right text-sm !text-[#374151]/80">
+                  Tiền khách đưa
+                </label>
+                <Input
+                  id="cash-received"
+                  type="number"
+                  placeholder="Nhập số tiền khách đưa"
+                  className="col-span-3"
+                  value={cashReceived}
+                  onChange={(e) => setCashReceived(e.target.value)}
+                  min={0}
+                />
+              </div>
+            )}
             <div className="space-y-2">
               <div className="flex justify-between text-sm text-gray-600">
                 <span>Số lượng sản phẩm:</span>
@@ -1476,7 +1727,7 @@ export default function POSPage() {
                 <span>Tạm tính:</span>
                 <span>{formatCurrency(calculateSubtotal())}</span>
               </div>
-              {appliedVoucher && appliedDiscount > 0 && ( // Check appliedVoucher as well
+              {appliedVoucher && appliedDiscount > 0 && ( 
                 <div className="flex justify-between text-sm text-primary">
                   <span>Giảm giá ({appliedVoucher.code}):</span>
                   <span>-{formatCurrency(calculateDiscount())}</span>
@@ -1484,8 +1735,14 @@ export default function POSPage() {
               )}
               <div className="flex justify-between font-medium text-base pt-2 border-t border-border">
                 <span className="!text-[#374151]/80">Tổng thanh toán:</span>
-                <span className="text-primary">{formatCurrency(calculateTotal())}</span>
+                <span className="text-primary">{formatCurrency(totalAmount)}</span>
               </div>
+              {paymentMethod === 'cash' && !isNaN(cashReceivedNum) && cashReceivedNum >= totalAmount && changeDue >= 0 && (
+                <div className="flex justify-between font-medium text-base pt-2">
+                    <span className="!text-[#374151]/80">Tiền thừa trả khách:</span>
+                    <span className="text-green-600">{formatCurrency(changeDue)}</span>
+                </div>
+              )}
             </div>
           </div>
           
@@ -1493,7 +1750,10 @@ export default function POSPage() {
             <Button variant="outline" onClick={() => setShowCheckoutDialog(false)}>
               Hủy
             </Button>
-            <Button onClick={handleCheckout} disabled={checkoutIsLoading}>
+            <Button 
+              onClick={handleCheckout} 
+              disabled={checkoutIsLoading || (paymentMethod === 'cash' && (cashReceived.toString() === '' || parseFloat(cashReceived.toString()) < totalAmount || isNaN(parseFloat(cashReceived.toString())) )) }
+            >
               {checkoutIsLoading ? (
                 <>
                   <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -1517,15 +1777,22 @@ export default function POSPage() {
         open={showVouchersDialog} 
         onOpenChange={setShowVouchersDialog}
         onSelectVoucher={(code) => {
-          setCouponCode(code); // Auto-fill the copied code into the input
-          // applyCoupon(); // Optionally auto-apply the coupon
+          setCouponCode(code); 
         }}
+      />
+
+      <InvoiceDialog
+        open={showInvoiceDialog}
+        onOpenChange={setShowInvoiceDialog}
+        invoiceData={currentInvoiceData}
+        formatCurrency={formatCurrency}
+        formatDateTimeForInvoice={formatDateTimeForInvoice}
       />
     </div>
   );
 }
 
-// Skeleton component for product cards loading state
+
 const CardSkeleton = () => (
   <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
     <Skeleton className="h-48 w-full" />
@@ -1540,15 +1807,15 @@ const CardSkeleton = () => (
   </div>
 );
 
-// Vouchers Dialog Component
+
 const VouchersListDialog = ({ open, onOpenChange, onSelectVoucher }: { open: boolean, onOpenChange: (open: boolean) => void, onSelectVoucher: (code: string) => void }) => {
-  const { data: vouchersData, isLoading, isError } = useVouchers({ page: 1, limit: 100, status: 'HOAT_DONG' }); // Fetch active vouchers
+  const { data: vouchersData, isLoading, isError } = useVouchers({ page: 1, limit: 100, status: 'HOAT_DONG' }); 
 
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code).then(() => {
       toast.success(`Đã sao chép mã: ${code}`);
-      onSelectVoucher(code); // Optionally auto-fill copied code
-      onOpenChange(false); // Close dialog after copying
+      onSelectVoucher(code); 
+      onOpenChange(false); 
     }).catch(err => {
       toast.error('Không thể sao chép mã.');
       console.error('Failed to copy: ', err);
@@ -1574,7 +1841,7 @@ const VouchersListDialog = ({ open, onOpenChange, onSelectVoucher }: { open: boo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px]">
+      <DialogContent className="sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle className="!text-[#374151]/80">Danh sách mã giảm giá</DialogTitle>
         </DialogHeader>
@@ -1634,6 +1901,213 @@ const VouchersListDialog = ({ open, onOpenChange, onSelectVoucher }: { open: boo
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Đóng
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+const InvoiceDialog = ({
+  open,
+  onOpenChange,
+  invoiceData,
+  formatCurrency,
+  formatDateTimeForInvoice,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  invoiceData: InvoiceData | null;
+  formatCurrency: (amount: number) => string;
+  formatDateTimeForInvoice: (dateString: string) => string;
+}) => {
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const invoiceRef = useRef<HTMLDivElement>(null);
+
+  if (!invoiceData) return null;
+
+  const handlePrintToPdf = async () => {
+    try {
+      // Show processing indicator
+      setIsProcessing(true);
+      
+      // Display processing message
+      const processingMsg = document.createElement("div");
+      processingMsg.style.position = "fixed";
+      processingMsg.style.top = "50%";
+      processingMsg.style.left = "50%";
+      processingMsg.style.transform = "translate(-50%, -50%)";
+      processingMsg.style.padding = "20px";
+      processingMsg.style.background = "rgba(0,0,0,0.7)";
+      processingMsg.style.color = "white";
+      processingMsg.style.borderRadius = "5px";
+      processingMsg.style.zIndex = "9999";
+      processingMsg.textContent = "Đang tạo PDF...";
+      document.body.appendChild(processingMsg);
+
+      // Wait for state update to process
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      const input = invoiceRef.current;
+      if (!input) throw new Error("Invoice element not found");
+
+      const canvas = await toPng(input, {
+        quality: 0.95,
+        pixelRatio: 2,
+        skipAutoScale: true,
+        cacheBust: true,
+      });
+
+      // Create PDF from image
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+        putOnlyUsedFonts: true,
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const imgProps = pdf.getImageProperties(canvas);
+      const imgHeight = (imgProps.height * pageWidth) / imgProps.width;
+
+      pdf.addImage(canvas, 'PNG', 0, 0, pageWidth, imgHeight);
+
+      // Handle multi-page content if necessary
+      if (imgHeight > pdf.internal.pageSize.getHeight()) {
+        let heightLeft = imgHeight;
+        let position = 0;
+        let page = 1;
+
+        while (heightLeft >= 0) {
+          position = -pdf.internal.pageSize.getHeight() * page;
+          pdf.addPage();
+          pdf.addImage(canvas, 'PNG', 0, position, pageWidth, imgHeight);
+          heightLeft -= pdf.internal.pageSize.getHeight();
+          page++;
+        }
+      }
+
+      // Save PDF
+      pdf.save(`HoaDon_${invoiceData.orderId.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+      toast.success("Đã lưu hoá đơn PDF thành công!");
+
+    } catch (error) {
+      console.error("Error printing PDF:", error);
+      toast.error("Lỗi khi in hoá đơn PDF.");
+    } finally {
+      // Remove processing message and reset state
+      const processingMsg = document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]');
+      if (processingMsg && processingMsg.parentNode) {
+        processingMsg.parentNode.removeChild(processingMsg);
+      }
+      setIsProcessing(false);
+    }
+  };
+  
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[90vh] flex flex-col min-h-0">
+        <DialogHeader>
+          <DialogTitle className="!text-[#374151]/80 text-center text-2xl font-semibold">Hoá đơn bán hàng</DialogTitle>
+        </DialogHeader>
+        <CustomScrollArea className="flex-1 min-h-0 p-6 overflow-y-auto">
+          <div ref={invoiceRef} className="p-4 bg-white" id="invoice-content" data-loaded={!!invoiceData}>
+            <div className="text-center mb-6">
+              <h2 className="text-xl font-bold">{invoiceData.shopInfo.name}</h2>
+              <p className="text-sm">{invoiceData.shopInfo.address}</p>
+              <p className="text-sm">ĐT: {invoiceData.shopInfo.phone} - Email: {invoiceData.shopInfo.email}</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
+              <div>
+                <p><strong>Mã HĐ:</strong> {invoiceData.orderId}</p>
+                <p><strong>Ngày:</strong> {formatDateTimeForInvoice(invoiceData.createdAt)}</p>
+                <p><strong>Nhân viên:</strong> {invoiceData.employee}</p>
+              </div>
+              <div className="text-right">
+                <p><strong>Khách hàng:</strong> {invoiceData.customerInfo.name}</p>
+                <p><strong>Điện thoại:</strong> {invoiceData.customerInfo.phone}</p>
+              </div>
+            </div>
+
+            <Table className="mb-6 text-sm">
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[40px] text-center">STT</TableHead>
+                  <TableHead>Tên sản phẩm</TableHead>
+                  <TableHead className="text-xs">Màu/Size</TableHead>
+                  <TableHead className="text-right w-[50px]">SL</TableHead>
+                  <TableHead className="text-right w-[100px]">Đơn giá</TableHead>
+                  <TableHead className="text-right w-[100px]">Thành tiền</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {invoiceData.items.map((item, index) => (
+                  <TableRow key={index}>
+                    <TableCell className="text-center">{index + 1}</TableCell>
+                    <TableCell className="font-medium">{item.name}</TableCell>
+                    <TableCell className="text-xs">{item.color} / {item.size}</TableCell>
+                    <TableCell className="text-right">{item.quantity}</TableCell>
+                    <TableCell className="text-right">{formatCurrency(item.price)}</TableCell>
+                    <TableCell className="text-right font-semibold">{formatCurrency(item.total)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+
+            <div className="flex justify-end mb-6">
+              <div className="w-full max-w-sm space-y-1.5 text-sm">
+                  <div className="flex justify-between">
+                      <span>Tổng tiền hàng:</span>
+                      <span>{formatCurrency(invoiceData.subTotal)}</span>
+                  </div>
+                  {invoiceData.discount > 0 && (
+                      <div className="flex justify-between text-red-600">
+                      <span>Giảm giá ({invoiceData.voucherCode || 'KM'}):</span>
+                      <span>-{formatCurrency(invoiceData.discount)}</span>
+                      </div>
+                  )}
+                  <Separator/>
+                  <div className="flex justify-between font-bold text-base">
+                      <span>TỔNG THANH TOÁN:</span>
+                      <span className="text-primary">{formatCurrency(invoiceData.total)}</span>
+                  </div>
+                  <Separator/>
+                  <div className="flex justify-between">
+                      <span>Phương thức:</span>
+                      <span>{invoiceData.paymentMethod}</span>
+                  </div>
+                  <div className="flex justify-between">
+                      <span>Tiền khách đưa:</span>
+                      <span>{formatCurrency(invoiceData.cashReceived)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                      <span>Tiền thừa:</span>
+                      <span>{formatCurrency(invoiceData.changeGiven)}</span>
+                  </div>
+              </div>
+            </div>
+            
+            <p className="text-center text-sm mt-8">Cảm ơn Quý khách và hẹn gặp lại!</p>
+            <p className="text-center text-xs mt-1">Website: {invoiceData.shopInfo.name.toLowerCase().replace(/ /g, '')}.vn</p>
+          </div>
+        </CustomScrollArea>
+        <DialogFooter className="mt-4">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Đóng</Button>
+          <Button onClick={handlePrintToPdf} disabled={isProcessing}>
+            <Icon path={mdiPrinter} size={0.8} className="mr-2" />
+            {isProcessing ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Đang xử lý...
+              </>
+            ) : (
+              'Lưu PDF & In'
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

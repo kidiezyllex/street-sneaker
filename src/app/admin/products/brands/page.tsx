@@ -1,11 +1,10 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Icon } from '@mdi/react';
-import { mdiMagnify, mdiPlus, mdiPencilCircle, mdiDeleteCircle, mdiFilterOutline } from '@mdi/js';
-import { motion, AnimatePresence } from 'framer-motion';
+import { mdiMagnify, mdiPlus, mdiPencilCircle, mdiDeleteCircle } from '@mdi/js';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useBrands, useDeleteBrand, useBrandDetail, useUpdateBrand, useCreateBrand } from '@/hooks/attributes';
@@ -22,7 +21,6 @@ import { Label } from '@/components/ui/label';
 export default function BrandsPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [filters, setFilters] = useState<IBrandFilter>({});
-    const [showFilters, setShowFilters] = useState(false);
     const { data, isLoading, isError } = useBrands(filters);
     const deleteBrand = useDeleteBrand();
     const queryClient = useQueryClient();
@@ -33,7 +31,6 @@ export default function BrandsPage() {
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
     const filteredBrands = useMemo(() => {
         if (!data?.data || !searchQuery.trim()) return data?.data;
-
         const query = searchQuery.toLowerCase().trim();
         return data.data.filter(brand =>
             brand.name.toLowerCase().includes(query)
@@ -396,7 +393,7 @@ function EditBrandDialog({ brandId, isOpen, onClose }: EditBrandDialogProps) {
 
     if (isLoading) {
         return (
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-4xl">
                 <DialogHeader>
                     <DialogTitle><Skeleton className="h-8 w-[200px]" /></DialogTitle>
                 </DialogHeader>
@@ -420,7 +417,7 @@ function EditBrandDialog({ brandId, isOpen, onClose }: EditBrandDialogProps) {
 
     if (isError || !brandData) {
         return (
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-4xl">
                 <DialogHeader>
                     <DialogTitle>Lỗi</DialogTitle>
                 </DialogHeader>
@@ -440,7 +437,7 @@ function EditBrandDialog({ brandId, isOpen, onClose }: EditBrandDialogProps) {
     }
 
     return (
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-4xl">
             <DialogHeader>
                 <DialogTitle>Chỉnh sửa thương hiệu: {brandData.data.name}</DialogTitle>
             </DialogHeader>
@@ -552,17 +549,20 @@ function CreateBrandDialog({ isOpen, onClose }: CreateBrandDialogProps) {
                         onClose();
                     },
                     onError: (error) => {
-                        toast.error('Thêm thương hiệu thất bại: ' + error.message);
+                        if (error.message === "Duplicate entry. This record already exists.") {
+                        } else {
+                            toast.error('Thêm thương hiệu thất bại: Thương hiệu đã tồn tại');
+                        }
                     }
                 }
             );
         } catch (error) {
-            toast.error('Đã xảy ra lỗi khi thêm thương hiệu');
+            console.error(error);
         }
     };
 
     return (
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-4xl">
             <DialogHeader>
                 <DialogTitle>Thêm thương hiệu mới</DialogTitle>
             </DialogHeader>

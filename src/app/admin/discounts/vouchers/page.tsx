@@ -516,7 +516,7 @@ export default function VouchersPage() {
 
       {/* Validate Voucher Dialog */}
       <Dialog open={isValidateDialogOpen} onOpenChange={resetValidateDialog}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-4xl">
           <DialogHeader>
             <DialogTitle>Kiểm tra mã giảm giá</DialogTitle>
           </DialogHeader>

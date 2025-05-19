@@ -438,7 +438,7 @@ function EditColorDialog({ colorId, isOpen, onClose }: EditColorDialogProps) {
 
     if (isLoading) {
         return (
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-4xl">
                 <DialogHeader>
                     <DialogTitle><Skeleton className="h-8 w-[200px]" /></DialogTitle>
                 </DialogHeader>
@@ -466,7 +466,7 @@ function EditColorDialog({ colorId, isOpen, onClose }: EditColorDialogProps) {
 
     if (isError || !colorData) {
         return (
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-4xl">
                 <DialogHeader>
                     <DialogTitle>Lỗi</DialogTitle>
                 </DialogHeader>
@@ -486,7 +486,7 @@ function EditColorDialog({ colorId, isOpen, onClose }: EditColorDialogProps) {
     }
 
     return (
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-4xl">
             <DialogHeader>
                 <DialogTitle>Chỉnh sửa màu sắc: {colorData.data.name}</DialogTitle>
             </DialogHeader>
@@ -654,17 +654,20 @@ function CreateColorDialog({ isOpen, onClose }: CreateColorDialogProps) {
                         onClose();
                     },
                     onError: (error) => {
-                        toast.error('Thêm màu sắc thất bại: ' + error.message);
+                        if (error.message === "Duplicate entry. This record already exists.") {
+                        } else {
+                            toast.error('Thêm màu sắc thất bại: Màu sắc đã tồn tại');
+                        }
                     }
                 }
             );
         } catch (error) {
-            toast.error('Đã xảy ra lỗi khi thêm màu sắc');
+            console.error(error);
         }
     };
 
     return (
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-4xl">
             <DialogHeader>
                 <DialogTitle>Thêm màu sắc mới</DialogTitle>
             </DialogHeader>

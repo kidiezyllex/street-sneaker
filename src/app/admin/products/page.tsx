@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useProducts, useDeleteProduct } from '@/hooks/product';
+import { useBrands, useCategories } from '@/hooks/attributes';
 import { IProductFilter } from '@/interface/request/product';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -40,6 +41,9 @@ export default function ProductsPage() {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxSlides, setLightboxSlides] = useState<any[]>([]);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  const { data: brandsData } = useBrands();
+  const { data: categoriesData } = useCategories();
 
   useEffect(() => {
     const debounce = setTimeout(() => {
@@ -192,8 +196,8 @@ export default function ProductsPage() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">Tất cả thương hiệu</SelectItem>
-                        {['Nike', 'Adidas', 'Puma', 'Converse', 'Vans'].map((brand) => (
-                          <SelectItem key={brand} value={brand}>{brand}</SelectItem>
+                        {(brandsData?.data || []).map((brand) => (
+                          <SelectItem key={brand._id} value={brand._id}>{brand.name}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -208,8 +212,8 @@ export default function ProductsPage() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">Tất cả danh mục</SelectItem>
-                        {['Giày thể thao', 'Giày chạy bộ', 'Giày đá bóng', 'Giày thời trang'].map((category) => (
-                          <SelectItem key={category} value={category}>{category}</SelectItem>
+                        {(categoriesData?.data || []).map((category) => (
+                          <SelectItem key={category._id} value={category._id}>{category.name}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -275,7 +279,6 @@ export default function ProductsPage() {
                 <TableRow>
                   <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Hình ảnh</TableHead>
                   <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Sản phẩm</TableHead>
-                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Mã</TableHead>
                   <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Thương hiệu</TableHead>
                   <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Danh mục</TableHead>
                   <TableHead className="px-4 py-4 text-left text-sm font-medium text-gray-500">Trạng thái</TableHead>
@@ -306,9 +309,6 @@ export default function ProductsPage() {
                         <div className="text-xs text-gray-500">
                           {product.variants.length} biến thể
                         </div>
-                      </TableCell>
-                      <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {product.code}
                       </TableCell>
                       <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                         {typeof product.brand === 'string' ? product.brand : product.brand.name}

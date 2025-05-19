@@ -34,7 +34,7 @@ const FeatureCard = ({ icon, title, description }: { icon: string; title: string
 //                                                                                                                     Component cho thành viên nhóm
 const TeamMember = ({ name, id, role }: { name: string; id: string; role: string }) => (
     <motion.div
-        className=" bg-gradient-to-r from-[#2C8B3D80] to-[#88C14080] flex flex-col items-center justify-center gap-3 p-4 px-2 rounded-md relative overflow-hidden cursor-pointer"
+        className=" bg-gradient-to-r from-[#2C8B3D80] to-[#88C14080] flex flex-col items-center justify-center gap-2 p-4 px-2 rounded-md relative overflow-hidden cursor-pointer"
         whileHover={{ y: -10, scale: 1.02 }}
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}

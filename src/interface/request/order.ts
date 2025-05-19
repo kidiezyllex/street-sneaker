@@ -98,4 +98,5 @@ export interface IPOSOrderCreateRequest {
   paymentMethod: string; 
   discount: number;
   voucher?: string; 
+  orderStatus: string;
 } 

@@ -235,7 +235,7 @@ export default function ReturnsPage() {
                 </TabsTrigger>
               </TabsList>
 
-              <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
+              <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
                 <div className="relative w-full sm:w-80">
                   <Input
                     placeholder="Tìm theo mã, tên KH, SĐT..."

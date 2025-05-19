@@ -592,7 +592,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
         </div>
 
         {/* Quick action buttons */}
-        <div className="absolute -right-12 top-14 flex flex-col gap-3 transition-all duration-300 group-hover:right-4 z-20">
+        <div className="absolute -right-12 top-14 flex flex-col gap-2 transition-all duration-300 group-hover:right-4 z-20">
           <Button
             variant="outline"
             size="icon"

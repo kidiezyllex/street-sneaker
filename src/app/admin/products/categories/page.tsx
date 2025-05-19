@@ -396,7 +396,7 @@ function EditCategoryDialog({ categoryId, isOpen, onClose }: EditCategoryDialogP
 
   if (isLoading) {
     return (
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle><Skeleton className="h-8 w-[200px]" /></DialogTitle>
         </DialogHeader>
@@ -420,7 +420,7 @@ function EditCategoryDialog({ categoryId, isOpen, onClose }: EditCategoryDialogP
 
   if (isError || !categoryData) {
     return (
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle>Lỗi</DialogTitle>
         </DialogHeader>
@@ -440,7 +440,7 @@ function EditCategoryDialog({ categoryId, isOpen, onClose }: EditCategoryDialogP
   }
 
   return (
-    <DialogContent className="sm:max-w-[425px]">
+    <DialogContent className="sm:max-w-4xl">
       <DialogHeader>
         <DialogTitle>Chỉnh sửa danh mục: {categoryData.data.name}</DialogTitle>
       </DialogHeader>
@@ -545,7 +545,6 @@ function CreateCategoryDialog({ isOpen, onClose }: CreateCategoryDialogProps) {
           onSuccess: () => {
             toast.success('Thêm danh mục thành công');
             queryClient.invalidateQueries({ queryKey: ['categories'] });
-            // Reset form
             setFormData({
               name: '',
               status: 'HOAT_DONG'
@@ -553,17 +552,20 @@ function CreateCategoryDialog({ isOpen, onClose }: CreateCategoryDialogProps) {
             onClose();
           },
           onError: (error) => {
-            toast.error('Thêm danh mục thất bại: ' + error.message);
+            if (error.message === "Duplicate entry. This record already exists.") {
+            } else {
+              toast.error('Thêm danh mục thất bại: Danh mục đã tồn tại');
+            }
           }
         }
       );
     } catch (error) {
-      toast.error('Đã xảy ra lỗi khi thêm danh mục');
+      console.error(error);
     }
   };
 
   return (
-    <DialogContent className="sm:max-w-[425px]">
+    <DialogContent className="sm:max-w-4xl">
       <DialogHeader>
         <DialogTitle>Thêm danh mục mới</DialogTitle>
       </DialogHeader>

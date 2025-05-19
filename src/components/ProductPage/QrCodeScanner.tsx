@@ -32,7 +32,7 @@ const QrCodeScanner = ({ onQrCodeDetected }: QrCodeScannerProps) => {
           setIsOpen(false);
         },
         (errorMessage: string) => {
-          console.log(errorMessage);
+          console.error(errorMessage);
         }
       );
 
