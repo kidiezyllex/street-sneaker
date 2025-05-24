@@ -93,14 +93,14 @@ const ProductCard = ({ product, index }: { product: typeof featuredProducts[0], 
           <Button 
             size="icon" 
             variant="secondary" 
-            className="rounded-full w-10 h-10 bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 shadow-lg"
+            className="rounded-full w-10 h-10 bg-white/80 hover:bg-white dark:bg-gray-800/80 dark:hover:bg-gray-800 shadow-lg"
           >
             <Icon path={mdiHeartOutline} size={1} className="text-gray-700 dark:text-gray-300" />
           </Button>
           <Button 
             size="icon" 
             variant="secondary" 
-            className="rounded-full w-10 h-10 bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 shadow-lg"
+            className="rounded-full w-10 h-10 bg-white/80 hover:bg-white dark:bg-gray-800/80 dark:hover:bg-gray-800 shadow-lg"
           >
             <Icon path={mdiCartOutline} size={1} className="text-gray-700 dark:text-gray-300" />
           </Button>

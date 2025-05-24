@@ -195,7 +195,7 @@ export default function EditReturnPage({ params }: { params: { id: string } }) {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/admin">Dashboard</BreadcrumbLink>
+                <BreadcrumbLink href="/admin/statistics">Dashboard</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
@@ -249,7 +249,7 @@ export default function EditReturnPage({ params }: { params: { id: string } }) {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/admin">Dashboard</BreadcrumbLink>
+              <BreadcrumbLink href="/admin/statistics">Dashboard</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>

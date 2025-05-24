@@ -368,7 +368,7 @@ export default function OrdersPage() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/admin">Trang chủ</BreadcrumbLink>
+                <BreadcrumbLink href="/admin/statistics">Dashboard</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>

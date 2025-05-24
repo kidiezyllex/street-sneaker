@@ -26,6 +26,8 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { Skeleton } from "@/components/ui/skeleton"
+
 interface OrderStep {
     status: string;
     label: string;
@@ -91,7 +93,7 @@ const OrderStepper = ({ currentStatus }: { currentStatus: string }) => {
                                 iconToShow = <Icon path={step.icon} size={1.2} className={step.colors.textClass} />;
                             }
                         } else {
-                            iconToShow = <Icon path={step.icon} size={1.2} className="text-maintext dark:text-maintext" />;
+                            iconToShow = <Icon path={step.icon} size={1.2} className="text-maintext/50 dark:text-maintext" />;
                         }
 
                         return (
@@ -125,18 +127,6 @@ const OrderStepper = ({ currentStatus }: { currentStatus: string }) => {
                         })}
                     </div>
                 </div>
-                {/* Overall Progress Bar */}
-                {currentStepIdx >= 0 && currentStepIdx < orderSteps.length && (
-                    <motion.div
-                        className="mt-6 h-2 rounded-full"
-                        style={{ backgroundColor: orderSteps[currentStepIdx].colors.progressFillClass }}
-                        initial={{ width: '0%' }}
-                        animate={{
-                            width: `${(currentStepIdx / (orderSteps.length - 1)) * 100}%`,
-                        }}
-                        transition={{ duration: 0.5, ease: "easeInOut" }}
-                    />
-                )}
             </CardContent>
         </Card>
     );
@@ -170,9 +160,7 @@ const PaymentStatusBadge = ({ status }: { status: string }) => {
     const getStatusConfig = (status: string) => {
         switch (status) {
             case "PENDING":
-                return { label: "Chưa thanh toán", className: "!bg-yellow-50 !text-yellow-500 !border-yellow-500" }
-            case "PARTIAL_PAID":
-                return { label: "Thanh toán một phần", className: "!bg-blue-50 !text-blue-500 !border-blue-500" }
+                return { label: "Chưa thanh toán", className: "!bg-amber-50 !text-amber-500 !border-amber-500" }
             case "PAID":
                 return { label: "Đã thanh toán", className: "!bg-green-50 !text-green-500 !border-green-500" }
             default:
@@ -192,19 +180,42 @@ export default function OrderDetailPage() {
     const [isConfirmCancelDialogOpen, setIsConfirmCancelDialogOpen] = useState(false);
     const [isInvoiceDialogOpen, setIsInvoiceDialogOpen] = useState(false);
     const [statusToUpdate, setStatusToUpdate] = useState<string>("");
+    const [paymentStatusToUpdate, setPaymentStatusToUpdate] = useState<string>("");
     const { data: orderDetail, isLoading, isError } = useOrderDetail(orderId);
     const updateOrderStatus = useUpdateOrderStatus();
     const cancelOrder = useCancelOrder();
     const queryClient = useQueryClient();
 
+    // Helper function to get available order statuses based on current status
+    const getAvailableOrderStatuses = (currentStatus: string) => {
+        const statusOrder = ["CHO_XAC_NHAN", "CHO_GIAO_HANG", "DANG_VAN_CHUYEN", "DA_GIAO_HANG", "HOAN_THANH"];
+        const currentIndex = statusOrder.indexOf(currentStatus);
+        
+        if (currentIndex === -1) return statusOrder; // If status not found, show all
+        
+        // Return statuses from current position onwards
+        return statusOrder.slice(currentIndex);
+    };
+
     const handleStatusUpdate = async () => {
         if (!statusToUpdate) return;
 
+        // Validation: Check if trying to complete order with pending payment
+        if (statusToUpdate === "HOAN_THANH" && paymentStatusToUpdate === "PENDING") {
+            toast.error("Không thể hoàn thành đơn hàng khi chưa thanh toán");
+            return;
+        }
+
         try {
+            const payload: any = { status: statusToUpdate };
+            if (paymentStatusToUpdate) {
+                payload.paymentStatus = paymentStatusToUpdate;
+            }
+
             await updateOrderStatus.mutateAsync(
                 {
                     orderId,
-                    payload: { status: statusToUpdate as any },
+                    payload,
                 },
                 {
                     onSuccess: () => {
@@ -261,7 +272,173 @@ export default function OrderDetailPage() {
     };
 
     if (isLoading) {
-        return <div className="p-4 text-white">Đang tải thông tin đơn hàng...</div>;
+        return (
+            <div className="space-y-4">
+                {/* Header skeleton */}
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                    <div className="mb-0 md:mb-0">
+                        <Breadcrumb>
+                            <BreadcrumbList>
+                                <BreadcrumbItem>
+                                    <BreadcrumbLink href="/admin/statistics">Dashboard</BreadcrumbLink>
+                                </BreadcrumbItem>
+                                <BreadcrumbSeparator />
+                                <BreadcrumbItem>
+                                    <BreadcrumbLink href="/admin/orders">Quản lý đơn hàng</BreadcrumbLink>
+                                </BreadcrumbItem>
+                                <BreadcrumbSeparator />
+                                <BreadcrumbItem>
+                                    <BreadcrumbPage className="font-medium">Chi tiết đơn hàng #{orderId}</BreadcrumbPage>
+                                </BreadcrumbItem>
+                            </BreadcrumbList>
+                        </Breadcrumb>
+                    </div>
+                    <div className="flex space-x-2">
+                        <Skeleton className="h-10 w-32" />
+                        <Skeleton className="h-10 w-32" />
+                        <Skeleton className="h-10 w-40" />
+                    </div>
+                </div>
+
+                {/* Order stepper skeleton */}
+                <Card className="mb-6 overflow-hidden">
+                    <CardContent className="p-6">
+                        <div className="flex justify-between items-start relative">
+                            {[...Array(5)].map((_, index) => (
+                                <div key={index} className="flex flex-col items-center z-10 flex-1 min-w-0 px-1">
+                                    <Skeleton className="h-14 w-14 rounded-full" />
+                                    <Skeleton className="h-4 w-16 mt-2.5" />
+                                </div>
+                            ))}
+                        </div>
+                        <Skeleton className="mt-6 h-2 w-full rounded-full" />
+                    </CardContent>
+                </Card>
+
+                {/* Main content skeleton */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Left Column */}
+                    <div className="space-y-4">
+                        {/* Order info card skeleton */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Thông tin đơn hàng</CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-4">
+                                <div className="space-y-4">
+                                    {[...Array(5)].map((_, index) => (
+                                        <div key={index} className="flex justify-between items-center">
+                                            <Skeleton className="h-4 w-32" />
+                                            <Skeleton className="h-4 w-24" />
+                                        </div>
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Customer info card skeleton */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Thông tin khách hàng</CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-4">
+                                <div className="space-y-4">
+                                    {[...Array(3)].map((_, index) => (
+                                        <div key={index} className="flex justify-between items-center">
+                                            <Skeleton className="h-4 w-28" />
+                                            <Skeleton className="h-4 w-32" />
+                                        </div>
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Shipping address card skeleton */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Địa chỉ giao hàng</CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-4">
+                                <div className="space-y-2">
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-3/4" />
+                                    <Skeleton className="h-4 w-1/2" />
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    {/* Right Column */}
+                    <div className="space-y-4">
+                        {/* Products card skeleton */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Sản phẩm đã đặt</CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-4">
+                                <div className="border rounded-[6px] overflow-hidden">
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>Sản phẩm</TableHead>
+                                                <TableHead className="text-right">Đơn giá</TableHead>
+                                                <TableHead className="text-right">SL</TableHead>
+                                                <TableHead className="text-right">Tổng</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {[...Array(3)].map((_, index) => (
+                                                <TableRow key={index}>
+                                                    <TableCell>
+                                                        <div className="flex items-center gap-2">
+                                                            <Skeleton className="w-10 h-10 rounded" />
+                                                            <div>
+                                                                <Skeleton className="h-4 w-32 mb-1" />
+                                                                <Skeleton className="h-3 w-20" />
+                                                            </div>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="text-right">
+                                                        <Skeleton className="h-4 w-16 ml-auto" />
+                                                    </TableCell>
+                                                    <TableCell className="text-right">
+                                                        <Skeleton className="h-4 w-8 ml-auto" />
+                                                    </TableCell>
+                                                    <TableCell className="text-right">
+                                                        <Skeleton className="h-4 w-20 ml-auto" />
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Order summary card skeleton */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Tổng quan đơn hàng</CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-4">
+                                <div className="space-y-3">
+                                    {[...Array(2)].map((_, index) => (
+                                        <div key={index} className="flex justify-between items-center">
+                                            <Skeleton className="h-4 w-32" />
+                                            <Skeleton className="h-4 w-24" />
+                                        </div>
+                                    ))}
+                                    <div className="flex justify-between items-center pt-3 border-t">
+                                        <Skeleton className="h-5 w-36" />
+                                        <Skeleton className="h-6 w-28" />
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     if (isError || !orderDetail) {
@@ -278,13 +455,13 @@ export default function OrderDetailPage() {
     }
     const order = orderDetail.data;
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 text-maintext">
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                 <div className="mb-0 md:mb-0">
                     <Breadcrumb>
                         <BreadcrumbList>
                             <BreadcrumbItem>
-                                <BreadcrumbLink href="/admin">Trang chủ</BreadcrumbLink>
+                                <BreadcrumbLink href="/admin/statistics">Dashboard</BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbSeparator />
                             <BreadcrumbItem>
@@ -292,7 +469,7 @@ export default function OrderDetailPage() {
                             </BreadcrumbItem>
                             <BreadcrumbSeparator />
                             <BreadcrumbItem>
-                                <BreadcrumbPage className="font-medium">Chi tiết đơn hàng</BreadcrumbPage>
+                                <BreadcrumbPage className="font-medium">Chi tiết đơn hàng #{orderId}</BreadcrumbPage>
                             </BreadcrumbItem>
                         </BreadcrumbList>
                     </Breadcrumb>
@@ -316,6 +493,7 @@ export default function OrderDetailPage() {
                         disabled={["DA_HUY", "HOAN_THANH"].includes(order.orderStatus)}
                         onClick={() => {
                             setStatusToUpdate(order.orderStatus);
+                            setPaymentStatusToUpdate(order.paymentStatus);
                             setIsStatusDialogOpen(true);
                         }}
                     >
@@ -337,11 +515,11 @@ export default function OrderDetailPage() {
                             <div className="space-y-4">
                                 <div className="flex justify-between items-center">
                                     <span className="text-maintext">Mã đơn hàng:</span>
-                                    <span className="font-medium">{order.orderNumber}</span>
+                                    <span className="font-medium text-maintext">{(order as any).code}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span className="text-maintext">Ngày tạo:</span>
-                                    <span>{formatDate(order.createdAt)}</span>
+                                    <span className="text-maintext">{formatDate(order.createdAt)}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span className="text-maintext">Trạng thái đơn hàng:</span>
@@ -353,7 +531,7 @@ export default function OrderDetailPage() {
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span className="text-maintext">Phương thức thanh toán:</span>
-                                    <span>{getPaymentMethodName(order.paymentMethod)}</span>
+                                    <span className="text-maintext">{getPaymentMethodName(order.paymentMethod)}</span>
                                 </div>
                             </div>
                         </CardContent>
@@ -374,12 +552,12 @@ export default function OrderDetailPage() {
                                         {order.customer?.email && (
                                             <div className="flex justify-between items-center">
                                                 <span className="text-maintext">Email:</span>
-                                                <span>{order.customer.email}</span>
+                                                <span className="text-maintext">{order.customer.email}</span>
                                             </div>
                                         )}
                                         <div className="flex justify-between items-center">
                                             <span className="text-maintext">Số điện thoại:</span>
-                                            <span>{order.customer?.phoneNumber}</span>
+                                            <span className="text-maintext">{order.customer?.phoneNumber}</span>
                                         </div>
                                     </>
                                 ) : (
@@ -500,7 +678,7 @@ export default function OrderDetailPage() {
                             <div className="space-y-3">
                                 <div className="flex justify-between items-center">
                                     <span className="text-maintext">Tổng tiền hàng:</span>
-                                    <span>{formatCurrency(order.subTotal)}</span>
+                                    <span className="text-maintext">{formatCurrency(order.subTotal)}</span>
                                 </div>
                                 {order.voucher && (
                                     <div className="flex justify-between items-center">
@@ -525,22 +703,41 @@ export default function OrderDetailPage() {
             <Dialog open={isStatusDialogOpen} onOpenChange={setIsStatusDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Cập nhật trạng thái đơn hàng</DialogTitle>
+                        <DialogTitle>Cập nhật trạng thái</DialogTitle>
                     </DialogHeader>
-                    <div className="py-4">
-                        <Select value={statusToUpdate} onValueChange={setStatusToUpdate}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Chọn trạng thái" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="CHO_XAC_NHAN">Chờ xác nhận</SelectItem>
-                                <SelectItem value="CHO_GIAO_HANG">Chờ giao hàng</SelectItem>
-                                <SelectItem value="DANG_VAN_CHUYEN">Đang vận chuyển</SelectItem>
-                                <SelectItem value="DA_GIAO_HANG">Đã giao hàng</SelectItem>
-                                <SelectItem value="HOAN_THANH">Hoàn thành</SelectItem>
-                                <SelectItem value="DA_HUY">Đã hủy</SelectItem>
-                            </SelectContent>
-                        </Select>
+                    <div className="space-y-4">
+                        <div>
+                            <label className="text-sm font-bold mb-2 block">Trạng thái đơn hàng</label>
+                            <Select value={statusToUpdate} onValueChange={setStatusToUpdate}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Chọn trạng thái đơn hàng" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {getAvailableOrderStatuses(order.orderStatus).map((status) => (
+                                        <SelectItem key={status} value={status}>
+                                            {status === "CHO_XAC_NHAN" && "Chờ xác nhận"}
+                                            {status === "CHO_GIAO_HANG" && "Chờ giao hàng"}
+                                            {status === "DANG_VAN_CHUYEN" && "Đang vận chuyển"}
+                                            {status === "DA_GIAO_HANG" && "Đã giao hàng"}
+                                            {status === "HOAN_THANH" && "Hoàn thành"}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        
+                        <div>
+                            <label className="text-sm font-bold mb-2 block">Trạng thái thanh toán</label>
+                            <Select value={paymentStatusToUpdate} onValueChange={setPaymentStatusToUpdate}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Chọn trạng thái thanh toán" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="PENDING">Chưa thanh toán</SelectItem>
+                                    <SelectItem value="PAID">Đã thanh toán</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setIsStatusDialogOpen(false)}>

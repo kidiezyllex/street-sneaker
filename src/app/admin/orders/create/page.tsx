@@ -137,7 +137,7 @@ export default function CreateOrderPage() {
       // For simplicity, we're using a placeholder
       const customerID = "64f720fb93a46d138d413045"; // This would be obtained from API
       
-      const orderData: IOrderCreate = {
+      const orderData = {
         customer: customerID,
         items: selectedProducts,
         voucher: voucherCode || '', // In a real app, this would be validated
@@ -155,7 +155,7 @@ export default function CreateOrderPage() {
         paymentMethod: paymentMethod as any,
       };
       
-      await createOrder.mutateAsync(orderData, {
+      await createOrder.mutateAsync(orderData as any, {
         onSuccess: () => {
           toast.success('Tạo đơn hàng thành công');
           router.push('/admin/orders');
@@ -182,7 +182,7 @@ export default function CreateOrderPage() {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/admin">Trang chủ</BreadcrumbLink>
+              <BreadcrumbLink href="/admin/statistics">Dashboard</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>

@@ -12,7 +12,7 @@ function getLocalAccessToken() {
 
 const instance = axios.create({
   timeout: 3 * 60 * 1000,
-  baseURL: `https://street-sneaker-be.onrender.com/api/`,
+  baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api/`,
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',

@@ -180,7 +180,7 @@ export const AboutUs = () => {
                             </span>
                         </motion.h1>
                         <motion.p 
-                            className="text-xl md:text-2xl text-white/90 mb-10 font-light"
+                            className="text-xl md:text-2xl text-white/80 mb-10 font-light"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.4, duration: 0.8 }}
@@ -346,7 +346,7 @@ export const AboutUs = () => {
                         transition={{ duration: 0.5 }}
                     >
                         <h2 className="text-4xl font-bold text-white mb-4">Khách hàng nói gì về chúng tôi?</h2>
-                        <p className="text-xl text-white/90 max-w-2xl mx-auto">
+                        <p className="text-xl text-white/80 max-w-2xl mx-auto">
                             Những phản hồi từ khách hàng là động lực để chúng tôi không ngừng cải thiện và phát triển.
                         </p>
                     </motion.div>
@@ -403,7 +403,7 @@ export const AboutUs = () => {
                     >
                         <div className="absolute inset-0 bg-[url('/images/pattern.png')] opacity-10"></div>
                         <h2 className="text-4xl font-bold text-white mb-8 relative z-10">Sẵn sàng khám phá bộ sưu tập của chúng tôi?</h2>
-                        <p className="text-xl text-white/90 mb-10 max-w-2xl mx-auto relative z-10">
+                        <p className="text-xl text-white/80 mb-10 max-w-2xl mx-auto relative z-10">
                             Hãy ghé thăm cửa hàng của chúng tôi hoặc mua sắm trực tuyến để tìm cho mình đôi giày phù hợp nhất.
                         </p>
                         <motion.div

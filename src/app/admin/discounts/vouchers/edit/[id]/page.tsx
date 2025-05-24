@@ -194,7 +194,7 @@ export default function EditVoucherPage() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/admin">Dashboard</BreadcrumbLink>
+                <BreadcrumbLink href="/admin/statistics">Dashboard</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
@@ -241,7 +241,7 @@ export default function EditVoucherPage() {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/admin">Dashboard</BreadcrumbLink>
+              <BreadcrumbLink href="/admin/statistics">Dashboard</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>

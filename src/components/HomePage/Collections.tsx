@@ -112,7 +112,7 @@ const CollectionCard = ({ collection, animation }: {
                     <h3 className="text-outline-white uppercase text-4xl font-bold text-white mb-2 group-hover:text-primary-foreground transition-colors duration-300">
                         {collection.title}
                     </h3>
-                    <h3 className="text-2xl font-bold text-white/90 group-hover:text-primary-foreground/90 transition-colors duration-300">
+                    <h3 className="text-2xl font-bold text-white/80 group-hover:text-primary-foreground/80 transition-colors duration-300">
                         {collection.subtitle}
                     </h3>
                 </motion.div>

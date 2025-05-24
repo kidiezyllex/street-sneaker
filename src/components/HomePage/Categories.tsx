@@ -230,7 +230,7 @@ const CategoryCard = ({ category, index }: { category: typeof categories[0], ind
             />
           </motion.div>
 
-          <div className="absolute inset-0 bg-gradient-to-t from-main-dark-blue/90 via-main-dark-blue/50 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="absolute inset-0 bg-gradient-to-t from-main-dark-blue/80 via-main-dark-blue/50 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-300">
             <div className="absolute bottom-0 left-0 right-0 p-4">
               <motion.div
                 variants={textVariants}

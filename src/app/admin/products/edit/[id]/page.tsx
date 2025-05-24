@@ -190,7 +190,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/admin">Trang chủ</BreadcrumbLink>
+              <BreadcrumbLink href="/admin/statistics">Dashboard</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
@@ -228,7 +228,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/admin">Trang chủ</BreadcrumbLink>
+              <BreadcrumbLink href="/admin/statistics">Dashboard</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>

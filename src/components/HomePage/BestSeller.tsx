@@ -244,7 +244,7 @@ const ProductCard = ({ product, index }: { product: typeof bestSellerData[0], in
           <Button 
             size="sm" 
             variant="secondary" 
-            className="rounded-full w-9 h-9 bg-white/90 hover:bg-white shadow-md backdrop-blur-sm flex items-center justify-center"
+            className="rounded-full w-9 h-9 bg-white/80 hover:bg-white shadow-md backdrop-blur-sm flex items-center justify-center"
             title="Xem nhanh"
           >
             <Icon path={mdiEye} size={0.8} className="text-gray-800" />
@@ -252,7 +252,7 @@ const ProductCard = ({ product, index }: { product: typeof bestSellerData[0], in
           <Button 
             size="sm" 
             variant="secondary" 
-            className="rounded-full w-9 h-9 bg-white/90 hover:bg-white shadow-md backdrop-blur-sm flex items-center justify-center"
+            className="rounded-full w-9 h-9 bg-white/80 hover:bg-white shadow-md backdrop-blur-sm flex items-center justify-center"
             title="Yêu thích"
           >
             <Icon path={mdiHeartOutline} size={0.8} className="text-gray-800" />
@@ -260,7 +260,7 @@ const ProductCard = ({ product, index }: { product: typeof bestSellerData[0], in
           <Button 
             size="sm" 
             variant="secondary" 
-            className="rounded-full w-9 h-9 bg-white/90 hover:bg-white shadow-md backdrop-blur-sm flex items-center justify-center"
+            className="rounded-full w-9 h-9 bg-white/80 hover:bg-white shadow-md backdrop-blur-sm flex items-center justify-center"
             title="Thêm vào giỏ hàng"
           >
             <Icon path={mdiCartOutline} size={0.8} className="text-gray-800" />

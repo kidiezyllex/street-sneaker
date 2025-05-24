@@ -775,7 +775,7 @@ export default function POSPage() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/admin">Trang chủ</BreadcrumbLink>
+                <BreadcrumbLink href="/admin/statistics">Dashboard</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
@@ -896,7 +896,7 @@ export default function POSPage() {
                 />
               </div>
               <button 
-                className="px-4 py-2.5 bg-primary text-white rounded-[6px] hover:bg-primary/90 transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
+                className="px-4 py-2.5 bg-primary text-white rounded-[6px] hover:bg-primary/80 transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
               >
                 <Icon path={mdiQrcodeScan} size={0.8} className="text-white" />
                 <span>Quét mã QR</span>

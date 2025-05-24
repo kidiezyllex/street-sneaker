@@ -30,7 +30,7 @@ const nextConfig = {
     ],
   },
   async rewrites() {
-    const domain = "https://street-sneaker-be.onrender.com";
+    const domain = process.env.NEXT_PUBLIC_API_URL;
     return [
       {
         source: "/api/:path*",

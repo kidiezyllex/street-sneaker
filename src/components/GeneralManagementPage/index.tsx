@@ -916,7 +916,7 @@ const VouchersTab = () => {
                         <Button 
                             variant="default"
                             size="sm" 
-                            className="w-full mt-4 bg-primary hover:bg-primary/90 text-primary-foreground gap-2 shadow-md hover:shadow-lg transition-shadow"
+                            className="w-full mt-4 bg-primary hover:bg-primary/80 text-primary-foreground gap-2 shadow-md hover:shadow-lg transition-shadow"
                             onClick={() => copyToClipboard(voucher.code)}
                         >
                             <Icon path={mdiContentCopy} size={0.7} />

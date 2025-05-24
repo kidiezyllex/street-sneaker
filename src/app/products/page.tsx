@@ -555,7 +555,7 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      <div className="fixed bottom-6 right-6 z-50 shadow-lg rounded-full bg-primary p-2 hover:bg-primary/90 transition-all duration-300">
+      <div className="fixed bottom-6 right-6 z-50 shadow-lg rounded-full bg-primary p-2 hover:bg-primary/80 transition-all duration-300">
         <CartIcon className="text-white" />
       </div>
     </div>
@@ -596,7 +596,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
           <Button
             variant="outline"
             size="icon"
-            className="rounded-full h-9 w-9 bg-white/90 backdrop-blur-sm hover:bg-primary hover:text-white shadow-lg border-primary/20 hover:scale-110 transition-all duration-200"
+            className="rounded-full h-9 w-9 bg-white/80 backdrop-blur-sm hover:bg-primary hover:text-white shadow-lg border-primary/20 hover:scale-110 transition-all duration-200"
             onClick={(e) => {
               e.preventDefault();
               onAddToCart();
@@ -608,7 +608,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
           <Button
             variant="outline"
             size="icon"
-            className="rounded-full h-9 w-9 bg-white/90 backdrop-blur-sm hover:bg-pink-500 hover:text-white shadow-lg border-pink-200 hover:scale-110 transition-all duration-200"
+            className="rounded-full h-9 w-9 bg-white/80 backdrop-blur-sm hover:bg-pink-500 hover:text-white shadow-lg border-pink-200 hover:scale-110 transition-all duration-200"
             onClick={(e) => {
               e.preventDefault();
               onAddToWishlist();
@@ -620,7 +620,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
           <Button
             variant="outline"
             size="icon"
-            className="rounded-full h-9 w-9 bg-white/90 backdrop-blur-sm hover:bg-blue-500 hover:text-white shadow-lg border-blue-200 hover:scale-110 transition-all duration-200"
+            className="rounded-full h-9 w-9 bg-white/80 backdrop-blur-sm hover:bg-blue-500 hover:text-white shadow-lg border-blue-200 hover:scale-110 transition-all duration-200"
             onClick={(e) => {
               e.preventDefault();
               onQuickView();
@@ -642,7 +642,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
           href={`/products/${product.name.toLowerCase().replace(/\s+/g, '-')}-${product._id}`}
           className="hover:text-primary transition-colors"
         >
-          <h3 className="font-semibold text-sm mb-1 line-clamp-2 leading-tight group-hover:text-primary/90 transition-colors duration-200 text-maintext">
+          <h3 className="font-semibold text-sm mb-1 line-clamp-2 leading-tight group-hover:text-primary/80 transition-colors duration-200 text-maintext">
             {product.name}
           </h3>
         </Link>

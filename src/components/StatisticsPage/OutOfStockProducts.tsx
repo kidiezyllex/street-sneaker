@@ -68,7 +68,7 @@ export const OutOfStockProducts = () => {
                       <span>Hết hàng</span>
                     </div>
                   </div>
-                  <button className="rounded-[6px] bg-primary px-3 py-1 text-xs font-medium text-white hover:bg-primary/90 transition-colors">
+                  <button className="rounded-[6px] bg-primary px-3 py-1 text-xs font-medium text-white hover:bg-primary/80 transition-colors">
                     Nhập hàng
                   </button>
                 </motion.div>

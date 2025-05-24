@@ -94,14 +94,60 @@ export default function StatisticsPage() {
       return series;
     };
 
+    // Get or initialize persistent values from localStorage
+    const getStoredValue = (key: string, defaultValue: number, incrementRange?: [number, number]) => {
+      if (typeof window === 'undefined') return defaultValue;
+      
+      const stored = localStorage.getItem(key);
+      if (stored) {
+        const parsedValue = parseInt(stored);
+        // For orders and customers, always increment on reload
+        if (incrementRange) {
+          const increment = Math.floor(Math.random() * (incrementRange[1] - incrementRange[0] + 1)) + incrementRange[0];
+          const newValue = parsedValue + increment;
+          localStorage.setItem(key, newValue.toString());
+          return newValue;
+        }
+        return parsedValue;
+      } else {
+        localStorage.setItem(key, defaultValue.toString());
+        return defaultValue;
+      }
+    };
+
+    // Get or generate revenue/profit with controlled variation
+    const getStoredRevenueValue = (key: string, baseValue: number) => {
+      if (typeof window === 'undefined') return baseValue;
+      
+      const stored = localStorage.getItem(key);
+      if (stored) {
+        const parsedValue = parseInt(stored);
+        // Small variation: 1-2 million difference
+        const variation = Math.floor(Math.random() * 2000000) + 1000000;
+        const isIncrease = Math.random() > 0.5;
+        const newValue = isIncrease ? parsedValue + variation : Math.max(parsedValue - variation, baseValue);
+        localStorage.setItem(key, newValue.toString());
+        return newValue;
+      } else {
+        localStorage.setItem(key, baseValue.toString());
+        return baseValue;
+      }
+    };
+
+    const totalOrders = getStoredValue('totalOrders', 50, [1, 5]);
+    const newCustomers = getStoredValue('newCustomers', 30, [1, 5]);
+    const totalProfit = getStoredRevenueValue('totalProfit', 20000000);
+    const totalRevenue = getStoredRevenueValue('totalRevenue', 100000000);
+
     const newMockStatistics = {
       isLoading: false,
       isError: false,
       data: {
         data: [
           {
-            totalOrders: Math.floor(Math.random() * 200) + 50, 
-            totalProfit: Math.floor(Math.random() * 100000000) + 20000000, 
+            totalOrders: totalOrders,
+            totalProfit: totalProfit,
+            newCustomers: newCustomers,
           },
         ],
       },
@@ -112,7 +158,7 @@ export default function StatisticsPage() {
       isError: false,
       data: {
         data: {
-          total: Math.floor(Math.random() * 500000000) + 100000000, 
+          total: totalRevenue,
           previousPeriod: {
             total: Math.floor(Math.random() * 400000000) + 80000000,
             percentChange: (Math.random() * 20) - 10, 
@@ -216,7 +262,7 @@ export default function StatisticsPage() {
           <div className="flex justify-between items-start">
             <div>
               <p className="text-base text-maintext">{title}</p>
-              <h3 className="text-2xl font-bold mt-2">{value}</h3>
+              <h3 className="text-2xl font-bold mt-2 text-maintext">{value}</h3>
               <div className="flex items-center mt-2">
                 <Icon
                   path={change >= 0 ? mdiTrendingUp : mdiTrendingUp}
@@ -245,7 +291,7 @@ export default function StatisticsPage() {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/admin">Dashboard</BreadcrumbLink>
+              <BreadcrumbLink href="/admin/statistics">Dashboard</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
@@ -308,7 +354,7 @@ export default function StatisticsPage() {
               />
               <StatCard
                 title="Khách hàng mới"
-                value="56"
+                value={clientStatistics.data?.data?.[0]?.newCustomers?.toString() || "0"}
                 icon={mdiAccountGroup}
                 iconColor="text-amber-600"
                 bgColor="bg-amber-100"
@@ -445,13 +491,13 @@ export default function StatisticsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="text-center">
                         <h3 className="text-lg font-semibold text-maintext">Tổng doanh thu</h3>
-                        <p className="text-2xl font-bold text-green-600 mt-2">
+                        <p className="text-2xl font-bold text-green-500 mt-2">
                           {formatCurrency(clientRevenueReport.data?.data.total || 0)}
                         </p>
                       </div>
                       <div className="text-center">
                         <h3 className="text-lg font-semibold text-maintext">So với kỳ trước</h3>
-                        <p className="text-2xl font-bold mt-2">
+                        <p className="text-2xl font-bold mt-2 text-blue-500">
                           {formatCurrency(clientRevenueReport.data?.data.previousPeriod.total || 0)}
                         </p>
                       </div>
@@ -511,7 +557,7 @@ export default function StatisticsPage() {
         </TabsContent>
 
         {/* Tab Sản phẩm bán chạy */}
-        <TabsContent value="products" className="space-y-4">
+        <TabsContent value="products" className="space-y-4 text-maintext">
           <Card className="mb-6">
             <CardHeader>
               <CardTitle>Sản phẩm bán chạy</CardTitle>
@@ -600,11 +646,11 @@ export default function StatisticsPage() {
                       <TableBody>
                         {clientTopProducts.data?.data.map((item: { product: { name: string; category: { name: string }; brand: { name: string } }; totalQuantity: number; totalRevenue: number }, index: number) => (
                           <TableRow key={index}>
-                            <TableCell className="font-medium">{item.product.name}</TableCell>
-                            <TableCell>{item.product.category.name}</TableCell>
-                            <TableCell>{item.product.brand.name}</TableCell>
-                            <TableCell className="text-right">{item.totalQuantity}</TableCell>
-                            <TableCell className="text-right">{formatCurrency(item.totalRevenue)}</TableCell>
+                            <TableCell className="font-medium text-maintext">{item.product.name}</TableCell>
+                            <TableCell className="text-maintext">{item.product.category.name}</TableCell>
+                            <TableCell className="text-maintext">{item.product.brand.name}</TableCell>
+                            <TableCell className="text-right text-maintext">{item.totalQuantity}</TableCell>
+                            <TableCell className="text-right text-maintext">{formatCurrency(item.totalRevenue)}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
