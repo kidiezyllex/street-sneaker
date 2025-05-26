@@ -36,9 +36,9 @@ export interface IAddress {
   _id?: string;
   name: string;
   phoneNumber: string;
-  provinceId: number;
-  districtId: number;
-  wardId: number;
+  provinceName: string;
+  districtName: string;
+  wardName: string;
   specificAddress: string;
   type: "Nhà riêng" | "Văn phòng";
   isDefault: boolean;
@@ -47,9 +47,9 @@ export interface IAddress {
 export interface IAddressCreate {
   name: string;
   phoneNumber: string;
-  provinceId: number;
-  districtId: number;
-  wardId: number;
+  provinceName: string;
+  districtName: string;
+  wardName: string;
   specificAddress: string;
   type: "Nhà riêng" | "Văn phòng";
   isDefault: boolean;

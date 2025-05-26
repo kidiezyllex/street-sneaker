@@ -263,8 +263,8 @@ export default function ProductsPage() {
   }, [data])
 
   return (
-    <div className="container mx-auto px-4 py-8 relative">
-      <Breadcrumb className="mb-2">
+    <div className="container mx-auto py-8 relative">
+      <Breadcrumb className="mb-4">
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink href="/" className="!text-maintext hover:!text-maintext">
@@ -277,16 +277,7 @@ export default function ProductsPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex gap-2">
-          <Button variant="outline" className="lg:hidden flex items-center gap-2" onClick={toggleFilter}>
-            <Icon path={mdiFilterOutline} size={0.9} />
-            {isFilterOpen ? "Ẩn bộ lọc" : "Hiện bộ lọc"}
-          </Button>
-        </div>
-      </div>
-
-      <div className="flex flex-col lg:flex-row gap-4">
+      <div className="flex flex-col lg:flex-row gap-4 items-start">
         {/* Filters - Mobile */}
         <AnimatePresence>
           {isFilterOpen && (
@@ -310,7 +301,7 @@ export default function ProductsPage() {
           )}
         </AnimatePresence>
 
-        <div className="hidden lg:block w-full lg:w-1/4 xl:w-1/5">
+        <div className="hidden lg:block w-full lg:w-1/4 xl:w-1/5 ">
           <div className="bg-white rounded-[6px] shadow-sm border p-4 sticky top-20">
             <h2 className="font-medium mb-4">Bộ lọc sản phẩm</h2>
             <ProductFilters filters={filters} onChange={handleFilterChange} />

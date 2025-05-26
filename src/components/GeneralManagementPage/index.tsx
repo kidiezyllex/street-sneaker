@@ -19,14 +19,8 @@ import {
   mdiEmail,
   mdiCreditCardOutline,
   mdiCashMultiple,
-  mdiCalendarRange,
   mdiAlertCircleOutline,
-  mdiCheck,
-  mdiPencil,
-  mdiAccountBoxOutline,
   mdiBellOutline,
-  mdiShieldLockOutline,
-  mdiLockReset,
   mdiContentSaveOutline,
   mdiTicketPercentOutline,
   mdiContentCopy
@@ -36,11 +30,12 @@ import { vi } from 'date-fns/locale';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 
 import { useUser } from '@/context/useUserContext';
 import { useOrdersByUser, useOrderDetail } from '@/hooks/order';
 import { useToast } from '@/hooks/useToast';
-import { useUserProfile, useUpdateUserProfile, useChangePassword } from '@/hooks/account';
+import { useUpdateUserProfile, useChangePassword } from '@/hooks/account';
 import { useAvailableVouchersForUser } from '@/hooks/voucher';
 import { IVoucher } from '@/interface/response/voucher';
 import { IOrder } from '@/interface/response/order';
@@ -81,8 +76,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDate } from '@/lib/utils';
 import { formatPrice } from '@/utils/formatters';
@@ -100,30 +93,29 @@ const contentAnimation = {
 };
 
 export const AccountTabContext = createContext({
-  activeTab: 'overview',
+  activeTab: 'profile',
   setActiveTab: (tab: string) => {},
 });
 
 const OrderStatusBadge = ({ status }: { status: string }) => {
   const statusConfig: Record<string, { label: string; className: string }> = {
-    'CHO_XAC_NHAN': { label: 'Chờ xác nhận', className: '!bg-yellow-400 !text-yellow-900 !border-yellow-500' },
-    'CHO_GIAO_HANG': { label: 'Chờ giao hàng', className: '!bg-blue-400 !text-blue-900 !border-blue-500' },
-    'DANG_VAN_CHUYEN': { label: 'Đang vận chuyển', className: '!bg-orange-400 !text-orange-900 !border-orange-500' },
-    'DA_GIAO_HANG': { label: 'Đã giao hàng', className: '!bg-green-400 !text-green-900 !border-green-500' },
-    'HOAN_THANH': { label: 'Hoàn thành', className: '!bg-emerald-400 !text-emerald-900 !border-emerald-500' },
-    'DA_HUY': { label: 'Đã hủy', className: '!bg-red-400 !text-red-900 !border-red-500' },
+    'CHO_XAC_NHAN': { label: 'Chờ xác nhận', className: '!bg-yellow-400 !text-white !border-yellow-500 text-nowrap' },
+    'CHO_GIAO_HANG': { label: 'Chờ giao hàng', className: '!bg-blue-400 !text-white !border-blue-500 text-nowrap' },
+    'DANG_VAN_CHUYEN': { label: 'Đang vận chuyển', className: '!bg-orange-400 !text-white !border-orange-500 text-nowrap' },
+    'DA_GIAO_HANG': { label: 'Đã giao hàng', className: '!bg-green-400 !text-white !border-green-500 text-nowrap' },
+    'HOAN_THANH': { label: 'Hoàn thành', className: '!bg-emerald-400 !text-white !border-emerald-500 text-nowrap' },
+    'DA_HUY': { label: 'Đã hủy', className: '!bg-red-400 !text-white !border-red-500 text-nowrap' },
   };
 
   const config = statusConfig[status] || { label: status, className: 'bg-gray-400 text-gray-900 border-gray-500' };
 
   return (
-    <Badge className={`${config.className} rounded-[6px] font-normal`}>
+    <Badge className={`${config.className} rounded-[4px] font-normal`}>
       {config.label}
     </Badge>
   );
 };
 
-// Component Dialog Chi tiết đơn hàng
 interface OrderDetailDialogProps {
   orderId: string | null;
   open: boolean;
@@ -155,6 +147,8 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
         return 'Thanh toán khi nhận hàng';
       case 'VNPAY':
         return 'Thanh toán qua VNPay';
+      case 'BANK_TRANSFER':
+        return 'Chuyển khoản ngân hàng';
       default:
         return method;
     }
@@ -290,9 +284,9 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                       {orderData.data.items.map((item, index) => (
                         <TableRow key={index}>
                           <TableCell className="font-medium">
-                            {item.product.name}
+                            {item.product ? (item.product as any).name || '' : ''}
                             <div className="text-xs text-muted-foreground">
-                              Mã: {item.product.code}
+                              Mã: {item.product ? (item.product as any).code || '' : ''}
                             </div>
                           </TableCell>
                           <TableCell className="text-right">{formatPrice(item.price)}</TableCell>
@@ -368,92 +362,6 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
   );
 };
 
-// Tab Tổng quan
-const OverviewTab = () => {
-  const { profile } = useUser();
-  const userData = profile?.data;
-  
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-semibold">Thông tin tài khoản</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-start">
-            <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center text-primary text-2xl font-semibold">
-              {userData?.fullName?.charAt(0) || userData?.email?.charAt(0) || "U"}
-            </div>
-            
-            <div className="space-y-2 text-center sm:text-left flex-1">
-              <h3 className="text-xl font-semibold">{userData?.fullName || "Khách hàng"}</h3>
-              <div className="flex gap-2 items-center justify-center sm:justify-start">
-                <Icon path={mdiEmail} size={0.8} className="text-muted-foreground" />
-                <span className="text-muted-foreground">{userData?.email}</span>
-              </div>
-              {userData?.phoneNumber && (
-                <div className="flex gap-2 items-center justify-center sm:justify-start">
-                  <Icon path={mdiPhone} size={0.8} className="text-muted-foreground" />
-                  <span className="text-muted-foreground">{userData?.phoneNumber}</span>
-                </div>
-              )}
-            </div>
-          </div>
-          
-          <hr className="border-t border-border" />
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Button variant="outline" className="flex items-center gap-2 justify-center" asChild>
-              <a href="#account-tabs?tab=profile">
-                <Icon path={mdiAccountEdit} size={0.9} />
-                <span>Cập nhật thông tin</span>
-              </a>
-            </Button>
-            <Button variant="outline" className="flex items-center gap-2 justify-center" asChild>
-              <a href="#account-tabs?tab=password">
-                <Icon path={mdiLock} size={0.9} />
-                <span>Đổi mật khẩu</span>
-              </a>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Icon path={mdiOrderBoolAscending} size={0.9} />
-              <span>Đơn hàng gần đây</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="py-3 text-center text-muted-foreground">
-              <a href="#account-tabs?tab=orders" className="text-sm hover:underline">
-                Xem tất cả đơn hàng
-              </a>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Icon path={mdiBellOutline} size={0.9} />
-              <span>Thông báo</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="py-3 text-center text-muted-foreground">
-              <span className="text-sm">Không có thông báo mới</span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-};
-
 // Tab Thông tin cá nhân
 const ProfileTab = () => {
   const { profile } = useUser();
@@ -519,12 +427,9 @@ const ProfileTab = () => {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Icon path={mdiAccountEdit} size={0.9} />
+          <Icon path={mdiAccountEdit} size={0.7} className='text-primary'/>
           <span>Cập nhật thông tin cá nhân</span>
         </CardTitle>
-        <CardDescription>
-          Quản lý thông tin cá nhân của bạn
-        </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -670,7 +575,7 @@ const PasswordTab = () => {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Icon path={mdiLock} size={0.9} />
+          <Icon path={mdiLock} size={0.7} className='text-primary'/>
           <span>Đổi mật khẩu</span>
         </CardTitle>
         <CardDescription>
@@ -813,7 +718,7 @@ const VouchersTab = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Icon path={mdiAlertCircleOutline} size={0.9} className="text-red-500" />
+            <Icon path={mdiAlertCircleOutline} size={0.7} className='text-primary' />
             <span>Lỗi tải mã giảm giá</span>
           </CardTitle>
         </CardHeader>
@@ -936,89 +841,16 @@ const VouchersTab = () => {
                 </Card>
             ))}
             </div>
-            {/* TODO: Add pagination if vouchersData.data.pagination exists and totalPages > 1 */}
         </CardContent>
       </Card>
     </div>
   );
 };
 
-// Tab Cài đặt
-const SettingsTab = () => {
-  const [notifications, setNotifications] = useState({
-    order: true,
-    promotion: true,
-    system: false,
-  });
-  
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Icon path={mdiBellOutline} size={0.9} />
-          <span>Thông báo</span>
-        </CardTitle>
-        <CardDescription>
-          Quản lý thông báo bạn nhận được
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="order-notifications">Thông báo đơn hàng</Label>
-              <p className="text-sm text-muted-foreground">
-                Nhận thông báo về trạng thái đơn hàng của bạn
-              </p>
-            </div>
-            <Switch
-              id="order-notifications"
-              checked={notifications.order}
-              onCheckedChange={(checked) => setNotifications({ ...notifications, order: checked })}
-            />
-          </div>
-          
-          <hr className="border-t border-border" />
-          
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="promotion-notifications">Thông báo khuyến mãi</Label>
-              <p className="text-sm text-muted-foreground">
-                Nhận thông báo về chương trình khuyến mãi, giảm giá
-              </p>
-            </div>
-            <Switch
-              id="promotion-notifications"
-              checked={notifications.promotion}
-              onCheckedChange={(checked) => setNotifications({ ...notifications, promotion: checked })}
-            />
-          </div>
-          
-          <hr className="border-t border-border" />
-          
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="system-notifications">Thông báo hệ thống</Label>
-              <p className="text-sm text-muted-foreground">
-                Nhận thông báo về cập nhật hệ thống và bảo trì
-              </p>
-            </div>
-            <Switch
-              id="system-notifications"
-              checked={notifications.system}
-              onCheckedChange={(checked) => setNotifications({ ...notifications, system: checked })}
-            />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
 export default function GeneralManagementPage() {
   const router = useRouter();
   const pathname = usePathname();
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('profile');
   const { isAuthenticated, profile, isLoadingProfile } = useUser();
   const [currentPage, setCurrentPage] = useState(1);
   const userId = profile?.data?._id;
@@ -1032,10 +864,10 @@ export default function GeneralManagementPage() {
         const urlParams = new URLSearchParams(window.location.search);
         const tabParam = urlParams.get('tab');
         
-        if (tabParam && ['overview', 'profile', 'password', 'settings', 'orders', 'vouchers'].includes(tabParam)) {
+        if (tabParam && ['profile', 'password', 'settings', 'orders', 'vouchers'].includes(tabParam)) {
           setActiveTab(tabParam);
         } else {
-          setActiveTab('overview');
+          setActiveTab('profile');
         }
       }
     };
@@ -1067,11 +899,6 @@ export default function GeneralManagementPage() {
 
   const tabs = [
     {
-      title: 'Tổng quan',
-      icon: mdiAccount,
-      value: 'overview',
-    },
-    {
       title: 'Thông tin cá nhân',
       icon: mdiAccountEdit,
       value: 'profile',
@@ -1090,11 +917,6 @@ export default function GeneralManagementPage() {
       title: 'Mã giảm giá',
       icon: mdiTicketPercentOutline,
       value: 'vouchers',
-    },
-    {
-      title: 'Cài đặt',
-      icon: mdiCog,
-      value: 'settings',
     },
   ];
 
@@ -1115,9 +937,50 @@ export default function GeneralManagementPage() {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
   };
 
+  const getPaymentMethodName = (method: string) => {
+    switch (method) {
+      case 'COD':
+        return 'Thanh toán khi nhận hàng';
+      case 'VNPAY':
+        return 'Thanh toán qua VNPay';
+      case 'BANK_TRANSFER':
+        return 'Chuyển khoản ngân hàng';
+      default:
+        return method;
+    }
+  };
+
+  const getPaymentStatusName = (status: string) => {
+    switch (status) {
+      case 'PENDING':
+        return 'Chờ thanh toán';
+      case 'PAID':
+        return 'Đã thanh toán';
+      case 'FAILED':
+        return 'Thanh toán thất bại';
+      case 'REFUNDED':
+        return 'Đã hoàn tiền';
+      default:
+        return status;
+    }
+  };
+
   return (
     <AccountTabContext.Provider value={{ activeTab, setActiveTab }}>
-      <div className="container mx-auto py-8 px-4">
+      <div className="container mx-auto py-8 relative">
+      <Breadcrumb className="mb-4">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/" className="!text-maintext hover:!text-maintext">
+              Trang chủ
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator className="!text-maintext hover:!text-maintext" />
+          <BreadcrumbItem>
+            <BreadcrumbPage className="!text-maintext hover:!text-maintext">Quản lý chung</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <motion.div 
             className="md:col-span-1"
@@ -1126,11 +989,8 @@ export default function GeneralManagementPage() {
             variants={sidebarAnimation}
           >
             <Card className="sticky">
-              <CardHeader className="pb-3">
+              <CardHeader>
                 <CardTitle>Quản lý chung</CardTitle>
-                <CardDescription className="text-sm text-muted-foreground">
-                  {profile?.data?.email}
-                </CardDescription>
               </CardHeader>
               <CardContent className="p-0">
                 <nav className="flex flex-col" id="account-sidebar-tabs">
@@ -1177,9 +1037,6 @@ export default function GeneralManagementPage() {
             variants={contentAnimation}
           >
             <Tabs value={activeTab} className="w-full">
-              <TabsContent value="overview">
-                {activeTab === 'overview' && <OverviewTab />}
-              </TabsContent>
               <TabsContent value="profile">
                 {activeTab === 'profile' && <ProfileTab />}
               </TabsContent>
@@ -1189,8 +1046,10 @@ export default function GeneralManagementPage() {
               <TabsContent value="orders">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Đơn hàng của bạn</CardTitle>
-                    <CardDescription>Quản lý và theo dõi đơn hàng mua tại cửa hàng</CardDescription>
+                    <CardTitle className='flex items-center gap-2'>
+                      <Icon path={mdiOrderBoolAscending} size={0.7} className='text-primary'/>
+                      <span>Đơn hàng của bạn</span>
+                      </CardTitle>
                   </CardHeader>
                   <CardContent>
                     {isLoading ? (
@@ -1217,7 +1076,9 @@ export default function GeneralManagementPage() {
                               <TableHead className="px-3 py-2">Ngày đặt</TableHead>
                               <TableHead className="px-3 py-2">Sản phẩm</TableHead>
                               <TableHead className="text-right px-3 py-2">Tổng tiền</TableHead>
-                              <TableHead className="px-3 py-2">Trạng thái</TableHead>
+                              <TableHead className="px-3 py-2">Trạng thái đơn hàng</TableHead>
+                              <TableHead className="px-3 py-2">Phương thức thanh toán</TableHead>
+                              <TableHead className="px-3 py-2">Trạng thái thanh toán</TableHead>
                               <TableHead className="text-center px-3 py-2">Thao tác</TableHead>
                             </TableRow>
                           </TableHeader>
@@ -1230,7 +1091,7 @@ export default function GeneralManagementPage() {
                                   <div className="flex flex-col gap-1">
                                     {order.items.slice(0, 2).map((item, index) => (
                                       <div key={index} className="text-xs">
-                                        {item.product.name} x{item.quantity}
+                                        {item.product ? (item.product as any).name || '' : ''} x{item.quantity}
                                       </div>
                                     ))}
                                     {order.items.length > 2 && (
@@ -1246,9 +1107,17 @@ export default function GeneralManagementPage() {
                                 <TableCell className="px-3 py-2">
                                   <OrderStatusBadge status={order.orderStatus} />
                                 </TableCell>
+                                <TableCell className="px-3 py-2">
+                                  {getPaymentMethodName(order.paymentMethod)}
+                                </TableCell>
+                                <TableCell className="px-3 py-2">
+                                  <span className={order.paymentStatus === 'PAID' ? 'bg-green-100 text-nowrap text-green-800 border-green-200 px-2 py-1 rounded' : '!bg-extra text-nowrap text-white px-2 py-1 rounded'}>
+                                    {getPaymentStatusName(order.paymentStatus)}
+                                  </span>
+                                </TableCell>
                                 <TableCell className="text-center px-3 py-2">
                                   <Button
-                                    variant="ghost"
+                                    variant="outline"
                                     size="icon"
                                     onClick={() => handleViewOrderDetails(order._id)}
                                     title="Xem chi tiết"
@@ -1291,9 +1160,6 @@ export default function GeneralManagementPage() {
               </TabsContent>
               <TabsContent value="vouchers">
                 {activeTab === 'vouchers' && <VouchersTab />}
-              </TabsContent>
-              <TabsContent value="settings">
-                {activeTab === 'settings' && <SettingsTab />}
               </TabsContent>
             </Tabs>
           </motion.div>

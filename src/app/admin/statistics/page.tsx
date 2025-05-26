@@ -311,7 +311,7 @@ export default function StatisticsPage() {
         {/* Tổng quan */}
         <TabsContent value="overview" className="space-y-4">
           {clientRevenueReport.isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
               {[...Array(4)].map((_, index) => (
                 <Card key={index} className="h-full">
                   <CardContent className="p-4">
@@ -327,7 +327,7 @@ export default function StatisticsPage() {
               <p className="text-red-600">Lỗi khi tải dữ liệu thống kê</p>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
               <StatCard
                 title="Tổng doanh thu"
                 value={formatCurrency(clientRevenueReport.data?.data?.total || 0)}
@@ -438,12 +438,12 @@ export default function StatisticsPage() {
 
         {/* Tab Doanh thu */}
         <TabsContent value="revenue" className="space-y-4">
-          <Card className="mb-6">
+          <Card className="mb-4">
             <CardHeader>
               <CardTitle>Báo cáo doanh thu</CardTitle>
             </CardHeader>
             <CardContent className="p-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div>
                   <Label htmlFor="revType">Loại thống kê</Label>
                   <Select
@@ -487,7 +487,7 @@ export default function StatisticsPage() {
                 <p className="text-red-600">Lỗi khi tải dữ liệu báo cáo doanh thu</p>
               ) : (
                 <>
-                  <div className="p-4 bg-slate-50 rounded-[6px] mb-6">
+                  <div className="p-4 bg-slate-50 rounded-[6px] mb-4">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="text-center">
                         <h3 className="text-lg font-semibold text-maintext">Tổng doanh thu</h3>
@@ -558,12 +558,12 @@ export default function StatisticsPage() {
 
         {/* Tab Sản phẩm bán chạy */}
         <TabsContent value="products" className="space-y-4 text-maintext">
-          <Card className="mb-6">
+          <Card className="mb-4">
             <CardHeader>
               <CardTitle>Sản phẩm bán chạy</CardTitle>
             </CardHeader>
             <CardContent className="p-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div>
                   <Label htmlFor="prodStartDate">Từ ngày</Label>
                   <Input
@@ -607,7 +607,7 @@ export default function StatisticsPage() {
                 <p className="text-red-600">Lỗi khi tải dữ liệu sản phẩm bán chạy</p>
               ) : (
                 <>
-                  <div className="w-full h-80 mb-6">
+                  <div className="w-full h-80 mb-4">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
                         layout="vertical"

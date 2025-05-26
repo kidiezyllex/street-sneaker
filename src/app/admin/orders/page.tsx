@@ -425,7 +425,7 @@ export default function OrdersPage() {
               </TabsList>
             </div>
 
-            <div className="flex flex-col md:flex-row justify-between items-start mb-6 gap-4">
+            <div className="flex flex-col md:flex-row justify-between items-start mb-4 gap-4">
               <div className="relative w-full md:w-96">
                 <Icon
                   path={mdiMagnify}
@@ -504,7 +504,7 @@ export default function OrdersPage() {
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="mb-6 border-t pt-4"
+                  className="mb-4 border-t pt-4"
                 >
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
@@ -974,7 +974,7 @@ const OrderDetailDialog = ({
             <div className="space-y-4">
               <div>
                 <h3 className="text-sm font-medium text-maintext">Sản phẩm đã đặt</h3>
-                <div className="mt-2 rounded-[6px] border">
+                <div className="mt-2 rounded-[6px]">
                   <div className="max-h-[300px] overflow-y-auto">
                     <Table>
                       <TableHeader>

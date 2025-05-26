@@ -1941,7 +1941,7 @@ export default function POSPage() {
           <DialogHeader>
             <DialogTitle className="text-center text-green-600">Thanh toán thành công!</DialogTitle>
           </DialogHeader>
-          <div className="flex flex-col items-center py-6">
+          <div className="flex flex-col items-center py-4">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
               <svg className="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -2197,13 +2197,13 @@ const InvoiceDialog = ({
         </DialogHeader>
         <CustomScrollArea className="flex-1 min-h-0 p-4 overflow-y-auto">
           <div ref={invoiceRef} className="p-4 bg-white" id="invoice-content" data-loaded={!!invoiceData}>
-            <div className="text-center mb-6">
+            <div className="text-center mb-4">
               <h2 className="text-xl font-bold">{invoiceData.shopInfo.name}</h2>
               <p className="text-sm">{invoiceData.shopInfo.address}</p>
               <p className="text-sm">ĐT: {invoiceData.shopInfo.phone} - Email: {invoiceData.shopInfo.email}</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
+            <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
               <div>
                 <p><strong>Mã HĐ:</strong> {invoiceData.orderId}</p>
                 <p><strong>Ngày:</strong> {formatDateTimeForInvoice(invoiceData.createdAt)}</p>
@@ -2215,7 +2215,7 @@ const InvoiceDialog = ({
               </div>
             </div>
 
-            <Table className="mb-6 text-sm">
+            <Table className="mb-4 text-sm">
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[40px] text-center">STT</TableHead>
@@ -2240,7 +2240,7 @@ const InvoiceDialog = ({
               </TableBody>
             </Table>
 
-            <div className="flex justify-end mb-6">
+            <div className="flex justify-end mb-4">
               <div className="w-full max-w-sm space-y-1.5 text-sm">
                 <div className="flex justify-between">
                   <span>Tổng tiền hàng:</span>

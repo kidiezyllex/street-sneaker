@@ -94,6 +94,10 @@ export default function ShippingPage() {
   const [loadingDistricts, setLoadingDistricts] = useState(false);
   const [loadingWards, setLoadingWards] = useState(false);
   
+  const [selectedProvinceName, setSelectedProvinceName] = useState('');
+  const [selectedDistrictName, setSelectedDistrictName] = useState('');
+  const [selectedWardName, setSelectedWardName] = useState('');
+  
   const createOrderMutation = useCreateOrder();
   const createNotificationMutation = useCreateNotification();
   const { data: userProfile, isLoading: isLoadingProfile } = useUserProfile();
@@ -116,6 +120,7 @@ export default function ShippingPage() {
   const selectedProvince = form.watch("province");
   const selectedDistrict = form.watch("district");
   const selectedPaymentMethod = form.watch("paymentMethod");
+  const selectedWard = form.watch("ward");
 
   // Fetch provinces on component mount
   useEffect(() => {
@@ -198,9 +203,9 @@ export default function ShippingPage() {
         email: profile.email || "",
         phoneNumber: profile.phoneNumber || "",
         address: profile.addresses?.[0]?.specificAddress || "",
-        province: profile.addresses?.[0]?.provinceId?.toString() || "",
-        district: profile.addresses?.[0]?.districtId?.toString() || "",
-        ward: profile.addresses?.[0]?.wardId?.toString() || "",
+        province: profile.addresses?.[0]?.provinceName || "",
+        district: profile.addresses?.[0]?.districtName || "",
+        ward: profile.addresses?.[0]?.wardName || "",
         paymentMethod: "COD",
       });
     }
@@ -237,6 +242,36 @@ export default function ShippingPage() {
       setShowVNPayModal(true);
     }
   }, [selectedPaymentMethod]);
+
+  // Cập nhật selectedProvinceName khi selectedProvince thay đổi
+  useEffect(() => {
+    if (selectedProvince) {
+      const found = provinces.find(p => p.code.toString() === selectedProvince);
+      setSelectedProvinceName(found ? found.name : '');
+    } else {
+      setSelectedProvinceName('');
+    }
+  }, [selectedProvince, provinces]);
+
+  // Cập nhật selectedDistrictName khi selectedDistrict thay đổi
+  useEffect(() => {
+    if (selectedDistrict) {
+      const found = districts.find(d => d.code.toString() === selectedDistrict);
+      setSelectedDistrictName(found ? found.name : '');
+    } else {
+      setSelectedDistrictName('');
+    }
+  }, [selectedDistrict, districts]);
+
+  // Cập nhật selectedWardName khi selectedWard thay đổi
+  useEffect(() => {
+    if (selectedWard) {
+      const found = wards.find(w => w.code.toString() === selectedWard);
+      setSelectedWardName(found ? found.name : '');
+    } else {
+      setSelectedWardName('');
+    }
+  }, [selectedWard, wards]);
 
   const sendOrderConfirmationEmail = async (orderId: string, orderData: any, userEmail: string) => {
     try {
@@ -296,7 +331,7 @@ export default function ShippingPage() {
             <h3 style="color: #333;">Thông tin giao hàng</h3>
             <p><strong>Người nhận:</strong> ${orderData.shippingAddress.name}</p>
             <p><strong>Số điện thoại:</strong> ${orderData.shippingAddress.phoneNumber}</p>
-            <p><strong>Địa chỉ:</strong> ${orderData.shippingAddress.specificAddress}, ${orderData.shippingAddress.wardId}, ${orderData.shippingAddress.districtId}, ${orderData.shippingAddress.provinceId}</p>
+            <p><strong>Địa chỉ:</strong> ${orderData.shippingAddress.specificAddress}</p>
           </div>
           
           <div style="margin-top: 30px; text-align: center; color: #777;">
@@ -354,10 +389,7 @@ export default function ShippingPage() {
         shippingAddress: {
           name: values.fullName,
           phoneNumber: values.phoneNumber,
-          provinceId: values.province,
-          districtId: values.district,
-          wardId: values.ward,
-          specificAddress: values.address
+          specificAddress: `${values.address}, ${selectedWardName}, ${selectedDistrictName}, ${selectedProvinceName}, Việt Nam`
         },
         paymentMethod: values.paymentMethod
       };
@@ -386,7 +418,6 @@ export default function ShippingPage() {
       setShowVNPayModal(false);
       setIsProcessing(true);
       
-      // Get form values to create actual order after successful payment
       const formValues = form.getValues();
       
       const orderData = {
@@ -405,10 +436,7 @@ export default function ShippingPage() {
         shippingAddress: {
           name: formValues.fullName,
           phoneNumber: formValues.phoneNumber,
-          provinceId: formValues.province,
-          districtId: formValues.district,
-          wardId: formValues.ward,
-          specificAddress: formValues.address
+          specificAddress: `${formValues.address}, ${selectedWardName}, ${selectedDistrictName}, ${selectedProvinceName}, Việt Nam`
         },
         paymentMethod: 'BANK_TRANSFER',
         paymentInfo: paymentData
@@ -458,11 +486,11 @@ export default function ShippingPage() {
       case 'address':
         return !!profile.addresses?.[0]?.specificAddress;
       case 'province':
-        return !!profile.addresses?.[0]?.provinceId;
+        return !!profile.addresses?.[0]?.provinceName;
       case 'district':
-        return !!profile.addresses?.[0]?.districtId;
+        return !!profile.addresses?.[0]?.districtName;
       case 'ward':
-        return !!profile.addresses?.[0]?.wardId;
+        return !!profile.addresses?.[0]?.wardName;
       default:
         return false;
     }
@@ -477,8 +505,8 @@ export default function ShippingPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 relative">
-      <Breadcrumb className="mb-6">
+    <div className="container mx-auto py-8 relative">
+      <Breadcrumb className="mb-4">
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink href="/" className="!text-maintext hover:!text-maintext">Trang chủ</BreadcrumbLink>

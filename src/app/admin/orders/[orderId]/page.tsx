@@ -72,7 +72,7 @@ const OrderStepper = ({ currentStatus }: { currentStatus: string }) => {
     };
     const currentStepIdx = getCurrentStep();
     return (
-        <Card className="mb-6 overflow-hidden">
+        <Card className="mb-4 overflow-hidden">
             <CardContent className="p-6">
                 <div className="flex justify-between items-start relative">
                     {orderSteps.map((step, index) => {
@@ -106,7 +106,7 @@ const OrderStepper = ({ currentStatus }: { currentStatus: string }) => {
                                 >
                                     {iconToShow}
                                 </motion.div>
-                                <div className={`mt-2.5 text-xs sm:text-sm text-center ${labelClasses} w-full sm:w-24 break-words leading-tight`}>
+                                <div className={`mt-2.5 text-xs sm:text-sm text-center text-nowrap ${labelClasses} w-full sm:w-24 break-words leading-tight`}>
                                     {step.label}
                                 </div>
                             </div>
@@ -190,9 +190,9 @@ export default function OrderDetailPage() {
     const getAvailableOrderStatuses = (currentStatus: string) => {
         const statusOrder = ["CHO_XAC_NHAN", "CHO_GIAO_HANG", "DANG_VAN_CHUYEN", "DA_GIAO_HANG", "HOAN_THANH"];
         const currentIndex = statusOrder.indexOf(currentStatus);
-        
+
         if (currentIndex === -1) return statusOrder; // If status not found, show all
-        
+
         // Return statuses from current position onwards
         return statusOrder.slice(currentIndex);
     };
@@ -301,7 +301,7 @@ export default function OrderDetailPage() {
                 </div>
 
                 {/* Order stepper skeleton */}
-                <Card className="mb-6 overflow-hidden">
+                <Card className="mb-4 overflow-hidden">
                     <CardContent className="p-6">
                         <div className="flex justify-between items-start relative">
                             {[...Array(5)].map((_, index) => (
@@ -376,42 +376,40 @@ export default function OrderDetailPage() {
                                 <CardTitle>Sản phẩm đã đặt</CardTitle>
                             </CardHeader>
                             <CardContent className="p-4">
-                                <div className="border rounded-[6px] overflow-hidden">
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Sản phẩm</TableHead>
-                                                <TableHead className="text-right">Đơn giá</TableHead>
-                                                <TableHead className="text-right">SL</TableHead>
-                                                <TableHead className="text-right">Tổng</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {[...Array(3)].map((_, index) => (
-                                                <TableRow key={index}>
-                                                    <TableCell>
-                                                        <div className="flex items-center gap-2">
-                                                            <Skeleton className="w-10 h-10 rounded" />
-                                                            <div>
-                                                                <Skeleton className="h-4 w-32 mb-1" />
-                                                                <Skeleton className="h-3 w-20" />
-                                                            </div>
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Sản phẩm</TableHead>
+                                            <TableHead className="text-right">Đơn giá</TableHead>
+                                            <TableHead className="text-right">SL</TableHead>
+                                            <TableHead className="text-right">Tổng</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {[...Array(3)].map((_, index) => (
+                                            <TableRow key={index}>
+                                                <TableCell>
+                                                    <div className="flex items-center gap-2">
+                                                        <Skeleton className="w-10 h-10 rounded" />
+                                                        <div>
+                                                            <Skeleton className="h-4 w-32 mb-1" />
+                                                            <Skeleton className="h-3 w-20" />
                                                         </div>
-                                                    </TableCell>
-                                                    <TableCell className="text-right">
-                                                        <Skeleton className="h-4 w-16 ml-auto" />
-                                                    </TableCell>
-                                                    <TableCell className="text-right">
-                                                        <Skeleton className="h-4 w-8 ml-auto" />
-                                                    </TableCell>
-                                                    <TableCell className="text-right">
-                                                        <Skeleton className="h-4 w-20 ml-auto" />
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </div>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <Skeleton className="h-4 w-16 ml-auto" />
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <Skeleton className="h-4 w-8 ml-auto" />
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <Skeleton className="h-4 w-20 ml-auto" />
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
                             </CardContent>
                         </Card>
 
@@ -601,11 +599,12 @@ export default function OrderDetailPage() {
                                         <>
                                             {order.shippingAddress.name && <p className="text-maintext">Người nhận: {order.shippingAddress.name}</p>}
                                             {order.shippingAddress.phoneNumber && <p className="text-maintext">Số điện thoại: {order.shippingAddress.phoneNumber}</p>}
-                                            <p>
-                                                {order.shippingAddress.specificAddress && `${order.shippingAddress.specificAddress}, `}
-                                                {order.shippingAddress.wardName && `${order.shippingAddress.wardName}, `}
-                                                {order.shippingAddress.districtName && `${order.shippingAddress.districtName}, `}
-                                                {order.shippingAddress.provinceName && `${order.shippingAddress.provinceName}`}
+                                            <p className="text-maintext">
+                                                Địa chỉ:
+                                                {order.shippingAddress.specificAddress && `${order.shippingAddress.specificAddress}`}
+                                                {`, ${order.shippingAddress.wardName}` && `${order.shippingAddress.wardName}`}
+                                                {`, ${order.shippingAddress.districtName}` && `${order.shippingAddress.districtName}`}
+                                                {`, ${order.shippingAddress.provinceName}` && `${order.shippingAddress.provinceName}`}
                                             </p>
                                         </>
                                     )}
@@ -624,48 +623,46 @@ export default function OrderDetailPage() {
                             <CardTitle>Sản phẩm đã đặt</CardTitle>
                         </CardHeader>
                         <CardContent className="p-4">
-                            <div className="border rounded-[6px] overflow-hidden">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Sản phẩm</TableHead>
-                                            <TableHead className="text-right">Đơn giá</TableHead>
-                                            <TableHead className="text-right">SL</TableHead>
-                                            <TableHead className="text-right">Tổng</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {order.items.map((item: any, index: number) => (
-                                            <TableRow key={index}>
-                                                <TableCell>
-                                                    <div className="flex items-center gap-2">
-                                                        {item.product?.imageUrl && (
-                                                            <div className="w-10 h-10 rounded border overflow-hidden bg-gray-100">
-                                                                <img
-                                                                    src={item.product.imageUrl || "/placeholder.svg"}
-                                                                    alt={item.product.name || "Sản phẩm"}
-                                                                    className="w-full h-full object-cover"
-                                                                />
-                                                            </div>
-                                                        )}
-                                                        <div>
-                                                            <div className="font-medium text-sm">{item.product?.name || "Sản phẩm không rõ"}</div>
-                                                            <div className="text-xs text-maintext">
-                                                                {item.variant?.colorName && item.variant?.sizeName
-                                                                    ? `${item.variant.colorName} / ${item.variant.sizeName}`
-                                                                    : (item.variant?.colorName || item.variant?.sizeName) || "Không có biến thể"}
-                                                            </div>
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Sản phẩm</TableHead>
+                                        <TableHead className="text-right">Đơn giá</TableHead>
+                                        <TableHead className="text-right">SL</TableHead>
+                                        <TableHead className="text-right">Tổng</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {order.items.map((item: any, index: number) => (
+                                        <TableRow key={index}>
+                                            <TableCell>
+                                                <div className="flex items-center gap-2">
+                                                    {item.product?.imageUrl && (
+                                                        <div className="w-10 h-10 rounded border overflow-hidden bg-gray-100">
+                                                            <img
+                                                                src={item.product.imageUrl || "/placeholder.svg"}
+                                                                alt={item.product.name || "Sản phẩm"}
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    <div>
+                                                        <div className="font-medium text-sm">{item.product?.name || "Sản phẩm không rõ"}</div>
+                                                        <div className="text-xs text-maintext">
+                                                            {item.variant?.colorName && item.variant?.sizeName
+                                                                ? `${item.variant.colorName} / ${item.variant.sizeName}`
+                                                                : (item.variant?.colorName || item.variant?.sizeName)}
                                                         </div>
                                                     </div>
-                                                </TableCell>
-                                                <TableCell className="text-right">{formatCurrency(item.price)}</TableCell>
-                                                <TableCell className="text-right">{item.quantity}</TableCell>
-                                                <TableCell className="text-right">{formatCurrency(item.price * item.quantity)}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="text-right">{formatCurrency(item.price)}</TableCell>
+                                            <TableCell className="text-right">{item.quantity}</TableCell>
+                                            <TableCell className="text-right">{formatCurrency(item.price * item.quantity)}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
                         </CardContent>
                     </Card>
 
@@ -725,7 +722,7 @@ export default function OrderDetailPage() {
                                 </SelectContent>
                             </Select>
                         </div>
-                        
+
                         <div>
                             <label className="text-sm font-bold mb-2 block">Trạng thái thanh toán</label>
                             <Select value={paymentStatusToUpdate} onValueChange={setPaymentStatusToUpdate}>
@@ -791,7 +788,7 @@ export default function OrderDetailPage() {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4 mb-6">
+                        <div className="grid grid-cols-2 gap-4 mb-4">
                             <div>
                                 <h3 className="font-semibold mb-2">Thông tin khách hàng:</h3>
                                 {typeof order.customer === 'object' ? (
@@ -847,7 +844,7 @@ export default function OrderDetailPage() {
                                                 <div className="text-sm text-maintext">
                                                     {item.variant?.colorName && item.variant?.sizeName
                                                         ? `${item.variant.colorName} / ${item.variant.sizeName}`
-                                                        : (item.variant?.colorName || item.variant?.sizeName) || "Không có biến thể"}
+                                                        : (item.variant?.colorName || item.variant?.sizeName)}
                                                 </div>
                                             </div>
                                         </TableCell>
