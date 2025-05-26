@@ -64,7 +64,7 @@ export const StatSummary = () => {
         title="Doanh thu tháng"
         value="897,521,000 đ"
         icon={mdiCashMultiple}
-        iconColor="text-green-600"
+        iconColor="text-primary"
         bgColor="bg-green-100"
         percentage="8.2%"
         increasing={true}

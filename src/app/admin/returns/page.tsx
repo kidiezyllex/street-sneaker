@@ -137,7 +137,7 @@ export default function ReturnsPage() {
       case 'CHO_XU_LY':
         return <Badge variant="outline" className="bg-yellow-50 text-yellow-600 border-yellow-200">Chờ xử lý</Badge>;
       case 'DA_HOAN_TIEN':
-        return <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">Đã hoàn tiền</Badge>;
+        return <Badge variant="outline" className="bg-green-50 text-primary border-green-200">Đã hoàn tiền</Badge>;
       case 'DA_HUY':
         return <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200">Đã hủy</Badge>;
       default:
@@ -524,7 +524,7 @@ function ReturnDetailContent({
                 {returnData.status === 'CHO_XU_LY' ? (
                   <Badge variant="outline" className="bg-yellow-50 text-yellow-600 border-yellow-200">Chờ xử lý</Badge>
                 ) : returnData.status === 'DA_HOAN_TIEN' ? (
-                  <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">Đã hoàn tiền</Badge>
+                  <Badge variant="outline" className="bg-green-50 text-primary border-green-200">Đã hoàn tiền</Badge>
                 ) : (
                   <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200">Đã hủy</Badge>
                 )}
@@ -532,7 +532,7 @@ function ReturnDetailContent({
             </div>
             <div className="col-span-2">
               <p className="text-sm text-maintext">Tổng tiền hoàn trả</p>
-              <p className="font-medium text-lg text-green-600">{formatCurrency(returnData.totalRefund)}</p>
+              <p className="font-medium text-lg text-primary">{formatCurrency(returnData.totalRefund)}</p>
             </div>
           </div>
         </div>

@@ -68,7 +68,7 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-gray-700 dark:text-gray-300 font-medium">Email</FormLabel>
+              <FormLabel className="text-maintext dark:text-gray-300 font-medium">Email</FormLabel>
               <FormControl>
                 <Input
                   type="email"
@@ -86,7 +86,7 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-gray-700 dark:text-gray-300 font-medium">Mật khẩu</FormLabel>
+              <FormLabel className="text-maintext dark:text-gray-300 font-medium">Mật khẩu</FormLabel>
               <FormControl>
                 <div className="relative">
                   <Input
@@ -98,7 +98,7 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
                   <button
                     type="button"
                     onClick={togglePasswordVisibility}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-maintext hover:text-gray-700 focus:outline-none"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-maintext hover:text-maintext focus:outline-none"
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -175,7 +175,7 @@ export default function AuthPage() {
                   <span className="absolute -bottom-1 left-0 w-12 h-1 bg-gradient-to-r from-primary to-secondary rounded-full"></span>
                 </span>
               </CardTitle>
-              <CardDescription className="text-gray-600 dark:text-maintext pt-3">
+              <CardDescription className="text-maintext dark:text-maintext pt-3">
                 Đăng nhập để tiếp tục mua sắm và theo dõi đơn hàng của bạn
               </CardDescription>
             </CardHeader>

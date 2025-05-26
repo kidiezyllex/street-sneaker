@@ -83,7 +83,7 @@ function PasswordStrengthIndicator({ password }: { password: string }) {
           style={{ width: `${Math.min(strength, 100)}%` }}
         ></div>
       </div>
-      <p className="text-xs mt-1 text-gray-600 dark:text-maintext">
+      <p className="text-xs mt-1 text-maintext dark:text-maintext">
         {message}
       </p>
     </div>
@@ -133,7 +133,7 @@ function ChangePasswordForm() {
           name="oldPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-gray-700 dark:text-gray-300 font-medium">Mật khẩu hiện tại</FormLabel>
+              <FormLabel className="text-maintext dark:text-gray-300 font-medium">Mật khẩu hiện tại</FormLabel>
               <FormControl>
                 <div className="relative">
                   <Input
@@ -145,7 +145,7 @@ function ChangePasswordForm() {
                   <button
                     type="button"
                     onClick={() => setShowOldPassword(!showOldPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-maintext hover:text-gray-700 focus:outline-none"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-maintext hover:text-maintext focus:outline-none"
                   >
                     {showOldPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -161,7 +161,7 @@ function ChangePasswordForm() {
           name="newPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-gray-700 dark:text-gray-300 font-medium">Mật khẩu mới</FormLabel>
+              <FormLabel className="text-maintext dark:text-gray-300 font-medium">Mật khẩu mới</FormLabel>
               <FormControl>
                 <div className="relative">
                   <Input
@@ -173,7 +173,7 @@ function ChangePasswordForm() {
                   <button
                     type="button"
                     onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-maintext hover:text-gray-700 focus:outline-none"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-maintext hover:text-maintext focus:outline-none"
                   >
                     {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -190,7 +190,7 @@ function ChangePasswordForm() {
           name="confirmPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-gray-700 dark:text-gray-300 font-medium">Xác nhận mật khẩu mới</FormLabel>
+              <FormLabel className="text-maintext dark:text-gray-300 font-medium">Xác nhận mật khẩu mới</FormLabel>
               <FormControl>
                 <div className="relative">
                   <Input
@@ -202,7 +202,7 @@ function ChangePasswordForm() {
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-maintext hover:text-gray-700 focus:outline-none"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-maintext hover:text-maintext focus:outline-none"
                   >
                     {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -267,7 +267,7 @@ export default function ChangePasswordPage() {
       >
         <div className="mb-8 flex flex-col items-center text-center">
           <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Đổi mật khẩu</h1>
-          <p className="text-gray-600 dark:text-maintext max-w-md">
+          <p className="text-maintext dark:text-maintext max-w-md">
             Cập nhật mật khẩu mới để bảo vệ tài khoản của bạn
           </p>
         </div>

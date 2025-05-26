@@ -299,7 +299,7 @@ export const NewArrivals = () => {
 
             </span>
           </h2>
-          <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p className="text-maintext dark:text-gray-300 max-w-2xl mx-auto">
             Khám phá bộ sưu tập giày mới nhất với công nghệ tiên tiến và thiết kế hiện đại
           </p>
         </motion.div>

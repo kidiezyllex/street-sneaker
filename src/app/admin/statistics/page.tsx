@@ -241,7 +241,7 @@ export default function StatisticsPage() {
 
   const formatPercentChange = (value: number) => {
     return value > 0
-      ? <span className="text-green-600">+{value.toFixed(2)}%</span>
+      ? <span className="text-primary">+{value.toFixed(2)}%</span>
       : <span className="text-red-600">{value.toFixed(2)}%</span>;
   };
 
@@ -267,9 +267,9 @@ export default function StatisticsPage() {
                 <Icon
                   path={change >= 0 ? mdiTrendingUp : mdiTrendingUp}
                   size={0.6}
-                  className={change >= 0 ? 'text-green-600' : 'text-red-600'}
+                  className={change >= 0 ? 'text-primary' : 'text-red-600'}
                 />
-                <span className={`text-sm ml-1 ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <span className={`text-sm ml-1 ${change >= 0 ? 'text-primary' : 'text-red-600'}`}>
                   {Math.abs(change).toFixed(1)}% {change >= 0 ? 'tăng' : 'giảm'}
                 </span>
               </div>
@@ -332,7 +332,7 @@ export default function StatisticsPage() {
                 title="Tổng doanh thu"
                 value={formatCurrency(clientRevenueReport.data?.data?.total || 0)}
                 icon={mdiCashMultiple}
-                iconColor="text-green-600"
+                iconColor="text-primary"
                 bgColor="bg-green-100"
                 change={clientRevenueReport.data?.data?.previousPeriod?.percentChange || 0}
               />

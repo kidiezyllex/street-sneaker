@@ -33,7 +33,7 @@ export const OutOfStockProducts = () => {
     >
       <Card className="h-full">
         <CardHeader className="pb-2">
-          <CardTitle className='text-lg font-medium text-gray-700 mb-2'>Sản phẩm hết hàng</CardTitle>
+          <CardTitle className='text-lg font-medium text-maintext mb-2'>Sản phẩm hết hàng</CardTitle>
         </CardHeader>
         <CardContent>
           {outOfStockProducts.length === 0 ? (

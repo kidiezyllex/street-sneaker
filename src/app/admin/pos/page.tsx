@@ -86,14 +86,30 @@ import { usePosStore } from '@/stores/posStore';
 import { useCreatePOSOrder } from '@/hooks/order';
 import { IPOSOrderCreateRequest } from '@/interface/request/order';
 import { usePOSCartStore, POSCartItem } from '@/stores/usePOSCartStore';
+import { useAccounts } from '@/hooks/account';
+import { IAccount } from '@/interface/response/account';
 
 import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import { RobotoRegular } from "@/fonts/Roboto-Regular";
 import { CustomScrollArea } from '@/components/ui/custom-scroll-area';
 import { toPng } from 'html-to-image';
 import { useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
+
+// QR Code Component
+const QRCodeComponent = ({ value, size = 200 }: { value: string; size?: number }) => {
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(value)}`;
+  
+  return (
+    <Image
+      src={qrCodeUrl}
+      alt="QR Code"
+      width={size}
+      height={size}
+      className="border border-gray-200 rounded"
+    />
+  );
+};
 
 interface ApiVariant {
   _id: string;
@@ -116,24 +132,6 @@ interface ApiProduct {
   status?: string;
   createdAt: string;
 }
-
-// Using POSCartItem from the store instead of local interface
-
-interface IVoucherData {
-  _id: string;
-  code: string;
-  name: string;
-  type: 'PERCENTAGE' | 'FIXED_AMOUNT';
-  value: number;
-  quantity: number;
-  usedCount: number;
-  startDate: string;
-  endDate: string;
-  minOrderValue: number;
-  status: string;
-  maxValue?: number;
-}
-
 interface InvoiceShopInfo {
   name: string;
   address: string;
@@ -176,7 +174,6 @@ export default function POSPage() {
   const [selectedProduct, setSelectedProduct] = useState<ApiProduct | null>(null);
   const [selectedApiVariant, setSelectedApiVariant] = useState<ApiVariant | null>(null);
 
-  // Using POS Cart Store
   const {
     items: cartItems,
     appliedDiscount,
@@ -197,7 +194,10 @@ export default function POSPage() {
   const [showCheckoutDialog, setShowCheckoutDialog] = useState<boolean>(false);
   const [customerName, setCustomerName] = useState<string>('');
   const [customerPhone, setCustomerPhone] = useState<string>('');
+  const [selectedUserId, setSelectedUserId] = useState<string>('guest');
   const [checkoutIsLoading, setCheckoutIsLoading] = useState<boolean>(false);
+  const [showPaymentSuccessModal, setShowPaymentSuccessModal] = useState<boolean>(false);
+  const [transferPaymentCompleted, setTransferPaymentCompleted] = useState<boolean>(false);
   const [pagination, setPagination] = useState({ page: 1, limit: 6 });
   const [filters, setFilters] = useState<IProductFilter>({ status: 'HOAT_DONG' });
   const [sortOption, setSortOption] = useState<string>('newest');
@@ -221,6 +221,11 @@ export default function POSPage() {
 
   const { mutate: incrementVoucherUsageMutation } = useIncrementVoucherUsage();
 
+  const { data: usersData, isLoading: isLoadingUsers } = useAccounts({ 
+    role: 'CUSTOMER', 
+    status: 'HOAT_DONG',
+    limit: 100 
+  });
   useEffect(() => {
     const timerId = setTimeout(() => {
       setIsSearching(searchQuery.length > 0);
@@ -598,8 +603,7 @@ export default function POSPage() {
         wardId: 'N/A',
         specificAddress: 'Tại quầy'
       },
-      paymentMethod: paymentMethod === 'cash' ? 'CASH' :
-        (paymentMethod === 'card' || paymentMethod === 'transfer') ? 'BANK_TRANSFER' : 'CASH',
+      paymentMethod: paymentMethod === 'cash' ? 'CASH' : 'BANK_TRANSFER',
       orderStatus: "HOAN_THANH",
       discount: appliedDiscount,
       voucher: appliedVoucher?._id || '',
@@ -666,7 +670,7 @@ export default function POSPage() {
           total: totalAmount,
           cashReceived: paymentMethod === 'cash' ? cashReceivedNum : totalAmount,
           changeGiven: currentChangeDue,
-          paymentMethod: paymentMethod === 'cash' ? 'Tiền mặt' : paymentMethod === 'card' ? 'Thẻ tín dụng' : 'Chuyển khoản',
+          paymentMethod: paymentMethod === 'cash' ? 'Tiền mặt' : 'Chuyển khoản',
         };
         setCurrentInvoiceData(invoiceData);
         setShowInvoiceDialog(true);
@@ -675,8 +679,10 @@ export default function POSPage() {
         clearCartStore();
         setCustomerName('');
         setCustomerPhone('');
+        setSelectedUserId('guest');
         setPaymentMethod('cash');
         setCashReceived('');
+        setTransferPaymentCompleted(false);
         setShowCheckoutDialog(false);
 
       } else {
@@ -695,7 +701,25 @@ export default function POSPage() {
       return;
     }
     setCashReceived('');
+    setSelectedUserId('guest');
+    setCustomerName('');
+    setCustomerPhone('');
+    setTransferPaymentCompleted(false);
     setShowCheckoutDialog(true);
+  };
+
+  const handleUserSelect = (userId: string) => {
+    setSelectedUserId(userId);
+    if (userId && userId !== 'guest' && userId !== 'loading' && userId !== 'no-customers' && usersData?.data?.accounts) {
+      const selectedUser = usersData.data.accounts.find((user: IAccount) => user._id === userId);
+      if (selectedUser) {
+        setCustomerName(selectedUser.fullName);
+        setCustomerPhone(selectedUser.phoneNumber || '');
+      }
+    } else {
+      setCustomerName('');
+      setCustomerPhone('');
+    }
   };
 
   useEffect(() => {
@@ -821,7 +845,7 @@ export default function POSPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-maintext mb-1">Doanh số hôm nay</p>
-                <p className="text-xl font-semibold !text-[#374151]/80">{formatCurrency(stats.dailySales)}</p>
+                <p className="text-xl font-semibold text-maintext">{formatCurrency(stats.dailySales)}</p>
               </div>
               <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
                 <Icon path={mdiCashRegister} size={1} className="text-primary" />
@@ -833,7 +857,7 @@ export default function POSPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-maintext mb-1">Tổng đơn hàng</p>
-                <p className="text-xl font-semibold !text-[#374151]/80">{stats.totalOrders} đơn</p>
+                <p className="text-xl font-semibold text-maintext">{stats.totalOrders} đơn</p>
               </div>
               <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
                 <Icon path={mdiReceiptOutline} size={1} className="text-blue-500" />
@@ -845,7 +869,7 @@ export default function POSPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-maintext mb-1">Giá trị trung bình</p>
-                <p className="text-xl font-semibold !text-[#374151]/80">{formatCurrency(stats.averageOrder)}</p>
+                <p className="text-xl font-semibold text-maintext">{formatCurrency(stats.averageOrder)}</p>
               </div>
               <div className="h-10 w-10 rounded-full bg-green-50 flex items-center justify-center">
                 <Icon path={mdiTag} size={1} className="text-green-500" />
@@ -857,7 +881,7 @@ export default function POSPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-maintext mb-1">Đơn chờ xử lý</p>
-                <p className="text-xl font-semibold !text-[#374151]/80">{stats.pendingOrders} đơn</p>
+                <p className="text-xl font-semibold text-maintext">{stats.pendingOrders} đơn</p>
               </div>
               <div className="h-10 w-10 rounded-full bg-amber-50 flex items-center justify-center">
                 <Icon path={mdiClockOutline} size={1} className="text-amber-500" />
@@ -901,7 +925,7 @@ export default function POSPage() {
                     'whitespace-nowrap px-4 py-2 rounded-[6px] text-sm font-medium transition-all duration-200',
                     activeCategoryName === category.name
                       ? 'bg-primary text-white shadow-sm'
-                      : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:text-primary'
+                      : 'bg-gray-50 text-maintext hover:bg-gray-100 hover:text-primary'
                   )}
                   onClick={() => {
                     setActiveCategoryName(category.name);
@@ -944,7 +968,7 @@ export default function POSPage() {
 
                     {uniqueColorsForSelectedProduct.length > 0 && (
                       <div className="mt-6">
-                        <h3 className="text-sm font-medium mb-3 !text-[#374151]/80">Màu sắc:</h3>
+                        <h3 className="text-sm font-medium mb-3 text-maintext">Màu sắc:</h3>
                         <div className="flex gap-2 flex-wrap">
                           {uniqueColorsForSelectedProduct.map((color) => (
                             <button
@@ -967,17 +991,17 @@ export default function POSPage() {
 
 
                   <div className="md:w-1/2">
-                    <h2 className="text-2xl font-bold !text-[#374151]/80">{selectedProduct.name}</h2>
+                    <h2 className="text-2xl font-bold text-maintext">{selectedProduct.name}</h2>
                     <p className="text-maintext mb-4">{getBrandName(selectedProduct.brand)}</p>
 
                     {selectedProduct.description && (
-                      <p className="text-gray-600 mb-4 text-sm">{selectedProduct.description}</p>
+                      <p className="text-maintext mb-4 text-sm">{selectedProduct.description}</p>
                     )}
 
 
                     {availableSizesForSelectedColor.length > 0 && selectedApiVariant?.colorId && (
                       <div className="mb-4">
-                        <h3 className="text-sm font-medium mb-3 !text-[#374151]/80">Kích thước:</h3>
+                        <h3 className="text-sm font-medium mb-3 text-maintext">Kích thước:</h3>
                         <div className="flex flex-wrap gap-2">
                           {availableSizesForSelectedColor.map((size) => {
                             const variantForThisSize = selectedProduct.variants.find(v => v.colorId?._id === selectedApiVariant.colorId?._id && v.sizeId?._id === size._id);
@@ -989,7 +1013,7 @@ export default function POSPage() {
                                   'px-4 py-2 rounded-[6px] text-sm font-medium transition-all duration-200',
                                   selectedApiVariant?.sizeId?._id === size._id
                                     ? 'bg-primary text-white shadow-sm'
-                                    : 'bg-white text-gray-700 border border-gray-200 hover:border-primary/50 hover:text-primary',
+                                    : 'bg-white text-maintext border border-gray-200 hover:border-primary/50 hover:text-primary',
                                   stockForThisSize === 0 && 'opacity-50 cursor-not-allowed'
                                 )}
                                 onClick={() => handleSizeSelectFromDetail(size._id)}
@@ -1008,16 +1032,16 @@ export default function POSPage() {
                     {selectedApiVariant && (
                       <>
                         <div className="mb-4">
-                          <h3 className="text-sm font-medium mb-1 !text-[#374151]/80">Giá:</h3>
+                          <h3 className="text-sm font-medium mb-1 text-maintext">Giá:</h3>
                           <p className="text-2xl font-bold text-primary">
                             {formatCurrency(selectedApiVariant.price)}
                           </p>
                         </div>
 
                         <div className="mb-4">
-                          <h3 className="text-sm font-medium mb-1 !text-[#374151]/80">Số lượng trong kho:</h3>
+                          <h3 className="text-sm font-medium mb-1 text-maintext">Số lượng trong kho:</h3>
                           <div className="flex items-center gap-2">
-                            <p className="text-gray-600">{selectedApiVariant.stock} sản phẩm</p>
+                            <p className="text-maintext">{selectedApiVariant.stock} sản phẩm</p>
                             <Badge variant={selectedApiVariant.stock > 10 ? "secondary" : selectedApiVariant.stock > 0 ? "outline" : "destructive"}>
                               {selectedApiVariant.stock > 10 ? "Còn hàng" : selectedApiVariant.stock > 0 ? "Sắp hết" : "Hết hàng"}
                             </Badge>
@@ -1100,7 +1124,7 @@ export default function POSPage() {
                               </div>
                               <div className="p-4">
                                 <h3
-                                  className="font-medium !text-[#374151]/80 group-hover:text-primary transition-colors truncate cursor-pointer"
+                                  className="font-medium text-maintext group-hover:text-primary transition-colors truncate cursor-pointer"
                                   onClick={() => handleProductSelect(product)}
                                 >
                                   {product.name}
@@ -1189,12 +1213,12 @@ export default function POSPage() {
                         <table className="w-full text-sm">
                           <thead>
                             <tr className="bg-muted/50">
-                              <th className="text-left py-3 px-4 font-medium !text-[#374151]/80">Sản phẩm</th>
-                              <th className="text-left py-3 px-4 font-medium !text-[#374151]/80">Thương hiệu</th>
-                              <th className="text-left py-3 px-4 font-medium !text-[#374151]/80">Giá</th>
-                              <th className="text-left py-3 px-4 font-medium !text-[#374151]/80">Màu sắc</th>
-                              <th className="text-left py-3 px-4 font-medium !text-[#374151]/80">Kho</th>
-                              <th className="text-center py-3 px-4 font-medium !text-[#374151]/80">Thao tác</th>
+                              <th className="text-left py-3 px-4 font-medium text-maintext">Sản phẩm</th>
+                              <th className="text-left py-3 px-4 font-medium text-maintext">Thương hiệu</th>
+                              <th className="text-left py-3 px-4 font-medium text-maintext">Giá</th>
+                              <th className="text-left py-3 px-4 font-medium text-maintext">Màu sắc</th>
+                              <th className="text-left py-3 px-4 font-medium text-maintext">Kho</th>
+                              <th className="text-center py-3 px-4 font-medium text-maintext">Thao tác</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -1218,10 +1242,10 @@ export default function POSPage() {
                                           className="object-contain"
                                         />
                                       </div>
-                                      <span className="font-medium !text-[#374151]/80 truncate max-w-[150px]">{product.name}</span>
+                                      <span className="font-medium text-maintext truncate max-w-[150px]">{product.name}</span>
                                     </div>
                                   </td>
-                                  <td className="py-3 px-4 text-gray-600 truncate max-w-[100px]" onClick={() => handleProductSelect(product)}>{getBrandName(product.brand)}</td>
+                                  <td className="py-3 px-4 text-maintext truncate max-w-[100px]" onClick={() => handleProductSelect(product)}>{getBrandName(product.brand)}</td>
                                   <td className="py-3 px-4 text-primary font-medium" onClick={() => handleProductSelect(product)}>{firstVariant ? formatCurrency(firstVariant.price) : 'N/A'}</td>
                                   <td className="py-3 px-4" onClick={() => handleProductSelect(product)}>
                                     {product.variants.length > 0 && (
@@ -1502,7 +1526,7 @@ export default function POSPage() {
                         </div>
                         <div className="flex-1">
                           <div className="flex justify-between">
-                            <h3 className="font-medium !text-[#374151]/80 truncate max-w-[150px]">{item.name}</h3>
+                            <h3 className="font-medium text-maintext truncate max-w-[150px]">{item.name}</h3>
                             <button
                               className="text-red-500 hover:text-red-600 transition-colors"
                               onClick={() => removeCartItem(item.id)}
@@ -1574,7 +1598,7 @@ export default function POSPage() {
 
 
               <div className="space-y-3 mb-4">
-                <div className="flex justify-between text-gray-600">
+                <div className="flex justify-between text-maintext">
                   <span>Tạm tính:</span>
                   <span>{formatCurrency(calculateSubtotal())}</span>
                 </div>
@@ -1585,7 +1609,7 @@ export default function POSPage() {
                   </div>
                 )}
                 <div className="flex justify-between font-medium text-lg pt-3 border-t border-border">
-                  <span className="!text-[#374151]/80">Tổng:</span>
+                  <span className="text-maintext">Tổng:</span>
                   <span className="text-primary">{formatCurrency(calculateTotal())}</span>
                 </div>
               </div>
@@ -1614,147 +1638,284 @@ export default function POSPage() {
 
       <Dialog open={showCheckoutDialog} onOpenChange={setShowCheckoutDialog}>
         <DialogContent className="sm:max-w-4xl">
-          <DialogHeader>
-            <DialogTitle className="!text-[#374151]/80">Xác nhận thanh toán</DialogTitle>
-            <DialogDescription>
-              Tổng tiền: {formatCurrency(totalAmount)}. Hoàn tất thông tin thanh toán để hoàn thành đơn hàng.
-            </DialogDescription>
-          </DialogHeader>
+          <ScrollArea className="max-h-[70vh] p-1">
+            <DialogHeader>
+              <DialogTitle>Xác nhận thanh toán</DialogTitle>
+            </DialogHeader>
 
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="customer-name" className="text-right text-sm !text-[#374151]/80">
-                Khách hàng
-              </label>
-              <Input
-                id="customer-name"
-                placeholder="Tên khách hàng"
-                className="col-span-3"
-                value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="customer-phone" className="text-right text-sm !text-[#374151]/80">
-                Số điện thoại
-              </label>
-              <Input
-                id="customer-phone"
-                placeholder="Số điện thoại"
-                className="col-span-3"
-                value={customerPhone}
-                onChange={(e) => setCustomerPhone(e.target.value)}
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="payment-method" className="text-right text-sm !text-[#374151]/80">
-                Thanh toán
-              </label>
-              <Select
-                value={paymentMethod}
-                onValueChange={(value) => {
-                  setPaymentMethod(value);
-                  if (value !== 'cash') {
-                    setCashReceived(totalAmount.toString());
-                  } else {
-                    setCashReceived('');
-                  }
-                }}
-              >
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Chọn phương thức thanh toán" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="cash">
-                    <div className="flex items-center gap-2">
-                      <Icon path={mdiCashMultiple} size={0.8} className="text-maintext" />
-                      <span>Tiền mặt</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="card">
-                    <div className="flex items-center gap-2">
-                      <Icon path={mdiCreditCardOutline} size={0.8} className="text-maintext" />
-                      <span>Thẻ tín dụng</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="transfer">
-                    <div className="flex items-center gap-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-maintext"><path d="M4 10V4a2 2 0 0 1 2-2h8.5L20 7.5V20a2 2 0 0 1-2 2H4" /><polyline points="14 2 14 8 20 8" /><path d="m10 18 3-3-3-3" /><path d="M4 18v-1a2 2 0 0 1 2-2h6" /></svg>
-                      <span>Chuyển khoản</span>
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {paymentMethod === 'cash' && (
+            <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
-                <label htmlFor="cash-received" className="text-right text-sm !text-[#374151]/80">
-                  Tiền khách đưa
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <label htmlFor="user-select" className="text-right text-sm text-maintext cursor-help font-semibold">
+                        Chọn khách hàng
+                      </label>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <div className="text-center">
+                        <p>Chọn khách hàng có sẵn hoặc để trống để nhập thủ công</p>
+                        {usersData?.data?.accounts && (
+                          <p className="text-xs text-gray-400 mt-1">
+                            Có {usersData.data.accounts.length} khách hàng trong hệ thống
+                          </p>
+                        )}
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                <Select
+                  value={selectedUserId}
+                  onValueChange={handleUserSelect}
+                >
+                  <SelectTrigger className="col-span-3 h-12">
+                    <SelectValue placeholder={`Chọn khách hàng (${usersData?.data?.accounts?.length || 0} khách hàng)`} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="guest">
+                      <div className="flex items-center gap-3 py-1">
+                        <Icon path={mdiAccount} size={0.8} className="text-gray-400" />
+                        <div className="flex flex-col items-start">
+                          <span className="text-xs text-maintext font-semibold">Khách lẻ</span>
+                          <span className="text-xs text-maintext">Nhập thông tin thủ công</span>
+                        </div>
+                      </div>
+                    </SelectItem>
+                    {isLoadingUsers ? (
+                      <SelectItem value="loading" disabled>
+                        <div className="flex items-center gap-3 py-2">
+                          <div className="animate-spin h-4 w-4 border-2 border-blue-300 border-t-blue-600 rounded-full"></div>
+                          <span className="text-gray-600">Đang tải danh sách khách hàng...</span>
+                        </div>
+                      </SelectItem>
+                    ) : usersData?.data?.accounts && usersData.data.accounts.length > 0 ? (
+                      usersData.data.accounts.map((user: IAccount) => (
+                        <SelectItem key={user._id} value={user._id}>
+                          <div className="flex items-center gap-3 py-1">
+                            <Icon path={mdiAccount} size={0.8} className="text-primary" />
+                            <div className="flex flex-col min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="text-primary font-semibold truncate">{user.fullName}</span>
+                                {(user as any).code && (
+                                  <span className="px-2 py-0.5 text-xs font-mono bg-green-50 text-green-600 rounded border border-green-200">
+                                    {(user as any).code}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2 text-xs text-maintext mt-0.5">
+                                {user.phoneNumber ? (
+                                  <span className="flex items-center gap-1 text-maintext">
+                                    📱 {user.phoneNumber}
+                                  </span>
+                                ) : (
+                                  <span className="flex items-center gap-1 text-maintext">
+                                    ✉️ {user.email}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="no-customers" disabled>
+                        <div className="flex items-center gap-3 py-2">
+                          <Icon path={mdiAccount} size={0.8} className="text-gray-400" />
+                          <div className="flex flex-col">
+                            <span className="text-maintext font-medium">Không có khách hàng nào</span>
+                            <span className="text-xs text-gray-400">Vui lòng thêm khách hàng mới</span>
+                          </div>
+                        </div>
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="customer-name" className="text-right text-sm text-maintext font-semibold">
+                  Tên khách hàng
                 </label>
                 <Input
-                  id="cash-received"
-                  type="number"
-                  placeholder="Nhập số tiền khách đưa"
+                  id="customer-name"
+                  placeholder="Tên khách hàng"
                   className="col-span-3"
-                  value={cashReceived}
-                  onChange={(e) => setCashReceived(e.target.value)}
-                  min={0}
+                  value={customerName}
+                  onChange={(e) => {
+                    setCustomerName(e.target.value);
+                    // Nếu người dùng nhập thủ công thì reset selected user
+                    if (selectedUserId && selectedUserId !== 'guest') {
+                      setSelectedUserId('guest');
+                    }
+                  }}
                 />
               </div>
-            )}
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm text-gray-600">
-                <span>Số lượng sản phẩm:</span>
-                <span>{cartItems.reduce((sum, item) => sum + item.quantity, 0)}</span>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="customer-phone" className="text-right text-sm text-maintext font-semibold">
+                  Số điện thoại
+                </label>
+                <Input
+                  id="customer-phone"
+                  placeholder="Số điện thoại"
+                  className="col-span-3"
+                  value={customerPhone}
+                  onChange={(e) => {
+                    setCustomerPhone(e.target.value);
+                    // Nếu người dùng nhập thủ công thì reset selected user
+                    if (selectedUserId && selectedUserId !== 'guest') {
+                      setSelectedUserId('guest');
+                    }
+                  }}
+                />
               </div>
-              <div className="flex justify-between text-sm text-gray-600">
-                <span>Tạm tính:</span>
-                <span>{formatCurrency(calculateSubtotal())}</span>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="payment-method" className="text-right text-sm text-maintext font-semibold">
+                  Thanh toán
+                </label>
+                <Select
+                  value={paymentMethod}
+                  onValueChange={(value) => {
+                    setPaymentMethod(value);
+                    setTransferPaymentCompleted(false);
+                    if (value === 'transfer') {
+                      setCashReceived(totalAmount.toString());
+                    } else {
+                      setCashReceived('');
+                    }
+                  }}
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Chọn phương thức thanh toán" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="cash">
+                      <div className="flex items-center gap-2">
+                        <Icon path={mdiCashMultiple} size={0.8} className="text-maintext" />
+                        <span>Tiền mặt</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="transfer">
+                      <div className="flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-maintext"><path d="M4 10V4a2 2 0 0 1 2-2h8.5L20 7.5V20a2 2 0 0 1-2 2H4" /><polyline points="14 2 14 8 20 8" /><path d="m10 18 3-3-3-3" /><path d="M4 18v-1a2 2 0 0 1 2-2h6" /></svg>
+                        <span>Chuyển khoản</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              {appliedVoucher && appliedDiscount > 0 && (
-                <div className="flex justify-between text-sm text-primary">
-                  <span>Giảm giá ({appliedVoucher.code}):</span>
-                  <span>-{formatCurrency(calculateDiscount())}</span>
-                </div>
-              )}
-              <div className="flex justify-between font-medium text-base pt-2 border-t border-border">
-                <span className="!text-[#374151]/80">Tổng thanh toán:</span>
-                <span className="text-primary">{formatCurrency(totalAmount)}</span>
-              </div>
-              {paymentMethod === 'cash' && !isNaN(cashReceivedNum) && cashReceivedNum >= totalAmount && changeDue >= 0 && (
-                <div className="flex justify-between font-medium text-base pt-2">
-                  <span className="!text-[#374151]/80">Tiền thừa trả khách:</span>
-                  <span className="text-green-600">{formatCurrency(changeDue)}</span>
-                </div>
-              )}
-            </div>
-          </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCheckoutDialog(false)}>
-              Hủy
-            </Button>
-            <Button
-              onClick={handleCheckout}
-              disabled={checkoutIsLoading || (paymentMethod === 'cash' && (cashReceived.toString() === '' || parseFloat(cashReceived.toString()) < totalAmount || isNaN(parseFloat(cashReceived.toString()))))}
-            >
-              {checkoutIsLoading ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Đang xử lý...
-                </>
-              ) : (
-                <>
-                  <Icon path={mdiCashRegister} size={0.8} className="mr-2" />
-                  Hoàn tất thanh toán
-                </>
+              {paymentMethod === 'cash' && (
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <label htmlFor="cash-received" className="text-right text-sm text-maintext font-semibold">
+                    Tiền khách đưa
+                  </label>
+                  <Input
+                    id="cash-received"
+                    type="number"
+                    placeholder="Nhập số tiền khách đưa"
+                    className="col-span-3"
+                    value={cashReceived}
+                    onChange={(e) => setCashReceived(e.target.value)}
+                    min={0}
+                  />
+                </div>
               )}
-            </Button>
-          </DialogFooter>
+
+              {paymentMethod === 'transfer' && (
+                <div className="grid grid-cols-1 gap-4">
+                  <div
+                    className="bg-gray-50 rounded-lg p-6 text-center"
+                    onClick={() => {
+                      if (!transferPaymentCompleted) {
+                        setTransferPaymentCompleted(true);
+                        setShowPaymentSuccessModal(true);
+                      }
+                    }}
+                    style={{ cursor: !transferPaymentCompleted ? 'pointer' : 'default' }}
+                  >
+                    <h3 className="text-lg font-semibold mb-4 text-maintext">Quét mã QR để thanh toán</h3>
+                    <div className="flex justify-center mb-4">
+                      <div className="bg-white p-4 rounded-lg shadow-sm border">
+                        <QRCodeComponent 
+                          value={`BANK_TRANSFER|970415|0123456789|STREET SNEAKER|${totalAmount}|Thanh toan don hang ${new Date().getTime()}`}
+                          size={200}
+                        />
+                      </div>
+                    </div>
+                    <div className="text-sm text-maintext space-y-1">
+                      <p><strong>Ngân hàng:</strong> Vietcombank</p>
+                      <p><strong>Số tài khoản:</strong> 0123456789</p>
+                      <p><strong>Chủ tài khoản:</strong> STREET SNEAKER</p>
+                      <p><strong>Số tiền:</strong> {formatCurrency(totalAmount)}</p>
+                      <p><strong>Nội dung:</strong> Thanh toan don hang {new Date().getTime()}</p>
+                    </div>
+                    {transferPaymentCompleted && (
+                      <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                        <div className="flex items-center justify-center gap-2 text-green-700">
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          <span className="font-medium">Thanh toán thành công!</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm text-maintext">
+                  <span className="text-maintext text-base">Số lượng sản phẩm:</span>
+                  <span className="text-maintext text-base">{cartItems.reduce((sum, item) => sum + item.quantity, 0)}</span>
+                </div>
+                <div className="flex justify-between text-sm text-maintext">
+                  <span className="text-base">Tạm tính:</span>
+                  <span className="text-base">{formatCurrency(calculateSubtotal())}</span>
+                </div>
+                {appliedVoucher && appliedDiscount > 0 && (
+                  <div className="flex justify-between text-sm text-primary">
+                    <span>Giảm giá ({appliedVoucher.code}):</span>
+                    <span>-{formatCurrency(calculateDiscount())}</span>
+                  </div>
+                )}
+                <div className="flex justify-between font-medium text-base pt-2 border-t border-border">
+                  <span className="text-maintext font-semibold">Tổng thanh toán:</span>
+                  <span className="text-primary font-semibold">{formatCurrency(totalAmount)}</span>
+                </div>
+                {paymentMethod === 'cash' && !isNaN(cashReceivedNum) && cashReceivedNum >= totalAmount && changeDue >= 0 && (
+                  <div className="flex justify-between font-medium text-base pt-2">
+                    <span className="text-maintext font-semibold">Tiền thừa trả khách:</span>
+                    <span className="text-primary font-semibold">{formatCurrency(changeDue)}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <DialogFooter className='pb-4'>
+              <Button variant="outline" onClick={() => setShowCheckoutDialog(false)}>
+                Hủy
+              </Button>
+              <Button
+                onClick={handleCheckout}
+                disabled={checkoutIsLoading || 
+                  (paymentMethod === 'cash' && (cashReceived.toString() === '' || parseFloat(cashReceived.toString()) < totalAmount || isNaN(parseFloat(cashReceived.toString())))) ||
+                  (paymentMethod === 'transfer' && !transferPaymentCompleted)}
+              >
+                {checkoutIsLoading ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Đang xử lý...
+                  </>
+                ) : (
+                  <>
+                    <Icon path={mdiCashRegister} size={0.8} className="mr-2" />
+                    Hoàn tất thanh toán
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </ScrollArea>
         </DialogContent>
       </Dialog>
 
@@ -1773,6 +1934,50 @@ export default function POSPage() {
         formatCurrency={formatCurrency}
         formatDateTimeForInvoice={formatDateTimeForInvoice}
       />
+
+      {/* Payment Success Modal */}
+      <Dialog open={showPaymentSuccessModal} onOpenChange={setShowPaymentSuccessModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-green-600">Thanh toán thành công!</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center py-6">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+              <svg className="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold text-maintext mb-2">Giao dịch hoàn tất</h3>
+            <p className="text-sm text-maintext text-center mb-4">
+              Chúng tôi đã nhận được thanh toán của bạn qua chuyển khoản.
+            </p>
+            <div className="bg-gray-50 rounded-lg p-4 w-full border">
+              <div className="text-sm space-y-1">
+                <div className="flex justify-between">
+                  <span>Số tiền:</span>
+                  <span className="font-medium">{formatCurrency(totalAmount)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Phương thức:</span>
+                  <span className="font-medium">Chuyển khoản</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Thời gian:</span>
+                  <span className="font-medium">{new Date().toLocaleTimeString('vi-VN')}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button 
+              className="w-full" 
+              onClick={() => setShowPaymentSuccessModal(false)}
+            >
+              Đóng
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -1827,7 +2032,7 @@ const VouchersListDialog = ({ open, onOpenChange, onSelectVoucher }: { open: boo
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-4xl">
         <DialogHeader>
-          <DialogTitle className="!text-[#374151]/80">Danh sách mã giảm giá</DialogTitle>
+          <DialogTitle className="text-maintext">Danh sách mã giảm giá</DialogTitle>
         </DialogHeader>
         <div className="max-h-[60vh] overflow-y-auto">
           {isLoading ? (
@@ -1912,10 +2117,8 @@ const InvoiceDialog = ({
 
   const handlePrintToPdf = async () => {
     try {
-      // Show processing indicator
       setIsProcessing(true);
 
-      // Display processing message
       const processingMsg = document.createElement("div");
       processingMsg.style.position = "fixed";
       processingMsg.style.top = "50%";
@@ -1929,7 +2132,6 @@ const InvoiceDialog = ({
       processingMsg.textContent = "Đang tạo PDF...";
       document.body.appendChild(processingMsg);
 
-      // Wait for state update to process
       await new Promise(resolve => setTimeout(resolve, 100));
 
       const input = invoiceRef.current;
@@ -1991,7 +2193,7 @@ const InvoiceDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[90vh] flex flex-col min-h-0">
         <DialogHeader>
-          <DialogTitle className="!text-[#374151]/80 text-center text-2xl font-semibold">Hoá đơn bán hàng</DialogTitle>
+          <DialogTitle className="text-maintext text-center text-2xl font-semibold">Hoá đơn bán hàng</DialogTitle>
         </DialogHeader>
         <CustomScrollArea className="flex-1 min-h-0 p-4 overflow-y-auto">
           <div ref={invoiceRef} className="p-4 bg-white" id="invoice-content" data-loaded={!!invoiceData}>

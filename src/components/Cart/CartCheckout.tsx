@@ -117,7 +117,7 @@ export const CartCheckout: React.FC<CartCheckoutProps> = ({ onClose }) => {
         
         <div className="space-y-4">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="name" className="block text-sm font-medium text-maintext">
               Họ tên người nhận
             </label>
             <Input
@@ -131,7 +131,7 @@ export const CartCheckout: React.FC<CartCheckoutProps> = ({ onClose }) => {
           </div>
 
           <div>
-            <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="phoneNumber" className="block text-sm font-medium text-maintext">
               Số điện thoại
             </label>
             <Input
@@ -145,7 +145,7 @@ export const CartCheckout: React.FC<CartCheckoutProps> = ({ onClose }) => {
           </div>
 
           <div>
-            <label htmlFor="specificAddress" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="specificAddress" className="block text-sm font-medium text-maintext">
               Địa chỉ cụ thể
             </label>
             <Input

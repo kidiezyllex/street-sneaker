@@ -462,15 +462,15 @@ export default function ProductDetail() {
             <table className="min-w-full">
               <tbody className="divide-y divide-gray-200">
                 <tr>
-                  <td className="py-2 pr-4 text-gray-600 w-1/3">Thương hiệu</td>
+                  <td className="py-2 pr-4 text-maintext w-1/3">Thương hiệu</td>
                   <td className="py-2 font-medium">{brandName}</td>
                 </tr>
                 <tr>
-                  <td className="py-2 pr-4 text-gray-600">Danh mục</td>
+                  <td className="py-2 pr-4 text-maintext">Danh mục</td>
                   <td className="py-2 font-medium">{categoryName}</td>
                 </tr>
                 <tr>
-                  <td className="py-2 pr-4 text-gray-600">Mã sản phẩm</td>
+                  <td className="py-2 pr-4 text-maintext">Mã sản phẩm</td>
                   <td className="py-2 font-medium">{product.code}</td>
                 </tr>
               </tbody>

@@ -69,7 +69,7 @@ export const Newsletter = () => {
             </motion.h2>
             
             <motion.p 
-              className="text-gray-600 dark:text-gray-300 mb-8 text-lg"
+              className="text-maintext dark:text-gray-300 mb-8 text-lg"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}

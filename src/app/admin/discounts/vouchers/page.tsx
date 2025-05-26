@@ -223,7 +223,7 @@ export default function VouchersPage() {
               >
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm text-gray-700 mb-2 font-semibold">
+                    <label className="block text-sm text-maintext mb-2 font-semibold">
                       Mã voucher
                     </label>
                     <Input
@@ -235,7 +235,7 @@ export default function VouchersPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-700 mb-2 font-semibold">
+                    <label className="block text-sm text-maintext mb-2 font-semibold">
                       Trạng thái
                     </label>
                     <Select value={filters.status || ''} onValueChange={(value) => handleFilterChange('status', value === 'all' ? undefined : value)}>
@@ -250,7 +250,7 @@ export default function VouchersPage() {
                     </Select>
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-700 mb-2 font-semibold">
+                    <label className="block text-sm text-maintext mb-2 font-semibold">
                       Thời gian
                     </label>
                     <div className="grid grid-cols-2 gap-2">
@@ -567,7 +567,7 @@ export default function VouchersPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-maintext">Giá trị giảm:</span>
-                    <span className="font-medium text-green-600">
+                    <span className="font-medium text-primary">
                       {formatCurrency(validationResult.data.discountValue)}
                     </span>
                   </div>

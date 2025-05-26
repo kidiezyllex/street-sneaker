@@ -312,15 +312,15 @@ export default function VNPayModal({
       </CardHeader>
       <CardContent className="space-y-2">
         <div className="flex justify-between">
-          <span className="text-gray-600">Mã đơn hàng:</span>
+          <span className="text-maintext">Mã đơn hàng:</span>
           <span className="font-medium text-maintext">{orderData.orderCode || orderData.orderId}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-600">Số tiền:</span>
+          <span className="text-maintext">Số tiền:</span>
           <span className="font-bold text-lg text-red-600">{formatPrice(orderData.amount)}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-600">Nội dung:</span>
+          <span className="text-maintext">Nội dung:</span>
           <span className="font-medium text-right max-w-[200px] truncate text-maintext">{orderData.orderInfo}</span>
         </div>
       </CardContent>
@@ -337,7 +337,7 @@ export default function VNPayModal({
          src="/images/vnpay-logo.png" alt="bank" width={500} height={500} className='h-16 object-contain w-auto' />
         </div>
         <h3 className="text-lg font-semibold mb-2">Thanh toán qua VNPay</h3>
-        <p className="text-gray-600">Chọn ngân hàng để thực hiện thanh toán</p>
+        <p className="text-maintext">Chọn ngân hàng để thực hiện thanh toán</p>
       </div>
 
       {renderOrderInfo()}
@@ -347,7 +347,7 @@ export default function VNPayModal({
           Tìm kiếm ngân hàng
         </Label>
         <div className="relative mb-4">
-          <Icon path={mdiMagnify} size={0.8} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <Icon path={mdiMagnify} size={0.8} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext" />
           <Input
             id="bank-search"
             placeholder="Tìm theo tên ngân hàng, mã ngân hàng..."
@@ -370,7 +370,7 @@ export default function VNPayModal({
         ) : (
           <div className="grid grid-cols-1 gap-3 max-h-80 overflow-y-auto border rounded-lg p-2">
             {filteredBanks.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-maintext">
                 Không tìm thấy ngân hàng nào
               </div>
             ) : (
@@ -390,7 +390,7 @@ export default function VNPayModal({
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="font-medium text-sm">{bank.shortName}</div>
-                      <div className="text-xs text-gray-500 truncate">{bank.name}</div>
+                      <div className="text-xs text-maintext truncate">{bank.name}</div>
                       <div className="text-xs text-blue-600">Mã: {bank.code}</div>
                     </div>
                   </div>
@@ -401,7 +401,7 @@ export default function VNPayModal({
         )}
       </div>
 
-      <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
+      <div className="flex items-center justify-center space-x-2 text-sm text-maintext">
         <Icon path={mdiShield} size={0.7} />
         <span>Giao dịch được bảo mật bởi VNPay</span>
       </div>
@@ -415,7 +415,7 @@ export default function VNPayModal({
           <Image src="/images/vnpay-logo.png" alt="bank" width={500} height={500} className='h-10 object-contain w-auto' />
         </div>
         <h3 className="text-lg font-semibold mb-2">Thông tin tài khoản</h3>
-        <p className="text-gray-600">Nhập thông tin tài khoản ngân hàng</p>
+        <p className="text-maintext">Nhập thông tin tài khoản ngân hàng</p>
       </div>
 
       {renderOrderInfo()}
@@ -433,7 +433,7 @@ export default function VNPayModal({
               </div>
               <div>
                 <div className="font-medium">{selectedBank.shortName}</div>
-                <div className="text-sm text-gray-500">{selectedBank.name}</div>
+                <div className="text-sm text-maintext">{selectedBank.name}</div>
               </div>
             </div>
           </CardContent>
@@ -461,7 +461,7 @@ export default function VNPayModal({
         )}
       </div>
 
-      <div className="flex items-center justify-center space-x-2 text-xs text-gray-500">
+      <div className="flex items-center justify-center space-x-2 text-xs text-maintext">
         <Icon path={mdiLock} size={0.7} />
         <span>Thông tin được mã hóa và bảo mật</span>
       </div>
@@ -473,11 +473,11 @@ export default function VNPayModal({
       <div className="text-center">
         <div className="flex items-center justify-center mb-4">
           <div className="bg-green-100 p-3 rounded-full">
-            <Icon path={mdiCellphone} size={1.5} className="text-green-600" />
+            <Icon path={mdiCellphone} size={1.5} className="text-primary" />
           </div>
         </div>
         <h3 className="text-lg font-semibold mb-2">Xác thực OTP</h3>
-        <p className="text-gray-600">Nhập mã OTP được gửi đến số điện thoại của bạn</p>
+        <p className="text-maintext">Nhập mã OTP được gửi đến số điện thoại của bạn</p>
       </div>
 
       {renderOrderInfo()}
@@ -487,7 +487,7 @@ export default function VNPayModal({
           <Icon path={mdiCellphone} size={1} className="text-blue-600" />
           <div>
             <p className="text-sm font-medium">Mã OTP đã được gửi đến</p>
-            <p className="text-sm text-gray-600">*******890</p>
+            <p className="text-sm text-maintext">*******890</p>
           </div>
         </div>
       </div>
@@ -508,7 +508,7 @@ export default function VNPayModal({
 
       <div className="text-center">
         {otpTimer > 0 ? (
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-maintext">
             Gửi lại mã sau {otpTimer}s
           </p>
         ) : (
@@ -523,7 +523,7 @@ export default function VNPayModal({
         )}
       </div>
 
-      <div className="flex items-center justify-center space-x-2 text-xs text-gray-500">
+      <div className="flex items-center justify-center space-x-2 text-xs text-maintext">
         <Icon path={mdiShield} size={0.7} />
         <span>Mã OTP có hiệu lực trong 5 phút</span>
       </div>
@@ -538,7 +538,7 @@ export default function VNPayModal({
         </div>
       </div>
       <h3 className="text-lg font-semibold mb-2">Đang xử lý thanh toán</h3>
-      <p className="text-gray-600 mb-4">Vui lòng không đóng cửa sổ này</p>
+      <p className="text-maintext mb-4">Vui lòng không đóng cửa sổ này</p>
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
         <p className="text-sm text-yellow-800">
           Đang kết nối với ngân hàng {selectedBank?.shortName}...
@@ -551,11 +551,11 @@ export default function VNPayModal({
     <div className="text-center py-8">
       <div className="flex items-center justify-center mb-4">
         <div className="bg-green-100 p-4 rounded-full">
-          <Icon path={mdiCheckCircle} size={2} className="text-green-600" />
+          <Icon path={mdiCheckCircle} size={2} className="text-primary" />
         </div>
       </div>
-      <h3 className="text-lg font-semibold mb-2 text-green-600">Thanh toán thành công!</h3>
-      <p className="text-gray-600 mb-4">Đơn hàng của bạn đã được thanh toán thành công</p>
+      <h3 className="text-lg font-semibold mb-2 text-primary">Thanh toán thành công!</h3>
+      <p className="text-maintext mb-4">Đơn hàng của bạn đã được thanh toán thành công</p>
       {paymentResult && (
         <Card>
           <CardContent className="pt-4">
@@ -597,7 +597,7 @@ export default function VNPayModal({
         </div>
       </div>
       <h3 className="text-lg font-semibold mb-2 text-red-600">Thanh toán thất bại</h3>
-      <p className="text-gray-600 mb-4">Giao dịch không thể hoàn tất. Vui lòng thử lại.</p>
+      <p className="text-maintext mb-4">Giao dịch không thể hoàn tất. Vui lòng thử lại.</p>
       <Button onClick={goBack} variant="outline">
         Thử lại
       </Button>

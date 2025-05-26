@@ -275,7 +275,7 @@ export default function CreateReturnPage() {
                             <TableCell>{new Date(order.createdAt).toLocaleDateString('vi-VN')}</TableCell>
                             <TableCell>{formatCurrency(order.totalAmount)}</TableCell>
                             <TableCell>
-                              <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">
+                              <Badge variant="outline" className="bg-green-50 text-primary border-green-200">
                                 {order.status}
                               </Badge>
                             </TableCell>

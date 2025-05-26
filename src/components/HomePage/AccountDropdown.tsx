@@ -37,7 +37,7 @@ const AccountDropdown = () => {
     };
     if (!isAuthenticated) {
         return (
-            <Link href="/auth/login" className="p-2 text-gray-700 hover:text-primary transition-colors">
+            <Link href="/auth/login" className="p-2 text-maintext hover:text-primary transition-colors">
                 <Icon path={mdiAccount} size={1} />
             </Link>
         );

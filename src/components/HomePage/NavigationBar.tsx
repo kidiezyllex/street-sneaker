@@ -97,13 +97,13 @@ export const NavigationBar = () => {
                         </div>
                     ) : (
                         <div className="hidden md:flex items-center gap-2">
-                            <span className="text-sm font-medium text-gray-700">
+                            <span className="text-sm font-medium text-maintext">
                                 Xin chào, <span className='text-primary font-bold'>{user?.fullName || 'Khách hàng'}</span>
                             </span>
                         </div>
                     )}
                     <div className="flex items-center">
-                        <button onClick={() => setIsOpen(true)} className="relative p-2 text-gray-700 hover:text-primary transition-colors">
+                        <button onClick={() => setIsOpen(true)} className="relative p-2 text-maintext hover:text-primary transition-colors">
                             <Icon path={mdiCart} size={0.9} />
                             <span className="absolute -top-1 -right-1 bg-extra text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                                 {totalItems}

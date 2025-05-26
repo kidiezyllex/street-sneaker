@@ -126,7 +126,7 @@ export default function SidebarLayout({
                                       'flex items-center rounded-[6px] p-2 text-base transition-colors font-medium',
                                       isSubMenuActive(subItem.path)
                                         ? 'bg-active/10 text-active !font-medium'
-                                        : 'text-gray-700 hover:bg-gray-100'
+                                        : 'text-maintext hover:bg-gray-100'
                                     )}
                                   >
                                     {subItem.icon && (
@@ -157,7 +157,7 @@ export default function SidebarLayout({
                             'flex items-center rounded-[6px] p-2 text-base font-medium transition-colors ',
                             isMenuActive(menu)
                               ? 'bg-primary/10 text-primary !font-medium'
-                              : 'text-gray-700 hover:bg-gray-100',
+                              : 'text-maintext hover:bg-gray-100',
                             !isOpen && 'justify-center'
                           )}
                         >

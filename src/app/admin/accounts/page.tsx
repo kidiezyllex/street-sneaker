@@ -276,7 +276,7 @@ export default function AccountsPage() {
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm text-gray-700 mb-2 font-semibold">
+                    <label className="block text-sm text-maintext mb-2 font-semibold">
                       Vai trò
                     </label>
                     <Select value={filters.role || ''} onValueChange={(value) => handleFilterChange('role', value === 'all' ? undefined : value)}>
@@ -291,7 +291,7 @@ export default function AccountsPage() {
                     </Select>
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-700 mb-2 font-semibold">
+                    <label className="block text-sm text-maintext mb-2 font-semibold">
                       Trạng thái
                     </label>
                     <Select value={filters.status || ''} onValueChange={(value) => handleFilterChange('status', value === 'all' ? undefined : value)}>
@@ -321,7 +321,7 @@ export default function AccountsPage() {
           ) : error ? (
             <div className="flex flex-col items-center justify-center h-64">
               <h2 className="text-xl font-bold text-red-500">Đã xảy ra lỗi</h2>
-              <p className="text-gray-600">{error.message || 'Không thể tải dữ liệu tài khoản'}</p>
+              <p className="text-maintext">{error.message || 'Không thể tải dữ liệu tài khoản'}</p>
             </div>
           ) : (
             <>
@@ -351,7 +351,7 @@ export default function AccountsPage() {
                             <div className="p-0.5 rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600">
                               <Avatar className="h-10 w-10 border-2 border-white rounded-full">
                                 <AvatarImage src={getRandomAvatar()} alt={`${account.fullName} avatar`} />
-                                <AvatarFallback className="bg-gray-200 text-gray-700">{getInitials(account.fullName)}</AvatarFallback>
+                                <AvatarFallback className="bg-gray-200 text-maintext">{getInitials(account.fullName)}</AvatarFallback>
                               </Avatar>
                             </div>
                             <div>
@@ -360,7 +360,7 @@ export default function AccountsPage() {
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell className="py-3 px-4 text-sm text-gray-700">
+                        <TableCell className="py-3 px-4 text-sm text-maintext">
                           {account.phoneNumber && (
                             <div className="flex items-center">
                               <Icon path={mdiPhone} size={0.7} className="mr-2 text-maintext" />
@@ -370,7 +370,7 @@ export default function AccountsPage() {
                         </TableCell>
                         <TableCell className="py-3 px-4">{getRoleBadge(account.role)}</TableCell>
                         <TableCell className="py-3 px-4">{getStatusBadge(account.status)}</TableCell>
-                        <TableCell className="py-3 px-4 text-sm text-gray-600">{formatDate(account.createdAt)}</TableCell>
+                        <TableCell className="py-3 px-4 text-sm text-maintext">{formatDate(account.createdAt)}</TableCell>
                         <TableCell className="py-3 px-4 text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>

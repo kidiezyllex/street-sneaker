@@ -126,8 +126,8 @@ export default function PromotionsPage() {
                 <div className="flex justify-between items-start">
                   <div className="space-y-2">
                     <h3 className="text-lg font-semibold">{promotion.name}</h3>
-                    <p className="text-gray-600">{promotion.description}</p>
-                    <p className="text-gray-600">
+                    <p className="text-maintext">{promotion.description}</p>
+                    <p className="text-maintext">
                       Giảm {promotion.discount}{promotion.type === 'percentage' ? '%' : 'đ'}
                     </p>
                     <p className="text-sm text-maintext">
@@ -135,7 +135,7 @@ export default function PromotionsPage() {
                     </p>
                     <div className="space-y-1">
                       <p className="text-sm font-medium">Điều kiện áp dụng:</p>
-                      <ul className="list-disc list-inside text-sm text-gray-600">
+                      <ul className="list-disc list-inside text-sm text-maintext">
                         {promotion.conditions.map((condition, index) => (
                           <li key={index}>{condition}</li>
                         ))}

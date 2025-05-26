@@ -63,7 +63,7 @@ const VoucherForm = ({ orderValue, onApplyVoucher, onRemoveVoucher, appliedVouch
             className="flex items-center justify-between p-2 border border-green-200 bg-green-50 rounded-[6px]"
           >
             <div className="flex items-center gap-2">
-              <Icon path={mdiTicket} size={0.9} className="text-green-600" />
+              <Icon path={mdiTicket} size={0.9} className="text-primary" />
               <div>
                 <div className="font-medium text-sm">{appliedVoucher.code}</div>
                 <div className="text-xs text-maintext">Giảm {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(appliedVoucher.discount)}</div>

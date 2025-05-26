@@ -59,7 +59,7 @@ const orderSteps: OrderStep[] = [
     },
     {
         status: "HOAN_THANH", label: "Hoàn thành", icon: mdiCheckDecagramOutline,
-        colors: { bgClass: 'bg-green-100 dark:bg-green-800/30', textClass: 'text-green-600 dark:text-green-400', borderClass: 'border-green-500 dark:border-green-500', progressFillClass: 'bg-green-500' }
+        colors: { bgClass: 'bg-green-100 dark:bg-green-800/30', textClass: 'text-primary dark:text-green-400', borderClass: 'border-green-500 dark:border-green-500', progressFillClass: 'bg-green-500' }
     },
 ];
 

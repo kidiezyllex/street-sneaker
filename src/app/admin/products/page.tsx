@@ -187,7 +187,7 @@ export default function ProductsPage() {
               >
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm text-gray-700 mb-2 font-semibold">
+                    <label className="block text-sm text-maintext mb-2 font-semibold">
                       Thương hiệu
                     </label>
                     <Select value={filters.brand || ''} onValueChange={(value) => handleFilterChange('brand', value === 'all' ? undefined : value)}>
@@ -203,7 +203,7 @@ export default function ProductsPage() {
                     </Select>
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-700 mb-2 font-semibold">
+                    <label className="block text-sm text-maintext mb-2 font-semibold">
                       Danh mục
                     </label>
                     <Select value={filters.category || ''} onValueChange={(value) => handleFilterChange('category', value === 'all' ? undefined : value)}>
@@ -219,7 +219,7 @@ export default function ProductsPage() {
                     </Select>
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-700 mb-2 font-semibold">
+                    <label className="block text-sm text-maintext mb-2 font-semibold">
                       Trạng thái
                     </label>
                     <Select value={filters.status || ''} onValueChange={(value) => handleFilterChange('status', value === 'all' ? undefined : value)}>
@@ -388,7 +388,7 @@ export default function ProductsPage() {
           {data?.data.pagination && data.data.pagination.totalPages > 1 && (
             <div className="px-4 py-3 flex items-center justify-between border-t border-gray-200">
               <div className="hidden sm:block">
-                <p className="text-sm text-gray-700">
+                <p className="text-sm text-maintext">
                   Hiển thị <span className="font-medium">{(data.data.pagination.currentPage - 1) * data.data.pagination.limit + 1}</span> đến <span className="font-medium">
                     {Math.min(data.data.pagination.currentPage * data.data.pagination.limit, data.data.pagination.totalItems)}
                   </span> của <span className="font-medium">{data.data.pagination.totalItems}</span> sản phẩm

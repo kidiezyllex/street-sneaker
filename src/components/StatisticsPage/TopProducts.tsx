@@ -40,7 +40,7 @@ export const TopProducts = () => {
     >
       <Card className="h-full">
         <CardHeader className="pb-2">
-          <CardTitle className='text-lg font-medium text-gray-700 mb-2'>Sản phẩm bán chạy</CardTitle>
+          <CardTitle className='text-lg font-medium text-maintext mb-2'>Sản phẩm bán chạy</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">

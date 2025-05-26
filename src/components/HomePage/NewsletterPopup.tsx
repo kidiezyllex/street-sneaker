@@ -83,7 +83,7 @@ export const NewsletterPopup = () => {
                   <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
                     Nhận ngay ưu đãi 20%
                   </h3>
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-maintext mb-4">
                     Đăng ký nhận thông tin để không bỏ lỡ các ưu đãi đặc biệt và sản phẩm mới nhất từ StreetSneaker.
                   </p>
                   

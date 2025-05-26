@@ -139,7 +139,7 @@ export default function EditAccountPage({ params }: Props) {
     return (
       <div className="flex flex-col items-center justify-center h-full">
         <h2 className="text-xl font-bold">Không thể tải thông tin tài khoản</h2>
-        <p className="text-gray-600">Có lỗi xảy ra: {error?.message || "Không tìm thấy tài khoản"}</p>
+        <p className="text-maintext">Có lỗi xảy ra: {error?.message || "Không tìm thấy tài khoản"}</p>
         <Button 
           variant="outline" 
           onClick={() => router.back()}
@@ -188,7 +188,7 @@ export default function EditAccountPage({ params }: Props) {
         </Avatar>
         <div className="space-y-1">
           <h2 className="text-3xl font-bold">{formData.fullName}</h2>
-          <p className="text-gray-600 text-lg">{accountData.data.role === 'ADMIN' ? 'Quản trị viên' : accountData.data.role === 'STAFF' ? 'Nhân viên' : 'Khách hàng'}</p>
+          <p className="text-maintext text-lg">{accountData.data.role === 'ADMIN' ? 'Quản trị viên' : accountData.data.role === 'STAFF' ? 'Nhân viên' : 'Khách hàng'}</p>
           <div className="flex items-center pt-3">
             <Switch
               checked={formData.status === 'HOAT_DONG'}

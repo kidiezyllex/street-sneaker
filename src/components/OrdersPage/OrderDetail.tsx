@@ -102,7 +102,7 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onClose }) => {
                 </span>
               </div>
               {item.note && (
-                <p className="mt-1 text-sm text-gray-600 max-w-xl">{item.note}</p>
+                <p className="mt-1 text-sm text-maintext max-w-xl">{item.note}</p>
               )}
             </div>
           </div>
@@ -149,7 +149,7 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onClose }) => {
                 'px-4 py-2 text-sm font-medium border-b-2 transition-colors',
                 activeTab === 'details'
                   ? 'border-primary text-primary'
-                  : 'border-transparent text-maintext hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-maintext hover:text-maintext hover:border-gray-300'
               )}
               onClick={() => setActiveTab('details')}
             >
@@ -160,7 +160,7 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onClose }) => {
                 'px-4 py-2 text-sm font-medium border-b-2 transition-colors',
                 activeTab === 'history'
                   ? 'border-primary text-primary'
-                  : 'border-transparent text-maintext hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-maintext hover:text-maintext hover:border-gray-300'
               )}
               onClick={() => setActiveTab('history')}
             >
@@ -201,7 +201,7 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onClose }) => {
                     {order.note && (
                       <div className="pt-2 border-t">
                         <span className="text-maintext block mb-1">Ghi chú:</span>
-                        <p className="text-gray-700">{order.note}</p>
+                        <p className="text-maintext">{order.note}</p>
                       </div>
                     )}
                   </CardContent>
@@ -229,10 +229,10 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onClose }) => {
                     {order.type === 'online' && order.deliveryAddress && (
                       <div className="pt-2 border-t">
                         <span className="text-maintext block mb-1">Địa chỉ giao hàng:</span>
-                        <p className="text-gray-700">
+                        <p className="text-maintext">
                           {order.deliveryAddress.fullName}, {order.deliveryAddress.phone}
                         </p>
-                        <p className="text-gray-700">
+                        <p className="text-maintext">
                           {order.deliveryAddress.address}, {order.deliveryAddress.ward},{' '}
                           {order.deliveryAddress.district}, {order.deliveryAddress.province}
                         </p>

@@ -106,7 +106,7 @@ export const HotDeals = () => {
               </div>
               
               <div className="flex items-center">
-                <span className="text-sm font-medium mr-2 text-gray-700 dark:text-gray-300">ĐÁNH GIÁ</span>
+                <span className="text-sm font-medium mr-2 text-maintext dark:text-gray-300">ĐÁNH GIÁ</span>
                 <div className="flex">
                   {[...Array(5)].map((_, i) => (
                     <Icon key={i} path={mdiStar} size={0.8} className="text-amber-500" />
@@ -124,14 +124,14 @@ export const HotDeals = () => {
               ].map((text, index) => (
                 <li key={index} className="flex items-start">
                   <Icon path={mdiChevronDoubleRight} size={0.7} className="mt-1 mr-2 text-[#88C140]" />
-                  <span className="text-gray-700 dark:text-gray-300 text-sm">{text}</span>
+                  <span className="text-maintext dark:text-gray-300 text-sm">{text}</span>
                 </li>
               ))}
             </motion.ul>
             
             <motion.p 
               variants={itemVariants}
-              className="text-gray-600 dark:text-maintext text-sm leading-relaxed"
+              className="text-maintext dark:text-maintext text-sm leading-relaxed"
             >
               Giày thể thao phiên bản giới hạn với thiết kế độc đáo và công nghệ tiên tiến. Sự kết hợp hoàn hảo giữa phong cách hiện đại và hiệu suất cao cấp mang đến trải nghiệm thoải mái nhất cho người sử dụng.
             </motion.p>

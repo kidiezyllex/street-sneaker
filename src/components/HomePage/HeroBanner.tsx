@@ -25,7 +25,7 @@ export const HeroBanner = () => {
                             <h2 className="text-4xl lg:text-5xl font-bold tracking-tight text-gray-900">
                                 <span className="block text-primary">Ưu đãi khách hàng mới</span>
                             </h2>
-                            <p className="text-lg text-gray-700 max-w-md">
+                            <p className="text-lg text-maintext max-w-md">
                                 Đăng ký ngay bây giờ để nhận giảm giá 20% cho đơn hàng đầu tiên của bạn!
                             </p>
                             <div className="pt-4 flex items-center gap-4">

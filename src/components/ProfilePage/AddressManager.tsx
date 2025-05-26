@@ -160,7 +160,7 @@ export default function AddressManager() {
         {addresses.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-12 border border-dashed border-gray-300 dark:border-gray-700 rounded-[6px]">
             <Icon path={mdiMapMarker} size={3} className="text-maintext mb-4" />
-            <p className="text-gray-600 dark:text-maintext mb-4">
+            <p className="text-maintext dark:text-maintext mb-4">
               Bạn chưa có địa chỉ nào
             </p>
             <DialogTrigger asChild>
@@ -199,7 +199,7 @@ export default function AddressManager() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-8 px-2 text-xs text-gray-600 hover:text-primary"
+                            className="h-8 px-2 text-xs text-maintext hover:text-primary"
                           >
                             <Icon path={mdiStarOutline} size={0.7} className="mr-1" />
                             Đặt mặc định
@@ -210,7 +210,7 @@ export default function AddressManager() {
                     <CardContent className="p-4 pt-2">
                       <div className="text-sm space-y-1">
                         <p className="font-medium">{address.fullName} | {address.phoneNumber}</p>
-                        <p className="text-gray-600 dark:text-maintext">
+                        <p className="text-maintext dark:text-maintext">
                           {address.addressDetail}, {address.ward}, {address.district}, {address.province}
                         </p>
                       </div>

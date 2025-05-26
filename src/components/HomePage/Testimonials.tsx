@@ -109,7 +109,7 @@ const TestimonialCard = ({ testimonial, index }: { testimonial: typeof testimoni
       
       <div className="relative">
         <div className="absolute -top-2 -left-2 text-4xl text-primary/10 dark:text-primary/20">"</div>
-        <p className="text-gray-700 dark:text-gray-300 relative z-10">{testimonial.content}</p>
+        <p className="text-maintext dark:text-gray-300 relative z-10">{testimonial.content}</p>
         <div className="absolute -bottom-2 -right-2 text-4xl text-primary/10 dark:text-primary/20">"</div>
       </div>
     </motion.div>
@@ -133,7 +133,7 @@ export const Testimonials = () => {
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Khách hàng nói gì về chúng tôi
           </h2>
-          <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p className="text-maintext dark:text-gray-300 max-w-2xl mx-auto">
             Chúng tôi luôn lắng nghe và cải thiện dịch vụ dựa trên phản hồi của khách hàng
           </p>
         </motion.div>

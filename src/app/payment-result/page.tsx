@@ -32,7 +32,7 @@ function PaymentResultContent() {
             {success ? 'Thanh toán thành công' : 'Thanh toán thất bại'}
           </h2>
 
-          <p className="mt-2 text-gray-600">{message}</p>
+          <p className="mt-2 text-maintext">{message}</p>
 
           {orderId && (
             <p className="mt-2 text-sm text-maintext">
@@ -50,7 +50,7 @@ function PaymentResultContent() {
 
             <Link
               href="/"
-              className="block w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-[6px] hover:bg-gray-200"
+              className="block w-full bg-gray-100 text-maintext py-2 px-4 rounded-[6px] hover:bg-gray-200"
             >
               Về trang chủ
             </Link>

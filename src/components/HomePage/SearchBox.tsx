@@ -47,7 +47,7 @@ export const SearchBox = () => {
         variant="ghost" 
         size="icon" 
         onClick={() => setIsOpen(true)}
-        className="text-gray-700 hover:text-primary transition-colors"
+        className="text-maintext hover:text-primary transition-colors"
       >
         <Icon path={mdiMagnify} size={1} />
       </Button>

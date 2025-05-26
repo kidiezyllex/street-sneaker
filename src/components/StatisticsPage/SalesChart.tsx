@@ -61,7 +61,7 @@ export const SalesChart = () => {
     >
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className='text-lg font-medium text-gray-700 mb-2'>Doanh thu theo tháng</CardTitle>
+          <CardTitle className='text-lg font-medium text-maintext mb-2'>Doanh thu theo tháng</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-[300px]">

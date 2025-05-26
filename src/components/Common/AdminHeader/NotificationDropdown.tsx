@@ -86,11 +86,11 @@ export default function NotificationDropdown() {
       case 'warning':
         return 'bg-yellow-50 text-yellow-600';
       case 'success':
-        return 'bg-green-50 text-green-600';
+        return 'bg-green-50 text-primary';
       case 'error':
         return 'bg-red-50 text-red-600';
       default:
-        return 'bg-gray-50 text-gray-600';
+        return 'bg-gray-50 text-maintext';
     }
   };
 
@@ -138,7 +138,7 @@ export default function NotificationDropdown() {
                   </span>
                   <span className="text-xs text-maintext">{notification.time}</span>
                 </div>
-                <p className="text-sm text-gray-700 mt-1">{notification.content}</p>
+                <p className="text-sm text-maintext mt-1">{notification.content}</p>
               </DropdownMenuItem>
             ))
           ) : (

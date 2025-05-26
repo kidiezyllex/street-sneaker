@@ -95,14 +95,14 @@ const ProductCard = ({ product, index }: { product: typeof featuredProducts[0], 
             variant="secondary" 
             className="rounded-full w-10 h-10 bg-white/80 hover:bg-white dark:bg-gray-800/80 dark:hover:bg-gray-800 shadow-lg"
           >
-            <Icon path={mdiHeartOutline} size={1} className="text-gray-700 dark:text-gray-300" />
+            <Icon path={mdiHeartOutline} size={1} className="text-maintext dark:text-gray-300" />
           </Button>
           <Button 
             size="icon" 
             variant="secondary" 
             className="rounded-full w-10 h-10 bg-white/80 hover:bg-white dark:bg-gray-800/80 dark:hover:bg-gray-800 shadow-lg"
           >
-            <Icon path={mdiCartOutline} size={1} className="text-gray-700 dark:text-gray-300" />
+            <Icon path={mdiCartOutline} size={1} className="text-maintext dark:text-gray-300" />
           </Button>
         </div>
       </div>
@@ -145,7 +145,7 @@ export const FeaturedProducts = () => {
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Sản phẩm nổi bật
           </h2>
-          <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p className="text-maintext dark:text-gray-300 max-w-2xl mx-auto">
             Khám phá những mẫu giày mới nhất và bán chạy nhất từ các thương hiệu hàng đầu
           </p>
         </motion.div>

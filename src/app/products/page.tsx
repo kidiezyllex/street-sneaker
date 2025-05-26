@@ -685,7 +685,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
                 {formatPrice(product.variants[0]?.price || 0)}
               </motion.div>
               {product.originalPrice && (
-                <div className="text-sm text-gray-400 line-through font-medium bg-gray-100 px-2 py-1 rounded-lg">
+                <div className="text-sm text-maintext line-through font-medium bg-gray-100 px-2 py-1 rounded-lg">
                   {formatPrice(product.originalPrice)}
                 </div>
               )}
@@ -694,7 +694,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
             {/* Enhanced color variants */}
             {product.variants.length > 0 && (
               <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500 font-medium">Màu sắc:</span>
+                <span className="text-xs text-maintext font-medium">Màu sắc:</span>
                 <div className="flex gap-1.5">
                   {Array.from(
                     new Set(
@@ -726,7 +726,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
                     ),
                   ).length > 4 && (
                     <motion.span
-                      className="text-xs text-gray-500 ml-1 bg-gray-100 px-2 py-1 rounded-full font-medium"
+                      className="text-xs text-maintext ml-1 bg-gray-100 px-2 py-1 rounded-full font-medium"
                       whileHover={{ scale: 1.1 }}
                     >
                       +

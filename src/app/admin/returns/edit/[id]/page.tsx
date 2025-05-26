@@ -292,7 +292,7 @@ export default function EditReturnPage({ params }: { params: { id: string } }) {
                         {returnData.status === 'CHO_XU_LY' ? (
                           <Badge variant="outline" className="bg-yellow-50 text-yellow-600 border-yellow-200">Chờ xử lý</Badge>
                         ) : returnData.status === 'DA_HOAN_TIEN' ? (
-                          <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">Đã hoàn tiền</Badge>
+                          <Badge variant="outline" className="bg-green-50 text-primary border-green-200">Đã hoàn tiền</Badge>
                         ) : (
                           <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200">Đã hủy</Badge>
                         )}

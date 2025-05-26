@@ -888,7 +888,7 @@ const VouchersTab = () => {
                     <div className="border-t border-border pt-3 space-y-2">
                         <div className="flex justify-between items-center">
                             <span className="font-medium text-muted-foreground">Giá trị giảm:</span> 
-                            <span className="font-bold text-lg text-green-600">{formatDiscountValue(voucher.type, voucher.value)}</span>
+                            <span className="font-bold text-lg text-primary">{formatDiscountValue(voucher.type, voucher.value)}</span>
                         </div>
                         {voucher.type === 'PERCENTAGE' && voucher.maxDiscount && (
                             <div className="flex justify-between items-center text-xs text-muted-foreground">
