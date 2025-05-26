@@ -227,7 +227,7 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
         <div className="flex justify-center flex-1 h-full items-end mt-4">
           <Button
             type="submit"
-            className="bg-primary hover:bg-secondary transition-all duration-300 text-base font-semibold w-full py-4"
+            className="bg-primary hover:bg-secondary transition-all duration-300 text-base font-medium w-full py-4"
             disabled={signUpMutation.isPending}
           >
             {signUpMutation.isPending ? (

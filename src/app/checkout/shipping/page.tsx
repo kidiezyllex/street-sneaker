@@ -7,8 +7,6 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useCartStore } from '@/stores/useCartStore';
-import { useAuth } from '@/hooks/useAuth';
-import { createVNPayUrl } from '@/services/payment';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import {
   Card,
@@ -41,6 +39,9 @@ import { formatPrice } from '@/utils/formatters';
 import { useCreateOrder } from '@/hooks/order';
 import { useUser } from '@/context/useUserContext';
 import { useCreateNotification } from '@/hooks/notification';
+import { useUserProfile } from '@/hooks/account';
+import VNPayModal from '@/components/VNPayPayment/VNPayModal';
+import SuccessModal from '@/components/OrderSuccess/SuccessModal';
 
 const shippingFormSchema = z.object({
   fullName: z.string().min(1, "Vui lòng nhập họ tên"),
@@ -55,21 +56,54 @@ const shippingFormSchema = z.object({
 
 type ShippingFormValues = z.infer<typeof shippingFormSchema>;
 
+interface Province {
+  code: number;
+  name: string;
+  districts?: District[];
+}
+
+interface District {
+  code: number;
+  name: string;
+  province_code: number;
+  wards?: Ward[];
+}
+
+interface Ward {
+  code: number;
+  name: string;
+  district_code: number;
+}
+
 export default function ShippingPage() {
   const router = useRouter();
   const { user } = useUser()
   const { items, subtotal, tax, shipping, total, clearCart } = useCartStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [showVNPayModal, setShowVNPayModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [orderResult, setOrderResult] = useState<any>(null);
+  const [vnpayOrderData, setVnpayOrderData] = useState<any>(null);
+  
+  // Location data states
+  const [provinces, setProvinces] = useState<Province[]>([]);
+  const [districts, setDistricts] = useState<District[]>([]);
+  const [wards, setWards] = useState<Ward[]>([]);
+  const [loadingProvinces, setLoadingProvinces] = useState(false);
+  const [loadingDistricts, setLoadingDistricts] = useState(false);
+  const [loadingWards, setLoadingWards] = useState(false);
+  
   const createOrderMutation = useCreateOrder();
   const createNotificationMutation = useCreateNotification();
-
+  const { data: userProfile, isLoading: isLoadingProfile } = useUserProfile();
+  
   const form = useForm<ShippingFormValues>({
     resolver: zodResolver(shippingFormSchema),
     defaultValues: {
-      fullName: user?.data?.fullName || "",
-      email: user?.data?.email || "",
-      phoneNumber: user?.data?.phoneNumber || "",
+      fullName: "",
+      email: "",
+      phoneNumber: "",
       address: "",
       province: "",
       district: "",
@@ -78,13 +112,108 @@ export default function ShippingPage() {
     },
   });
 
+  // Watch province and district changes to load dependent data
+  const selectedProvince = form.watch("province");
+  const selectedDistrict = form.watch("district");
+
+  // Fetch provinces on component mount
+  useEffect(() => {
+    const fetchProvinces = async () => {
+      try {
+        setLoadingProvinces(true);
+        const response = await fetch('https://provinces.open-api.vn/api/');
+        const data = await response.json();
+        setProvinces(data);
+      } catch (error) {
+        console.error('Error fetching provinces:', error);
+        toast.error('Không thể tải danh sách tỉnh/thành');
+      } finally {
+        setLoadingProvinces(false);
+      }
+    };
+
+    fetchProvinces();
+  }, []);
+
+  // Fetch districts when province changes
+  useEffect(() => {
+    if (selectedProvince) {
+      const fetchDistricts = async () => {
+        try {
+          setLoadingDistricts(true);
+          const response = await fetch(`https://provinces.open-api.vn/api/p/${selectedProvince}?depth=2`);
+          const data = await response.json();
+          setDistricts(data.districts || []);
+          // Reset district and ward when province changes
+          form.setValue("district", "");
+          form.setValue("ward", "");
+          setWards([]);
+        } catch (error) {
+          console.error('Error fetching districts:', error);
+          toast.error('Không thể tải danh sách quận/huyện');
+        } finally {
+          setLoadingDistricts(false);
+        }
+      };
+
+      fetchDistricts();
+    } else {
+      setDistricts([]);
+      setWards([]);
+      form.setValue("district", "");
+      form.setValue("ward", "");
+    }
+  }, [selectedProvince, form]);
+
+  // Fetch wards when district changes
+  useEffect(() => {
+    if (selectedDistrict) {
+      const fetchWards = async () => {
+        try {
+          setLoadingWards(true);
+          const response = await fetch(`https://provinces.open-api.vn/api/d/${selectedDistrict}?depth=2`);
+          const data = await response.json();
+          setWards(data.wards || []);
+          // Reset ward when district changes
+          form.setValue("ward", "");
+        } catch (error) {
+          console.error('Error fetching wards:', error);
+          toast.error('Không thể tải danh sách phường/xã');
+        } finally {
+          setLoadingWards(false);
+        }
+      };
+
+      fetchWards();
+    } else {
+      setWards([]);
+      form.setValue("ward", "");
+    }
+  }, [selectedDistrict, form]);
+
+  // Update form with user profile data when available
+  useEffect(() => {
+    if (userProfile?.data) {
+      const profile = userProfile.data;
+      form.reset({
+        fullName: profile.fullName || "",
+        email: profile.email || "",
+        phoneNumber: profile.phoneNumber || "",
+        address: profile.addresses?.[0]?.specificAddress || "",
+        province: profile.addresses?.[0]?.provinceId?.toString() || "",
+        district: profile.addresses?.[0]?.districtId?.toString() || "",
+        ward: profile.addresses?.[0]?.wardId?.toString() || "",
+        paymentMethod: "COD",
+      });
+    }
+  }, [userProfile, form]);
+
   useEffect(() => {
     const checkCart = async () => {
       try {
         setIsLoading(true);
 
         if (items.length === 0) {
-          toast.error('Giỏ hàng trống');
           router.push('/');
           return;
         }
@@ -216,36 +345,18 @@ export default function ShippingPage() {
         await sendOrderConfirmationEmail(response.data._id, response.data, values.email);
         
         if (values.paymentMethod === 'BANK_TRANSFER') {
-          try {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            const vnpayResponse = await createVNPayUrl(
-              response.data._id,
-              response.data.total,
-              `Thanh toán đơn hàng ${(response.data as any).code || response.data._id}`,
-              (response.data as any).code
-            );
-            if (vnpayResponse.success) {
-              let paymentUrl = '';
-              if (vnpayResponse.data?.paymentUrl) {
-                paymentUrl = vnpayResponse.data.paymentUrl;
-              } else if (typeof vnpayResponse.data === 'string') {
-                paymentUrl = vnpayResponse.data;
-              }
-              if (paymentUrl) {
-                localStorage.setItem('pendingOrderId', response.data._id);
-                window.location.href = paymentUrl;
-                return;
-              } else {
-                throw new Error('Không nhận được đường dẫn thanh toán từ VNPay');
-              }
-            } else {
-              throw new Error(vnpayResponse.message || 'Không nhận được đường dẫn thanh toán');
-            }
-          } catch (error: any) {
-            throw new Error(error.message || 'Đã xảy ra lỗi khi tạo đường dẫn thanh toán');
-          }
+          // Show VNPay modal instead of redirecting
+          setVnpayOrderData({
+            orderId: response.data._id,
+            amount: response.data.total,
+            orderInfo: `Thanh toán đơn hàng ${(response.data as any).code || response.data._id}`,
+            orderCode: (response.data as any).code
+          });
+          setOrderResult(response.data);
+          setShowVNPayModal(true);
         } else {
-          router.push(`/checkout/success?orderId=${response.data._id}`);
+          setOrderResult(response.data);
+          setShowSuccessModal(true);
         }
       } else {
         throw new Error((response as any)?.message || 'Đã xảy ra lỗi khi tạo đơn hàng');
@@ -254,6 +365,46 @@ export default function ShippingPage() {
       toast.error(error.message || "Đã có lỗi xảy ra khi tạo đơn hàng");
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  const handleVNPaySuccess = (paymentData: any) => {
+    setShowVNPayModal(false);
+    setShowSuccessModal(true);
+    toast.success('Thanh toán thành công!');
+  };
+
+  const handleVNPayError = (error: string) => {
+    setShowVNPayModal(false);
+    toast.error(error);
+  };
+
+  const handleContinueShopping = () => {
+    router.push('/products');
+  };
+
+  // Helper function to check if field should be disabled
+  const isFieldDisabled = (fieldName: keyof ShippingFormValues) => {
+    if (!userProfile?.data) return false;
+    const profile = userProfile.data;
+    
+    switch (fieldName) {
+      case 'fullName':
+        return !!profile.fullName;
+      case 'email':
+        return !!profile.email;
+      case 'phoneNumber':
+        return !!profile.phoneNumber;
+      case 'address':
+        return !!profile.addresses?.[0]?.specificAddress;
+      case 'province':
+        return !!profile.addresses?.[0]?.provinceId;
+      case 'district':
+        return !!profile.addresses?.[0]?.districtId;
+      case 'ward':
+        return !!profile.addresses?.[0]?.wardId;
+      default:
+        return false;
     }
   };
 
@@ -267,25 +418,26 @@ export default function ShippingPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 relative">
-      <Breadcrumb className="mb-4">
+      <Breadcrumb className="mb-6">
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href="/">Trang chủ</BreadcrumbLink>
+            <BreadcrumbLink href="/" className="!text-maintext hover:!text-maintext">Trang chủ</BreadcrumbLink>
           </BreadcrumbItem>
-          <BreadcrumbSeparator />
+          <BreadcrumbSeparator className="!text-maintext hover:!text-maintext" />
           <BreadcrumbItem>
-            <BreadcrumbPage>Thanh toán đơn hàng</BreadcrumbPage>
+            <BreadcrumbLink href="/products" className="!text-maintext hover:!text-maintext">Sản phẩm</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator className="!text-maintext hover:!text-maintext" />
+          <BreadcrumbItem>
+            <BreadcrumbPage className="!text-maintext hover:!text-maintext">Thanh toán đơn hàng</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-maintext">
         <div>
           <Card>
             <CardHeader>
               <CardTitle>Thông tin giao hàng</CardTitle>
-              <CardDescription>
-                Vui lòng điền đầy đủ thông tin để chúng tôi giao hàng đến bạn
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <Form {...form}>
@@ -295,9 +447,13 @@ export default function ShippingPage() {
                     name="fullName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Họ tên</FormLabel>
+                        <FormLabel className="text-maintext font-semibold">Họ tên</FormLabel>
                         <FormControl>
-                          <Input placeholder="Nguyễn Văn A" {...field} />
+                          <Input 
+                            placeholder="Nguyễn Văn A" 
+                            {...field} 
+                            disabled={isFieldDisabled('fullName')}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -309,9 +465,13 @@ export default function ShippingPage() {
                     name="phoneNumber"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Số điện thoại</FormLabel>
+                        <FormLabel className="text-maintext font-semibold">Số điện thoại</FormLabel>
                         <FormControl>
-                          <Input placeholder="0123456789" {...field} />
+                          <Input 
+                            placeholder="Ví dụ: 0123456789" 
+                            {...field} 
+                            disabled={isFieldDisabled('phoneNumber')}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -323,9 +483,13 @@ export default function ShippingPage() {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
+                        <FormLabel className="text-maintext font-semibold">Email</FormLabel>
                         <FormControl>
-                          <Input placeholder="example@email.com" {...field} />
+                          <Input 
+                            placeholder="Ví dụ: example@gmail.com" 
+                            {...field} 
+                            disabled={isFieldDisabled('email')}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -337,9 +501,24 @@ export default function ShippingPage() {
                     name="province"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Tỉnh/Thành phố</FormLabel>
+                        <FormLabel className="text-maintext font-semibold">Tỉnh/Thành phố</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            disabled={isFieldDisabled('province') || loadingProvinces}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder={loadingProvinces ? "Đang tải..." : "Chọn tỉnh/thành phố"} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {provinces.map((province) => (
+                                <SelectItem key={province.code} value={province.code.toString()}>
+                                  {province.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -351,9 +530,30 @@ export default function ShippingPage() {
                     name="district"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Quận/Huyện</FormLabel>
+                        <FormLabel className="text-maintext font-semibold">Quận/Huyện</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            disabled={isFieldDisabled('district') || !selectedProvince || loadingDistricts}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder={
+                                !selectedProvince 
+                                  ? "Vui lòng chọn tỉnh/thành phố trước" 
+                                  : loadingDistricts 
+                                    ? "Đang tải..." 
+                                    : "Chọn quận/huyện"
+                              } />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {districts.map((district) => (
+                                <SelectItem key={district.code} value={district.code.toString()}>
+                                  {district.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -365,9 +565,30 @@ export default function ShippingPage() {
                     name="ward"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Phường/Xã</FormLabel>
+                        <FormLabel className="text-maintext font-semibold">Phường/Xã</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            disabled={isFieldDisabled('ward') || !selectedDistrict || loadingWards}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder={
+                                !selectedDistrict 
+                                  ? "Vui lòng chọn quận/huyện trước" 
+                                  : loadingWards 
+                                    ? "Đang tải..." 
+                                    : "Chọn phường/xã"
+                              } />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {wards.map((ward) => (
+                                <SelectItem key={ward.code} value={ward.code.toString()}>
+                                  {ward.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -379,9 +600,13 @@ export default function ShippingPage() {
                     name="address"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Địa chỉ cụ thể</FormLabel>
+                        <FormLabel className="text-maintext font-semibold">Địa chỉ cụ thể</FormLabel>
                         <FormControl>
-                          <Input placeholder="Số nhà, tên đường..." {...field} />
+                          <Input 
+                            placeholder="Số nhà, tên đường..." 
+                            {...field} 
+                            disabled={isFieldDisabled('address')}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -393,7 +618,7 @@ export default function ShippingPage() {
                     name="paymentMethod"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Phương thức thanh toán</FormLabel>
+                        <FormLabel className="text-maintext font-semibold">Phương thức thanh toán</FormLabel>
                         <FormControl>
                           <Select
                             value={field.value}
@@ -414,9 +639,20 @@ export default function ShippingPage() {
                     )}
                   />
 
-                  <Button type="submit" className="w-full" disabled={isProcessing}>
-                    {isProcessing ? "Đang xử lý..." : "Hoàn tất đặt hàng"}
-                  </Button>
+                  <div className="flex gap-3">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      className="flex-1" 
+                      onClick={handleContinueShopping}
+                      disabled={isProcessing}
+                    >
+                      Tiếp tục mua hàng
+                    </Button>
+                    <Button type="submit" className="flex-1" disabled={isProcessing}>
+                      {isProcessing ? "Đang xử lý..." : "Hoàn tất đặt hàng"}
+                    </Button>
+                  </div>
                 </form>
               </Form>
             </CardContent>
@@ -436,18 +672,18 @@ export default function ShippingPage() {
                       <img
                         src={checkImageUrl(item.image)}
                         alt={item.name}
-                        className="object-cover w-full h-full"
+                        className="object-contain w-full h-full"
                       />
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-medium">{item.name}</h4>
+                      <h4 className="font-medium text-maintext">{item.name}</h4>
                       <p className="text-sm text-muted-foreground">
                         {item.brand}
                         {item.size && ` • Size ${item.size}`}
                       </p>
-                      <div className="flex justify-between mt-2">
+                      <div className="flex justify-between mt-2 text-maintext">
                         <span>x{item.quantity}</span>
-                        <span>{formatPrice(item.price)}</span>
+                        <span className='text-maintext'>{formatPrice(item.price)}</span>
                       </div>
                     </div>
                   </div>
@@ -457,24 +693,45 @@ export default function ShippingPage() {
             <CardFooter className="flex flex-col space-y-2">
               <div className="flex justify-between w-full">
                 <span className="text-muted-foreground">Tạm tính</span>
-                <span>{formatPrice(subtotal)}</span>
+                <span className='text-maintext'>{formatPrice(subtotal)}</span>
               </div>
               <div className="flex justify-between w-full">
                 <span className="text-muted-foreground">Thuế</span>
-                <span>{formatPrice(tax)}</span>
+                <span className='text-maintext'>{formatPrice(tax)}</span>
               </div>
               <div className="flex justify-between w-full">
                 <span className="text-muted-foreground">Phí vận chuyển</span>
-                <span>{formatPrice(shipping)}</span>
+                <span className='text-maintext'>{formatPrice(shipping)}</span>
               </div>
               <div className="flex justify-between w-full text-base font-semibold text-maintext pt-2 border-t">
                 <span>Tổng cộng</span>
-                <span>{formatPrice(total)}</span>
+                <span className='text-lg text-primary font-semibold'>{formatPrice(total)}</span>
               </div>
             </CardFooter>
           </Card>
         </div>
       </div>
+
+      {/* VNPay Payment Modal */}
+      {vnpayOrderData && (
+        <VNPayModal
+          isOpen={showVNPayModal}
+          onClose={() => setShowVNPayModal(false)}
+          orderData={vnpayOrderData}
+          onPaymentSuccess={handleVNPaySuccess}
+          onPaymentError={handleVNPayError}
+        />
+      )}
+
+      {/* Success Modal */}
+      {orderResult && (
+        <SuccessModal
+          isOpen={showSuccessModal}
+          onClose={() => setShowSuccessModal(false)}
+          orderId={orderResult._id}
+          orderCode={orderResult.code}
+        />
+      )}
     </div>
   );
 } 

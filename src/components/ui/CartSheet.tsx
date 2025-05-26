@@ -89,7 +89,7 @@ const CartSheet: React.FC<CartSheetProps> = ({ open, onOpenChange }) => {
                         src={checkImageUrl(item.image)} 
                         alt={item.name}
                         fill
-                        className="object-cover"
+                        className="object-contain"
                       />
                     </div>
                     <div className="flex-1">
