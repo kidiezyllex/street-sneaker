@@ -115,6 +115,7 @@ export default function ShippingPage() {
   // Watch province and district changes to load dependent data
   const selectedProvince = form.watch("province");
   const selectedDistrict = form.watch("district");
+  const selectedPaymentMethod = form.watch("paymentMethod");
 
   // Fetch provinces on component mount
   useEffect(() => {
@@ -125,7 +126,6 @@ export default function ShippingPage() {
         const data = await response.json();
         setProvinces(data);
       } catch (error) {
-        console.error('Error fetching provinces:', error);
         toast.error('Không thể tải danh sách tỉnh/thành');
       } finally {
         setLoadingProvinces(false);
@@ -149,7 +149,6 @@ export default function ShippingPage() {
           form.setValue("ward", "");
           setWards([]);
         } catch (error) {
-          console.error('Error fetching districts:', error);
           toast.error('Không thể tải danh sách quận/huyện');
         } finally {
           setLoadingDistricts(false);
@@ -177,7 +176,6 @@ export default function ShippingPage() {
           // Reset ward when district changes
           form.setValue("ward", "");
         } catch (error) {
-          console.error('Error fetching wards:', error);
           toast.error('Không thể tải danh sách phường/xã');
         } finally {
           setLoadingWards(false);
@@ -226,6 +224,20 @@ export default function ShippingPage() {
 
     checkCart();
   }, [items, router]);
+
+  useEffect(() => {
+    if (selectedPaymentMethod === "BANK_TRANSFER" && !showVNPayModal) {
+      const demoOrderData = {
+        orderId: `DEMO_${Date.now()}`,
+        amount: total,
+        orderInfo: `Thanh toán đơn hàng`,
+        orderCode: `ORD${Date.now()}`
+      };
+      setVnpayOrderData(demoOrderData);
+      setShowVNPayModal(true);
+      toast.info('Đang mở cổng thanh toán VNPay...');
+    }
+  }, [selectedPaymentMethod]);
 
   const sendOrderConfirmationEmail = async (orderId: string, orderData: any, userEmail: string) => {
     try {
@@ -313,6 +325,25 @@ export default function ShippingPage() {
   const onSubmit = async (values: ShippingFormValues) => {
     try {
       setIsProcessing(true);
+      
+      // For demo purposes, if payment method is BANK_TRANSFER, show VNPay modal immediately
+      if (values.paymentMethod === 'BANK_TRANSFER') {
+        console.log('Opening VNPay modal for BANK_TRANSFER payment');
+        // Create a demo order data for VNPay modal
+        const demoOrderData = {
+          orderId: `DEMO_${Date.now()}`,
+          amount: total,
+          orderInfo: `Thanh toán đơn hàng`,
+          orderCode: `ORD${Date.now()}`
+        };
+        
+        setVnpayOrderData(demoOrderData);
+        setShowVNPayModal(true);
+        setIsProcessing(false);
+        toast.info('Đang mở cổng thanh toán VNPay...');
+        return;
+      }
+      
       const orderData = {
         customer: user?._id || '000000000000000000000000',
         items: items.map(item => ({
@@ -344,20 +375,8 @@ export default function ShippingPage() {
         // Gửi email xác nhận đơn hàng
         await sendOrderConfirmationEmail(response.data._id, response.data, values.email);
         
-        if (values.paymentMethod === 'BANK_TRANSFER') {
-          // Show VNPay modal instead of redirecting
-          setVnpayOrderData({
-            orderId: response.data._id,
-            amount: response.data.total,
-            orderInfo: `Thanh toán đơn hàng ${(response.data as any).code || response.data._id}`,
-            orderCode: (response.data as any).code
-          });
-          setOrderResult(response.data);
-          setShowVNPayModal(true);
-        } else {
-          setOrderResult(response.data);
-          setShowSuccessModal(true);
-        }
+        setOrderResult(response.data);
+        setShowSuccessModal(true);
       } else {
         throw new Error((response as any)?.message || 'Đã xảy ra lỗi khi tạo đơn hàng');
       }
@@ -368,10 +387,57 @@ export default function ShippingPage() {
     }
   };
 
-  const handleVNPaySuccess = (paymentData: any) => {
-    setShowVNPayModal(false);
-    setShowSuccessModal(true);
-    toast.success('Thanh toán thành công!');
+  const handleVNPaySuccess = async (paymentData: any) => {
+    try {
+      setShowVNPayModal(false);
+      setIsProcessing(true);
+      
+      // Get form values to create actual order after successful payment
+      const formValues = form.getValues();
+      
+      const orderData = {
+        customer: user?._id || '000000000000000000000000',
+        items: items.map(item => ({
+          product: item.id.toString(),
+          quantity: item.quantity,
+          price: item.price,
+          variant: {
+            colorId: undefined,
+            sizeId: undefined
+          }
+        })),
+        subTotal: Number(subtotal.toFixed(2)),
+        total: Number(total.toFixed(2)),
+        shippingAddress: {
+          name: formValues.fullName,
+          phoneNumber: formValues.phoneNumber,
+          provinceId: formValues.province,
+          districtId: formValues.district,
+          wardId: formValues.ward,
+          specificAddress: formValues.address
+        },
+        paymentMethod: 'BANK_TRANSFER',
+        paymentInfo: paymentData
+      };
+      
+      const response = await createOrderMutation.mutateAsync(orderData as any);
+      if (response && response.success && response.data) {
+        clearCart();
+        toast.success('Thanh toán và đặt hàng thành công!');
+        
+        // Gửi email xác nhận đơn hàng
+        await sendOrderConfirmationEmail(response.data._id, response.data, formValues.email);
+        
+        setOrderResult(response.data);
+        setShowSuccessModal(true);
+      } else {
+        throw new Error((response as any)?.message || 'Đã xảy ra lỗi khi tạo đơn hàng');
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Đã có lỗi xảy ra sau khi thanh toán");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleVNPayError = (error: string) => {
@@ -468,7 +534,6 @@ export default function ShippingPage() {
                         <FormLabel className="text-maintext font-semibold">Số điện thoại</FormLabel>
                         <FormControl>
                           <Input 
-                            placeholder="Ví dụ: 0123456789" 
                             {...field} 
                             disabled={isFieldDisabled('phoneNumber')}
                           />
@@ -713,15 +778,18 @@ export default function ShippingPage() {
       </div>
 
       {/* VNPay Payment Modal */}
-      {vnpayOrderData && (
-        <VNPayModal
-          isOpen={showVNPayModal}
-          onClose={() => setShowVNPayModal(false)}
-          orderData={vnpayOrderData}
-          onPaymentSuccess={handleVNPaySuccess}
-          onPaymentError={handleVNPayError}
-        />
-      )}
+      <VNPayModal
+        isOpen={showVNPayModal}
+        onClose={() => setShowVNPayModal(false)}
+        orderData={vnpayOrderData || {
+          orderId: `TEMP_${Date.now()}`,
+          amount: total,
+          orderInfo: `Thanh toán đơn hàng`,
+          orderCode: `ORD${Date.now()}`
+        }}
+        onPaymentSuccess={handleVNPaySuccess}
+        onPaymentError={handleVNPayError}
+      />
 
       {/* Success Modal */}
       {orderResult && (

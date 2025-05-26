@@ -873,7 +873,7 @@ const VouchersTab = () => {
                 )}
                 <CardHeader className="pb-3 relative">
                     {!(voucher.status === 'KHONG_HOAT_DONG' || new Date(voucher.endDate) < new Date()) && (
-                         <div className="absolute -top-5 -left-5 w-16 h-16 bg-primary/10 rounded-full transform rotate-45 group-hover:scale-110 transition-transform duration-300"></div>
+                         <div className="absolute -top-4 -left-5 w-16 h-16 bg-primary/10 rounded-full transform rotate-45 group-hover:scale-110 transition-transform duration-300"></div>
                     )}
                     <div className="relative z-0">
                         <CardTitle className="text-lg font-bold flex items-center gap-2.5 text-primary tracking-wide">

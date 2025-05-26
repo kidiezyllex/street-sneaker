@@ -59,7 +59,7 @@ export default function ProductsPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [pagination, setPagination] = useState({
     page: 1,
-    limit: 9,
+    limit: 8,
   })
   const [filters, setFilters] = useState<IProductFilter>({})
   const [searchQuery, setSearchQuery] = useState("")
@@ -264,7 +264,7 @@ export default function ProductsPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 relative">
-      <Breadcrumb className="mb-4">
+      <Breadcrumb className="mb-2">
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink href="/" className="!text-maintext hover:!text-maintext">
@@ -277,11 +277,8 @@ export default function ProductsPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Tất cả sản phẩm</h1>
         <div className="flex gap-2">
-          <QrCodeScanner onQrCodeDetected={handleQrCodeDetected} />
           <Button variant="outline" className="lg:hidden flex items-center gap-2" onClick={toggleFilter}>
             <Icon path={mdiFilterOutline} size={0.9} />
             {isFilterOpen ? "Ẩn bộ lọc" : "Hiện bộ lọc"}
@@ -301,7 +298,7 @@ export default function ProductsPage() {
               className="lg:hidden w-full"
             >
               <div className="bg-white rounded-[6px] shadow-sm border p-4 mb-4">
-                <div className="flex justify-between items-center mb-4">
+                <div className="flex justify-between items-center mb-2">
                   <h2 className="font-medium">Bộ lọc sản phẩm</h2>
                   <Button variant="ghost" size="sm" onClick={toggleFilter}>
                     <Icon path={mdiClose} size={0.9} />
@@ -360,7 +357,7 @@ export default function ProductsPage() {
           </div>
 
           {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {[...Array(9)].map((_, index) => (
                 <Card key={index} className="overflow-hidden h-full">
                   <div className="aspect-square w-full">
@@ -384,7 +381,7 @@ export default function ProductsPage() {
               <div className="flex justify-between items-center mb-4">
                 <p className="text-sm text-maintext font-semibold">Tìm thấy <span className="text-primary text-lg">{filteredProducts.length}</span> sản phẩm</p>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {filteredProducts.map((product) => (
                   <ProductCard
                     key={product._id}
@@ -603,7 +600,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
 
           {/* Enhanced quick action buttons */}
           <motion.div
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 flex flex-col gap-3 z-30"
+            className="absolute right-2 top-2 transform -translate-y-1/2 flex flex-col gap-3 z-30"
             initial={{ x: 60, opacity: 0 }}
             animate={{
               x: isHovered ? 0 : 60,
@@ -615,14 +612,14 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
               <Button
                 variant="outline"
                 size="icon"
-                className="rounded-full h-11 w-11 bg-white/90 backdrop-blur-md hover:!bg-primary hover:text-white shadow-xl border-0 hover:shadow-2xl transition-all duration-300 group/btn"
-                onClick={(e) => {
+                className="rounded-full h-10 w-10 bg-white/90 backdrop-blur-md hover:!bg-primary hover:text-white shadow-xl border-0 hover:shadow-2xl transition-all duration-300 group/btn"
+                onClick={(e) => { 
                   e.preventDefault()
                   onAddToCart()
                 }}
                 aria-label="Thêm vào giỏ hàng"
               >
-                <Icon path={mdiCartOutline} size={1} className="group-hover/btn:animate-bounce" />
+                <Icon path={mdiCartOutline} size={0.8} className="group-hover/btn:animate-bounce" />
               </Button>
             </motion.div>
 
@@ -630,14 +627,14 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
               <Button
                 variant="outline"
                 size="icon"
-                className="rounded-full h-11 w-11 bg-white/90 backdrop-blur-md hover:!bg-pink-500 hover:text-white shadow-xl border-0 hover:shadow-2xl transition-all duration-300 group/btn"
+                className="rounded-full h-10 w-10 bg-white/90 backdrop-blur-md hover:!bg-pink-500 hover:text-white shadow-xl border-0 hover:shadow-2xl transition-all duration-300 group/btn"
                 onClick={(e) => {
                   e.preventDefault()
                   onAddToWishlist()
                 }}
                 aria-label="Yêu thích"
               >
-                <Icon path={mdiHeartOutline} size={1} className="group-hover/btn:animate-pulse" />
+                <Icon path={mdiHeartOutline} size={0.8} className="group-hover/btn:animate-pulse" />
               </Button>
             </motion.div>
 
@@ -645,21 +642,21 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
               <Button
                 variant="outline"
                 size="icon"
-                className="rounded-full h-11 w-11 bg-white/90 backdrop-blur-md hover:!bg-blue-500 hover:text-white shadow-xl border-0 hover:shadow-2xl transition-all duration-300 group/btn"
+                className="rounded-full h-10 w-10 bg-white/90 backdrop-blur-md hover:!bg-blue-500 hover:text-white shadow-xl border-0 hover:shadow-2xl transition-all duration-300 group/btn"
                 onClick={(e) => {
                   e.preventDefault()
                   onQuickView()
                 }}
                 aria-label="Xem nhanh"
               >
-                <Icon path={mdiEye} size={1} className="group-hover/btn:animate-ping" />
+                <Icon path={mdiEye} size={0.8} className="group-hover/btn:animate-ping" />
               </Button>
             </motion.div>
           </motion.div>
         </div>
 
         {/* Enhanced product information */}
-        <div className="p-5 flex flex-col flex-grow bg-gradient-to-b from-white via-gray-50/30 to-white border-t border-gray-100/50 rounded-b-2xl relative">
+        <div className="p-4 flex flex-col flex-grow bg-gradient-to-b from-white via-gray-50/30 to-white border-t border-gray-100/50 rounded-b-2xl relative">
           {/* Brand with enhanced styling */}
           <div className="text-xs text-primary/80 mb-2 uppercase tracking-wider font-bold flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-gradient-to-r from-primary to-pink-400 animate-pulse"></div>
@@ -677,11 +674,11 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
             </h3>
           </Link>
 
-          <div className="mt-auto pt-3">
+          <div className="mt-auto">
             {/* Enhanced pricing */}
-            <div className="flex items-end gap-3 mb-4">
+            <div className="flex items-end gap-3 mb-2">
               <motion.div
-                className="font-black text-2xl bg-gradient-to-r from-primary via-pink-500 to-orange-400 bg-clip-text text-transparent drop-shadow-sm"
+                className="font-black text-lg bg-gradient-to-r from-primary via-pink-500 to-orange-400 bg-clip-text text-transparent drop-shadow-sm"
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.2 }}
               >
@@ -696,7 +693,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
 
             {/* Enhanced color variants */}
             {product.variants.length > 0 && (
-              <div className="flex items-center gap-2 mt-3">
+              <div className="flex items-center gap-2">
                 <span className="text-xs text-gray-500 font-medium">Màu sắc:</span>
                 <div className="flex gap-1.5">
                   {Array.from(

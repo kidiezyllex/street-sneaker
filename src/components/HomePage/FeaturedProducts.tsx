@@ -107,7 +107,7 @@ const ProductCard = ({ product, index }: { product: typeof featuredProducts[0], 
         </div>
       </div>
       
-      <div className="p-5">
+      <div className="p-4">
         <div className="text-sm text-maintext dark:text-maintext mb-2">{product.category}</div>
         <h3 className="font-semibold text-gray-900 dark:text-white text-lg mb-3 group-hover:text-primary transition-colors duration-300">
           {product.name}
