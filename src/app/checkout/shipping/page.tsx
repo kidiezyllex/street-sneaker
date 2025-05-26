@@ -235,7 +235,6 @@ export default function ShippingPage() {
       };
       setVnpayOrderData(demoOrderData);
       setShowVNPayModal(true);
-      toast.info('Đang mở cổng thanh toán VNPay...');
     }
   }, [selectedPaymentMethod]);
 
@@ -325,11 +324,7 @@ export default function ShippingPage() {
   const onSubmit = async (values: ShippingFormValues) => {
     try {
       setIsProcessing(true);
-      
-      // For demo purposes, if payment method is BANK_TRANSFER, show VNPay modal immediately
       if (values.paymentMethod === 'BANK_TRANSFER') {
-        console.log('Opening VNPay modal for BANK_TRANSFER payment');
-        // Create a demo order data for VNPay modal
         const demoOrderData = {
           orderId: `DEMO_${Date.now()}`,
           amount: total,
@@ -340,7 +335,6 @@ export default function ShippingPage() {
         setVnpayOrderData(demoOrderData);
         setShowVNPayModal(true);
         setIsProcessing(false);
-        toast.info('Đang mở cổng thanh toán VNPay...');
         return;
       }
       

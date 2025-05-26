@@ -504,9 +504,6 @@ export default function VNPayModal({
           maxLength={4}
           className="text-center text-lg tracking-widest"
         />
-        <p className="text-xs text-gray-500 mt-1">
-          Để demo, vui lòng nhập: 1234
-        </p>
       </div>
 
       <div className="text-center">

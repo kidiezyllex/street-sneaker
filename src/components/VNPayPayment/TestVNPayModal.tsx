@@ -15,12 +15,10 @@ export default function TestVNPayModal() {
   };
 
   const handleSuccess = (paymentData: any) => {
-    console.log('Payment success:', paymentData);
     setShowModal(false);
   };
 
   const handleError = (error: string) => {
-    console.log('Payment error:', error);
     setShowModal(false);
   };
 
