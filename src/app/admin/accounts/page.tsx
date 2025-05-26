@@ -175,12 +175,10 @@ export default function AccountsPage() {
           queryClient.invalidateQueries({ queryKey: ['accounts'] });
         },
         onError: (error) => {
-          console.error('Chi tiết lỗi:', error);
           toast.error('Xóa tài khoản thất bại: ' + (error.message || 'Không xác định'));
         }
       });
     } catch (error) {
-      console.error('Lỗi khi xóa tài khoản:', error);
       toast.error('Xóa tài khoản thất bại');
     }
   };
@@ -206,7 +204,6 @@ export default function AccountsPage() {
           queryClient.invalidateQueries({ queryKey: ['accounts'] });
         },
         onError: (error) => {
-          console.error('Chi tiết lỗi:', error);
           toast.error('Cập nhật trạng thái tài khoản thất bại: ' + (error.message || 'Không xác định'));
         }
       });
