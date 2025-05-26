@@ -6,13 +6,13 @@ import 'react-toastify/dist/ReactToastify.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { Icon } from '@mdi/react';
-import { 
-  mdiMagnify, 
-  mdiPlus, 
-  mdiMinus, 
-  mdiDelete, 
-  mdiCashRegister, 
-  mdiTag, 
+import {
+  mdiMagnify,
+  mdiPlus,
+  mdiMinus,
+  mdiDelete,
+  mdiCashRegister,
+  mdiTag,
   mdiQrcodeScan,
   mdiCreditCardOutline,
   mdiCashMultiple,
@@ -74,17 +74,18 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"; 
-import { Table, TableHeader, TableBody, TableRow, TableCell, TableHead } from '@/components/ui/table'; 
+} from "@/components/ui/pagination";
+import { Table, TableHeader, TableBody, TableRow, TableCell, TableHead } from '@/components/ui/table';
 import { useVouchers, useIncrementVoucherUsage } from '@/hooks/voucher';
 import { useQuery } from '@tanstack/react-query';
 import { getAllVouchers } from '@/api/voucher';
 import { IVouchersResponse } from "@/interface/response/voucher";
 import { useProducts, useSearchProducts } from '@/hooks/product';
 import { IProductFilter } from '@/interface/request/product';
-import { usePosStore } from '@/stores/posStore'; 
-import { useCreatePOSOrder } from '@/hooks/order'; 
-import { IPOSOrderCreateRequest } from '@/interface/request/order'; 
+import { usePosStore } from '@/stores/posStore';
+import { useCreatePOSOrder } from '@/hooks/order';
+import { IPOSOrderCreateRequest } from '@/interface/request/order';
+import { usePOSCartStore, POSCartItem } from '@/stores/usePOSCartStore';
 
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -92,6 +93,7 @@ import { RobotoRegular } from "@/fonts/Roboto-Regular";
 import { CustomScrollArea } from '@/components/ui/custom-scroll-area';
 import { toPng } from 'html-to-image';
 import { useRef } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface ApiVariant {
   _id: string;
@@ -101,7 +103,7 @@ interface ApiVariant {
   stock: number;
   images?: string[];
   sku?: string;
-  actualSizeId?: string; 
+  actualSizeId?: string;
 }
 
 interface ApiProduct {
@@ -112,26 +114,12 @@ interface ApiProduct {
   description?: string;
   variants: ApiVariant[];
   status?: string;
-  createdAt: string; 
+  createdAt: string;
 }
 
-interface UpdatedCartItem {
-  id: string; 
-  productId: string;
-  variantId: string; 
-  name: string;
-  colorName: string;
-  colorCode?: string; 
-  sizeName: string; 
-  price: number;
-  quantity: number;
-  image: string; 
-  stock: number; 
-  actualColorId?: string; 
-  actualSizeId?: string; 
-}
+// Using POSCartItem from the store instead of local interface
 
-interface IVoucherData { 
+interface IVoucherData {
   _id: string;
   code: string;
   name: string;
@@ -143,7 +131,7 @@ interface IVoucherData {
   endDate: string;
   minOrderValue: number;
   status: string;
-  maxValue?: number; 
+  maxValue?: number;
 }
 
 interface InvoiceShopInfo {
@@ -171,8 +159,8 @@ interface InvoiceData {
   shopInfo: InvoiceShopInfo;
   customerInfo: InvoiceCustomerInfo;
   orderId: string;
-  employee: string; 
-  createdAt: string; 
+  employee: string;
+  createdAt: string;
   items: InvoiceItem[];
   subTotal: number;
   discount: number;
@@ -187,30 +175,43 @@ export default function POSPage() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedProduct, setSelectedProduct] = useState<ApiProduct | null>(null);
   const [selectedApiVariant, setSelectedApiVariant] = useState<ApiVariant | null>(null);
-  
-  const [cartItems, setCartItems] = useState<UpdatedCartItem[]>([]);
-  const [couponCode, setCouponCode] = useState<string>('');
-  const [appliedDiscount, setAppliedDiscount] = useState<number>(0);
+
+  // Using POS Cart Store
+  const {
+    items: cartItems,
+    appliedDiscount,
+    appliedVoucher,
+    couponCode,
+    addToCart: addToCartStore,
+    removeFromCart: removeFromCartStore,
+    updateQuantity: updateQuantityStore,
+    clearCart: clearCartStore,
+    setDiscount,
+    setVoucher,
+    setCouponCode,
+    calculateSubtotal,
+    calculateTotal
+  } = usePOSCartStore();
+
   const [paymentMethod, setPaymentMethod] = useState<string>('cash');
   const [showCheckoutDialog, setShowCheckoutDialog] = useState<boolean>(false);
   const [customerName, setCustomerName] = useState<string>('');
   const [customerPhone, setCustomerPhone] = useState<string>('');
-  const [checkoutIsLoading, setCheckoutIsLoading] = useState<boolean>(false); 
-  const [pagination, setPagination] = useState({ page: 1, limit: 6 }); 
+  const [checkoutIsLoading, setCheckoutIsLoading] = useState<boolean>(false);
+  const [pagination, setPagination] = useState({ page: 1, limit: 6 });
   const [filters, setFilters] = useState<IProductFilter>({ status: 'HOAT_DONG' });
-  const [sortOption, setSortOption] = useState<string>('newest'); 
+  const [sortOption, setSortOption] = useState<string>('newest');
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [activeCategoryName, setActiveCategoryName] = useState<string>('Tất cả sản phẩm');
-  const [showVouchersDialog, setShowVouchersDialog] = useState<boolean>(false); 
-  const [appliedVoucher, setAppliedVoucher] = useState<IVoucherData | null>(null); 
+  const [showVouchersDialog, setShowVouchersDialog] = useState<boolean>(false);
 
   const [cashReceived, setCashReceived] = useState<number | string>('');
   const [showInvoiceDialog, setShowInvoiceDialog] = useState<boolean>(false);
   const [currentInvoiceData, setCurrentInvoiceData] = useState<InvoiceData | null>(null);
 
-  const stats = usePosStore((state) => state.stats); 
-  const updateStatsOnCheckout = usePosStore((state) => state.updateStatsOnCheckout); 
-  const createOrderMutation = useCreatePOSOrder(); 
+  const stats = usePosStore((state) => state.stats);
+  const updateStatsOnCheckout = usePosStore((state) => state.updateStatsOnCheckout);
+  const createOrderMutation = useCreatePOSOrder();
 
   const [recentTransactions, setRecentTransactions] = useState([
     { id: 'TX-1234', customer: 'Nguyễn Văn A', amount: 1250000, time: '10:25', status: 'completed' },
@@ -234,16 +235,16 @@ export default function POSPage() {
         if (prevFilters.categories) {
           return restFilters;
         }
-        return prevFilters; 
+        return prevFilters;
       } else {
         if (!prevFilters.categories || prevFilters.categories.length !== 1 || prevFilters.categories[0] !== activeCategoryName) {
           return { ...prevFilters, categories: [activeCategoryName] };
         }
-        return prevFilters; 
+        return prevFilters;
       }
     });
     setPagination(prev => ({ ...prev, page: 1 }));
-  }, [activeCategoryName]); 
+  }, [activeCategoryName]);
 
   const productsHookParams: IProductFilter = {
     ...pagination,
@@ -257,7 +258,7 @@ export default function POSPage() {
 
   const {
     data: rawData,
-    isLoading: apiIsLoading, 
+    isLoading: apiIsLoading,
     isError: apiIsError,
   } = isSearching ? searchQueryHook : productsQuery;
 
@@ -289,15 +290,15 @@ export default function POSPage() {
   const dynamicCategories = useMemo(() => {
     const baseCategories = [{ _id: 'all', name: 'Tất cả sản phẩm' }];
     if (rawData?.data?.products) {
-        const uniqueCatObjects = new Map<string, { _id: string; name:string }>();
-        rawData.data.products.forEach((p: ApiProduct) => { 
-            if (p.category && typeof p.category === 'object' && p.category._id && p.category.name) {
-                uniqueCatObjects.set(p.category._id, { _id: p.category._id, name: p.category.name });
-            } else if (typeof p.category === 'string') { 
-                 uniqueCatObjects.set(p.category, { _id: p.category, name: p.category });
-            }
-        });
-        return [...baseCategories, ...Array.from(uniqueCatObjects.values())];
+      const uniqueCatObjects = new Map<string, { _id: string; name: string }>();
+      rawData.data.products.forEach((p: ApiProduct) => {
+        if (p.category && typeof p.category === 'object' && p.category._id && p.category.name) {
+          uniqueCatObjects.set(p.category._id, { _id: p.category._id, name: p.category.name });
+        } else if (typeof p.category === 'string') {
+          uniqueCatObjects.set(p.category, { _id: p.category, name: p.category });
+        }
+      });
+      return [...baseCategories, ...Array.from(uniqueCatObjects.values())];
     }
     return baseCategories;
   }, [rawData?.data?.products]);
@@ -313,7 +314,7 @@ export default function POSPage() {
       toast.warn('Sản phẩm này không có biến thể hoặc đã hết hàng.');
     }
   };
-  
+
   const handleColorSelectFromDetail = (colorId: string) => {
     if (!selectedProduct) return;
     const variantWithThisColor = selectedProduct.variants.find(v => v.colorId?._id === colorId && v.stock > 0);
@@ -322,15 +323,15 @@ export default function POSPage() {
     } else {
       const firstVariantOfThisColor = selectedProduct.variants.find(v => v.colorId?._id === colorId);
       if (firstVariantOfThisColor) {
-          setSelectedApiVariant(firstVariantOfThisColor); 
-          if (firstVariantOfThisColor.stock === 0) toast.warn("Màu này đã hết hàng.");
+        setSelectedApiVariant(firstVariantOfThisColor);
+        if (firstVariantOfThisColor.stock === 0) toast.warn("Màu này đã hết hàng.");
       }
     }
   };
-  
+
   const handleSizeSelectFromDetail = (sizeId: string) => {
     if (!selectedProduct || !selectedApiVariant?.colorId) return;
-    const variantWithThisSizeAndColor = selectedProduct.variants.find(v => 
+    const variantWithThisSizeAndColor = selectedProduct.variants.find(v =>
       v.colorId?._id === selectedApiVariant.colorId?._id && v.sizeId?._id === sizeId && v.stock > 0
     );
     if (variantWithThisSizeAndColor) {
@@ -359,13 +360,11 @@ export default function POSPage() {
     const { _id: variantId, price, stock, colorId, sizeId, images } = selectedApiVariant;
 
     const cartItemId = `${productId}-${variantId}`;
-    const existingItemIndex = cartItems.findIndex(item => item.id === cartItemId);
+    const existingItem = cartItems.find(item => item.id === cartItemId);
 
-    if (existingItemIndex >= 0) {
-      const updatedItems = [...cartItems];
-      if (updatedItems[existingItemIndex].quantity < stock) {
-        updatedItems[existingItemIndex].quantity += 1;
-        setCartItems(updatedItems);
+    if (existingItem) {
+      if (existingItem.quantity < stock) {
+        updateQuantityStore(cartItemId, 1);
         toast.success('Đã cập nhật số lượng sản phẩm.');
       } else {
         toast.warn('Số lượng sản phẩm trong kho không đủ.');
@@ -373,10 +372,10 @@ export default function POSPage() {
       }
     } else {
       if (1 > stock) {
-         toast.warn('Số lượng sản phẩm trong kho không đủ.');
-         return;
+        toast.warn('Số lượng sản phẩm trong kho không đủ.');
+        return;
       }
-      const newItem: UpdatedCartItem = {
+      const newItem: POSCartItem = {
         id: cartItemId,
         productId: productId,
         variantId: variantId,
@@ -388,10 +387,10 @@ export default function POSPage() {
         quantity: 1,
         image: images?.[0] || selectedProduct.variants[0]?.images?.[0] || '/placeholder.svg',
         stock: stock,
-        actualColorId: colorId?._id, 
-        actualSizeId: sizeId?._id,   
+        actualColorId: colorId?._id,
+        actualSizeId: sizeId?._id,
       };
-      setCartItems([...cartItems, newItem]);
+      addToCartStore(newItem);
       toast.success('Đã thêm sản phẩm vào giỏ hàng');
     }
     setSelectedProduct(null);
@@ -399,64 +398,69 @@ export default function POSPage() {
   };
 
   const updateCartItemQuantity = (id: string, amount: number) => {
-    const updatedItems = cartItems.map(item => {
-      if (item.id === id) {
-        const newQuantity = item.quantity + amount;
-        if (newQuantity <= 0) return item; 
-        if (newQuantity > item.stock) {
-            toast.warn(`Chỉ còn ${item.stock} sản phẩm trong kho.`);
-            return {...item, quantity: item.stock };
+    const item = cartItems.find(item => item.id === id);
+    if (!item) return;
+
+    const newQuantity = item.quantity + amount;
+    if (newQuantity <= 0) {
+      removeFromCartStore(id);
+      return;
+    }
+
+    if (newQuantity > item.stock) {
+      toast.warn(`Chỉ còn ${item.stock} sản phẩm trong kho.`);
+      return;
+    }
+
+    updateQuantityStore(id, amount);
+
+    // Check voucher validity after quantity update
+    if (appliedVoucher) {
+      const subtotal = calculateSubtotal();
+      if (subtotal < appliedVoucher.minOrderValue) {
+        toast.warn(`Đơn hàng không còn đủ điều kiện cho mã "${appliedVoucher.code}". Đã xóa mã.`);
+        setVoucher(null);
+        setDiscount(0);
+      } else {
+        let newDiscountAmount = 0;
+        if (appliedVoucher.type === 'PERCENTAGE') {
+          newDiscountAmount = (subtotal * appliedVoucher.value) / 100;
+          if ((appliedVoucher as any).maxValue && newDiscountAmount > (appliedVoucher as any).maxValue) {
+            newDiscountAmount = (appliedVoucher as any).maxValue;
+          }
+        } else if (appliedVoucher.type === 'FIXED_AMOUNT') {
+          newDiscountAmount = appliedVoucher.value;
         }
-        return { ...item, quantity: newQuantity };
+        newDiscountAmount = Math.min(newDiscountAmount, subtotal);
+        setDiscount(newDiscountAmount);
       }
-      return item;
-    }).filter(item => item.quantity > 0); 
-    setCartItems(updatedItems);
-    if(appliedVoucher) {
-        const subtotal = updatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-        if (subtotal < appliedVoucher.minOrderValue) {
-            toast.warn(`Đơn hàng không còn đủ điều kiện cho mã "${appliedVoucher.code}". Đã xóa mã.`);
-            setAppliedVoucher(null);
-            setAppliedDiscount(0);
-        } else {
-            let newDiscountAmount = 0;
-            if (appliedVoucher.type === 'PERCENTAGE') {
-                newDiscountAmount = (subtotal * appliedVoucher.value) / 100;
-                if ((appliedVoucher as any).maxValue && newDiscountAmount > (appliedVoucher as any).maxValue) {
-                    newDiscountAmount = (appliedVoucher as any).maxValue;
-                }
-            } else if (appliedVoucher.type === 'FIXED_AMOUNT') {
-                newDiscountAmount = appliedVoucher.value;
-            }
-            newDiscountAmount = Math.min(newDiscountAmount, subtotal);
-            setAppliedDiscount(newDiscountAmount);
-        }
     }
   };
 
   const removeCartItem = (id: string) => {
-    const updatedItems = cartItems.filter(item => item.id !== id);
-    setCartItems(updatedItems);
+    removeFromCartStore(id);
     toast.success('Đã xóa sản phẩm khỏi giỏ hàng');
-    if(appliedVoucher) {
-        const subtotal = updatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-        if (subtotal < appliedVoucher.minOrderValue || updatedItems.length === 0) {
-            toast.warn(`Đơn hàng không còn đủ điều kiện cho mã "${appliedVoucher.code}" hoặc giỏ hàng trống. Đã xóa mã.`);
-            setAppliedVoucher(null);
-            setAppliedDiscount(0);
-        } else {
-            let newDiscountAmount = 0;
-            if (appliedVoucher.type === 'PERCENTAGE') {
-                newDiscountAmount = (subtotal * appliedVoucher.value) / 100;
-                if ((appliedVoucher as any).maxValue && newDiscountAmount > (appliedVoucher as any).maxValue) {
-                    newDiscountAmount = (appliedVoucher as any).maxValue;
-                }
-            } else if (appliedVoucher.type === 'FIXED_AMOUNT') {
-                newDiscountAmount = appliedVoucher.value;
-            }
-            newDiscountAmount = Math.min(newDiscountAmount, subtotal);
-            setAppliedDiscount(newDiscountAmount);
+
+    // Check voucher validity after item removal
+    if (appliedVoucher) {
+      const subtotal = calculateSubtotal();
+      if (subtotal < appliedVoucher.minOrderValue || cartItems.length <= 1) {
+        toast.warn(`Đơn hàng không còn đủ điều kiện cho mã "${appliedVoucher.code}" hoặc giỏ hàng trống. Đã xóa mã.`);
+        setVoucher(null);
+        setDiscount(0);
+      } else {
+        let newDiscountAmount = 0;
+        if (appliedVoucher.type === 'PERCENTAGE') {
+          newDiscountAmount = (subtotal * appliedVoucher.value) / 100;
+          if ((appliedVoucher as any).maxValue && newDiscountAmount > (appliedVoucher as any).maxValue) {
+            newDiscountAmount = (appliedVoucher as any).maxValue;
+          }
+        } else if (appliedVoucher.type === 'FIXED_AMOUNT') {
+          newDiscountAmount = appliedVoucher.value;
         }
+        newDiscountAmount = Math.min(newDiscountAmount, subtotal);
+        setDiscount(newDiscountAmount);
+      }
     }
   };
 
@@ -476,8 +480,8 @@ export default function POSPage() {
 
     if (voucherFetchError) {
       toast.error('Có lỗi xảy ra khi tìm mã giảm giá.');
-      setAppliedVoucher(null);
-      setAppliedDiscount(0);
+      setVoucher(null);
+      setDiscount(0);
       return;
     }
 
@@ -487,22 +491,22 @@ export default function POSPage() {
       const subtotal = calculateSubtotal();
       if (subtotal < voucher.minOrderValue) {
         toast.error(`Đơn hàng chưa đạt giá trị tối thiểu ${formatCurrency(voucher.minOrderValue)} để áp dụng mã này.`);
-        setAppliedVoucher(null);
-        setAppliedDiscount(0);
+        setVoucher(null);
+        setDiscount(0);
         return;
       }
 
       if (voucher.quantity <= voucher.usedCount) {
         toast.error('Mã giảm giá này đã hết lượt sử dụng.');
-        setAppliedVoucher(null);
-        setAppliedDiscount(0);
+        setVoucher(null);
+        setDiscount(0);
         return;
       }
-      
+
       if (new Date(voucher.endDate) < new Date()) {
         toast.error('Mã giảm giá đã hết hạn.');
-        setAppliedVoucher(null);
-        setAppliedDiscount(0);
+        setVoucher(null);
+        setDiscount(0);
         return;
       }
 
@@ -515,29 +519,21 @@ export default function POSPage() {
       } else if (voucher.type === 'FIXED_AMOUNT') {
         discountAmount = voucher.value;
       }
-      
+
       discountAmount = Math.min(discountAmount, subtotal);
 
-      setAppliedDiscount(discountAmount); 
-      setAppliedVoucher(voucher); 
+      setDiscount(discountAmount);
+      setVoucher(voucher);
       toast.success(`Đã áp dụng mã giảm giá "${voucher.code}".`);
     } else {
       toast.error('Mã giảm giá không hợp lệ hoặc không tìm thấy.');
-      setAppliedVoucher(null);
-      setAppliedDiscount(0);
+      setVoucher(null);
+      setDiscount(0);
     }
-  };
-
-  const calculateSubtotal = () => {
-    return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   };
 
   const calculateDiscount = () => {
     return appliedDiscount;
-  };
-
-  const calculateTotal = () => {
-    return calculateSubtotal() - calculateDiscount();
   };
 
   const formatCurrency = (amount: number) => {
@@ -567,8 +563,8 @@ export default function POSPage() {
     const cashReceivedNum = parseFloat(cashReceived.toString());
 
     if (paymentMethod === 'cash' && (isNaN(cashReceivedNum) || cashReceivedNum < totalAmount)) {
-        toast.error('Số tiền khách đưa không đủ hoặc không hợp lệ.');
-        return;
+      toast.error('Số tiền khách đưa không đủ hoặc không hợp lệ.');
+      return;
     }
 
 
@@ -603,7 +599,7 @@ export default function POSPage() {
         specificAddress: 'Tại quầy'
       },
       paymentMethod: paymentMethod === 'cash' ? 'CASH' :
-                     (paymentMethod === 'card' || paymentMethod === 'transfer') ? 'BANK_TRANSFER' : 'CASH',
+        (paymentMethod === 'card' || paymentMethod === 'transfer') ? 'BANK_TRANSFER' : 'CASH',
       orderStatus: "HOAN_THANH",
       discount: appliedDiscount,
       voucher: appliedVoucher?._id || '',
@@ -640,10 +636,10 @@ export default function POSPage() {
             }
           );
         }
-        
+
         const currentChangeDue = paymentMethod === 'cash' && !isNaN(cashReceivedNum) && cashReceivedNum >= totalAmount ? cashReceivedNum - totalAmount : 0;
         const invoiceData: InvoiceData = {
-          shopInfo: { 
+          shopInfo: {
             name: 'Street Sneaker',
             address: '1 Võ Văn Ngân, Linh Chiểu, Thủ Đức, TP.HCM',
             phone: '0123 456 789',
@@ -653,8 +649,8 @@ export default function POSPage() {
             name: customerName || 'Khách lẻ',
             phone: customerPhone || 'N/A',
           },
-          orderId: orderCode, 
-          employee: 'Nhân viên Bán Hàng', 
+          orderId: orderCode,
+          employee: 'Nhân viên Bán Hàng',
           createdAt: new Date().toISOString(),
           items: cartItems.map(item => ({
             name: item.name,
@@ -676,10 +672,7 @@ export default function POSPage() {
         setShowInvoiceDialog(true);
 
 
-        setCartItems([]);
-        setAppliedDiscount(0);
-        setCouponCode('');
-        setAppliedVoucher(null);
+        clearCartStore();
         setCustomerName('');
         setCustomerPhone('');
         setPaymentMethod('cash');
@@ -710,19 +703,16 @@ export default function POSPage() {
       if (e.altKey && e.key === 'p') {
         handleProceedToCheckout();
       }
-      
+
       if (e.altKey && e.key === 'c') {
         if (cartItems.length > 0 || appliedVoucher) {
-          setCartItems([]);
+          clearCartStore();
           setSelectedProduct(null);
           setSelectedApiVariant(null);
-          setAppliedVoucher(null);
-          setAppliedDiscount(0);
-          setCouponCode('');
           toast.success('Đã xóa giỏ hàng và mã giảm giá.');
         }
       }
-      
+
       if (e.altKey && e.key === 's') {
         const searchInput = document.getElementById('product-search');
         if (searchInput) {
@@ -731,10 +721,10 @@ export default function POSPage() {
         }
       }
     };
-    
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [cartItems, appliedVoucher, handleProceedToCheckout]); 
+  }, [cartItems, appliedVoucher, handleProceedToCheckout]);
 
   const getBrandName = (brand: ApiProduct['brand']) => typeof brand === 'object' ? brand.name : brand;
 
@@ -754,8 +744,8 @@ export default function POSPage() {
     const sizeMap = new Map<string, ApiVariant['sizeId']>();
     selectedProduct.variants.forEach(variant => {
       if (variant.colorId?._id === selectedApiVariant.colorId?._id && variant.sizeId && variant.sizeId._id && variant.stock > 0) {
-        if(!sizeMap.has(variant.sizeId._id)){
-            sizeMap.set(variant.sizeId._id, variant.sizeId);
+        if (!sizeMap.has(variant.sizeId._id)) {
+          sizeMap.set(variant.sizeId._id, variant.sizeId);
         }
       }
     });
@@ -768,7 +758,7 @@ export default function POSPage() {
 
   return (
     <div className="h-full">
-      
+
       <div className="mb-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
           <Breadcrumb>
@@ -782,13 +772,13 @@ export default function POSPage() {
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-          
+
           <div className="flex items-center gap-2">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="outline" size="icon">
-                    <Icon path={mdiClock} size={0.9}  />
+                    <Icon path={mdiClock} size={0.9} />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -796,12 +786,12 @@ export default function POSPage() {
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            
+
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="outline" size="icon" className="h-9 w-9">
-                    <Icon path={mdiReceipt} size={0.9}  />
+                    <Icon path={mdiReceipt} size={0.9} />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -809,12 +799,12 @@ export default function POSPage() {
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            
+
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="outline" size="icon" className="h-9 w-9">
-                    <Icon path={mdiAccount} size={0.9}/>
+                    <Icon path={mdiAccount} size={0.9} />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -824,8 +814,8 @@ export default function POSPage() {
             </TooltipProvider>
           </div>
         </div>
-        
-        
+
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           <div className="bg-white rounded-[6px] p-4 shadow-sm border border-border hover:shadow-md transition-shadow duration-300">
             <div className="flex items-center justify-between">
@@ -838,7 +828,7 @@ export default function POSPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-[6px] p-4 shadow-sm border border-border hover:shadow-md transition-shadow duration-300">
             <div className="flex items-center justify-between">
               <div>
@@ -850,7 +840,7 @@ export default function POSPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-[6px] p-4 shadow-sm border border-border hover:shadow-md transition-shadow duration-300">
             <div className="flex items-center justify-between">
               <div>
@@ -862,7 +852,7 @@ export default function POSPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-[6px] p-4 shadow-sm border border-border hover:shadow-md transition-shadow duration-300">
             <div className="flex items-center justify-between">
               <div>
@@ -876,11 +866,11 @@ export default function POSPage() {
           </div>
         </div>
       </div>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        
+
         <div className="lg:col-span-2 overflow-hidden flex flex-col">
-          
+
           <div className="bg-white rounded-[6px] p-4 mb-4 shadow-sm border border-border hover:shadow-md transition-shadow duration-300">
             <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
               <div className="relative flex-1">
@@ -894,28 +884,28 @@ export default function POSPage() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <button 
+              <button
                 className="px-4 py-2.5 bg-primary text-white rounded-[6px] hover:bg-primary/80 transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
               >
                 <Icon path={mdiQrcodeScan} size={0.8} className="text-white" />
                 <span>Quét mã QR</span>
               </button>
             </div>
-            
-            
+
+
             <div className="flex overflow-x-auto pb-2 scrollbar-thin gap-2">
               {dynamicCategories.map((category) => (
                 <button
                   key={category._id}
                   className={cn(
                     'whitespace-nowrap px-4 py-2 rounded-[6px] text-sm font-medium transition-all duration-200',
-                    activeCategoryName === category.name 
+                    activeCategoryName === category.name
                       ? 'bg-primary text-white shadow-sm'
                       : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:text-primary'
                   )}
                   onClick={() => {
                     setActiveCategoryName(category.name);
-                    setSelectedProduct(null); 
+                    setSelectedProduct(null);
                     setSelectedApiVariant(null);
                   }}
                 >
@@ -924,10 +914,10 @@ export default function POSPage() {
               ))}
             </div>
           </div>
-          
-          
+
+
           <div className="bg-white rounded-[6px] p-4 flex-1 shadow-sm border border-border hover:shadow-md transition-shadow duration-300 min-h-[400px]">
-            {selectedProduct && selectedApiVariant ? ( 
+            {selectedProduct && selectedApiVariant ? (
               <div className="mb-4">
                 <button
                   className="mb-4 text-sm text-primary font-medium flex items-center hover:text-primary/80 transition-colors"
@@ -938,9 +928,9 @@ export default function POSPage() {
                 >
                   ← Quay lại danh sách sản phẩm
                 </button>
-                
+
                 <div className="flex flex-col md:flex-row gap-8">
-                  
+
                   <div className="md:w-1/2">
                     <div className="relative h-80 w-full overflow-hidden rounded-[6px] bg-gray-50 group">
                       <Image
@@ -950,72 +940,72 @@ export default function POSPage() {
                         className="object-contain transition-transform duration-300 group-hover:scale-105"
                       />
                     </div>
-                    
-                    
+
+
                     {uniqueColorsForSelectedProduct.length > 0 && (
-                    <div className="mt-6">
-                      <h3 className="text-sm font-medium mb-3 !text-[#374151]/80">Màu sắc:</h3>
-                      <div className="flex gap-2 flex-wrap">
-                        {uniqueColorsForSelectedProduct.map((color) => (
-                          <button
-                            key={color._id}
-                            className={cn(
-                              'h-10 w-10 rounded-full border-2 transition-all duration-200 hover:scale-110',
-                              selectedApiVariant?.colorId?._id === color._id
-                                ? 'border-primary shadow-md'
-                                : 'border-gray-200 hover:border-primary/50'
-                            )}
-                            style={{ backgroundColor: color.code }}
-                            onClick={() => handleColorSelectFromDetail(color._id)}
-                            title={color.name}
-                          />
-                        ))}
+                      <div className="mt-6">
+                        <h3 className="text-sm font-medium mb-3 !text-[#374151]/80">Màu sắc:</h3>
+                        <div className="flex gap-2 flex-wrap">
+                          {uniqueColorsForSelectedProduct.map((color) => (
+                            <button
+                              key={color._id}
+                              className={cn(
+                                'h-10 w-10 rounded-full border-2 transition-all duration-200 hover:scale-110',
+                                selectedApiVariant?.colorId?._id === color._id
+                                  ? 'border-primary shadow-md'
+                                  : 'border-gray-200 hover:border-primary/50'
+                              )}
+                              style={{ backgroundColor: color.code }}
+                              onClick={() => handleColorSelectFromDetail(color._id)}
+                              title={color.name}
+                            />
+                          ))}
+                        </div>
                       </div>
-                    </div>
                     )}
                   </div>
-                  
-                  
+
+
                   <div className="md:w-1/2">
                     <h2 className="text-2xl font-bold !text-[#374151]/80">{selectedProduct.name}</h2>
                     <p className="text-maintext mb-4">{getBrandName(selectedProduct.brand)}</p>
-                    
+
                     {selectedProduct.description && (
                       <p className="text-gray-600 mb-4 text-sm">{selectedProduct.description}</p>
                     )}
-                    
-                    
+
+
                     {availableSizesForSelectedColor.length > 0 && selectedApiVariant?.colorId && (
-                    <div className="mb-4">
-                      <h3 className="text-sm font-medium mb-3 !text-[#374151]/80">Kích thước:</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {availableSizesForSelectedColor.map((size) => {
-                           const variantForThisSize = selectedProduct.variants.find(v => v.colorId?._id === selectedApiVariant.colorId?._id && v.sizeId?._id === size._id);
-                           const stockForThisSize = variantForThisSize?.stock || 0;
-                          return (
-                          <button
-                            key={size._id}
-                            className={cn(
-                              'px-4 py-2 rounded-[6px] text-sm font-medium transition-all duration-200',
-                              selectedApiVariant?.sizeId?._id === size._id
-                                ? 'bg-primary text-white shadow-sm'
-                                : 'bg-white text-gray-700 border border-gray-200 hover:border-primary/50 hover:text-primary',
-                              stockForThisSize === 0 && 'opacity-50 cursor-not-allowed'
-                            )}
-                            onClick={() => handleSizeSelectFromDetail(size._id)}
-                            disabled={stockForThisSize === 0}
-                          >
-                            {size.name || size.value}
-                            {stockForThisSize === 0 && ' (Hết hàng)'}
-                          </button>
-                        );
-                        })}
+                      <div className="mb-4">
+                        <h3 className="text-sm font-medium mb-3 !text-[#374151]/80">Kích thước:</h3>
+                        <div className="flex flex-wrap gap-2">
+                          {availableSizesForSelectedColor.map((size) => {
+                            const variantForThisSize = selectedProduct.variants.find(v => v.colorId?._id === selectedApiVariant.colorId?._id && v.sizeId?._id === size._id);
+                            const stockForThisSize = variantForThisSize?.stock || 0;
+                            return (
+                              <button
+                                key={size._id}
+                                className={cn(
+                                  'px-4 py-2 rounded-[6px] text-sm font-medium transition-all duration-200',
+                                  selectedApiVariant?.sizeId?._id === size._id
+                                    ? 'bg-primary text-white shadow-sm'
+                                    : 'bg-white text-gray-700 border border-gray-200 hover:border-primary/50 hover:text-primary',
+                                  stockForThisSize === 0 && 'opacity-50 cursor-not-allowed'
+                                )}
+                                onClick={() => handleSizeSelectFromDetail(size._id)}
+                                disabled={stockForThisSize === 0}
+                              >
+                                {size.name || size.value}
+                                {stockForThisSize === 0 && ' (Hết hàng)'}
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
-                    </div>
                     )}
-                    
-                    
-                    {selectedApiVariant && ( 
+
+
+                    {selectedApiVariant && (
                       <>
                         <div className="mb-4">
                           <h3 className="text-sm font-medium mb-1 !text-[#374151]/80">Giá:</h3>
@@ -1023,17 +1013,17 @@ export default function POSPage() {
                             {formatCurrency(selectedApiVariant.price)}
                           </p>
                         </div>
-                        
+
                         <div className="mb-4">
                           <h3 className="text-sm font-medium mb-1 !text-[#374151]/80">Số lượng trong kho:</h3>
                           <div className="flex items-center gap-2">
                             <p className="text-gray-600">{selectedApiVariant.stock} sản phẩm</p>
-                            <Badge variant={selectedApiVariant.stock > 10 ? "secondary" : selectedApiVariant.stock > 0 ? "outline" : "destructive" }>
+                            <Badge variant={selectedApiVariant.stock > 10 ? "secondary" : selectedApiVariant.stock > 0 ? "outline" : "destructive"}>
                               {selectedApiVariant.stock > 10 ? "Còn hàng" : selectedApiVariant.stock > 0 ? "Sắp hết" : "Hết hàng"}
                             </Badge>
                           </div>
                         </div>
-                        
+
                         <Button
                           className="w-full py-4 text-base"
                           onClick={addToCart}
@@ -1059,12 +1049,12 @@ export default function POSPage() {
                       Bảng
                     </TabsTrigger>
                   </TabsList>
-                  
+
                   <div className="text-sm text-maintext">
                     Hiển thị {apiIsLoading ? <Skeleton className="h-4 w-5 inline-block" /> : processedProducts.length} / {rawData?.data?.pagination?.totalItems || 0} sản phẩm
                   </div>
                 </div>
-                
+
                 {apiIsLoading ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     {[...Array(pagination.limit)].map((_, index) => (
@@ -1076,556 +1066,552 @@ export default function POSPage() {
                 ) : processedProducts.length === 0 ? (
                   <div className="text-center py-10 text-maintext">Không tìm thấy sản phẩm nào.</div>
                 ) : (
-                <>
-                <TabsContent value="grid" className="mt-0">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    {processedProducts.map((product) => {
-                      const firstVariant = product.variants?.[0];
-                      const uniqueColorsCount = new Set(product.variants.map(v => v.colorId?._id)).size;
-                      return (
-                      <motion.div
-                        key={product._id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="bg-white rounded-[6px] border border-border shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 group"
-                      >
-                        <div 
-                          className="relative h-48 w-full bg-gray-50 overflow-hidden cursor-pointer"
-                          onClick={() => handleProductSelect(product)}
-                        >
-                          <Image
-                            src={checkImageUrl(firstVariant?.images?.[0]  )}
-                            alt={product.name}
-                            fill
-                            className="object-contain transition-transform duration-300 group-hover:scale-105"
-                          />
-                          {uniqueColorsCount > 0 && (
-                          <div className="absolute top-2 right-2">
-                            <Badge variant="secondary" className="bg-white/80 backdrop-blur-sm">
-                              {uniqueColorsCount} màu
-                            </Badge>
-                          </div>
-                          )}
-                        </div>
-                        <div className="p-4">
-                          <h3 
-                            className="font-medium !text-[#374151]/80 group-hover:text-primary transition-colors truncate cursor-pointer"
-                            onClick={() => handleProductSelect(product)}
-                          >
-                            {product.name}
-                          </h3>
-                          <p className="text-maintext text-sm mb-2 truncate">{getBrandName(product.brand)}</p>
-                          <div className="flex justify-between items-center">
-                            <p className="text-primary font-medium">
-                              {firstVariant ? formatCurrency(firstVariant.price) : 'N/A'}
-                            </p>
-                            {product.variants.length > 0 && (
-                            <div className="flex -space-x-1">
-                              {Array.from(new Map(product.variants.map(v => [v.colorId?._id, v.colorId])).values()).slice(0, 3).map((color, idx) => color && (
-                                <div 
-                                  key={color._id || idx}
-                                  className="h-5 w-5 rounded-full border border-white"
-                                  style={{ backgroundColor: color.code }}
-                                  title={color.name}
-                                />
-                              ))}
-                              {uniqueColorsCount > 3 && (
-                                <div className="h-5 w-5 rounded-full bg-gray-100 border border-white flex items-center justify-center text-xs text-maintext">
-                                  +{uniqueColorsCount - 3}
-                                </div>
-                              )}
-                            </div>
-                            )}
-                          </div>
-                          <Button 
-                            variant="outline" 
-                            className="w-full mt-3 flex items-center justify-center gap-2"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const firstAvailableVariant = product.variants.find(v => v.stock > 0) || product.variants[0];
-                              if (firstAvailableVariant) {
-                                const cartItemId = `${product._id}-${firstAvailableVariant._id}`;
-                                const existingItemIndex = cartItems.findIndex(item => item.id === cartItemId);
-                                
-                                if (existingItemIndex >= 0) {
-                                  if (cartItems[existingItemIndex].quantity < firstAvailableVariant.stock) {
-                                    const updatedItems = [...cartItems];
-                                    updatedItems[existingItemIndex].quantity += 1;
-                                    setCartItems(updatedItems);
-                                    toast.success('Đã cập nhật số lượng sản phẩm.');
-                                  } else {
-                                    toast.warn('Số lượng sản phẩm trong kho không đủ.');
-                                  }
-                                } else {
-                                  if (firstAvailableVariant.stock > 0) {
-                                    const newItem: UpdatedCartItem = {
-                                      id: cartItemId,
-                                      productId: product._id,
-                                      variantId: firstAvailableVariant._id,
-                                      name: product.name,
-                                      colorName: firstAvailableVariant.colorId?.name || 'N/A',
-                                      colorCode: firstAvailableVariant.colorId?.code,
-                                      sizeName: firstAvailableVariant.sizeId?.name || firstAvailableVariant.sizeId?.value || 'N/A',
-                                      price: firstAvailableVariant.price,
-                                      quantity: 1,
-                                      image: firstAvailableVariant.images?.[0] || product.variants[0]?.images?.[0] || '/placeholder.svg',
-                                      stock: firstAvailableVariant.stock,
-                                      actualColorId: firstAvailableVariant.colorId?._id,
-                                      actualSizeId: firstAvailableVariant.sizeId?._id,
-                                    };
-                                    setCartItems([...cartItems, newItem]);
-                                    toast.success('Đã thêm sản phẩm vào giỏ hàng');
-                                  } else {
-                                    toast.warn('Sản phẩm này đã hết hàng.');
-                                  }
-                                }
-                              } else {
-                                toast.warn('Sản phẩm này không có biến thể hoặc đã hết hàng.');
-                              }
-                            }}
-                            disabled={product.variants.every(v => v.stock === 0)}
-                          >
-                            <Icon path={mdiPlus} size={0.8} />
-                            Thêm vào giỏ
-                          </Button>
-                        </div>
-                      </motion.div>
-                    );
-                    })}
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="table" className="mt-0">
-                  <div className="border border-border rounded-[6px] overflow-hidden">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="bg-muted/50">
-                          <th className="text-left py-3 px-4 font-medium !text-[#374151]/80">Sản phẩm</th>
-                          <th className="text-left py-3 px-4 font-medium !text-[#374151]/80">Thương hiệu</th>
-                          <th className="text-left py-3 px-4 font-medium !text-[#374151]/80">Giá</th>
-                          <th className="text-left py-3 px-4 font-medium !text-[#374151]/80">Màu sắc</th>
-                          <th className="text-left py-3 px-4 font-medium !text-[#374151]/80">Kho</th>
-                          <th className="text-center py-3 px-4 font-medium !text-[#374151]/80">Thao tác</th>
-                        </tr>
-                      </thead>
-                      <tbody>
+                  <>
+                    <TabsContent value="grid" className="mt-0">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         {processedProducts.map((product) => {
                           const firstVariant = product.variants?.[0];
-                          const totalStock = product.variants.reduce((sum, v) => sum + v.stock, 0);
                           const uniqueColorsCount = new Set(product.variants.map(v => v.colorId?._id)).size;
-                          const firstAvailableVariant = product.variants.find(v => v.stock > 0) || product.variants[0];
                           return (
-                          <tr 
-                            key={product._id} 
-                            className="border-t border-border hover:bg-muted/20 transition-colors cursor-pointer"
-                          >
-                            <td className="py-3 px-4" onClick={() => handleProductSelect(product)}>
-                              <div className="flex items-center gap-2">
-                                <div className="relative h-10 w-10 rounded-[6px] overflow-hidden bg-gray-50">
-                                  <Image
-                                    src={checkImageUrl(firstVariant?.images?.[0]  )}
-                                    alt={product.name}
-                                    fill
-                                    className="object-contain"
-                                  />
-                                </div>
-                                <span className="font-medium !text-[#374151]/80 truncate max-w-[150px]">{product.name}</span>
-                              </div>
-                            </td>
-                            <td className="py-3 px-4 text-gray-600 truncate max-w-[100px]" onClick={() => handleProductSelect(product)}>{getBrandName(product.brand)}</td>
-                            <td className="py-3 px-4 text-primary font-medium" onClick={() => handleProductSelect(product)}>{firstVariant ? formatCurrency(firstVariant.price) : 'N/A'}</td>
-                            <td className="py-3 px-4" onClick={() => handleProductSelect(product)}>
-                              {product.variants.length > 0 && (
-                              <div className="flex -space-x-1">
-                                {Array.from(new Map(product.variants.map(v => [v.colorId?._id, v.colorId])).values()).slice(0, 3).map((color, idx) => color && (
-                                  <div 
-                                    key={color._id || idx}
-                                    className="h-5 w-5 rounded-full border"
-                                    style={{ backgroundColor: color.code }}
-                                    title={color.name}
-                                  />
-                                ))}
-                                {uniqueColorsCount > 3 && (
-                                  <div className="h-5 w-5 rounded-full bg-gray-100 border border-white flex items-center justify-center text-xs text-maintext">
-                                    +{uniqueColorsCount - 3}
+                            <motion.div
+                              key={product._id}
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.3 }}
+                              className="bg-white rounded-[6px] border border-border shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 group"
+                            >
+                              <div
+                                className="relative h-48 w-full bg-gray-50 overflow-hidden cursor-pointer"
+                                onClick={() => handleProductSelect(product)}
+                              >
+                                <Image
+                                  src={checkImageUrl(firstVariant?.images?.[0])}
+                                  alt={product.name}
+                                  fill
+                                  className="object-contain transition-transform duration-300 group-hover:scale-105"
+                                />
+                                {uniqueColorsCount > 0 && (
+                                  <div className="absolute top-2 right-2">
+                                    <Badge variant="secondary" className="bg-white/80 backdrop-blur-sm">
+                                      {uniqueColorsCount} màu
+                                    </Badge>
                                   </div>
                                 )}
                               </div>
-                              )}
-                            </td>
-                            <td className="py-3 px-4" onClick={() => handleProductSelect(product)}>
-                              <Badge variant={totalStock > 10 ? "secondary" : totalStock > 0 ? "outline" : "destructive"} className="text-xs !flex-shrink-0">
-                                <span className="flex-shrink-0">{totalStock > 10 ? "Còn hàng" : totalStock > 0 ? "Sắp hết" : "Hết hàng"}</span>
-                              </Badge>
-                            </td>
-                            <td className="py-3 px-4 text-center">
-                              <div className="flex items-center justify-center gap-2">
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button 
-                                        variant="ghost" 
-                                        size="sm" 
-                                        className="h-8 w-8 p-0"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleProductSelect(product);
-                                        }}
-                                      >
-                                        <Icon path={mdiInformationOutline} size={0.8} className="text-maintext" />
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p>Chi tiết</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                                
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button 
-                                        variant="ghost" 
-                                        size="sm" 
-                                        className="h-8 w-8 p-0" 
-                                        disabled={product.variants.every(v => v.stock === 0)}
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          if (firstAvailableVariant) {
-                                            const cartItemId = `${product._id}-${firstAvailableVariant._id}`;
-                                            const existingItemIndex = cartItems.findIndex(item => item.id === cartItemId);
-                                            
-                                            if (existingItemIndex >= 0) {
-                                              if (cartItems[existingItemIndex].quantity < firstAvailableVariant.stock) {
-                                                const updatedItems = [...cartItems];
-                                                updatedItems[existingItemIndex].quantity += 1;
-                                                setCartItems(updatedItems);
-                                                toast.success('Đã cập nhật số lượng sản phẩm.');
-                                              } else {
-                                                toast.warn('Số lượng sản phẩm trong kho không đủ.');
-                                              }
-                                            } else {
-                                              if (firstAvailableVariant.stock > 0) {
-                                                const newItem: UpdatedCartItem = {
-                                                  id: cartItemId,
-                                                  productId: product._id,
-                                                  variantId: firstAvailableVariant._id,
-                                                  name: product.name,
-                                                  colorName: firstAvailableVariant.colorId?.name || 'N/A',
-                                                  colorCode: firstAvailableVariant.colorId?.code,
-                                                  sizeName: firstAvailableVariant.sizeId?.name || firstAvailableVariant.sizeId?.value || 'N/A',
-                                                  price: firstAvailableVariant.price,
-                                                  quantity: 1,
-                                                  image: firstAvailableVariant.images?.[0] || product.variants[0]?.images?.[0] || '/placeholder.svg',
-                                                  stock: firstAvailableVariant.stock,
-                                                  actualColorId: firstAvailableVariant.colorId?._id,
-                                                  actualSizeId: firstAvailableVariant.sizeId?._id,
-                                                };
-                                                setCartItems([...cartItems, newItem]);
-                                                toast.success('Đã thêm sản phẩm vào giỏ hàng');
-                                              } else {
-                                                toast.warn('Sản phẩm này đã hết hàng.');
-                                              }
-                                            }
-                                          }
-                                        }}
-                                      >
-                                        <Icon path={mdiPlus} size={0.8} className="text-maintext" />
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p>Thêm vào giỏ</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
+                              <div className="p-4">
+                                <h3
+                                  className="font-medium !text-[#374151]/80 group-hover:text-primary transition-colors truncate cursor-pointer"
+                                  onClick={() => handleProductSelect(product)}
+                                >
+                                  {product.name}
+                                </h3>
+                                <p className="text-maintext text-sm mb-2 truncate">{getBrandName(product.brand)}</p>
+                                <div className="flex justify-between items-center">
+                                  <p className="text-primary font-medium">
+                                    {firstVariant ? formatCurrency(firstVariant.price) : 'N/A'}
+                                  </p>
+                                  {product.variants.length > 0 && (
+                                    <div className="flex -space-x-1">
+                                      {Array.from(new Map(product.variants.map(v => [v.colorId?._id, v.colorId])).values()).slice(0, 3).map((color, idx) => color && (
+                                        <div
+                                          key={color._id || idx}
+                                          className="h-5 w-5 rounded-full border border-white"
+                                          style={{ backgroundColor: color.code }}
+                                          title={color.name}
+                                        />
+                                      ))}
+                                      {uniqueColorsCount > 3 && (
+                                        <div className="h-5 w-5 rounded-full bg-gray-100 border border-white flex items-center justify-center text-xs text-maintext">
+                                          +{uniqueColorsCount - 3}
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                                <Button
+                                  variant="outline"
+                                  className="w-full mt-3 flex items-center justify-center gap-2"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const firstAvailableVariant = product.variants.find(v => v.stock > 0) || product.variants[0];
+                                    if (firstAvailableVariant) {
+                                      const cartItemId = `${product._id}-${firstAvailableVariant._id}`;
+                                      const existingItemIndex = cartItems.findIndex(item => item.id === cartItemId);
+
+                                      if (existingItemIndex >= 0) {
+                                        if (cartItems[existingItemIndex].quantity < firstAvailableVariant.stock) {
+                                          updateQuantityStore(cartItemId, 1);
+                                          toast.success('Đã cập nhật số lượng sản phẩm.');
+                                        } else {
+                                          toast.warn('Số lượng sản phẩm trong kho không đủ.');
+                                        }
+                                      } else {
+                                        if (firstAvailableVariant.stock > 0) {
+                                          const newItem: POSCartItem = {
+                                            id: cartItemId,
+                                            productId: product._id,
+                                            variantId: firstAvailableVariant._id,
+                                            name: product.name,
+                                            colorName: firstAvailableVariant.colorId?.name || 'N/A',
+                                            colorCode: firstAvailableVariant.colorId?.code,
+                                            sizeName: firstAvailableVariant.sizeId?.name || firstAvailableVariant.sizeId?.value || 'N/A',
+                                            price: firstAvailableVariant.price,
+                                            quantity: 1,
+                                            image: firstAvailableVariant.images?.[0] || product.variants[0]?.images?.[0] || '/placeholder.svg',
+                                            stock: firstAvailableVariant.stock,
+                                            actualColorId: firstAvailableVariant.colorId?._id,
+                                            actualSizeId: firstAvailableVariant.sizeId?._id,
+                                          };
+                                          addToCartStore(newItem);
+                                          toast.success('Đã thêm sản phẩm vào giỏ hàng');
+                                        } else {
+                                          toast.warn('Sản phẩm này đã hết hàng.');
+                                        }
+                                      }
+                                    } else {
+                                      toast.warn('Sản phẩm này không có biến thể hoặc đã hết hàng.');
+                                    }
+                                  }}
+                                  disabled={product.variants.every(v => v.stock === 0)}
+                                >
+                                  <Icon path={mdiPlus} size={0.8} />
+                                  Thêm vào giỏ
+                                </Button>
                               </div>
-                            </td>
-                          </tr>
-                        );
+                            </motion.div>
+                          );
                         })}
-                      </tbody>
-                    </table>
-                  </div>
-                </TabsContent>
-                
-                {rawData?.data?.pagination && rawData.data.pagination.totalPages > 1 && (
-                  <div className="flex justify-center mt-6">
-                    <Pagination>
-                      <PaginationContent>
-                        <PaginationItem>
-                          <PaginationPrevious
-                            href="#"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              if (pagination.page > 1) {
-                                setPagination(p => ({ ...p, page: p.page - 1 }));
-                              }
-                            }}
-                            disabled={pagination.page <= 1}
-                          />
-                        </PaginationItem>
-                        {(() => {
-                          const pages = [];
-                          const totalPages = rawData.data.pagination.totalPages;
-                          const currentPage = pagination.page;
-                          const pageLimit = 5; 
+                      </div>
+                    </TabsContent>
 
-                          if (totalPages <= pageLimit) {
-                            for (let i = 1; i <= totalPages; i++) {
-                              pages.push(
-                                <PaginationItem key={i}>
-                                  <PaginationLink
-                                    href="#"
-                                    isActive={currentPage === i}
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      setPagination(p => ({ ...p, page: i }));
-                                    }}
-                                  >
-                                    {i}
-                                  </PaginationLink>
-                                </PaginationItem>
-                              );
-                            }
-                          } else {
-                            pages.push(
-                              <PaginationItem key={1}>
-                                <PaginationLink
-                                  href="#"
-                                  isActive={currentPage === 1}
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    setPagination(p => ({ ...p, page: 1 }));
-                                  }}
+                    <TabsContent value="table" className="mt-0">
+                      <div className="border border-border rounded-[6px] overflow-hidden">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-muted/50">
+                              <th className="text-left py-3 px-4 font-medium !text-[#374151]/80">Sản phẩm</th>
+                              <th className="text-left py-3 px-4 font-medium !text-[#374151]/80">Thương hiệu</th>
+                              <th className="text-left py-3 px-4 font-medium !text-[#374151]/80">Giá</th>
+                              <th className="text-left py-3 px-4 font-medium !text-[#374151]/80">Màu sắc</th>
+                              <th className="text-left py-3 px-4 font-medium !text-[#374151]/80">Kho</th>
+                              <th className="text-center py-3 px-4 font-medium !text-[#374151]/80">Thao tác</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {processedProducts.map((product) => {
+                              const firstVariant = product.variants?.[0];
+                              const totalStock = product.variants.reduce((sum, v) => sum + v.stock, 0);
+                              const uniqueColorsCount = new Set(product.variants.map(v => v.colorId?._id)).size;
+                              const firstAvailableVariant = product.variants.find(v => v.stock > 0) || product.variants[0];
+                              return (
+                                <tr
+                                  key={product._id}
+                                  className="border-t border-border hover:bg-muted/20 transition-colors cursor-pointer"
                                 >
-                                  1
-                                </PaginationLink>
-                              </PaginationItem>
-                            );
+                                  <td className="py-3 px-4" onClick={() => handleProductSelect(product)}>
+                                    <div className="flex items-center gap-2">
+                                      <div className="relative h-10 w-10 rounded-[6px] overflow-hidden bg-gray-50">
+                                        <Image
+                                          src={checkImageUrl(firstVariant?.images?.[0])}
+                                          alt={product.name}
+                                          fill
+                                          className="object-contain"
+                                        />
+                                      </div>
+                                      <span className="font-medium !text-[#374151]/80 truncate max-w-[150px]">{product.name}</span>
+                                    </div>
+                                  </td>
+                                  <td className="py-3 px-4 text-gray-600 truncate max-w-[100px]" onClick={() => handleProductSelect(product)}>{getBrandName(product.brand)}</td>
+                                  <td className="py-3 px-4 text-primary font-medium" onClick={() => handleProductSelect(product)}>{firstVariant ? formatCurrency(firstVariant.price) : 'N/A'}</td>
+                                  <td className="py-3 px-4" onClick={() => handleProductSelect(product)}>
+                                    {product.variants.length > 0 && (
+                                      <div className="flex -space-x-1">
+                                        {Array.from(new Map(product.variants.map(v => [v.colorId?._id, v.colorId])).values()).slice(0, 3).map((color, idx) => color && (
+                                          <div
+                                            key={color._id || idx}
+                                            className="h-5 w-5 rounded-full border"
+                                            style={{ backgroundColor: color.code }}
+                                            title={color.name}
+                                          />
+                                        ))}
+                                        {uniqueColorsCount > 3 && (
+                                          <div className="h-5 w-5 rounded-full bg-gray-100 border border-white flex items-center justify-center text-xs text-maintext">
+                                            +{uniqueColorsCount - 3}
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
+                                  </td>
+                                  <td className="py-3 px-4" onClick={() => handleProductSelect(product)}>
+                                    <Badge variant={totalStock > 10 ? "secondary" : totalStock > 0 ? "outline" : "destructive"} className="text-xs !flex-shrink-0">
+                                      <span className="flex-shrink-0">{totalStock > 10 ? "Còn hàng" : totalStock > 0 ? "Sắp hết" : "Hết hàng"}</span>
+                                    </Badge>
+                                  </td>
+                                  <td className="py-3 px-4 text-center">
+                                    <div className="flex items-center justify-center gap-2">
+                                      <TooltipProvider>
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
+                                            <Button
+                                              variant="ghost"
+                                              size="sm"
+                                              className="h-8 w-8 p-0"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleProductSelect(product);
+                                              }}
+                                            >
+                                              <Icon path={mdiInformationOutline} size={0.8} className="text-maintext" />
+                                            </Button>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p>Chi tiết</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      </TooltipProvider>
 
-                            if (currentPage > 3) {
-                              pages.push(<PaginationItem key="start-ellipsis"><PaginationEllipsis /></PaginationItem>);
-                            }
+                                      <TooltipProvider>
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
+                                            <Button
+                                              variant="ghost"
+                                              size="sm"
+                                              className="h-8 w-8 p-0"
+                                              disabled={product.variants.every(v => v.stock === 0)}
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (firstAvailableVariant) {
+                                                  const cartItemId = `${product._id}-${firstAvailableVariant._id}`;
+                                                  const existingItemIndex = cartItems.findIndex(item => item.id === cartItemId);
 
-                            let startPage = Math.max(2, currentPage - 1);
-                            let endPage = Math.min(totalPages - 1, currentPage + 1);
-
-                            if (currentPage <= 2) {
-                                endPage = Math.min(totalPages -1, 3);
-                            }
-                            if (currentPage >= totalPages - 1) {
-                                startPage = Math.max(2, totalPages - 2);
-                            }
-
-
-                            for (let i = startPage; i <= endPage; i++) {
-                              pages.push(
-                                <PaginationItem key={i}>
-                                  <PaginationLink
-                                    href="#"
-                                    isActive={currentPage === i}
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      setPagination(p => ({ ...p, page: i }));
-                                    }}
-                                  >
-                                    {i}
-                                  </PaginationLink>
-                                </PaginationItem>
+                                                  if (existingItemIndex >= 0) {
+                                                    if (cartItems[existingItemIndex].quantity < firstAvailableVariant.stock) {
+                                                      updateQuantityStore(cartItemId, 1);
+                                                      toast.success('Đã cập nhật số lượng sản phẩm.');
+                                                    } else {
+                                                      toast.warn('Số lượng sản phẩm trong kho không đủ.');
+                                                    }
+                                                  } else {
+                                                    if (firstAvailableVariant.stock > 0) {
+                                                      const newItem: POSCartItem = {
+                                                        id: cartItemId,
+                                                        productId: product._id,
+                                                        variantId: firstAvailableVariant._id,
+                                                        name: product.name,
+                                                        colorName: firstAvailableVariant.colorId?.name || 'N/A',
+                                                        colorCode: firstAvailableVariant.colorId?.code,
+                                                        sizeName: firstAvailableVariant.sizeId?.name || firstAvailableVariant.sizeId?.value || 'N/A',
+                                                        price: firstAvailableVariant.price,
+                                                        quantity: 1,
+                                                        image: firstAvailableVariant.images?.[0] || product.variants[0]?.images?.[0] || '/placeholder.svg',
+                                                        stock: firstAvailableVariant.stock,
+                                                        actualColorId: firstAvailableVariant.colorId?._id,
+                                                        actualSizeId: firstAvailableVariant.sizeId?._id,
+                                                      };
+                                                      addToCartStore(newItem);
+                                                      toast.success('Đã thêm sản phẩm vào giỏ hàng');
+                                                    } else {
+                                                      toast.warn('Sản phẩm này đã hết hàng.');
+                                                    }
+                                                  }
+                                                }
+                                              }}
+                                            >
+                                              <Icon path={mdiPlus} size={0.8} className="text-maintext" />
+                                            </Button>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p>Thêm vào giỏ</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      </TooltipProvider>
+                                    </div>
+                                  </td>
+                                </tr>
                               );
-                            }
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </TabsContent>
 
-                            if (currentPage < totalPages - 2) {
-                              pages.push(<PaginationItem key="end-ellipsis"><PaginationEllipsis /></PaginationItem>);
-                            }
+                    {rawData?.data?.pagination && rawData.data.pagination.totalPages > 1 && (
+                      <div className="flex justify-center mt-6">
+                        <Pagination>
+                          <PaginationContent>
+                            <PaginationItem>
+                              <PaginationPrevious
+                                href="#"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  if (pagination.page > 1) {
+                                    setPagination(p => ({ ...p, page: p.page - 1 }));
+                                  }
+                                }}
+                                disabled={pagination.page <= 1}
+                              />
+                            </PaginationItem>
+                            {(() => {
+                              const pages = [];
+                              const totalPages = rawData.data.pagination.totalPages;
+                              const currentPage = pagination.page;
+                              const pageLimit = 5;
 
-                            pages.push(
-                              <PaginationItem key={totalPages}>
-                                <PaginationLink
-                                  href="#"
-                                  isActive={currentPage === totalPages}
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    setPagination(p => ({ ...p, page: totalPages }));
-                                  }}
-                                >
-                                  {totalPages}
-                                </PaginationLink>
-                              </PaginationItem>
-                            );
-                          }
-                          return pages;
-                        })()}
-                        <PaginationItem>
-                          <PaginationNext
-                            href="#"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              if (pagination.page < rawData.data.pagination.totalPages) {
-                                setPagination(p => ({ ...p, page: p.page + 1 }));
+                              if (totalPages <= pageLimit) {
+                                for (let i = 1; i <= totalPages; i++) {
+                                  pages.push(
+                                    <PaginationItem key={i}>
+                                      <PaginationLink
+                                        href="#"
+                                        isActive={currentPage === i}
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          setPagination(p => ({ ...p, page: i }));
+                                        }}
+                                      >
+                                        {i}
+                                      </PaginationLink>
+                                    </PaginationItem>
+                                  );
+                                }
+                              } else {
+                                pages.push(
+                                  <PaginationItem key={1}>
+                                    <PaginationLink
+                                      href="#"
+                                      isActive={currentPage === 1}
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        setPagination(p => ({ ...p, page: 1 }));
+                                      }}
+                                    >
+                                      1
+                                    </PaginationLink>
+                                  </PaginationItem>
+                                );
+
+                                if (currentPage > 3) {
+                                  pages.push(<PaginationItem key="start-ellipsis"><PaginationEllipsis /></PaginationItem>);
+                                }
+
+                                let startPage = Math.max(2, currentPage - 1);
+                                let endPage = Math.min(totalPages - 1, currentPage + 1);
+
+                                if (currentPage <= 2) {
+                                  endPage = Math.min(totalPages - 1, 3);
+                                }
+                                if (currentPage >= totalPages - 1) {
+                                  startPage = Math.max(2, totalPages - 2);
+                                }
+
+
+                                for (let i = startPage; i <= endPage; i++) {
+                                  pages.push(
+                                    <PaginationItem key={i}>
+                                      <PaginationLink
+                                        href="#"
+                                        isActive={currentPage === i}
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          setPagination(p => ({ ...p, page: i }));
+                                        }}
+                                      >
+                                        {i}
+                                      </PaginationLink>
+                                    </PaginationItem>
+                                  );
+                                }
+
+                                if (currentPage < totalPages - 2) {
+                                  pages.push(<PaginationItem key="end-ellipsis"><PaginationEllipsis /></PaginationItem>);
+                                }
+
+                                pages.push(
+                                  <PaginationItem key={totalPages}>
+                                    <PaginationLink
+                                      href="#"
+                                      isActive={currentPage === totalPages}
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        setPagination(p => ({ ...p, page: totalPages }));
+                                      }}
+                                    >
+                                      {totalPages}
+                                    </PaginationLink>
+                                  </PaginationItem>
+                                );
                               }
-                            }}
-                            disabled={pagination.page >= rawData.data.pagination.totalPages}
-                          />
-                        </PaginationItem>
-                      </PaginationContent>
-                    </Pagination>
-                  </div>
-                )}
-                </>
+                              return pages;
+                            })()}
+                            <PaginationItem>
+                              <PaginationNext
+                                href="#"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  if (pagination.page < rawData.data.pagination.totalPages) {
+                                    setPagination(p => ({ ...p, page: p.page + 1 }));
+                                  }
+                                }}
+                                disabled={pagination.page >= rawData.data.pagination.totalPages}
+                              />
+                            </PaginationItem>
+                          </PaginationContent>
+                        </Pagination>
+                      </div>
+                    )}
+                  </>
                 )}
               </Tabs>
             )}
           </div>
         </div>
-        
-        
-        <div className="bg-white rounded-[6px] shadow-sm flex flex-col h-full border border-border hover:shadow-md transition-shadow duration-300">
-          <div className="p-4 border-b border-border">
-            <h2 className="text-lg font-medium !text-[#374151]/80">Giỏ hàng</h2>
-          </div>
-          
-          <div className="flex-1 overflow-y-auto p-4 scrollbar-thin">
-            {cartItems.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-40">
-                <div className="h-16 w-16 rounded-full bg-gray-50 flex items-center justify-center mb-4">
-                  <Icon path={mdiCashRegister} size={1.2} className="text-maintext" />
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Giỏ hàng</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex-1 overflow-y-auto scrollbar-thin">
+              {cartItems.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-40">
+                  <div className="h-16 w-16 rounded-full bg-gray-50 flex items-center justify-center mb-4">
+                    <Icon path={mdiCashRegister} size={1.2} className="text-maintext" />
+                  </div>
+                  <p className="text-maintext mb-2 font-semibold">Giỏ hàng trống</p>
+                  <p className="text-sm text-maintext">Thêm sản phẩm để bắt đầu đơn hàng</p>
                 </div>
-                <p className="text-maintext mb-2">Giỏ hàng trống</p>
-                <p className="text-xs text-maintext">Thêm sản phẩm để bắt đầu đơn hàng</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <AnimatePresence initial={false}>
-                  {cartItems.map((item) => (
-                    <motion.div 
-                      key={item.id} 
-                      className="flex gap-4 pb-4 border-b border-border"
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <div className="relative h-20 w-20 overflow-hidden rounded-[6px] bg-gray-50 group">
-                        <Image
-                          src={item.image  }
-                          alt={item.name}
-                          fill
-                          className="object-contain transition-transform duration-300 group-hover:scale-105"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between">
-                          <h3 className="font-medium !text-[#374151]/80 truncate max-w-[150px]">{item.name}</h3>
-                          <button
-                            className="text-maintext hover:text-red-500 transition-colors"
-                            onClick={() => removeCartItem(item.id)}
-                          >
-                            <Icon path={mdiDelete} size={0.8} />
-                          </button>
+              ) : (
+                <div className="space-y-4">
+                  <AnimatePresence initial={false}>
+                    {cartItems.map((item) => (
+                      <motion.div
+                        key={item.id}
+                        className="flex gap-4 pb-4 border-b border-border"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <div className="relative h-20 w-20 overflow-hidden rounded-[6px] bg-gray-50 group">
+                          <Image
+                            src={item.image}
+                            alt={item.name}
+                            fill
+                            className="object-contain transition-transform duration-300 group-hover:scale-105"
+                          />
                         </div>
-                        <div className="text-sm text-maintext">
-                          <span>Size: {item.sizeName}</span> •{' '}
-                          <span className="flex items-center">Màu: {item.colorCode && <div className="w-3 h-3 rounded-full mr-1.5 ml-1" style={{backgroundColor: item.colorCode}}></div>} {item.colorName}</span>
-                        </div>
-                        <div className="flex justify-between items-center mt-3">
-                          <div className="flex items-center border border-border rounded-[6px]">
+                        <div className="flex-1">
+                          <div className="flex justify-between">
+                            <h3 className="font-medium !text-[#374151]/80 truncate max-w-[150px]">{item.name}</h3>
                             <button
-                              className="px-3 py-1.5 text-maintext hover:text-primary transition-colors"
-                              onClick={() => updateCartItemQuantity(item.id, -1)}
+                              className="text-red-500 hover:text-red-600 transition-colors"
+                              onClick={() => removeCartItem(item.id)}
                             >
-                              <Icon path={mdiMinus} size={0.7} />
-                            </button>
-                            <span className="px-3 min-w-[30px] text-center">{item.quantity}</span>
-                            <button
-                              className="px-3 py-1.5 text-maintext hover:text-primary transition-colors"
-                              onClick={() => updateCartItemQuantity(item.id, 1)}
-                            >
-                              <Icon path={mdiPlus} size={0.7} />
+                              <Icon path={mdiDelete} size={0.8} />
                             </button>
                           </div>
-                          <span className="font-medium text-primary">{formatCurrency(item.price * item.quantity)}</span>
+                          <div className="text-sm text-maintext">
+                            <span>Size: {item.sizeName}</span> •{' '}
+                            <span className="flex items-center">Màu: {item.colorCode && <div className="w-3 h-3 rounded-full mr-1.5 ml-1" style={{ backgroundColor: item.colorCode }}></div>} {item.colorName}</span>
+                          </div>
+                          <div className="flex justify-between items-center mt-3">
+                            <div className="flex items-center border border-border rounded-[6px]">
+                              <button
+                                className="px-3 py-1.5 text-maintext hover:text-primary transition-colors"
+                                onClick={() => updateCartItemQuantity(item.id, -1)}
+                              >
+                                <Icon path={mdiMinus} size={0.7} />
+                              </button>
+                              <span className="px-3 min-w-[30px] text-center">{item.quantity}</span>
+                              <button
+                                className="px-3 py-1.5 text-maintext hover:text-primary transition-colors"
+                                onClick={() => updateCartItemQuantity(item.id, 1)}
+                              >
+                                <Icon path={mdiPlus} size={0.7} />
+                              </button>
+                            </div>
+                            <span className="font-medium text-primary">{formatCurrency(item.price * item.quantity)}</span>
+                          </div>
                         </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
-            )}
-          </div>
-          
-          <div className="p-4 border-t border-border">
-            
-            <div className="mb-4">
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Icon path={mdiTag} size={0.8} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext" />
-                  <Input
-                    type="text"
-                    placeholder="Mã giảm giá"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-[6px] border border-border focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                  />
-                </div>
-                <Button
-                  variant="secondary"
-                  className="px-4 py-2.5 font-semibold text-white"
-                  onClick={applyCoupon}
-                  disabled={isFetchingVoucher}
-                >
-                  {isFetchingVoucher ? 'Đang kiểm tra...' : 'Áp dụng'}
-                </Button>
-              </div>
-              <Button 
-                variant="link" 
-                className="text-sm text-primary mt-1 px-0"
-                onClick={() => setShowVouchersDialog(true)}
-              >
-                Xem danh sách mã giảm giá
-              </Button>
-            </div>
-            
-            
-            <div className="space-y-3 mb-4">
-              <div className="flex justify-between text-gray-600">
-                <span>Tạm tính:</span>
-                <span>{formatCurrency(calculateSubtotal())}</span>
-              </div>
-              {appliedVoucher && appliedDiscount > 0 && ( 
-                <div className="flex justify-between text-primary">
-                  <span>Giảm giá ({appliedVoucher.code}):</span>
-                  <span>-{formatCurrency(calculateDiscount())}</span>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
                 </div>
               )}
-              <div className="flex justify-between font-medium text-lg pt-3 border-t border-border">
-                <span className="!text-[#374151]/80">Tổng:</span>
-                <span className="text-primary">{formatCurrency(calculateTotal())}</span>
+            </div>
+
+            <div className="border-t border-border pt-4">
+
+              <div className="mb-4">
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Icon path={mdiTag} size={0.8} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext" />
+                    <Input
+                      type="text"
+                      placeholder="Mã giảm giá"
+                      className="w-full pl-10 pr-4 py-2.5 rounded-[6px] border border-border focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                    />
+                  </div>
+                  <Button
+                    variant="secondary"
+                    className="px-4 py-2.5 font-semibold text-white"
+                    onClick={applyCoupon}
+                    disabled={isFetchingVoucher}
+                  >
+                    {isFetchingVoucher ? 'Đang kiểm tra...' : 'Áp dụng'}
+                  </Button>
+                </div>
+                <Button
+                  variant="link"
+                  className="text-sm text-primary mt-1 px-0"
+                  onClick={() => setShowVouchersDialog(true)}
+                >
+                  Xem danh sách mã giảm giá
+                </Button>
+              </div>
+
+
+              <div className="space-y-3 mb-4">
+                <div className="flex justify-between text-gray-600">
+                  <span>Tạm tính:</span>
+                  <span>{formatCurrency(calculateSubtotal())}</span>
+                </div>
+                {appliedVoucher && appliedDiscount > 0 && (
+                  <div className="flex justify-between text-primary">
+                    <span>Giảm giá ({appliedVoucher.code}):</span>
+                    <span>-{formatCurrency(calculateDiscount())}</span>
+                  </div>
+                )}
+                <div className="flex justify-between font-medium text-lg pt-3 border-t border-border">
+                  <span className="!text-[#374151]/80">Tổng:</span>
+                  <span className="text-primary">{formatCurrency(calculateTotal())}</span>
+                </div>
+              </div>
+
+
+              <Button
+                className="w-full py-4 text-base flex items-center justify-center gap-2"
+                onClick={handleProceedToCheckout}
+                disabled={cartItems.length === 0}
+              >
+                <Icon path={mdiCashRegister} size={1} />
+                Thanh toán
+                <span className="text-xs opacity-70 ml-1">(Alt+P)</span>
+              </Button>
+
+
+              <div className="mt-4 text-xs text-maintext flex items-center justify-center">
+                <Icon path={mdiInformationOutline} size={0.6} className="mr-1 text-maintext" />
+                <span>Alt+S: Tìm kiếm | Alt+C: Xóa giỏ hàng</span>
               </div>
             </div>
-            
-            
-            <Button
-              className="w-full py-4 text-base flex items-center justify-center gap-2"
-              onClick={handleProceedToCheckout}
-              disabled={cartItems.length === 0}
-            >
-              <Icon path={mdiCashRegister} size={1} />
-              Thanh toán
-              <span className="text-xs opacity-70 ml-1">(Alt+P)</span>
-            </Button>
-            
-            
-            <div className="mt-4 text-xs text-maintext flex items-center justify-center">
-              <Icon path={mdiInformationOutline} size={0.6} className="mr-1 text-maintext" />
-              <span>Alt+S: Tìm kiếm | Alt+C: Xóa giỏ hàng</span>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
-      
-      
+
+
       <Dialog open={showCheckoutDialog} onOpenChange={setShowCheckoutDialog}>
         <DialogContent className="sm:max-w-4xl">
           <DialogHeader>
@@ -1634,7 +1620,7 @@ export default function POSPage() {
               Tổng tiền: {formatCurrency(totalAmount)}. Hoàn tất thông tin thanh toán để hoàn thành đơn hàng.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <label htmlFor="customer-name" className="text-right text-sm !text-[#374151]/80">
@@ -1726,7 +1712,7 @@ export default function POSPage() {
                 <span>Tạm tính:</span>
                 <span>{formatCurrency(calculateSubtotal())}</span>
               </div>
-              {appliedVoucher && appliedDiscount > 0 && ( 
+              {appliedVoucher && appliedDiscount > 0 && (
                 <div className="flex justify-between text-sm text-primary">
                   <span>Giảm giá ({appliedVoucher.code}):</span>
                   <span>-{formatCurrency(calculateDiscount())}</span>
@@ -1738,20 +1724,20 @@ export default function POSPage() {
               </div>
               {paymentMethod === 'cash' && !isNaN(cashReceivedNum) && cashReceivedNum >= totalAmount && changeDue >= 0 && (
                 <div className="flex justify-between font-medium text-base pt-2">
-                    <span className="!text-[#374151]/80">Tiền thừa trả khách:</span>
-                    <span className="text-green-600">{formatCurrency(changeDue)}</span>
+                  <span className="!text-[#374151]/80">Tiền thừa trả khách:</span>
+                  <span className="text-green-600">{formatCurrency(changeDue)}</span>
                 </div>
               )}
             </div>
           </div>
-          
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCheckoutDialog(false)}>
               Hủy
             </Button>
-            <Button 
-              onClick={handleCheckout} 
-              disabled={checkoutIsLoading || (paymentMethod === 'cash' && (cashReceived.toString() === '' || parseFloat(cashReceived.toString()) < totalAmount || isNaN(parseFloat(cashReceived.toString())) )) }
+            <Button
+              onClick={handleCheckout}
+              disabled={checkoutIsLoading || (paymentMethod === 'cash' && (cashReceived.toString() === '' || parseFloat(cashReceived.toString()) < totalAmount || isNaN(parseFloat(cashReceived.toString()))))}
             >
               {checkoutIsLoading ? (
                 <>
@@ -1772,11 +1758,11 @@ export default function POSPage() {
         </DialogContent>
       </Dialog>
 
-      <VouchersListDialog 
-        open={showVouchersDialog} 
+      <VouchersListDialog
+        open={showVouchersDialog}
         onOpenChange={setShowVouchersDialog}
         onSelectVoucher={(code) => {
-          setCouponCode(code); 
+          setCouponCode(code);
         }}
       />
 
@@ -1808,13 +1794,13 @@ const CardSkeleton = () => (
 
 
 const VouchersListDialog = ({ open, onOpenChange, onSelectVoucher }: { open: boolean, onOpenChange: (open: boolean) => void, onSelectVoucher: (code: string) => void }) => {
-  const { data: vouchersData, isLoading, isError } = useVouchers({ page: 1, limit: 100, status: 'HOAT_DONG' }); 
+  const { data: vouchersData, isLoading, isError } = useVouchers({ page: 1, limit: 100, status: 'HOAT_DONG' });
 
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code).then(() => {
       toast.success(`Đã sao chép mã: ${code}`);
-      onSelectVoucher(code); 
-      onOpenChange(false); 
+      onSelectVoucher(code);
+      onOpenChange(false);
     }).catch(err => {
       toast.error('Không thể sao chép mã.');
     });
@@ -1928,7 +1914,7 @@ const InvoiceDialog = ({
     try {
       // Show processing indicator
       setIsProcessing(true);
-      
+
       // Display processing message
       const processingMsg = document.createElement("div");
       processingMsg.style.position = "fixed";
@@ -1999,7 +1985,7 @@ const InvoiceDialog = ({
       setIsProcessing(false);
     }
   };
-  
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -2054,37 +2040,37 @@ const InvoiceDialog = ({
 
             <div className="flex justify-end mb-6">
               <div className="w-full max-w-sm space-y-1.5 text-sm">
-                  <div className="flex justify-between">
-                      <span>Tổng tiền hàng:</span>
-                      <span>{formatCurrency(invoiceData.subTotal)}</span>
+                <div className="flex justify-between">
+                  <span>Tổng tiền hàng:</span>
+                  <span>{formatCurrency(invoiceData.subTotal)}</span>
+                </div>
+                {invoiceData.discount > 0 && (
+                  <div className="flex justify-between text-red-600">
+                    <span>Giảm giá ({invoiceData.voucherCode || 'KM'}):</span>
+                    <span>-{formatCurrency(invoiceData.discount)}</span>
                   </div>
-                  {invoiceData.discount > 0 && (
-                      <div className="flex justify-between text-red-600">
-                      <span>Giảm giá ({invoiceData.voucherCode || 'KM'}):</span>
-                      <span>-{formatCurrency(invoiceData.discount)}</span>
-                      </div>
-                  )}
-                  <Separator/>
-                  <div className="flex justify-between font-bold text-base">
-                      <span>TỔNG THANH TOÁN:</span>
-                      <span className="text-primary">{formatCurrency(invoiceData.total)}</span>
-                  </div>
-                  <Separator/>
-                  <div className="flex justify-between">
-                      <span>Phương thức:</span>
-                      <span>{invoiceData.paymentMethod}</span>
-                  </div>
-                  <div className="flex justify-between">
-                      <span>Tiền khách đưa:</span>
-                      <span>{formatCurrency(invoiceData.cashReceived)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                      <span>Tiền thừa:</span>
-                      <span>{formatCurrency(invoiceData.changeGiven)}</span>
-                  </div>
+                )}
+                <Separator />
+                <div className="flex justify-between font-bold text-base">
+                  <span>TỔNG THANH TOÁN:</span>
+                  <span className="text-primary">{formatCurrency(invoiceData.total)}</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between">
+                  <span>Phương thức:</span>
+                  <span>{invoiceData.paymentMethod}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Tiền khách đưa:</span>
+                  <span>{formatCurrency(invoiceData.cashReceived)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Tiền thừa:</span>
+                  <span>{formatCurrency(invoiceData.changeGiven)}</span>
+                </div>
               </div>
             </div>
-            
+
             <p className="text-center text-sm mt-8">Cảm ơn Quý khách và hẹn gặp lại!</p>
             <p className="text-center text-xs mt-1">Website: {invoiceData.shopInfo.name.toLowerCase().replace(/ /g, '')}.vn</p>
           </div>
