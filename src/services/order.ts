@@ -62,7 +62,6 @@ export const createOrder = async (data: CreateOrderData): Promise<CreateOrderRes
 
     return await response.json();
   } catch (error) {
-    console.error('Error creating order:', error);
     return {
       success: false,
       message: 'Đã có lỗi xảy ra khi tạo đơn hàng',
@@ -87,7 +86,6 @@ export const getOrder = async (id: string): Promise<{ success: boolean; data?: I
     });
     return await response.json();
   } catch (error) {
-    console.error('Error fetching order:', error);
     return {
       success: false,
       message: 'Đã có lỗi xảy ra khi tải thông tin đơn hàng',
@@ -116,7 +114,6 @@ export const getOrders = async (customerId?: string): Promise<{ success: boolean
     });
     return await response.json();
   } catch (error) {
-    console.error('Error fetching orders:', error);
     return {
       success: false,
       message: 'Đã có lỗi xảy ra khi tải danh sách đơn hàng',
@@ -148,7 +145,6 @@ export const updateOrderPayment = async (
 
     return await response.json();
   } catch (error) {
-    console.error('Error updating order payment:', error);
     return {
       success: false,
       message: 'Đã có lỗi xảy ra khi cập nhật trạng thái thanh toán',

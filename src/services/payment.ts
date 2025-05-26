@@ -30,8 +30,6 @@ export const createVNPayUrl = async (orderId: string, amount: number, orderInfo:
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('API error response:', errorText, 'Status:', response.status);
-        
         if (response.status === 500) {
           return {
             success: false,

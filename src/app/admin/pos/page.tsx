@@ -690,7 +690,6 @@ export default function POSPage() {
         toast.error((orderResponse as any).message || 'Không thể tạo đơn hàng. Vui lòng thử lại.');
       }
     } catch (error: any) {
-      console.error("Checkout error:", error);
       toast.error(error.response?.data?.message || error.message || 'Có lỗi xảy ra trong quá trình thanh toán.');
     } finally {
       setCheckoutIsLoading(false);
@@ -1818,7 +1817,6 @@ const VouchersListDialog = ({ open, onOpenChange, onSelectVoucher }: { open: boo
       onOpenChange(false); 
     }).catch(err => {
       toast.error('Không thể sao chép mã.');
-      console.error('Failed to copy: ', err);
     });
   };
 
@@ -1992,10 +1990,8 @@ const InvoiceDialog = ({
       toast.success("Đã lưu hoá đơn PDF thành công!");
 
     } catch (error) {
-      console.error("Error printing PDF:", error);
       toast.error("Lỗi khi in hoá đơn PDF.");
     } finally {
-      // Remove processing message and reset state
       const processingMsg = document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]');
       if (processingMsg && processingMsg.parentNode) {
         processingMsg.parentNode.removeChild(processingMsg);

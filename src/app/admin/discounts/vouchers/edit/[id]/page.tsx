@@ -150,13 +150,11 @@ export default function EditVoucherPage() {
             router.push('/admin/discounts/vouchers');
           },
           onError: (error) => {
-            console.error('Chi tiết lỗi:', error);
             toast.error('Cập nhật mã giảm giá thất bại: ' + (error.message || 'Không xác định'));
           }
         }
       );
     } catch (error) {
-      console.error('Lỗi khi cập nhật mã giảm giá:', error);
       toast.error('Cập nhật mã giảm giá thất bại');
     }
   };

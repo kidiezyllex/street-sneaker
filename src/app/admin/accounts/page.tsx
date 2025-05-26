@@ -208,7 +208,6 @@ export default function AccountsPage() {
         }
       });
     } catch (error) {
-      console.error('Lỗi khi cập nhật trạng thái tài khoản:', error);
       toast.error('Cập nhật trạng thái tài khoản thất bại');
     }
   };

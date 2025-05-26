@@ -133,12 +133,10 @@ export default function CreateVoucherPage() {
           router.push('/admin/discounts/vouchers');
         },
         onError: (error) => {
-          console.error('Chi tiết lỗi:', error);
           toast.error('Tạo mã giảm giá thất bại: ' + (error.message || 'Không xác định'));
         }
       });
     } catch (error) {
-      console.error('Lỗi khi tạo mã giảm giá:', error);
       toast.error('Tạo mã giảm giá thất bại');
     }
   };

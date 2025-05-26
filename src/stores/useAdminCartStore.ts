@@ -95,12 +95,10 @@ export const useAdminCartStore = create(
           if (currentItems[existingItemIndex].quantity + newItem.quantity <= newItem.stock) {
              currentItems[existingItemIndex].quantity += newItem.quantity;
           } else {
-             console.warn(`Cannot add more. Stock limit reached for item ${newItem.name}`);
              return;
           }
         } else {
            if (newItem.quantity > newItem.stock) {
-               console.warn(`Cannot add item. Stock limit for item ${newItem.name} is ${newItem.stock}`);
                return;
            }
           currentItems.push(newItem);

@@ -89,12 +89,10 @@ export default function EditAccountPage({ params }: Props) {
           toast.success('Cập nhật tài khoản thành công');
         },
         onError: (error) => {
-          console.error('Chi tiết lỗi:', error);
           toast.error('Cập nhật tài khoản thất bại: ' + (error.message || 'Không xác định'));
         }
       });
     } catch (error) {
-      console.error('Lỗi khi cập nhật tài khoản:', error);
       toast.error('Cập nhật tài khoản thất bại');
     }
   };
@@ -111,12 +109,10 @@ export default function EditAccountPage({ params }: Props) {
           toast.success(`Tài khoản đã được ${newStatus.status === 'HOAT_DONG' ? 'kích hoạt' : 'vô hiệu hóa'}`);
         },
         onError: (error) => {
-          console.error('Chi tiết lỗi:', error);
           toast.error('Cập nhật trạng thái thất bại: ' + (error.message || 'Không xác định'));
         }
       });
     } catch (error) {
-      console.error('Lỗi khi cập nhật trạng thái:', error);
       toast.error('Cập nhật trạng thái thất bại');
     }
   };

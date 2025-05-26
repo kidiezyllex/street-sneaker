@@ -308,7 +308,6 @@ export default function OrdersPage() {
         doc.setFont("Roboto")
       }
     } catch (error) {
-      console.error("Error loading Roboto font for PDF:", error)
       toast.error("Lỗi khi tải font tùy chỉnh cho PDF, sử dụng font mặc định.")
     }
 

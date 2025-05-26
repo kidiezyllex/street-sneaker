@@ -91,7 +91,6 @@ export default function CreateAccountPage() {
         }
       });
     } catch (error) {
-      console.error('Lỗi khi tạo tài khoản:', error);
       toast.error('Tạo tài khoản thất bại');
     }
   };
