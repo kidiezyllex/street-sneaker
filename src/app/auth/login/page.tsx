@@ -169,7 +169,7 @@ export default function AuthPage() {
         >
           <Card className="flex flex-col w-full h-full shadow-lg bg-white/50 dark:bg-gray-800/40 backdrop-blur-md border border-white/20 dark:border-gray-700/30 backdrop-filter">
             <CardHeader className="pb-3">
-              <CardTitle className="text-2xl font-bold text-gray-800 dark:text-white">
+              <CardTitle className="text-2xl font-bold text-maintext dark:text-white">
                 <span className="relative">
                  Đăng nhập tài khoản
                   <span className="absolute -bottom-1 left-0 w-12 h-1 bg-gradient-to-r from-primary to-secondary rounded-full"></span>

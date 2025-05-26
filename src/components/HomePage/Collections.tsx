@@ -94,7 +94,7 @@ const CollectionCard = ({ collection, animation }: {
                                     Sản phẩm mới
                                     <Icon
                                         path={mdiArrowRight}
-                                        size={0.9}
+                                        size={0.7}
                                         className="ml-2 transition-transform duration-300 group-hover:translate-x-1"
                                     />
                                 </span>
@@ -159,12 +159,12 @@ export const Collections = () => {
                                     className="uppercase group border border-primary text-primary hover:bg-primary hover:text-white transition-all duration-300 text-sm font-medium rounded-full px-4 py-2 h-auto"
                                 >
                                     Xem tất cả bộ sưu tập
-                                    <Icon path={mdiArrowRight} size={0.8} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                                    <Icon path={mdiArrowRight} size={0.7} className="ml-2 group-hover:translate-x-1 transition-transform" />
                                 </Button>
                             </motion.div>
                             
                         </div>
-                        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
+                        <h2 className="text-3xl md:text-4xl font-bold text-maintext dark:text-white">
                             BỘ SƯU TẬP <span className="text-extra">THỂ THAO</span>
                         </h2>
                     </motion.div>
@@ -191,7 +191,7 @@ export const Collections = () => {
                         className="uppercase group border-2 border-primary text-primary hover:bg-primary hover:text-white transition-all duration-300 text-sm font-medium rounded-full px-4 py-5 h-auto"
                     >
                         Xem tất cả bộ sưu tập
-                        <Icon path={mdiArrowRight} size={0.8} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                        <Icon path={mdiArrowRight} size={0.7} className="ml-2 group-hover:translate-x-1 transition-transform" />
                     </Button>
                 </motion.div>
             </div>

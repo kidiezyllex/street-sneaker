@@ -214,7 +214,7 @@ export default function CreateReturnPage() {
           onClick={() => router.back()}
           className="flex items-center gap-2"
         >
-          <Icon path={mdiArrowLeft} size={0.9} />
+          <Icon path={mdiArrowLeft} size={0.7} />
           Quay lại
         </Button>
       </div>
@@ -244,7 +244,7 @@ export default function CreateReturnPage() {
                     onClick={handleSearchOrder}
                     className="flex items-center gap-2"
                   >
-                    <Icon path={mdiMagnify} size={0.9} />
+                    <Icon path={mdiMagnify} size={0.7} />
                     Tìm kiếm
                   </Button>
                 </div>
@@ -501,7 +501,7 @@ export default function CreateReturnPage() {
                                     variant="ghost"
                                     onClick={() => handleRemoveProduct(index)}
                                   >
-                                    <Icon path={mdiTrashCanOutline} size={0.8} />
+                                    <Icon path={mdiTrashCanOutline} size={0.7} />
                                   </Button>
                                 </TableCell>
                               </TableRow>
@@ -541,7 +541,7 @@ export default function CreateReturnPage() {
                   >
                     {createReturn.isPending ? (
                       <>
-                        <Icon path={mdiLoading} size={0.9} className="mr-2 animate-spin" />
+                        <Icon path={mdiLoading} size={0.7} className="mr-2 animate-spin" />
                         Đang xử lý...
                       </>
                     ) : (

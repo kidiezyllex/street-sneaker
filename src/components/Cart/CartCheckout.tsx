@@ -113,7 +113,7 @@ export const CartCheckout: React.FC<CartCheckoutProps> = ({ onClose }) => {
   return (
     <div className="mt-6">
       <div className="border-t border-gray-200 py-4 px-4 sm:px-4">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Thông tin giao hàng</h3>
+        <h3 className="text-lg font-medium text-maintext mb-4">Thông tin giao hàng</h3>
         
         <div className="space-y-4">
           <div>
@@ -162,7 +162,7 @@ export const CartCheckout: React.FC<CartCheckoutProps> = ({ onClose }) => {
         </div>
 
         <div className="mt-6">
-          <div className="flex justify-between text-base font-medium text-gray-900">
+          <div className="flex justify-between text-base font-medium text-maintext">
             <p>Tổng tiền</p>
             <p>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total)}</p>
           </div>

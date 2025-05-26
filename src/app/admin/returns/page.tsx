@@ -173,7 +173,7 @@ export default function ReturnsPage() {
         </Breadcrumb>
         <Link href="/admin/returns/create">
           <Button className="flex items-center gap-2">
-            <Icon path={mdiPlus} size={0.9} />
+            <Icon path={mdiPlus} size={0.7} />
             Tạo yêu cầu trả hàng mới
           </Button>
         </Link>
@@ -244,7 +244,7 @@ export default function ReturnsPage() {
                     className="pl-10 w-full"
                   />
                   <div className="absolute left-3 top-2.5 text-maintext">
-                    <Icon path={mdiMagnify} size={0.9} />
+                    <Icon path={mdiMagnify} size={0.7} />
                   </div>
                 </div>
 
@@ -253,7 +253,7 @@ export default function ReturnsPage() {
                   onClick={() => setShowFilters(!showFilters)}
                   className="flex items-center"
                 >
-                  <Icon path={mdiFilterOutline} size={0.8} className="mr-2" />
+                  <Icon path={mdiFilterOutline} size={0.7} className="mr-2" />
                   Bộ lọc
                   {(filters.customer) && (
                     <Badge className="ml-2 bg-primary h-5 w-5 p-0 flex items-center justify-center">
@@ -342,7 +342,7 @@ export default function ReturnsPage() {
                           <div className="flex justify-end gap-2">
                             <Link href={`/admin/returns/edit/${returnItem._id}`}>
                               <Button size="icon" variant="ghost">
-                                <Icon path={mdiPencilCircle} size={0.9} />
+                                <Icon path={mdiPencilCircle} size={0.7} />
                               </Button>
                             </Link>
                             <Button
@@ -353,7 +353,7 @@ export default function ReturnsPage() {
                                 setIsDetailDialogOpen(true);
                               }}
                             >
-                              <Icon path={mdiEye} size={0.9} />
+                              <Icon path={mdiEye} size={0.7} />
                             </Button>
                             {returnItem.status === 'CHO_XU_LY' && (
                               <Button
@@ -364,7 +364,7 @@ export default function ReturnsPage() {
                                   setIsDeleteDialogOpen(true);
                                 }}
                               >
-                                <Icon path={mdiDeleteCircle} size={0.9} color="#ff4343" />
+                                <Icon path={mdiDeleteCircle} size={0.7} color="#ff4343" />
                               </Button>
                             )}
                           </div>
@@ -634,14 +634,14 @@ function ReturnDetailContent({
             className="gap-2"
             onClick={() => onUpdateStatus(returnId, 'DA_HUY')}
           >
-            <Icon path={mdiCancel} size={0.9} />
+            <Icon path={mdiCancel} size={0.7} />
             Từ chối trả hàng
           </Button>
           <Button 
             className="gap-2"
             onClick={() => onUpdateStatus(returnId, 'DA_HOAN_TIEN')}
           >
-            <Icon path={mdiCheck} size={0.9} />
+            <Icon path={mdiCheck} size={0.7} />
             Hoàn tiền
           </Button>
         </div>

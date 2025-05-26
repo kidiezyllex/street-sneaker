@@ -125,7 +125,7 @@ export function Header() {
                     <div className="relative flex-1 max-w-[550px]">
                         <Input placeholder="Tôi đang tìm mua..." className="py-2 pr-10 h-[38px] rounded-sm w-full" />
                         <div className="absolute right-0 top-0 h-full flex items-center justify-center bg-[#febd69] w-[45px] rounded-r-sm cursor-pointer">
-                            <Icon path={mdiMagnify} size={0.8} color="#E3E6E6" />
+                            <Icon path={mdiMagnify} size={0.7} color="#E3E6E6" />
                         </div>
                     </div>
 
@@ -200,7 +200,7 @@ export function Header() {
                             className="text-gray-300 hover:text-white p-1"
                             aria-label="Search"
                         >
-                            <Icon path={mdiMagnify} size={0.9} />
+                            <Icon path={mdiMagnify} size={0.7} />
                         </button>
                         <div className="p-1">
                             <CartIcon className="text-white" />
@@ -210,7 +210,7 @@ export function Header() {
                             className="mr-2 text-gray-300 hover:text-white"
                             aria-label="Menu"
                         >
-                            <Icon path={mdiCog} size={0.9} />
+                            <Icon path={mdiCog} size={0.7} />
                         </button>
                     </div>
                 </div>
@@ -312,7 +312,7 @@ export function Header() {
                         <div className="p-4">
                             <Link href="/cart" className="block py-2 text-white hover:text-gray-300" onClick={() => setMobileMenuOpen(false)}>
                                 <div className="flex items-center">
-                                    <Icon path={mdiCart} size={0.8} className="mr-2" />
+                                    <Icon path={mdiCart} size={0.7} className="mr-2" />
                                     <span>Giỏ hàng ({cartItemCount})</span>
                                 </div>
                             </Link>

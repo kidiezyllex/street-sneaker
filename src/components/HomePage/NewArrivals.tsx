@@ -196,7 +196,7 @@ const ProductCard = ({ product, index }: { product: typeof newArrivalsData[0], i
             className="rounded-full w-9 h-9 bg-white/80 hover:bg-white shadow-md backdrop-blur-sm flex items-center justify-center"
             title="Xem nhanh"
           >
-            <Icon path={mdiEye} size={0.8} className="text-gray-800" />
+            <Icon path={mdiEye} size={0.7} className="text-maintext" />
           </Button>
           <Button 
             size="sm" 
@@ -204,7 +204,7 @@ const ProductCard = ({ product, index }: { product: typeof newArrivalsData[0], i
             className="rounded-full w-9 h-9 bg-white/80 hover:bg-white shadow-md backdrop-blur-sm flex items-center justify-center"
             title="Yêu thích"
           >
-            <Icon path={mdiHeartOutline} size={0.8} className="text-gray-800" />
+            <Icon path={mdiHeartOutline} size={0.7} className="text-maintext" />
           </Button>
           <Button 
             size="sm" 
@@ -212,7 +212,7 @@ const ProductCard = ({ product, index }: { product: typeof newArrivalsData[0], i
             className="rounded-full w-9 h-9 bg-white/80 hover:bg-white shadow-md backdrop-blur-sm flex items-center justify-center"
             title="Thêm vào giỏ hàng"
           >
-            <Icon path={mdiCartOutline} size={0.8} className="text-gray-800" />
+            <Icon path={mdiCartOutline} size={0.7} className="text-maintext" />
           </Button>
         </div>
       </Link>
@@ -221,7 +221,7 @@ const ProductCard = ({ product, index }: { product: typeof newArrivalsData[0], i
         <div className="text-xs font-medium text-[#2C8B3D] uppercase tracking-wider">
           {product.brand}
         </div>
-        <h3 className="text-gray-900 dark:text-white font-semibold text-lg truncate group-hover:text-[#2C8B3D] transition-colors duration-200">
+        <h3 className="text-maintext dark:text-white font-semibold text-lg truncate group-hover:text-[#2C8B3D] transition-colors duration-200">
           <Link href={`/products/${product.slug}`}>
             {product.name}
           </Link>
@@ -251,7 +251,7 @@ const ProductCard = ({ product, index }: { product: typeof newArrivalsData[0], i
       <div className="flex w-full flex-col items-center justify-end flex-1">
        <InteractiveHoverButton className='rounded-none uppercase font-normal w-fit'>
         Xem chi tiết
-        <Icon path={mdiArrowRight} size={0.8} className="ml-2 group-hover:translate-x-1 transition-transform" />
+        <Icon path={mdiArrowRight} size={0.7} className="ml-2 group-hover:translate-x-1 transition-transform" />
         </InteractiveHoverButton>
       </div>
     </motion.div>

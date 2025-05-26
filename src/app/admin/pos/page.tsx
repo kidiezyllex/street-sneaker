@@ -802,7 +802,7 @@ export default function POSPage() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="outline" size="icon">
-                    <Icon path={mdiClock} size={0.9} />
+                    <Icon path={mdiClock} size={0.7} />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -815,7 +815,7 @@ export default function POSPage() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="outline" size="icon" className="h-9 w-9">
-                    <Icon path={mdiReceipt} size={0.9} />
+                    <Icon path={mdiReceipt} size={0.7} />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -828,7 +828,7 @@ export default function POSPage() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="outline" size="icon" className="h-9 w-9">
-                    <Icon path={mdiAccount} size={0.9} />
+                    <Icon path={mdiAccount} size={0.7} />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -911,7 +911,7 @@ export default function POSPage() {
               <button
                 className="px-4 py-2.5 bg-primary text-white rounded-[6px] hover:bg-primary/80 transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
               >
-                <Icon path={mdiQrcodeScan} size={0.8} className="text-white" />
+                <Icon path={mdiQrcodeScan} size={0.7} className="text-white" />
                 <span>Quét mã QR</span>
               </button>
             </div>
@@ -1198,7 +1198,7 @@ export default function POSPage() {
                                   }}
                                   disabled={product.variants.every(v => v.stock === 0)}
                                 >
-                                  <Icon path={mdiPlus} size={0.8} />
+                                  <Icon path={mdiPlus} size={0.7} />
                                   Thêm vào giỏ
                                 </Button>
                               </div>
@@ -1285,7 +1285,7 @@ export default function POSPage() {
                                                 handleProductSelect(product);
                                               }}
                                             >
-                                              <Icon path={mdiInformationOutline} size={0.8} className="text-maintext" />
+                                              <Icon path={mdiInformationOutline} size={0.7} className="text-maintext" />
                                             </Button>
                                           </TooltipTrigger>
                                           <TooltipContent>
@@ -1341,7 +1341,7 @@ export default function POSPage() {
                                                 }
                                               }}
                                             >
-                                              <Icon path={mdiPlus} size={0.8} className="text-maintext" />
+                                              <Icon path={mdiPlus} size={0.7} className="text-maintext" />
                                             </Button>
                                           </TooltipTrigger>
                                           <TooltipContent>
@@ -1499,7 +1499,7 @@ export default function POSPage() {
               {cartItems.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-40">
                   <div className="h-16 w-16 rounded-full bg-gray-50 flex items-center justify-center mb-4">
-                    <Icon path={mdiCashRegister} size={1.2} className="text-maintext" />
+                    <Icon path={mdiCashRegister} size={1} className="text-maintext" />
                   </div>
                   <p className="text-maintext mb-2 font-semibold">Giỏ hàng trống</p>
                   <p className="text-sm text-maintext">Thêm sản phẩm để bắt đầu đơn hàng</p>
@@ -1531,7 +1531,7 @@ export default function POSPage() {
                               className="text-red-500 hover:text-red-600 transition-colors"
                               onClick={() => removeCartItem(item.id)}
                             >
-                              <Icon path={mdiDelete} size={0.8} />
+                              <Icon path={mdiDelete} size={0.7} />
                             </button>
                           </div>
                           <div className="text-sm text-maintext">
@@ -1569,7 +1569,7 @@ export default function POSPage() {
               <div className="mb-4">
                 <div className="flex gap-2">
                   <div className="relative flex-1">
-                    <Icon path={mdiTag} size={0.8} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext" />
+                    <Icon path={mdiTag} size={0.7} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext" />
                     <Input
                       type="text"
                       placeholder="Mã giảm giá"
@@ -1674,7 +1674,7 @@ export default function POSPage() {
                   <SelectContent>
                     <SelectItem value="guest">
                       <div className="flex items-center gap-4 py-1">
-                        <Icon path={mdiAccount} size={0.8} className="text-gray-400" />
+                        <Icon path={mdiAccount} size={0.7} className="text-gray-400" />
                         <div className="flex flex-col items-start">
                           <span className="text-xs text-maintext font-semibold">Khách lẻ</span>
                           <span className="text-xs text-maintext">Nhập thông tin thủ công</span>
@@ -1692,7 +1692,7 @@ export default function POSPage() {
                       usersData.data.accounts.map((user: IAccount) => (
                         <SelectItem key={user._id} value={user._id}>
                           <div className="flex items-center gap-4 py-1">
-                            <Icon path={mdiAccount} size={0.8} className="text-primary" />
+                            <Icon path={mdiAccount} size={0.7} className="text-primary" />
                             <div className="flex flex-col min-w-0 flex-1">
                               <div className="flex items-center gap-2">
                                 <span className="text-primary font-semibold truncate">{user.fullName}</span>
@@ -1720,7 +1720,7 @@ export default function POSPage() {
                     ) : (
                       <SelectItem value="no-customers" disabled>
                         <div className="flex items-center gap-4 py-2">
-                          <Icon path={mdiAccount} size={0.8} className="text-gray-400" />
+                          <Icon path={mdiAccount} size={0.7} className="text-gray-400" />
                           <div className="flex flex-col">
                             <span className="text-maintext font-medium">Không có khách hàng nào</span>
                             <span className="text-xs text-gray-400">Vui lòng thêm khách hàng mới</span>
@@ -1789,7 +1789,7 @@ export default function POSPage() {
                   <SelectContent>
                     <SelectItem value="cash">
                       <div className="flex items-center gap-2">
-                        <Icon path={mdiCashMultiple} size={0.8} className="text-maintext" />
+                        <Icon path={mdiCashMultiple} size={0.7} className="text-maintext" />
                         <span>Tiền mặt</span>
                       </div>
                     </SelectItem>
@@ -1909,7 +1909,7 @@ export default function POSPage() {
                   </>
                 ) : (
                   <>
-                    <Icon path={mdiCashRegister} size={0.8} className="mr-2" />
+                    <Icon path={mdiCashRegister} size={0.7} className="mr-2" />
                     Hoàn tất thanh toán
                   </>
                 )}
@@ -2078,7 +2078,7 @@ const VouchersListDialog = ({ open, onOpenChange, onSelectVoucher }: { open: boo
                         title="Sao chép và chọn mã"
                         disabled={voucher.quantity - voucher.usedCount <= 0 || new Date(voucher.endDate) < new Date()}
                       >
-                        <Icon path={mdiContentCopy} size={0.8} className="mr-1" /> Chọn
+                        <Icon path={mdiContentCopy} size={0.7} className="mr-1" /> Chọn
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -2280,7 +2280,7 @@ const InvoiceDialog = ({
         <DialogFooter className="mt-4">
           <Button variant="outline" onClick={() => onOpenChange(false)}>Đóng</Button>
           <Button onClick={handlePrintToPdf} disabled={isProcessing}>
-            <Icon path={mdiPrinter} size={0.8} className="mr-2" />
+            <Icon path={mdiPrinter} size={0.7} className="mr-2" />
             {isProcessing ? (
               <>
                 <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

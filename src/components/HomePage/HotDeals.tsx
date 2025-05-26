@@ -109,7 +109,7 @@ export const HotDeals = () => {
                 <span className="text-sm font-medium mr-2 text-maintext dark:text-gray-300">ĐÁNH GIÁ</span>
                 <div className="flex">
                   {[...Array(5)].map((_, i) => (
-                    <Icon key={i} path={mdiStar} size={0.8} className="text-amber-500" />
+                    <Icon key={i} path={mdiStar} size={0.7} className="text-amber-500" />
                   ))}
                 </div>
               </div>

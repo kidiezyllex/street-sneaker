@@ -45,7 +45,7 @@ export default function SuccessModal({ isOpen, onClose, orderId, orderCode }: Su
             <p className="text-maintext">Cảm ơn bạn đã đặt hàng tại Street Sneaker</p>
             <div className="bg-gray-50 rounded-lg p-4">
               <p className="text-sm text-maintext mb-1">Mã đơn hàng của bạn là:</p>
-              <p className="font-bold text-lg text-gray-900">{orderCode || orderId}</p>
+              <p className="font-bold text-lg text-maintext">{orderCode || orderId}</p>
             </div>
             <p className="text-sm text-maintext">
               Chúng tôi sẽ sớm liên hệ với bạn để xác nhận đơn hàng

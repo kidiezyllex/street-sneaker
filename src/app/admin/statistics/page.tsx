@@ -696,7 +696,7 @@ export default function StatisticsPage() {
             >
               {generateDailyStatistics.isPending ? (
                 <>
-                  <Icon path={mdiLoading} size={0.9} className="mr-2 animate-spin" />
+                  <Icon path={mdiLoading} size={0.7} className="mr-2 animate-spin" />
                   Đang xử lý...
                 </>
               ) : (

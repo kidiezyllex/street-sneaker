@@ -248,7 +248,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
             onClick={() => router.back()}
             className="flex items-center gap-2"
           >
-            <Icon path={mdiArrowLeft} size={0.9} />
+            <Icon path={mdiArrowLeft} size={0.7} />
             Quay lại
           </Button>
         </div>
@@ -291,7 +291,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
           onClick={() => router.back()}
           className="flex items-center gap-2"
         >
-          <Icon path={mdiArrowLeft} size={0.9} />
+          <Icon path={mdiArrowLeft} size={0.7} />
           Quay lại
         </Button>
       </div>
@@ -412,7 +412,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                 >
                   {updateProduct.isPending ? (
                     <>
-                      <Icon path={mdiLoading} size={0.9} className="animate-spin" />
+                      <Icon path={mdiLoading} size={0.7} className="animate-spin" />
                       Đang cập nhật...
                     </>
                   ) : (
@@ -474,7 +474,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                             disabled={updateProductStock.isPending}
                           >
                             {updateProductStock.isPending && updateProductStock.variables?.payload.variantUpdates[0]?.variantId === variant._id ? (
-                              <Icon path={mdiLoading} size={0.9} className="animate-spin" />
+                              <Icon path={mdiLoading} size={0.7} className="animate-spin" />
                             ) : (
                               'Cập nhật'
                             )}
@@ -509,12 +509,12 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                           >
                             {uploading ? (
                               <>
-                                <Icon path={mdiLoading} size={0.9} className="animate-spin" />
+                                <Icon path={mdiLoading} size={0.7} className="animate-spin" />
                                 Đang tải...
                               </>
                             ) : (
                               <>
-                                <Icon path={mdiUpload} size={0.9} />
+                                <Icon path={mdiUpload} size={0.7} />
                                 Tải lên hình ảnh
                               </>
                             )}
@@ -544,9 +544,9 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                                     disabled={updateProductImages.isPending}
                                   >
                                     {updateProductImages.isPending ? (
-                                      <Icon path={mdiLoading} size={0.9} className="animate-spin" />
+                                      <Icon path={mdiLoading} size={0.7} className="animate-spin" />
                                     ) : (
-                                      <Icon path={mdiTrashCanOutline} size={0.9} />
+                                      <Icon path={mdiTrashCanOutline} size={0.7} />
                                     )}
                                   </Button>
                                 </div>

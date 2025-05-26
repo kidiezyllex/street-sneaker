@@ -118,7 +118,7 @@ export default function CreateAccountPage() {
           onClick={() => router.back()}
           className="flex items-center gap-2"
         >
-          <Icon path={mdiArrowLeft} size={0.9} />
+          <Icon path={mdiArrowLeft} size={0.7} />
           Quay lại
         </Button>
       </div>
@@ -269,7 +269,7 @@ export default function CreateAccountPage() {
             >
               {createAccount.isPending ? (
                 <>
-                  <Icon path={mdiLoading} size={0.9} className="animate-spin" />
+                  <Icon path={mdiLoading} size={0.7} className="animate-spin" />
                   Đang xử lý...
                 </>
               ) : (

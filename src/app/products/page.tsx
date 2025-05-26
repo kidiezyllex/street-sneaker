@@ -252,7 +252,7 @@ export default function ProductsPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator className="!text-maintext hover:!text-maintext" />
           <BreadcrumbItem>
-            <BreadcrumbPage className="!text-maintext hover:!text-maintext">Sản phẩm</BreadcrumbPage>
+            <BreadcrumbPage className="!text-maintext hover:!text-maintext">Tất cả sản phẩm</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -271,7 +271,7 @@ export default function ProductsPage() {
                 <div className="flex justify-between items-center mb-2">
                   <h2 className="font-medium">Bộ lọc sản phẩm</h2>
                   <Button variant="ghost" size="sm" onClick={toggleFilter}>
-                    <Icon path={mdiClose} size={0.9} />
+                    <Icon path={mdiClose} size={0.7} />
                   </Button>
                 </div>
                 <ProductFilters filters={filters} onChange={handleFilterChange} />
@@ -302,7 +302,7 @@ export default function ProductsPage() {
             <div className="relative flex-1">
               <Icon
                 path={mdiMagnify}
-                size={0.9}
+                size={0.7}
                 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext"
               />
               <Input
@@ -588,7 +588,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
                 }}
                 aria-label="Thêm vào giỏ hàng"
               >
-                <Icon path={mdiCartOutline} size={0.8} className="group-hover/btn:animate-bounce" />
+                <Icon path={mdiCartOutline} size={0.7} className="group-hover/btn:animate-bounce" />
               </Button>
             </motion.div>
 
@@ -603,7 +603,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
                 }}
                 aria-label="Yêu thích"
               >
-                <Icon path={mdiHeartOutline} size={0.8} className="group-hover/btn:animate-pulse" />
+                <Icon path={mdiHeartOutline} size={0.7} className="group-hover/btn:animate-pulse" />
               </Button>
             </motion.div>
 
@@ -618,7 +618,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
                 }}
                 aria-label="Xem nhanh"
               >
-                <Icon path={mdiEye} size={0.8} className="group-hover/btn:animate-ping" />
+                <Icon path={mdiEye} size={0.7} className="group-hover/btn:animate-ping" />
               </Button>
             </motion.div>
           </motion.div>
@@ -636,7 +636,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
             href={`/products/${product.name.toLowerCase().replace(/\s+/g, "-")}-${product._id}`}
             className="hover:text-primary transition-colors group/link"
           >
-            <h3 className="font-bold text-base mb-3 line-clamp-2 leading-tight group-hover:text-primary/90 transition-colors duration-300 text-gray-800 group-hover/link:underline decoration-primary/50 underline-offset-2">
+            <h3 className="font-bold text-base mb-3 line-clamp-2 leading-tight group-hover:text-primary/90 transition-colors duration-300 text-maintext group-hover/link:underline decoration-primary/50 underline-offset-2">
               {product.name}
             </h3>
           </Link>

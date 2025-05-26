@@ -429,7 +429,7 @@ export default function OrdersPage() {
               <div className="relative w-full md:w-96">
                 <Icon
                   path={mdiMagnify}
-                  size={0.9}
+                  size={0.7}
                   className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext"
                 />
                 <Input
@@ -476,14 +476,14 @@ export default function OrdersPage() {
                   </PopoverContent>
                 </Popover>
                 <Button variant="outline" className="flex items-center" onClick={() => setShowFilters(!showFilters)}>
-                  <Icon path={mdiFilterOutline} size={0.9} className="mr-2" />
+                  <Icon path={mdiFilterOutline} size={0.7} className="mr-2" />
                   {showFilters ? "Ẩn bộ lọc" : "Hiện bộ lọc"}
                 </Button>
                 <div className="flex flex-col sm:flex-row gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">
-                <Icon path={mdiFileExport} size={0.8} className="mr-2" />
+                <Icon path={mdiFileExport} size={0.7} className="mr-2" />
                 Xuất dữ liệu
               </Button>
             </DropdownMenuTrigger>
@@ -718,7 +718,7 @@ export default function OrdersPage() {
                   <TableCell className="text-right">
                     <div className="flex justify-end space-x-2">
                       <Button variant="outline" size="icon" onClick={() => handleViewOrder(order._id)}>
-                        <Icon path={mdiEye} size={0.9} />
+                        <Icon path={mdiEye} size={0.7} />
                       </Button>
                       <Button
                         variant="outline"
@@ -729,7 +729,7 @@ export default function OrdersPage() {
                           setIsConfirmCancelDialogOpen(true)
                         }}
                       >
-                        <Icon path={mdiDelete} size={0.9} />
+                        <Icon path={mdiDelete} size={0.7} />
                       </Button>
                     </div>
                   </TableCell>
@@ -889,12 +889,12 @@ const OrderDetailDialog = ({
             <div className="flex space-x-2">
               <Link href={`/admin/orders/edit/${orderId}`}>
                 <Button variant="outline" size="sm">
-                  <Icon path={mdiPencil} size={0.8} className="mr-2" />
+                  <Icon path={mdiPencil} size={0.7} className="mr-2" />
                   Chỉnh sửa
                 </Button>
               </Link>
               <Button variant="outline" size="sm">
-                <Icon path={mdiPrinter} size={0.8} className="mr-2" />
+                <Icon path={mdiPrinter} size={0.7} className="mr-2" />
                 In đơn
               </Button>
             </div>

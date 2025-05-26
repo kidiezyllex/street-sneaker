@@ -63,7 +63,7 @@ export const NewsletterPopup = () => {
           >
             {/* Nút đóng */}
             <button 
-              className="absolute top-3 right-3 z-10 text-maintext hover:text-gray-900"
+              className="absolute top-3 right-3 z-10 text-maintext hover:text-maintext"
               onClick={handleClose}
             >
               <Icon path={mdiClose} size={1} />
@@ -80,7 +80,7 @@ export const NewsletterPopup = () => {
               {/* Phần nội dung */}
               <div className="p-4 md:p-8 md:col-span-3">
                 <div className="text-center md:text-left">
-                  <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
+                  <h3 className="text-xl md:text-2xl font-bold text-maintext mb-2">
                     Nhận ngay ưu đãi 20%
                   </h3>
                   <p className="text-maintext mb-4">

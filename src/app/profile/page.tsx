@@ -189,7 +189,7 @@ export default function ProfilePage() {
         transition={{ duration: 0.5 }}
       >
         <div className="mb-8 flex flex-col items-center text-center">
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Hồ sơ tài khoản</h1>
+          <h1 className="text-3xl font-bold text-maintext dark:text-white mb-2">Hồ sơ tài khoản</h1>
           <p className="text-maintext dark:text-maintext max-w-2xl">
             Quản lý thông tin cá nhân, địa chỉ và thay đổi mật khẩu của bạn
           </p>
@@ -198,13 +198,13 @@ export default function ProfilePage() {
         <Tabs defaultValue="profile" className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-8">
             <TabsTrigger value="profile" className="flex items-center gap-2">
-              <Icon path={mdiAccountEdit} size={0.9} /> Thông tin cá nhân
+              <Icon path={mdiAccountEdit} size={0.7} /> Thông tin cá nhân
             </TabsTrigger>
             <TabsTrigger value="addresses" className="flex items-center gap-2">
-              <Icon path={mdiMapMarker} size={0.9} /> Sổ địa chỉ
+              <Icon path={mdiMapMarker} size={0.7} /> Sổ địa chỉ
             </TabsTrigger>
             <TabsTrigger value="security" className="flex items-center gap-2">
-              <Icon path={mdiShieldAccount} size={0.9} /> Bảo mật
+              <Icon path={mdiShieldAccount} size={0.7} /> Bảo mật
             </TabsTrigger>
           </TabsList>
           

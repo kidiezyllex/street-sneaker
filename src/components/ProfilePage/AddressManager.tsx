@@ -186,7 +186,7 @@ export default function AddressManager() {
                   <Card className={`overflow-hidden ${address.isDefault ? 'border-primary' : 'border-gray-200 dark:border-gray-700'}`}>
                     <CardHeader className="p-4 pb-2 flex flex-row justify-between items-start space-y-0">
                       <div className="flex items-center gap-2">
-                        <Icon path={mdiHome} size={0.8} className="text-primary" />
+                        <Icon path={mdiHome} size={0.7} className="text-primary" />
                         <CardTitle className="text-base font-medium">{address.addressName}</CardTitle>
                       </div>
                       <div className="flex items-center gap-1">

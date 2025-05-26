@@ -90,10 +90,10 @@ const OrderStepper = ({ currentStatus }: { currentStatus: string }) => {
                             if (isCompleted) {
                                 iconToShow = <CheckCircle size={28} className={step.colors.textClass} />;
                             } else {
-                                iconToShow = <Icon path={step.icon} size={1.2} className={step.colors.textClass} />;
+                                iconToShow = <Icon path={step.icon} size={1} className={step.colors.textClass} />;
                             }
                         } else {
-                            iconToShow = <Icon path={step.icon} size={1.2} className="text-maintext/50 dark:text-maintext" />;
+                            iconToShow = <Icon path={step.icon} size={1} className="text-maintext/50 dark:text-maintext" />;
                         }
 
                         return (
@@ -474,7 +474,7 @@ export default function OrderDetailPage() {
                 </div>
                 <div className="flex space-x-2">
                     <Button variant="outline" onClick={() => setIsInvoiceDialogOpen(true)}>
-                        <Icon path={mdiFileDocument} size={0.9} />
+                        <Icon path={mdiFileDocument} size={0.7} />
                         Xem hóa đơn
                     </Button>
                     <Button
@@ -483,7 +483,7 @@ export default function OrderDetailPage() {
                         disabled={["DA_HUY", "HOAN_THANH"].includes(order.orderStatus)}
                         onClick={() => setIsConfirmCancelDialogOpen(true)}
                     >
-                        <Icon path={mdiDelete} size={0.8} />
+                        <Icon path={mdiDelete} size={0.7} />
                         Hủy đơn hàng
                     </Button>
                     <Button
@@ -887,7 +887,7 @@ export default function OrderDetailPage() {
                             Đóng
                         </Button>
                         <Button>
-                            <Icon path={mdiPrinter} size={0.8} className="mr-2" />
+                            <Icon path={mdiPrinter} size={0.7} className="mr-2" />
                             In hóa đơn
                         </Button>
                     </DialogFooter>

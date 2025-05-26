@@ -82,7 +82,7 @@ export default function SizesPage() {
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                 <DialogTrigger asChild>
                     <Button onClick={() => setIsCreateDialogOpen(true)}>
-                        <Icon path={mdiPlus} size={0.9} />
+                        <Icon path={mdiPlus} size={0.7} />
                         Thêm kích cỡ mới
                     </Button>
                 </DialogTrigger>
@@ -196,7 +196,7 @@ export default function SizesPage() {
                                                                 }}
                                                                 title="Xóa"
                                                             >
-                                                                <Icon path={mdiDeleteCircle} size={0.9} />
+                                                                <Icon path={mdiDeleteCircle} size={0.7} />
                                                             </Button>
                                                         </DialogTrigger>
                                                         <DialogContent>

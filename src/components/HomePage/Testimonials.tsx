@@ -44,7 +44,7 @@ const RatingStars = ({ rating }: { rating: number }) => {
             <Icon 
               key={i} 
               path={mdiStar} 
-              size={1.2} 
+              size={1} 
               className="text-yellow-400" 
             />
           );
@@ -53,7 +53,7 @@ const RatingStars = ({ rating }: { rating: number }) => {
             <Icon 
               key={i} 
               path={mdiStarHalfFull} 
-              size={1.2} 
+              size={1} 
               className="text-yellow-400" 
             />
           );
@@ -62,7 +62,7 @@ const RatingStars = ({ rating }: { rating: number }) => {
             <Icon 
               key={i} 
               path={mdiStarOutline} 
-              size={1.2} 
+              size={1} 
               className="text-gray-300" 
             />
           );
@@ -98,7 +98,7 @@ const TestimonialCard = ({ testimonial, index }: { testimonial: typeof testimoni
           />
         </div>
         <div>
-          <h4 className="font-semibold text-gray-900 dark:text-white text-lg">{testimonial.name}</h4>
+          <h4 className="font-semibold text-maintext dark:text-white text-lg">{testimonial.name}</h4>
           <p className="text-sm text-maintext dark:text-maintext">{testimonial.role}</p>
         </div>
       </div>
@@ -130,7 +130,7 @@ export const Testimonials = () => {
           transition={{ duration: 0.5 }}
           className="text-center mb-8"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-maintext dark:text-white mb-4">
             Khách hàng nói gì về chúng tôi
           </h2>
           <p className="text-maintext dark:text-gray-300 max-w-2xl mx-auto">

@@ -99,7 +99,7 @@ export default function ColorsPage() {
                         <div className="relative flex-1 max-w-md">
                             <Icon
                                 path={mdiMagnify}
-                                size={0.9}
+                                size={0.7}
                                 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext"
                             />
                             <Input
@@ -127,7 +127,7 @@ export default function ColorsPage() {
                             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                                 <DialogTrigger asChild>
                                     <Button onClick={() => setIsCreateDialogOpen(true)}>
-                                        <Icon path={mdiPlus} size={0.9} />
+                                        <Icon path={mdiPlus} size={0.7} />
                                         Thêm màu sắc mới
                                     </Button>
                                 </DialogTrigger>
@@ -227,7 +227,7 @@ export default function ColorsPage() {
                                                         className="w-6 h-6 rounded-full mr-2 border border-gray-200"
                                                         style={{ backgroundColor: color.code }}
                                                     />
-                                                    <div className="text-sm font-medium text-gray-900">{color.name}</div>
+                                                    <div className="text-sm font-medium text-maintext">{color.name}</div>
                                                 </div>
                                             </TableCell>
                                             <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-maintext">
@@ -260,7 +260,7 @@ export default function ColorsPage() {
                                                                     setIsEditDialogOpen(true);
                                                                 }}
                                                             >
-                                                                <Icon path={mdiPencilCircle} size={0.9} />
+                                                                <Icon path={mdiPencilCircle} size={0.7} />
                                                             </Button>
                                                         </DialogTrigger>
                                                         {colorToEdit === color._id && (
@@ -285,7 +285,7 @@ export default function ColorsPage() {
                                                                 }}
                                                                 title="Xóa"
                                                             >
-                                                                <Icon path={mdiDeleteCircle} size={0.9} />
+                                                                <Icon path={mdiDeleteCircle} size={0.7} />
                                                             </Button>
                                                         </DialogTrigger>
                                                         <DialogContent>
@@ -526,7 +526,7 @@ function EditColorDialog({ colorId, isOpen, onClose }: EditColorDialogProps) {
                         className="w-full"
                         onClick={generateRandomColor}
                     >
-                        <Icon path={mdiRefresh} size={0.9} className="mr-2" />
+                        <Icon path={mdiRefresh} size={0.7} className="mr-2" />
                         Random Color
                     </Button>
                     {errors.code && <p className="text-red-500 text-sm">{errors.code}</p>}
@@ -708,7 +708,7 @@ function CreateColorDialog({ isOpen, onClose }: CreateColorDialogProps) {
                         className="w-full"
                         onClick={generateRandomColor}
                     >
-                        <Icon path={mdiRefresh} size={0.9} className="mr-2" />
+                        <Icon path={mdiRefresh} size={0.7} className="mr-2" />
                         Random Color
                     </Button>
                     {errors.code && <p className="text-red-500 text-sm">{errors.code}</p>}

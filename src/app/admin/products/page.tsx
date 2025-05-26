@@ -142,7 +142,7 @@ export default function ProductsPage() {
           href="/admin/products/create"
         >
           <Button>
-            <Icon path={mdiPlus} size={0.9} />
+            <Icon path={mdiPlus} size={0.7} />
             Thêm sản phẩm mới
           </Button>
           
@@ -155,7 +155,7 @@ export default function ProductsPage() {
             <div className="relative flex-1 max-w-md">
               <Icon
                 path={mdiMagnify}
-                size={0.9}
+                size={0.7}
                 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext"
               />
               <Input
@@ -171,7 +171,7 @@ export default function ProductsPage() {
               className="flex items-center"
               onClick={() => setShowFilters(!showFilters)}
             >
-              <Icon path={mdiFilterOutline} size={0.9} className="mr-2" />
+              <Icon path={mdiFilterOutline} size={0.7} className="mr-2" />
               {showFilters ? 'Ẩn bộ lọc' : 'Hiện bộ lọc'}
             </Button>
           </div>
@@ -305,7 +305,7 @@ export default function ProductsPage() {
                         </div>
                       </TableCell>
                       <TableCell className="px-4 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{product.name}</div>
+                        <div className="text-sm font-medium text-maintext">{product.name}</div>
                         <div className="text-xs text-maintext">
                           {product.variants.length} biến thể
                         </div>
@@ -335,7 +335,7 @@ export default function ProductsPage() {
                               size="icon"
                               title="Sửa"
                             >
-                              <Icon path={mdiPencilCircle} size={0.9} />
+                              <Icon path={mdiPencilCircle} size={0.7} />
                             </Button>
                           </Link>
                           <Dialog open={isDeleteDialogOpen && productToDelete === product._id} onOpenChange={setIsDeleteDialogOpen}>
@@ -349,7 +349,7 @@ export default function ProductsPage() {
                                 }}
                                 title="Xóa"
                               >
-                                <Icon path={mdiDeleteCircle} size={0.9} />
+                                <Icon path={mdiDeleteCircle} size={0.7} />
                               </Button>
                             </DialogTrigger>
                             <DialogContent>

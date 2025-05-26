@@ -162,7 +162,7 @@ export default function EditOrderPage() {
           </BreadcrumbList>
         </Breadcrumb>
         <Button variant="outline" onClick={() => router.back()}>
-          <Icon path={mdiArrowLeft} size={0.9} className="mr-2" />
+          <Icon path={mdiArrowLeft} size={0.7} className="mr-2" />
           Quay lại
         </Button>
       </div>
@@ -302,7 +302,7 @@ export default function EditOrderPage() {
                                 </div>
                               )}
                               <div className="flex flex-col">
-                                <div className="text-sm font-medium text-gray-900">
+                                <div className="text-sm font-medium text-maintext">
                                   {item.product.name}
                                 </div>
                                 {item.variant && (
@@ -434,7 +434,7 @@ export default function EditOrderPage() {
                     <span>Đang cập nhật...</span>
                   ) : (
                     <>
-                      <Icon path={mdiContentSave} size={0.9} className="mr-2" />
+                      <Icon path={mdiContentSave} size={0.7} className="mr-2" />
                       Lưu thay đổi
                     </>
                   )}

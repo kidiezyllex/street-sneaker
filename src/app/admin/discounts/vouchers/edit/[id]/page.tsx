@@ -213,7 +213,7 @@ export default function EditVoucherPage() {
             onClick={() => router.back()}
             className="flex items-center gap-2"
           >
-            <Icon path={mdiArrowLeft} size={0.9} />
+            <Icon path={mdiArrowLeft} size={0.7} />
             Quay lại
           </Button>
         </div>
@@ -260,7 +260,7 @@ export default function EditVoucherPage() {
           onClick={() => router.back()}
           className="flex items-center gap-2"
         >
-          <Icon path={mdiArrowLeft} size={0.9} />
+          <Icon path={mdiArrowLeft} size={0.7} />
           Quay lại
         </Button>
       </div>
@@ -439,7 +439,7 @@ export default function EditVoucherPage() {
             >
               {updateVoucher.isPending ? (
                 <>
-                  <Icon path={mdiLoading} size={0.9} className="mr-2 animate-spin" />
+                  <Icon path={mdiLoading} size={0.7} className="mr-2 animate-spin" />
                   Đang cập nhật...
                 </>
               ) : 'Cập nhật'}

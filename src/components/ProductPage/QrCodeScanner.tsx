@@ -69,7 +69,7 @@ const QrCodeScanner = ({ onQrCodeDetected }: QrCodeScannerProps) => {
         variant="outline"
         className="flex items-center gap-2"
       >
-        <Icon path={mdiQrcodeScan} size={0.9} />
+        <Icon path={mdiQrcodeScan} size={0.7} />
         <span>Quét mã QR</span>
       </Button>
 
@@ -102,7 +102,7 @@ const QrCodeScanner = ({ onQrCodeDetected }: QrCodeScannerProps) => {
               variant="secondary"
               onClick={() => setIsOpen(false)}
             >
-              <Icon path={mdiClose} size={0.9} className="mr-2" />
+              <Icon path={mdiClose} size={0.7} className="mr-2" />
               Đóng
             </Button>
           </DialogFooter>

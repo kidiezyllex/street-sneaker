@@ -174,7 +174,7 @@ export default function EditAccountPage({ params }: Props) {
           onClick={() => router.back()}
           className="flex items-center gap-2"
         >
-          <Icon path={mdiArrowLeft} size={0.9} />
+          <Icon path={mdiArrowLeft} size={0.7} />
           Quay lại
         </Button>
       </div>
@@ -340,7 +340,7 @@ export default function EditAccountPage({ params }: Props) {
           >
             {updateAccount.isPending ? (
               <>
-                <Icon path={mdiLoading} size={0.9} className="animate-spin" />
+                <Icon path={mdiLoading} size={0.7} className="animate-spin" />
                 Đang xử lý...
               </>
             ) : (

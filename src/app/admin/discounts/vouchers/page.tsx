@@ -161,12 +161,12 @@ export default function VouchersPage() {
             onClick={() => setIsValidateDialogOpen(true)}
             className="flex items-center gap-2"
           >
-            <Icon path={mdiTagCheckOutline} size={0.9} />
+            <Icon path={mdiTagCheckOutline} size={0.7} />
             Kiểm tra mã
           </Button>
           <Link href="/admin/discounts/vouchers/create">
             <Button className="flex items-center gap-2">
-              <Icon path={mdiPlus} size={0.9} />
+              <Icon path={mdiPlus} size={0.7} />
               Thêm mã giảm giá mới
             </Button>
           </Link>
@@ -179,7 +179,7 @@ export default function VouchersPage() {
             <div className="relative flex-1 max-w-md">
               <Icon
                 path={mdiMagnify}
-                size={0.9}
+                size={0.7}
                 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext"
               />
               <Input
@@ -197,7 +197,7 @@ export default function VouchersPage() {
                   className="flex items-center"
                   onClick={handleClearFilters}
                 >
-                  <Icon path={mdiFilterRemoveOutline} size={0.9} className="mr-2" />
+                  <Icon path={mdiFilterRemoveOutline} size={0.7} className="mr-2" />
                   Clear bộ lọc
                 </Button>
               )}
@@ -206,7 +206,7 @@ export default function VouchersPage() {
                 className="flex items-center"
                 onClick={() => setShowFilters(!showFilters)}
               >
-                <Icon path={mdiFilterOutline} size={0.9} className="mr-2" />
+                <Icon path={mdiFilterOutline} size={0.7} className="mr-2" />
                 {showFilters ? 'Ẩn bộ lọc' : 'Hiện bộ lọc'}
               </Button>
             </div>
@@ -357,7 +357,7 @@ export default function VouchersPage() {
                           }}
                           title="Gửi thông báo"
                         >
-                          <Icon path={mdiEmailFast} size={0.9} />
+                          <Icon path={mdiEmailFast} size={0.7} />
                         </Button>
                         <Link href={`/admin/discounts/vouchers/edit/${voucher._id}`}>
                           <Button
@@ -365,7 +365,7 @@ export default function VouchersPage() {
                             size="icon"
                             title="Sửa"
                           >
-                            <Icon path={mdiPencilCircle} size={0.9} />
+                            <Icon path={mdiPencilCircle} size={0.7} />
                           </Button>
                         </Link>
                         <Button
@@ -377,7 +377,7 @@ export default function VouchersPage() {
                           }}
                           title="Xóa"
                         >
-                          <Icon path={mdiDeleteCircle} size={0.9} />
+                          <Icon path={mdiDeleteCircle} size={0.7} />
                         </Button>
                       </div>
                     </TableCell>
@@ -475,7 +475,7 @@ export default function VouchersPage() {
             >
               {deleteVoucher.isPending ? (
                 <>
-                  <Icon path={mdiLoading} size={0.9} className="mr-2 animate-spin" />
+                  <Icon path={mdiLoading} size={0.7} className="mr-2 animate-spin" />
                   Đang xóa...
                 </>
               ) : (
@@ -503,7 +503,7 @@ export default function VouchersPage() {
             >
               {notifyVoucher.isPending ? (
                 <>
-                  <Icon path={mdiLoading} size={0.9} className="mr-2 animate-spin" />
+                  <Icon path={mdiLoading} size={0.7} className="mr-2 animate-spin" />
                   Đang gửi...
                 </>
               ) : (

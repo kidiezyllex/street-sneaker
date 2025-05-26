@@ -25,7 +25,7 @@ const FeatureCard = ({ icon, title, description }: { icon: string; title: string
             <div className="p-4 rounded-full bg-gradient-to-r from-[#2C8B3D] to-[#88C140] mr-5">
                 <Icon path={icon} size={1.5} className="text-white" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h3>
+            <h3 className="text-xl font-bold text-maintext dark:text-white">{title}</h3>
         </div>
         <p className="text-maintext dark:text-maintext">{description}</p>
     </motion.div>
@@ -216,7 +216,7 @@ export const AboutUs = () => {
                             viewport={{ once: true }}
                             transition={{ duration: 0.8 }}
                         >
-                            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-8">Câu chuyện của chúng tôi</h2>
+                            <h2 className="text-4xl font-bold text-maintext dark:text-white mb-8">Câu chuyện của chúng tôi</h2>
                             <p className="text-lg text-maintext dark:text-maintext mb-8">
                                 StreetSneaker được thành lập với sứ mệnh mang đến cho khách hàng những sản phẩm giày chất lượng cao với giá cả phải chăng. Chúng tôi tin rằng mỗi người đều xứng đáng được sở hữu những đôi giày thoải mái và thời trang.
                             </p>
@@ -229,7 +229,7 @@ export const AboutUs = () => {
                                     whileHover={{ x: 5 }}
                                     transition={{ type: "spring", stiffness: 300 }}
                                 >
-                                    <Icon path={mdiCheckCircle} size={1.2} className="text-[#2C8B3D] mr-3" />
+                                    <Icon path={mdiCheckCircle} size={1} className="text-[#2C8B3D] mr-3" />
                                     <span className="text-lg text-maintext dark:text-gray-300">Sản phẩm chính hãng</span>
                                 </motion.div>
                                 <motion.div
@@ -237,7 +237,7 @@ export const AboutUs = () => {
                                     whileHover={{ x: 5 }}
                                     transition={{ type: "spring", stiffness: 300 }}
                                 >
-                                    <Icon path={mdiCheckCircle} size={1.2} className="text-[#2C8B3D] mr-3" />
+                                    <Icon path={mdiCheckCircle} size={1} className="text-[#2C8B3D] mr-3" />
                                     <span className="text-lg text-maintext dark:text-gray-300">Giao hàng nhanh chóng</span>
                                 </motion.div>
                                 <motion.div
@@ -245,7 +245,7 @@ export const AboutUs = () => {
                                     whileHover={{ x: 5 }}
                                     transition={{ type: "spring", stiffness: 300 }}
                                 >
-                                    <Icon path={mdiCheckCircle} size={1.2} className="text-[#2C8B3D] mr-3" />
+                                    <Icon path={mdiCheckCircle} size={1} className="text-[#2C8B3D] mr-3" />
                                     <span className="text-lg text-maintext dark:text-gray-300">Hỗ trợ 24/7</span>
                                 </motion.div>
                             </div>
@@ -280,7 +280,7 @@ export const AboutUs = () => {
                         viewport={{ once: true }}
                         transition={{ duration: 0.5 }}
                     >
-                        <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Tại sao chọn StreetSneaker?</h2>
+                        <h2 className="text-4xl font-bold text-maintext dark:text-white mb-4">Tại sao chọn StreetSneaker?</h2>
                         <p className="text-lg text-maintext dark:text-maintext max-w-2xl mx-auto">
                             Chúng tôi cam kết mang đến trải nghiệm mua sắm tốt nhất cho khách hàng với những dịch vụ và sản phẩm chất lượng cao.
                         </p>
@@ -320,7 +320,7 @@ export const AboutUs = () => {
                         viewport={{ once: true }}
                         transition={{ duration: 0.5 }}
                     >
-                        <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Đội ngũ của chúng tôi</h2>
+                        <h2 className="text-4xl font-bold text-maintext dark:text-white mb-4">Đội ngũ của chúng tôi</h2>
                         <p className="text-lg text-maintext dark:text-maintext max-w-2xl mx-auto">
                             StreetSneaker được vận hành bởi một đội ngũ trẻ trung, năng động và đầy nhiệt huyết. Chúng tôi luôn nỗ lực để mang đến những sản phẩm và dịch vụ tốt nhất cho khách hàng.
                         </p>

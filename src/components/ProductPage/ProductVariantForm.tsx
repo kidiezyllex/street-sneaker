@@ -165,12 +165,12 @@ const ProductVariantForm: React.FC<ProductVariantFormProps> = ({
             >
               {uploading ? (
                 <>
-                  <Icon path={mdiLoading} size={0.9} className="animate-spin" />
+                  <Icon path={mdiLoading} size={0.7} className="animate-spin" />
                   Đang tải...
                 </>
               ) : (
                 <>
-                  <Icon path={mdiUpload} size={0.9} />
+                  <Icon path={mdiUpload} size={0.7} />
                   Tải lên hình ảnh
                 </>
               )}
@@ -204,7 +204,7 @@ const ProductVariantForm: React.FC<ProductVariantFormProps> = ({
                         className="opacity-0 group-hover:opacity-100 transition-opacity"
                         onClick={() => onRemoveImage(index)}
                       >
-                        <Icon path={mdiTrashCanOutline} size={0.9} />
+                        <Icon path={mdiTrashCanOutline} size={0.7} />
                       </Button>
                     </div>
                   </motion.div>

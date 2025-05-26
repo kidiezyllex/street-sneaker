@@ -99,7 +99,7 @@ export default function MaterialsPage() {
             <div className="relative flex-1 max-w-md">
               <Icon
                 path={mdiMagnify}
-                size={0.9}
+                size={0.7}
                 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext"
               />
               <Input
@@ -127,7 +127,7 @@ export default function MaterialsPage() {
               <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                 <DialogTrigger asChild>
                   <Button onClick={() => setIsCreateDialogOpen(true)}>
-                    <Icon path={mdiPlus} size={0.9} />
+                    <Icon path={mdiPlus} size={0.7} />
                     Thêm chất liệu mới
                   </Button>
                 </DialogTrigger>
@@ -214,7 +214,7 @@ export default function MaterialsPage() {
                         {material._id}
                       </TableCell>
                       <TableCell className="px-4 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{material.name}</div>
+                        <div className="text-sm font-medium text-maintext">{material.name}</div>
                       </TableCell>
                       <TableCell className="px-4 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 text-xs rounded-full ${material.status === 'HOAT_DONG'
@@ -243,7 +243,7 @@ export default function MaterialsPage() {
                                   setIsEditDialogOpen(true);
                                 }}
                               >
-                                <Icon path={mdiPencilCircle} size={0.9} />
+                                <Icon path={mdiPencilCircle} size={0.7} />
                               </Button>
                             </DialogTrigger>
                             {materialToEdit === material._id && (
@@ -268,7 +268,7 @@ export default function MaterialsPage() {
                                 }}
                                 title="Xóa"
                               >
-                                <Icon path={mdiDeleteCircle} size={0.9} />
+                                <Icon path={mdiDeleteCircle} size={0.7} />
                               </Button>
                             </DialogTrigger>
                             <DialogContent>

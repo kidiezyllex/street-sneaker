@@ -28,7 +28,7 @@ const Tab = ({ text, selected, setSelected }: TabProps) => {
             onClick={() => setSelected(text)}
             className={`${selected
                 ? 'text-white'
-                : 'text-maintext hover:text-gray-900 dark:hover:text-gray-100'
+                : 'text-maintext hover:text-maintext dark:hover:text-gray-100'
                 } relative rounded-[6px] px-3 py-1.5 text-sm font-medium transition-colors`}
         >
             <span className="relative z-10">{text}</span>
@@ -104,7 +104,7 @@ export const NavigationBar = () => {
                     )}
                     <div className="flex items-center">
                         <button onClick={() => setIsOpen(true)} className="relative p-2 text-maintext hover:text-primary transition-colors">
-                            <Icon path={mdiCart} size={0.9} />
+                            <Icon path={mdiCart} size={0.7} />
                             <span className="absolute -top-1 -right-1 bg-extra text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                                 {totalItems}
                             </span>

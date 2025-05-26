@@ -83,11 +83,11 @@ export const Footer = () => {
             <div className="w-1/2 pr-24 pl-3 sm:pr-36">
               <h2 className="text-xl font-bold mb-5 lg:text-2xl lg:mb-7">Contact Info</h2>
               <p className="flex justify-start items-start text-lg mb-3 lg:text-lg lg:mb-5">
-                <Icon path={mdiMapMarker} size={1.2} className="mr-3" />
+                <Icon path={mdiMapMarker} size={1} className="mr-3" />
                 <span className="overflow-hidden flex-1">D29, Pham Van Bach Street, Cau Giay District, Ha Noi, Vietnam</span>
               </p>
               <p className="flex justify-start items-start text-lg lg:text-lg">
-                <Icon path={mdiEmail} size={1.2} className="mr-3" />
+                <Icon path={mdiEmail} size={1} className="mr-3" />
                 <span className="overflow-hidden flex-1">streetstore@gmail.com</span>
               </p>
             </div>

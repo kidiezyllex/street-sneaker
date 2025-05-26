@@ -232,7 +232,7 @@ export default function AccountsPage() {
         </Breadcrumb>
         <Link href="/admin/accounts/create">
           <Button className="flex items-center gap-2">
-            <Icon path={mdiPlus} size={0.9} />
+            <Icon path={mdiPlus} size={0.7} />
             Thêm tài khoản mới
           </Button>
         </Link>
@@ -244,7 +244,7 @@ export default function AccountsPage() {
             <div className="relative flex-1 max-w-md">
               <Icon
                 path={mdiMagnify}
-                size={0.9}
+                size={0.7}
                 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext"
               />
               <Input
@@ -260,7 +260,7 @@ export default function AccountsPage() {
               className="flex items-center"
               onClick={() => setShowFilters(!showFilters)}
             >
-              <Icon path={mdiFilterOutline} size={0.9} className="mr-2" />
+              <Icon path={mdiFilterOutline} size={0.7} className="mr-2" />
               {showFilters ? 'Ẩn bộ lọc' : 'Hiện bộ lọc'}
             </Button>
           </div>
@@ -355,7 +355,7 @@ export default function AccountsPage() {
                               </Avatar>
                             </div>
                             <div>
-                              <div className="font-medium text-gray-800">{account.fullName}</div>
+                              <div className="font-medium text-maintext">{account.fullName}</div>
                               <div className="text-sm text-maintext">{account.email}</div>
                             </div>
                           </div>
@@ -378,13 +378,13 @@ export default function AccountsPage() {
                                 size="icon"
                                 variant="outline"
                               >
-                                <Icon path={mdiAccountKey} size={0.9} />
+                                <Icon path={mdiAccountKey} size={0.7} />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <Link href={`/admin/accounts/edit/${account._id}`} passHref>
                                 <DropdownMenuItem className="cursor-pointer text-maintext">
-                                  <Icon path={mdiPencil} size={0.9} className="mr-2" />
+                                  <Icon path={mdiPencil} size={0.7} className="mr-2" />
                                   Chỉnh sửa
                                 </DropdownMenuItem>
                               </Link>
@@ -394,7 +394,7 @@ export default function AccountsPage() {
                                   className="cursor-pointer text-maintext"
                                   onClick={() => handleUpdateStatus(account, 'KHONG_HOAT_DONG')}
                                 >
-                                  <Icon path={mdiLock} size={0.9} className="mr-2" />
+                                  <Icon path={mdiLock} size={0.7} className="mr-2" />
                                   Vô hiệu hóa
                                 </DropdownMenuItem>
                               ) : (
@@ -402,7 +402,7 @@ export default function AccountsPage() {
                                   className="cursor-pointer text-maintext"
                                   onClick={() => handleUpdateStatus(account, 'HOAT_DONG')}
                                 >
-                                  <Icon path={mdiLockReset} size={0.9} className="mr-2" />
+                                  <Icon path={mdiLockReset} size={0.7} className="mr-2" />
                                   Kích hoạt
                                 </DropdownMenuItem>
                               )}
@@ -412,7 +412,7 @@ export default function AccountsPage() {
                                 className="cursor-pointer text-red-600"
                                 onClick={() => handleDeleteAccount(account)}
                               >
-                                <Icon path={mdiDelete} size={0.9} className="mr-2" />
+                                <Icon path={mdiDelete} size={0.7} className="mr-2" />
                                 Xóa tài khoản
                               </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -492,12 +492,12 @@ export default function AccountsPage() {
             >
               {deleteAccount.isPending ? (
                 <>
-                  <Icon path={mdiLoading} size={0.9} className="animate-spin" />
+                  <Icon path={mdiLoading} size={0.7} className="animate-spin" />
                   Đang xử lý...
                 </>
               ) : (
                 <>
-                  <Icon path={mdiDelete} size={0.9} />
+                  <Icon path={mdiDelete} size={0.7} />
                   Xác nhận xóa
                 </>
               )}
@@ -544,17 +544,17 @@ export default function AccountsPage() {
             >
               {updateAccountStatus.isPending ? (
                 <>
-                  <Icon path={mdiLoading} size={0.9} className="animate-spin" />
+                  <Icon path={mdiLoading} size={0.7} className="animate-spin" />
                   Đang xử lý...
                 </>
               ) : newStatus === 'HOAT_DONG' ? (
                 <>
-                  <Icon path={mdiCheck} size={0.9} />
+                  <Icon path={mdiCheck} size={0.7} />
                   Kích hoạt
                 </>
               ) : (
                 <>
-                  <Icon path={mdiLock} size={0.9} />
+                  <Icon path={mdiLock} size={0.7} />
                   Vô hiệu hóa
                 </>
               )}

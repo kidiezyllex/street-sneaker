@@ -38,7 +38,7 @@ export default function LanguageSelector() {
         <Button 
         variant="ghost"
         className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 bg-gray-100">
-          <Icon path={mdiEarth} size={0.8} className='text-maintext' />
+          <Icon path={mdiEarth} size={0.7} className='text-maintext' />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">

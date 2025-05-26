@@ -51,13 +51,13 @@ export const OrderStatusBadge: React.FC<OrderStatusBadgeProps> = ({ status, clas
         return {
           label: 'Đã trả hàng',
           bgColor: 'bg-gray-100',
-          textColor: 'text-gray-800',
+          textColor: 'text-maintext',
         };
       default:
         return {
           label: 'Không xác định',
           bgColor: 'bg-gray-100',
-          textColor: 'text-gray-800',
+          textColor: 'text-maintext',
         };
     }
   };
@@ -117,7 +117,7 @@ export const OrderPaymentStatusBadge: React.FC<OrderPaymentStatusBadgeProps> = (
         return {
           label: 'Không xác định',
           bgColor: 'bg-gray-100',
-          textColor: 'text-gray-800',
+          textColor: 'text-maintext',
         };
     }
   };

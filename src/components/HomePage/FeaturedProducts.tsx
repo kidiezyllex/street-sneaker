@@ -109,7 +109,7 @@ const ProductCard = ({ product, index }: { product: typeof featuredProducts[0], 
       
       <div className="p-4">
         <div className="text-sm text-maintext dark:text-maintext mb-2">{product.category}</div>
-        <h3 className="font-semibold text-gray-900 dark:text-white text-lg mb-3 group-hover:text-primary transition-colors duration-300">
+        <h3 className="font-semibold text-maintext dark:text-white text-lg mb-3 group-hover:text-primary transition-colors duration-300">
           {product.name}
         </h3>
         
@@ -142,7 +142,7 @@ export const FeaturedProducts = () => {
           transition={{ duration: 0.5 }}
           className="text-center mb-8"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-maintext dark:text-white mb-4">
             Sản phẩm nổi bật
           </h2>
           <p className="text-maintext dark:text-gray-300 max-w-2xl mx-auto">

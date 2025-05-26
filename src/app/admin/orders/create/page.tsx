@@ -195,7 +195,7 @@ export default function CreateOrderPage() {
           </BreadcrumbList>
         </Breadcrumb>
         <Button variant="outline" onClick={() => router.back()}>
-          <Icon path={mdiArrowLeft} size={0.9} className="mr-2" />
+          <Icon path={mdiArrowLeft} size={0.7} className="mr-2" />
           Quay lại
         </Button>
       </div>
@@ -210,7 +210,7 @@ export default function CreateOrderPage() {
                   type="button"
                   onClick={() => setProductListOpen(true)}
                 >
-                  <Icon path={mdiPlus} size={0.9} className="mr-2" />
+                  <Icon path={mdiPlus} size={0.7} className="mr-2" />
                   Thêm sản phẩm
                 </Button>
               </CardHeader>
@@ -278,7 +278,7 @@ export default function CreateOrderPage() {
                                 size="icon"
                                 onClick={() => handleRemoveProduct(index)}
                               >
-                                <Icon path={mdiTrashCanOutline} size={0.9} />
+                                <Icon path={mdiTrashCanOutline} size={0.7} />
                               </Button>
                             </TableCell>
                           </TableRow>

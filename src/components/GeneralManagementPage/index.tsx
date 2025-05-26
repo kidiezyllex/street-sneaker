@@ -112,7 +112,7 @@ const OrderStatusBadge = ({ status }: { status: string }) => {
     'DA_HUY': { label: 'Đã hủy', className: '!bg-red-400 !text-white !border-red-500 text-nowrap' },
   };
 
-  const config = statusConfig[status] || { label: status, className: 'bg-gray-400 text-gray-900 border-gray-500' };
+  const config = statusConfig[status] || { label: status, className: 'bg-gray-400 text-maintext border-gray-500' };
 
   return (
     <Badge className={`${config.className} rounded-[4px] font-normal`}>
@@ -537,7 +537,7 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
               <Card className="overflow-hidden">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Icon path={mdiTruck} size={0.8} className="mr-3 text-primary" />
+                    <Icon path={mdiTruck} size={0.7} className="mr-3 text-primary" />
                     Tiến trình đơn hàng
                   </CardTitle>
                 </CardHeader>
@@ -560,7 +560,7 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                         {/* Content */}
                         <div className="flex-1 min-w-0 bg-white rounded-lg border border-gray-100 p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
                           <div className="flex items-center justify-between mb-2">
-                            <h4 className="text-sm font-semibold text-gray-900">{step.title}</h4>
+                            <h4 className="text-sm font-semibold text-maintext">{step.title}</h4>
                             <span className="text-xs text-muted-foreground bg-gray-50 px-2 py-1 rounded-full">
                               {step.time}
                             </span>
@@ -740,7 +740,7 @@ const ProfileTab = () => {
                 {updateProfileMutation.isPending ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-t-transparent border-white" />
                 ) : (
-                  <Icon path={mdiContentSaveOutline} size={0.8} />
+                  <Icon path={mdiContentSaveOutline} size={0.7} />
                 )}
                 Lưu thay đổi
               </Button>
@@ -878,7 +878,7 @@ const PasswordTab = () => {
                 {changePasswordMutation.isPending ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-t-transparent border-white" />
                 ) : (
-                  <Icon path={mdiLock} size={0.8} />
+                  <Icon path={mdiLock} size={0.7} />
                 )}
                 Cập nhật mật khẩu
               </Button>
@@ -1250,11 +1250,11 @@ export default function GeneralManagementPage() {
                         }}
                       >
                         <div className="flex items-center">
-                          <Icon path={tab.icon} size={0.8} className={`mr-3 text-maintext ${activeTab === tab.value ? 'text-primary' : ''}`} />
+                          <Icon path={tab.icon} size={0.7} className={`mr-3 text-maintext ${activeTab === tab.value ? 'text-primary' : ''}`} />
                           <span className='text-maintext'>{tab.title}</span>
                         </div>
                         {activeTab === tab.value && (
-                          <Icon path={mdiChevronRight} size={0.8} className="text-primary" />
+                          <Icon path={mdiChevronRight} size={0.7} className="text-primary" />
                         )}
                       </a>
                     </motion.div>
@@ -1357,7 +1357,7 @@ export default function GeneralManagementPage() {
                                     onClick={() => handleViewOrderDetails(order._id)}
                                     title="Xem chi tiết"
                                   >
-                                    <Icon path={mdiEye} size={0.8} />
+                                    <Icon path={mdiEye} size={0.7} />
                                   </Button>
                                 </TableCell>
                               </TableRow>

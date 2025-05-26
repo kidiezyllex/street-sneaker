@@ -90,7 +90,7 @@ export default function SidebarLayout({
                         <div className="flex items-center">
                           <Icon
                             path={menu.icon}
-                            size={0.8}
+                            size={0.7}
                             className={cn(
                               'mr-2',
                               isMenuActive(menu) ? 'text-primary !font-medium' : 'text-maintext'
@@ -100,7 +100,7 @@ export default function SidebarLayout({
                         </div>
                         <Icon
                           path={openMenus[menu.id] ? mdiChevronUp : mdiChevronDown}
-                          size={0.8}
+                          size={0.7}
                           className="text-maintext"
                         />
                       </button>
@@ -132,7 +132,7 @@ export default function SidebarLayout({
                                     {subItem.icon && (
                                       <Icon
                                         path={subItem.icon}
-                                        size={0.8}
+                                        size={0.7}
                                         className="mr-2 text-maintext"
                                       />
                                     )}
@@ -163,7 +163,7 @@ export default function SidebarLayout({
                         >
                           <Icon
                             path={menu.icon}
-                            size={0.8}
+                            size={0.7}
                             className={cn(
                               isOpen ? 'mr-2' : 'mr-0',
                               isMenuActive(menu) ? 'text-primary !font-medium' : 'text-maintext'

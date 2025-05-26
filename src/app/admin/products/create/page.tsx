@@ -175,7 +175,7 @@ export default function CreateProductPage() {
           onClick={() => router.back()}
           className="flex items-center gap-2"
         >
-          <Icon path={mdiArrowLeft} size={0.9} />
+          <Icon path={mdiArrowLeft} size={0.7} />
           Quay lại
         </Button>
       </div>
@@ -314,7 +314,7 @@ export default function CreateProductPage() {
                   onClick={handleAddVariant}
                   className="flex items-center gap-1 mr-4"
                 >
-                  <Icon path={mdiPlus} size={0.9} />
+                  <Icon path={mdiPlus} size={0.7} />
                   Thêm biến thể
                 </Button>
               </CardHeader>
@@ -339,7 +339,7 @@ export default function CreateProductPage() {
                             onClick={() => handleRemoveVariant(index)}
                             className="flex items-center gap-1"
                           >
-                            <Icon path={mdiTrashCanOutline} size={0.9} />
+                            <Icon path={mdiTrashCanOutline} size={0.7} />
                             Xóa
                           </Button>
                         )}
@@ -371,7 +371,7 @@ export default function CreateProductPage() {
                 >
                   {createProduct.isPending ? (
                     <>
-                      <Icon path={mdiLoading} size={0.9} className="animate-spin" />
+                      <Icon path={mdiLoading} size={0.7} className="animate-spin" />
                       Đang xử lý...
                     </>
                   ) : (

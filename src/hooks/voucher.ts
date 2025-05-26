@@ -30,8 +30,6 @@ import {
   IActionResponse
 } from "@/interface/response/voucher";
 
-// === Admin Voucher Hooks ===
-
 export const useVouchers = (params: IVoucherFilter = {}): UseQueryResult<IVouchersResponse, Error> => {
   return useQuery<IVouchersResponse, Error>({
     queryKey: ["vouchers", params],

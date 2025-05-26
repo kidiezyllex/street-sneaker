@@ -389,11 +389,11 @@ export const Categories = () => {
                   className="uppercase group border border-primary text-primary hover:bg-primary hover:text-white transition-all duration-300 text-sm font-medium rounded-full px-4 py-2 h-auto"
                 >
                   Xem tất cả danh mục
-                  <Icon path={mdiArrowRight} size={0.8} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                  <Icon path={mdiArrowRight} size={0.7} className="ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </motion.div>
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
+            <h2 className="text-3xl md:text-4xl font-bold text-maintext dark:text-white">
               DANH MỤC <span className="text-extra">SẢN PHẨM BÁN CHẠY</span>
             </h2>
           </motion.div>

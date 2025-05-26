@@ -45,7 +45,7 @@ export const ReturnStatusBadge: React.FC<ReturnStatusBadgeProps> = ({ status, cl
         return {
           label: 'Không xác định',
           bgColor: 'bg-gray-100',
-          textColor: 'text-gray-800',
+          textColor: 'text-maintext',
         };
     }
   };
@@ -99,7 +99,7 @@ export const RefundStatusBadge: React.FC<RefundStatusBadgeProps> = ({
         return {
           label: 'Không xác định',
           bgColor: 'bg-gray-100',
-          textColor: 'text-gray-800',
+          textColor: 'text-maintext',
         };
     }
   };
@@ -159,19 +159,19 @@ export const ReturnReasonBadge: React.FC<ReturnReasonBadgeProps> = ({
         return {
           label: 'Đổi ý',
           bgColor: 'bg-gray-100',
-          textColor: 'text-gray-800',
+          textColor: 'text-maintext',
         };
       case 'other':
         return {
           label: 'Lý do khác',
           bgColor: 'bg-gray-100',
-          textColor: 'text-gray-800',
+          textColor: 'text-maintext',
         };
       default:
         return {
           label: 'Không xác định',
           bgColor: 'bg-gray-100',
-          textColor: 'text-gray-800',
+          textColor: 'text-maintext',
         };
     }
   };

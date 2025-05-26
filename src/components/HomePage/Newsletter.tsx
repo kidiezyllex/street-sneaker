@@ -60,7 +60,7 @@ export const Newsletter = () => {
             </motion.div>
             
             <motion.h2 
-              className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4"
+              className="text-3xl md:text-4xl font-bold text-maintext dark:text-white mb-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
@@ -92,7 +92,7 @@ export const Newsletter = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Email của bạn" 
-                  className="w-full h-[41px] p-2 rounded-none border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary relative z-10 transition-all duration-300"
+                  className="w-full h-[41px] p-2 rounded-none border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-maintext dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary relative z-10 transition-all duration-300"
                 />
               </div>
               
@@ -101,7 +101,7 @@ export const Newsletter = () => {
                 className="flex items-center justify-center gap-1 min-w-[120px] relative group overflow-hidden rounded-none h-10"
               >
                Đăng ký
-               <Icon path={mdiEmailFast} size={0.8} />
+               <Icon path={mdiEmailFast} size={0.7} />
               </Button>
             </motion.form>
             

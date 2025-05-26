@@ -266,7 +266,7 @@ export default function ChangePasswordPage() {
         transition={{ duration: 0.5 }}
       >
         <div className="mb-8 flex flex-col items-center text-center">
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Đổi mật khẩu</h1>
+          <h1 className="text-3xl font-bold text-maintext dark:text-white mb-2">Đổi mật khẩu</h1>
           <p className="text-maintext dark:text-maintext max-w-md">
             Cập nhật mật khẩu mới để bảo vệ tài khoản của bạn
           </p>
@@ -275,7 +275,7 @@ export default function ChangePasswordPage() {
         <Card className="border border-gray-200 dark:border-gray-700 shadow-sm">
           <CardHeader className="flex flex-row items-center gap-4">
             <div className="bg-primary/10 p-2 rounded-full">
-              <Icon path={mdiShieldLock} size={1.2} className="text-primary" />
+              <Icon path={mdiShieldLock} size={1} className="text-primary" />
             </div>
             <div>
               <CardTitle>Đổi mật khẩu</CardTitle>

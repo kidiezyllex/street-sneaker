@@ -79,12 +79,12 @@ export const SearchBox = () => {
           >
             <div className="container mx-auto">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-gray-900">Tìm kiếm</h3>
+                <h3 className="text-xl font-bold text-maintext">Tìm kiếm</h3>
                 <Button 
                   variant="ghost" 
                   size="icon" 
                   onClick={() => setIsOpen(false)}
-                  className="text-maintext hover:text-gray-900"
+                  className="text-maintext hover:text-maintext"
                 >
                   <Icon path={mdiClose} size={1} />
                 </Button>
@@ -96,7 +96,7 @@ export const SearchBox = () => {
                   <Input 
                     type="text" 
                     placeholder="Tìm kiếm sản phẩm, danh mục..." 
-                    className="w-full py-3 outline-none text-gray-900"
+                    className="w-full py-3 outline-none text-maintext"
                     value={searchValue}
                     onChange={(e) => handleSearch(e.target.value)}
                     autoFocus
@@ -121,7 +121,7 @@ export const SearchBox = () => {
                           >
                             <div className="flex justify-between">
                               <div>
-                                <p className="font-medium text-gray-900">{result.name}</p>
+                                <p className="font-medium text-maintext">{result.name}</p>
                                 <span className="text-xs text-maintext">{result.category}</span>
                               </div>
                               <span className="text-primary font-semibold">{formatPrice(result.price)}</span>

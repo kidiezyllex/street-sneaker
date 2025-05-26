@@ -225,7 +225,7 @@ export default function DiscountsPage() {
       case 'scheduled':
         return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">Lên lịch</Badge>;
       case 'expired':
-        return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">Đã hết hạn</Badge>;
+        return <Badge className="bg-gray-100 text-maintext hover:bg-gray-100">Đã hết hạn</Badge>;
       case 'draft':
         return <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">Bản nháp</Badge>;
     }
@@ -247,7 +247,7 @@ export default function DiscountsPage() {
     <div className="space-y-4">
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <Button className="flex items-center">
-          <Icon path={mdiPlus} size={0.8} className="mr-2" />
+          <Icon path={mdiPlus} size={0.7} className="mr-2" />
           Tạo mã giảm giá
         </Button>
       </div>
@@ -279,7 +279,7 @@ export default function DiscountsPage() {
                   className="pl-10 w-full"
                 />
                 <div className="absolute left-3 top-2.5 text-maintext">
-                  <Icon path={mdiMagnify} size={0.9} />
+                  <Icon path={mdiMagnify} size={0.7} />
                 </div>
               </div>
             </div>

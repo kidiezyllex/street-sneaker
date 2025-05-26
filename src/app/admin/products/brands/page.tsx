@@ -95,7 +95,7 @@ export default function BrandsPage() {
                         <div className="relative flex-1 max-w-md">
                             <Icon
                                 path={mdiMagnify}
-                                size={0.9}
+                                size={0.7}
                                 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext"
                             />
                             <Input
@@ -123,7 +123,7 @@ export default function BrandsPage() {
                             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                                 <DialogTrigger asChild>
                                     <Button onClick={() => setIsCreateDialogOpen(true)}>
-                                        <Icon path={mdiPlus} size={0.9} />
+                                        <Icon path={mdiPlus} size={0.7} />
                                         Thêm thương hiệu mới
                                     </Button>
                                 </DialogTrigger>
@@ -211,7 +211,7 @@ export default function BrandsPage() {
                                                 {brand._id}
                                             </TableCell>
                                             <TableCell className="px-4 py-4 whitespace-nowrap">
-                                                <div className="text-sm font-medium text-gray-900">{brand.name}</div>
+                                                <div className="text-sm font-medium text-maintext">{brand.name}</div>
                                             </TableCell>
                                             <TableCell className="px-4 py-4 whitespace-nowrap">
                                                 <span className={`px-2 py-1 text-xs rounded-full ${brand.status === 'HOAT_DONG'
@@ -240,7 +240,7 @@ export default function BrandsPage() {
                                                                     setIsEditDialogOpen(true);
                                                                 }}
                                                             >
-                                                                <Icon path={mdiPencilCircle} size={0.9} />
+                                                                <Icon path={mdiPencilCircle} size={0.7} />
                                                             </Button>
                                                         </DialogTrigger>
                                                         {brandToEdit === brand._id && (
@@ -265,7 +265,7 @@ export default function BrandsPage() {
                                                                 }}
                                                                 title="Xóa"
                                                             >
-                                                                <Icon path={mdiDeleteCircle} size={0.9} />
+                                                                <Icon path={mdiDeleteCircle} size={0.7} />
                                                             </Button>
                                                         </DialogTrigger>
                                                         <DialogContent>

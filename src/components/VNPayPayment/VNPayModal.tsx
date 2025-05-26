@@ -347,7 +347,7 @@ export default function VNPayModal({
           Tìm kiếm ngân hàng
         </Label>
         <div className="relative mb-4">
-          <Icon path={mdiMagnify} size={0.8} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext" />
+          <Icon path={mdiMagnify} size={0.7} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext" />
           <Input
             id="bank-search"
             placeholder="Tìm theo tên ngân hàng, mã ngân hàng..."
@@ -642,7 +642,7 @@ export default function VNPayModal({
       <div className="flex space-x-4 pt-4">
         {(currentStep === 'account-input' || currentStep === 'otp-verification') && (
           <Button variant="outline" onClick={goBack} className="w-32">
-            <Icon path={mdiArrowLeft} size={0.8} className="mr-2" />
+            <Icon path={mdiArrowLeft} size={0.7} className="mr-2" />
             Quay lại
           </Button>
         )}

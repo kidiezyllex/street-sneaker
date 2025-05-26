@@ -28,7 +28,7 @@ function PaymentResultContent() {
             <XCircleIcon className="mx-auto h-16 w-16 text-red-500" />
           )}
 
-          <h2 className="mt-4 text-2xl font-semibold text-gray-900">
+          <h2 className="mt-4 text-2xl font-semibold text-maintext">
             {success ? 'Thanh toán thành công' : 'Thanh toán thất bại'}
           </h2>
 

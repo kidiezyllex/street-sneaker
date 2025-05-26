@@ -73,7 +73,7 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
   return (
     <div className="w-full max-w-md mx-auto">
       <RadioGroup value={selectedMethod} onChange={setSelectedMethod}>
-        <RadioGroup.Label className="text-lg font-medium text-gray-900">
+        <RadioGroup.Label className="text-lg font-medium text-maintext">
           Chọn phương thức thanh toán
         </RadioGroup.Label>
 
@@ -95,7 +95,7 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
                       <div className="text-sm">
                         <RadioGroup.Label
                           as="p"
-                          className="font-medium text-gray-900"
+                          className="font-medium text-maintext"
                         >
                           {method.title}
                         </RadioGroup.Label>

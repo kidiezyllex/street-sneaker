@@ -22,7 +22,7 @@ export const HeroBanner = () => {
                             transition={{ duration: 0.5 }}
                             className="space-y-4"
                         >
-                            <h2 className="text-4xl lg:text-5xl font-bold tracking-tight text-gray-900">
+                            <h2 className="text-4xl lg:text-5xl font-bold tracking-tight text-maintext">
                                 <span className="block text-primary">Ưu đãi khách hàng mới</span>
                             </h2>
                             <p className="text-lg text-maintext max-w-md">
