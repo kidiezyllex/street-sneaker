@@ -291,7 +291,7 @@ export default function EditOrderPage() {
                       {order.items.map((item, index) => (
                         <tr key={index} className="hover:bg-gray-50">
                           <td className="px-4 py-4 whitespace-nowrap">
-                            <div className="flex items-center space-x-3">
+                            <div className="flex items-center space-x-4">
                               {item.product.imageUrl && (
                                 <div className="flex-shrink-0 h-10 w-10">
                                   <img 

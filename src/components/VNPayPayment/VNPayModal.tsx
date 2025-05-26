@@ -368,7 +368,7 @@ export default function VNPayModal({
             <span className="ml-2">Đang tải danh sách ngân hàng...</span>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-3 max-h-80 overflow-y-auto border rounded-lg p-2">
+          <div className="grid grid-cols-1 gap-4 max-h-80 overflow-y-auto border rounded-lg p-2">
             {filteredBanks.length === 0 ? (
               <div className="text-center py-8 text-maintext">
                 Không tìm thấy ngân hàng nào
@@ -380,7 +380,7 @@ export default function VNPayModal({
                   className="border rounded-lg p-3 cursor-pointer transition-all hover:border-blue-300 hover:bg-blue-50"
                   onClick={() => handleBankSelect(bank)}
                 >
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 relative flex-shrink-0">
                       <img
                         src={bank.logo}
@@ -423,7 +423,7 @@ export default function VNPayModal({
       {selectedBank && (
         <Card>
           <CardContent className="pt-4">
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-4">
               <div className="w-12 h-12 relative">
                 <img
                   src={selectedBank.logo}
@@ -483,7 +483,7 @@ export default function VNPayModal({
       {renderOrderInfo()}
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-4">
           <Icon path={mdiCellphone} size={1} className="text-blue-600" />
           <div>
             <p className="text-sm font-medium">Mã OTP đã được gửi đến</p>
@@ -630,7 +630,7 @@ export default function VNPayModal({
 
     if (currentStep === 'error') {
       return (
-        <div className="flex space-x-3 pt-4">
+        <div className="flex space-x-4 pt-4">
           <Button variant="outline" onClick={handleClose} className="flex-1">
             Đóng
           </Button>
@@ -639,7 +639,7 @@ export default function VNPayModal({
     }
 
     return (
-      <div className="flex space-x-3 pt-4">
+      <div className="flex space-x-4 pt-4">
         {(currentStep === 'account-input' || currentStep === 'otp-verification') && (
           <Button variant="outline" onClick={goBack} className="w-32">
             <Icon path={mdiArrowLeft} size={0.8} className="mr-2" />

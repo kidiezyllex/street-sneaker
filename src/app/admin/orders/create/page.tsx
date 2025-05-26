@@ -479,7 +479,7 @@ export default function CreateOrderPage() {
                 
                 <Separator className="my-4" />
                 
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div className="flex justify-between">
                     <span className="text-sm text-maintext">Tổng tiền sản phẩm:</span>
                     <span>{formatCurrency(subTotal)}</span>
@@ -542,7 +542,7 @@ export default function CreateOrderPage() {
                     {productsData.data.products.map((product: any) => (
                       <TableRow key={product._id}>
                         <TableCell>
-                          <div className="flex items-center space-x-3">
+                          <div className="flex items-center space-x-4">
                             {product.images?.[0] && (
                               <img 
                                 src={product.images[0]} 

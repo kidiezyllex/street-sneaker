@@ -147,7 +147,7 @@ export default function ProductDetail() {
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col sm:flex-row gap-8">
+        <div className="flex flex-col sm:flex-row gap-4">
           <div className="w-full sm:w-1/2">
             <Skeleton className="aspect-square w-full rounded-[6px]" />
             <div className="grid grid-cols-4 gap-2 mt-4">
@@ -209,7 +209,7 @@ export default function ProductDetail() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <div className="flex flex-col lg:flex-row gap-8">
+      <div className="flex flex-col lg:flex-row gap-4">
         {/* Phần hình ảnh sản phẩm */}
         <div className="w-full lg:w-3/5">
           {/* Ảnh chính */}
@@ -457,7 +457,7 @@ export default function ProductDetail() {
           </div>
 
           {/* Thông tin chi tiết */}
-          <div className="bg-gray-50 p-4 rounded-[6px] space-y-3">
+          <div className="bg-gray-50 p-4 rounded-[6px] space-y-4">
             <h3 className="font-medium">Thông tin sản phẩm</h3>
             <table className="min-w-full">
               <tbody className="divide-y divide-gray-200">

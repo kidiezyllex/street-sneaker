@@ -726,7 +726,7 @@ export default function ShippingPage() {
                     )}
                   />
 
-                  <div className="flex gap-3">
+                  <div className="flex gap-4">
                     <Button 
                       type="button" 
                       variant="outline" 

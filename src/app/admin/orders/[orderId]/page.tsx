@@ -419,7 +419,7 @@ export default function OrderDetailPage() {
                                 <CardTitle>Tổng quan đơn hàng</CardTitle>
                             </CardHeader>
                             <CardContent className="p-4">
-                                <div className="space-y-3">
+                                <div className="space-y-4">
                                     {[...Array(2)].map((_, index) => (
                                         <div key={index} className="flex justify-between items-center">
                                             <Skeleton className="h-4 w-32" />
@@ -672,7 +672,7 @@ export default function OrderDetailPage() {
                             <CardTitle>Tổng quan đơn hàng</CardTitle>
                         </CardHeader>
                         <CardContent className="p-4">
-                            <div className="space-y-3">
+                            <div className="space-y-4">
                                 <div className="flex justify-between items-center">
                                     <span className="text-maintext">Tổng tiền hàng:</span>
                                     <span className="text-maintext">{formatCurrency(order.subTotal)}</span>

@@ -325,7 +325,7 @@ export const AboutUs = () => {
                             StreetSneaker được vận hành bởi một đội ngũ trẻ trung, năng động và đầy nhiệt huyết. Chúng tôi luôn nỗ lực để mang đến những sản phẩm và dịch vụ tốt nhất cho khách hàng.
                         </p>
                     </motion.div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                         <TeamMember name="Dương Đức Doanh" id="PH26897" role="Trưởng nhóm" />
                         <TeamMember name="Lý Minh Tuấn" id="PH13422" role="Frontend DEV" />
                         <TeamMember name="Vương Đình Cường" id="PH28631" role="Backend DEV" />

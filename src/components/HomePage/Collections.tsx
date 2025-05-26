@@ -173,7 +173,7 @@ export const Collections = () => {
                 </div>
 
                 {/* Collection Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <CollectionCard collection={collectionsData[0]} animation="fadeInLeft" />
                     <CollectionCard collection={collectionsData[1]} animation="fadeInUp" />
                     <CollectionCard collection={collectionsData[2]} animation="fadeInRight" />

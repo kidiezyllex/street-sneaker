@@ -138,7 +138,7 @@ export const Testimonials = () => {
           </p>
         </motion.div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {testimonials.map((testimonial, index) => (
             <TestimonialCard key={testimonial.id} testimonial={testimonial} index={index} />
           ))}

@@ -901,12 +901,12 @@ const OrderDetailDialog = ({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 py-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
           <div>
             <div className="space-y-4">
               <div>
                 <h3 className="text-sm font-medium text-maintext">Thông tin đơn hàng</h3>
-                <div className="mt-2 rounded-[6px] border p-4 space-y-3">
+                <div className="mt-2 rounded-[6px] border p-4 space-y-4">
                   <div className="flex justify-between">
                     <span className="text-sm text-maintext">Mã đơn hàng:</span>
                     <span className="text-sm font-medium">{orderDetail.orderNumber}</span>
@@ -932,7 +932,7 @@ const OrderDetailDialog = ({
 
               <div>
                 <h3 className="text-sm font-medium text-maintext">Thông tin khách hàng</h3>
-                <div className="mt-2 rounded-[6px] border p-4 space-y-3">
+                <div className="mt-2 rounded-[6px] border p-4 space-y-4">
                   <div className="flex justify-between">
                     <span className="text-sm text-maintext">Tên khách hàng:</span>
                     <span className="text-sm font-medium">{orderDetail.customer?.fullName}</span>
@@ -1022,7 +1022,7 @@ const OrderDetailDialog = ({
 
               <div>
                 <h3 className="text-sm font-medium text-maintext">Tổng tiền</h3>
-                <div className="mt-2 rounded-[6px] border p-4 space-y-3">
+                <div className="mt-2 rounded-[6px] border p-4 space-y-4">
                   <div className="flex justify-between">
                     <span className="text-sm text-maintext">Tổng tiền hàng:</span>
                     <span className="text-sm font-medium">{formatCurrency(orderDetail.subTotal)}</span>

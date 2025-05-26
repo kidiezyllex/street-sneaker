@@ -953,7 +953,7 @@ export default function POSPage() {
                   ← Quay lại danh sách sản phẩm
                 </button>
 
-                <div className="flex flex-col md:flex-row gap-8">
+                <div className="flex flex-col md:flex-row gap-4">
 
                   <div className="md:w-1/2">
                     <div className="relative h-80 w-full overflow-hidden rounded-[6px] bg-gray-50 group">
@@ -1597,7 +1597,7 @@ export default function POSPage() {
               </div>
 
 
-              <div className="space-y-3 mb-4">
+              <div className="space-y-4 mb-4">
                 <div className="flex justify-between text-maintext">
                   <span>Tạm tính:</span>
                   <span>{formatCurrency(calculateSubtotal())}</span>
@@ -1673,7 +1673,7 @@ export default function POSPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="guest">
-                      <div className="flex items-center gap-3 py-1">
+                      <div className="flex items-center gap-4 py-1">
                         <Icon path={mdiAccount} size={0.8} className="text-gray-400" />
                         <div className="flex flex-col items-start">
                           <span className="text-xs text-maintext font-semibold">Khách lẻ</span>
@@ -1683,7 +1683,7 @@ export default function POSPage() {
                     </SelectItem>
                     {isLoadingUsers ? (
                       <SelectItem value="loading" disabled>
-                        <div className="flex items-center gap-3 py-2">
+                        <div className="flex items-center gap-4 py-2">
                           <div className="animate-spin h-4 w-4 border-2 border-blue-300 border-t-blue-600 rounded-full"></div>
                           <span className="text-gray-600">Đang tải danh sách khách hàng...</span>
                         </div>
@@ -1691,7 +1691,7 @@ export default function POSPage() {
                     ) : usersData?.data?.accounts && usersData.data.accounts.length > 0 ? (
                       usersData.data.accounts.map((user: IAccount) => (
                         <SelectItem key={user._id} value={user._id}>
-                          <div className="flex items-center gap-3 py-1">
+                          <div className="flex items-center gap-4 py-1">
                             <Icon path={mdiAccount} size={0.8} className="text-primary" />
                             <div className="flex flex-col min-w-0 flex-1">
                               <div className="flex items-center gap-2">
@@ -1719,7 +1719,7 @@ export default function POSPage() {
                       ))
                     ) : (
                       <SelectItem value="no-customers" disabled>
-                        <div className="flex items-center gap-3 py-2">
+                        <div className="flex items-center gap-4 py-2">
                           <Icon path={mdiAccount} size={0.8} className="text-gray-400" />
                           <div className="flex flex-col">
                             <span className="text-maintext font-medium">Không có khách hàng nào</span>

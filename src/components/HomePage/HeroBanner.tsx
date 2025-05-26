@@ -14,7 +14,7 @@ export const HeroBanner = () => {
             <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-extra/30 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-pulse delay-1000"></div>
 
             <div className="py-8 px-28">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
                     <div className="order-2 md:order-1">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}

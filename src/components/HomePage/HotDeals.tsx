@@ -55,7 +55,7 @@ export const HotDeals = () => {
           variants={containerVariants}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
-          className="flex flex-col md:flex-row gap-8 items-center"
+          className="flex flex-col md:flex-row gap-4 items-center"
         >
           {/* Left Column - Image */}
           <motion.div 
@@ -115,7 +115,7 @@ export const HotDeals = () => {
               </div>
             </motion.div>
             
-            <motion.ul variants={itemVariants} className="space-y-3">
+            <motion.ul variants={itemVariants} className="space-y-4">
               {[
                 "Công nghệ đệm khí tiên tiến cho cảm giác thoải mái tối đa",
                 "Thiết kế thể thao hiện đại, phù hợp với mọi phong cách",

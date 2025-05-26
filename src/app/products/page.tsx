@@ -236,27 +236,6 @@ export default function ProductsPage() {
     toast.info("Đã xóa mã giảm giá")
   }
 
-  const handleQrCodeDetected = (qrData: string) => {
-    try {
-      const productData = JSON.parse(qrData)
-
-      if (productData && productData.productId) {
-        const product = data?.data.products.find((p) => p._id === productData.productId)
-
-        if (product) {
-          handleAddToCart(product)
-          toast.success(`Đã quét mã QR và thêm ${product.name} vào giỏ hàng`)
-        } else {
-          window.location.href = `/products/${productData.productId}`
-        }
-      } else {
-        toast.error("Mã QR không chứa thông tin sản phẩm hợp lệ")
-      }
-    } catch (error) {
-      toast.error("Không thể đọc mã QR. Vui lòng thử lại.")
-    }
-  }
-
   const filteredProducts = useMemo(() => {
     if (!data || !data.data || !data.data.products) return []
     return data.data.products
@@ -378,7 +357,7 @@ export default function ProductsPage() {
                     key={product._id}
                     product={product}
                     onAddToCart={() => handleAddToCart(product)}
-                    onQuickView={() => handleQuickView(product)}  
+                    onQuickView={() => handleQuickView(product)}
                     onAddToWishlist={() => handleAddToWishlist(product)}
                   />
                 ))}
@@ -544,7 +523,6 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
       onHoverEnd={() => setIsHovered(false)}
     >
       <Card className="group overflow-hidden border rounded-lg hover:shadow-2xl shadow-lg transition-all duration-500 h-full flex flex-col transform hover:-translate-y-3 bg-white relative backdrop-blur-sm">
-        {/* Gradient overlay for depth */}
         <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-lg z-10 pointer-events-none" />
 
         <div className="relative overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100 rounded-t-2xl">
@@ -591,7 +569,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
 
           {/* Enhanced quick action buttons */}
           <motion.div
-            className="absolute right-2 top-2 transform -translate-y-1/2 flex flex-col gap-3 z-30"
+            className="absolute right-2 top-2 transform -translate-y-1/2 flex flex-col gap-4 z-30"
             initial={{ x: 60, opacity: 0 }}
             animate={{
               x: isHovered ? 0 : 60,
@@ -604,7 +582,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
                 variant="outline"
                 size="icon"
                 className="rounded-full h-10 w-10 bg-white/90 backdrop-blur-md hover:!bg-primary hover:text-white shadow-xl border-0 hover:shadow-2xl transition-all duration-300 group/btn"
-                onClick={(e) => { 
+                onClick={(e) => {
                   e.preventDefault()
                   onAddToCart()
                 }}
@@ -646,9 +624,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
           </motion.div>
         </div>
 
-        {/* Enhanced product information */}
         <div className="p-4 flex flex-col flex-grow bg-gradient-to-b from-white via-gray-50/30 to-white border-t border-gray-100/50 rounded-b-2xl relative">
-          {/* Brand with enhanced styling */}
           <div className="text-xs text-primary/80 mb-2 uppercase tracking-wider font-bold flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-gradient-to-r from-primary to-pink-400 animate-pulse"></div>
             <span className="bg-gradient-to-r from-primary to-pink-500 bg-clip-text text-transparent">
@@ -667,9 +643,9 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
 
           <div className="mt-auto">
             {/* Enhanced pricing */}
-            <div className="flex items-end gap-3 mb-2">
+            <div className="flex items-end gap-4 mb-2">
               <motion.div
-                className="font-black text-lg bg-gradient-to-r from-primary via-pink-500 to-orange-400 bg-clip-text text-transparent drop-shadow-sm"
+                className="font-extrabold text-xl text-active"
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.2 }}
               >
@@ -684,50 +660,62 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
 
             {/* Enhanced color variants */}
             {product.variants.length > 0 && (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-maintext font-medium">Màu sắc:</span>
-                <div className="flex gap-1.5">
-                  {Array.from(
-                    new Set(
-                      product.variants.map((v: any) => (typeof v.colorId === "object" ? v.colorId._id : v.colorId)),
-                    ),
-                  )
-                    .slice(0, 4)
-                    .map((colorId, index: number) => {
-                      const variant = product.variants.find(
-                        (v: any) => (typeof v.colorId === "object" ? v.colorId._id : v.colorId) === colorId,
-                      )
-                      const color = typeof variant.colorId === "object" ? variant.colorId : { code: "#000000" }
+              <div className="flex items-center gap-2 justify-between">
+                <div className="flex items-center gap-1">
+                  <span className="text-sm text-maintext font-medium">Màu sắc:</span>
+                  <div className="flex gap-1 text-sm">
+                    {Array.from(
+                      new Set(
+                        product.variants.map((v: any) => (typeof v.colorId === "object" ? v.colorId._id : v.colorId)),
+                      ),
+                    )
+                      .slice(0, 4)
+                      .map((colorId, index: number) => {
+                        const variant = product.variants.find(
+                          (v: any) => (typeof v.colorId === "object" ? v.colorId._id : v.colorId) === colorId,
+                        )
+                        const color = typeof variant.colorId === "object" ? variant.colorId : { code: "#000000" }
 
-                      return (
-                        <motion.div
-                          key={index}
-                          className="w-5 h-5 rounded-full border-2 border-white shadow-lg ring-2 ring-gray-200 cursor-pointer"
-                          style={{ backgroundColor: color.code }}
-                          title={color.name}
-                          whileHover={{ scale: 1.3, rotate: 360 }}
-                          transition={{ duration: 0.3 }}
-                        />
-                      )
-                    })}
+                        return (
+                          <motion.div
+                            key={index}
+                            className="w-4 h-4 rounded-full border-2 border-white shadow-lg ring-2 ring-gray-200 cursor-pointer"
+                            style={{ backgroundColor: color.code }}
+                            title={color.name}
+                            whileHover={{ scale: 1.3, rotate: 360 }}
+                            transition={{ duration: 0.3 }}
+                          />
+                        )
+                      })}
 
-                  {Array.from(
-                    new Set(
-                      product.variants.map((v: any) => (typeof v.colorId === "object" ? v.colorId._id : v.colorId)),
-                    ),
-                  ).length > 4 && (
-                    <motion.span
-                      className="text-xs text-maintext ml-1 bg-gray-100 px-2 py-1 rounded-full font-medium"
-                      whileHover={{ scale: 1.1 }}
-                    >
-                      +
-                      {Array.from(
-                        new Set(
-                          product.variants.map((v: any) => (typeof v.colorId === "object" ? v.colorId._id : v.colorId)),
-                        ),
-                      ).length - 4}
-                    </motion.span>
-                  )}
+                    {Array.from(
+                      new Set(
+                        product.variants.map((v: any) => (typeof v.colorId === "object" ? v.colorId._id : v.colorId)),
+                      ),
+                    ).length > 4 && (
+                        <motion.span
+                          className="text-xs text-maintext ml-1 bg-gray-100 px-2 py-1 rounded-full font-medium"
+                          whileHover={{ scale: 1.1 }}
+                        >
+                          +
+                          {Array.from(
+                            new Set(
+                              product.variants.map((v: any) => (typeof v.colorId === "object" ? v.colorId._id : v.colorId)),
+                            ),
+                          ).length - 4}
+                        </motion.span>
+                      )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="text-sm text-maintext font-medium">Kích thước:</span>
+                  <div className="flex gap-1 text-maintext text-sm font-semibold">
+                    {Array.from(
+                      new Set(
+                        product.variants.map((v: any) => (typeof v.sizeId === "object" ? v.sizeId.value : v.sizeId)),
+                      ),
+                    )}
+                  </div>
                 </div>
               </div>
             )}
@@ -987,7 +975,6 @@ const ProductFilters = ({ filters, onChange }: ProductFiltersProps) => {
           ))}
         </div>
       </div>
-
       <div>
         <h3 className="text-sm font-medium mb-3">Kích cỡ</h3>
         <div className="flex flex-wrap gap-2">

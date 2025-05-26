@@ -4,12 +4,12 @@ import React, { useEffect, useState, createContext } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Icon } from '@mdi/react';
-import { 
-  mdiAccount, 
-  mdiLock, 
-  mdiAccountEdit, 
-  mdiCog, 
-  mdiChevronRight, 
+import {
+  mdiAccount,
+  mdiLock,
+  mdiAccountEdit,
+  mdiCog,
+  mdiChevronRight,
   mdiOrderBoolAscending,
   mdiEye,
   mdiPrinter,
@@ -23,7 +23,12 @@ import {
   mdiBellOutline,
   mdiContentSaveOutline,
   mdiTicketPercentOutline,
-  mdiContentCopy
+  mdiContentCopy,
+  mdiTruck,
+  mdiPackageVariant,
+  mdiCheckCircle,
+  mdiClockOutline,
+  mdiCancel
 } from '@mdi/js';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -39,12 +44,12 @@ import { useUpdateUserProfile, useChangePassword } from '@/hooks/account';
 import { useAvailableVouchersForUser } from '@/hooks/voucher';
 import { IVoucher } from '@/interface/response/voucher';
 import { IOrder } from '@/interface/response/order';
-import { 
-  Card, 
+import {
+  Card,
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle 
+  CardTitle
 } from '@/components/ui/card';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
@@ -94,7 +99,7 @@ const contentAnimation = {
 
 export const AccountTabContext = createContext({
   activeTab: 'profile',
-  setActiveTab: (tab: string) => {},
+  setActiveTab: (tab: string) => { },
 });
 
 const OrderStatusBadge = ({ status }: { status: string }) => {
@@ -122,13 +127,13 @@ interface OrderDetailDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({ 
-  orderId, 
-  open, 
-  onOpenChange 
+const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
+  orderId,
+  open,
+  onOpenChange
 }) => {
   const { data: orderData, isLoading, isError } = useOrderDetail(orderId || '');
-  
+
   const formatDate = (dateString: string) => {
     try {
       return format(new Date(dateString), 'dd/MM/yyyy HH:mm', { locale: vi });
@@ -140,7 +145,7 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
   };
-  
+
   const getPaymentMethodName = (method: string) => {
     switch (method) {
       case 'COD':
@@ -153,7 +158,7 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
         return method;
     }
   };
-  
+
   const getPaymentStatusName = (status: string) => {
     switch (status) {
       case 'PENDING':
@@ -166,6 +171,193 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
         return 'Đã hoàn tiền';
       default:
         return status;
+    }
+  };
+
+  const getShippingProgress = (orderStatus: string, createdAt: string) => {
+    const orderDate = new Date(createdAt);
+    const now = new Date();
+
+    // Generate realistic timestamps based on order status
+    const generateTimestamp = (hoursOffset: number) => {
+      const timestamp = new Date(orderDate.getTime() + hoursOffset * 60 * 60 * 1000);
+      return format(timestamp, 'HH:mm dd/MM/yyyy', { locale: vi });
+    };
+
+    const baseProgress = [
+      {
+        time: generateTimestamp(0),
+        title: "Đơn hàng được tạo",
+        message: "GHN có thông tin chi tiết về gói hàng của bạn và đang chuẩn bị để vận chuyển",
+        completed: true,
+        icon: mdiClockOutline,
+        color: "bg-blue-500"
+      },
+      {
+        time: generateTimestamp(2),
+        title: "Đang xử lý",
+        message: "Kiện hàng của bạn đang được gửi đến trung tâm GHN và đang trong quá trình xử lý giao hàng",
+        completed: true,
+        icon: mdiPackageVariant,
+        color: "bg-orange-500"
+      }
+    ];
+
+    switch (orderStatus) {
+      case 'CHO_XAC_NHAN':
+        return [
+          {
+            time: generateTimestamp(0),
+            title: "Chờ xác nhận",
+            message: "Đơn hàng đã được tạo và đang chờ xác nhận từ cửa hàng",
+            completed: true,
+            icon: mdiClockOutline,
+            color: "bg-yellow-500"
+          }
+        ];
+
+      case 'CHO_GIAO_HANG':
+        return [
+          ...baseProgress,
+          {
+            time: generateTimestamp(4),
+            title: "Đã xác nhận",
+            message: "GHN đã xác nhận gói hàng của bạn bằng cách quét nhãn",
+            completed: true,
+            icon: mdiCheckCircle,
+            color: "bg-green-500"
+          },
+          {
+            time: generateTimestamp(6),
+            title: "Chuẩn bị giao hàng",
+            message: "Kiện hàng của bạn đã được gửi đi từ trung tâm GHN",
+            completed: true,
+            icon: mdiPackageVariant,
+            color: "bg-blue-500"
+          }
+        ];
+
+      case 'DANG_VAN_CHUYEN':
+        return [
+          ...baseProgress,
+          {
+            time: generateTimestamp(4),
+            title: "Đã xác nhận",
+            message: "GHN đã xác nhận gói hàng của bạn bằng cách quét nhãn",
+            completed: true,
+            icon: mdiCheckCircle,
+            color: "bg-green-500"
+          },
+          {
+            time: generateTimestamp(6),
+            title: "Đang vận chuyển",
+            message: "Kiện hàng của bạn đã được gửi đi từ trung tâm GHN",
+            completed: true,
+            icon: mdiTruck,
+            color: "bg-blue-500"
+          },
+          {
+            time: generateTimestamp(12),
+            title: "Đang phân loại",
+            message: "Kiện hàng của bạn đang được chuyển đến trung tâm GHN để phân loại",
+            completed: true,
+            icon: mdiPackageVariant,
+            color: "bg-orange-500"
+          },
+          {
+            time: generateTimestamp(18),
+            title: "Sẵn sàng giao hàng",
+            message: "Kiện hàng của bạn đang ở cơ sở địa phương và sẵn sàng để giao hàng",
+            completed: true,
+            icon: mdiMapMarker,
+            color: "bg-purple-500"
+          }
+        ];
+
+      case 'DA_GIAO_HANG':
+      case 'HOAN_THANH':
+        return [
+          ...baseProgress,
+          {
+            time: generateTimestamp(4),
+            title: "Đã xác nhận",
+            message: "GHN đã xác nhận gói hàng của bạn bằng cách quét nhãn",
+            completed: true,
+            icon: mdiCheckCircle,
+            color: "bg-green-500"
+          },
+          {
+            time: generateTimestamp(6),
+            title: "Đang vận chuyển",
+            message: "Kiện hàng của bạn đã được gửi đi từ trung tâm GHN",
+            completed: true,
+            icon: mdiTruck,
+            color: "bg-blue-500"
+          },
+          {
+            time: generateTimestamp(12),
+            title: "Đang phân loại",
+            message: "Kiện hàng của bạn đang được chuyển đến trung tâm GHN để phân loại",
+            completed: true,
+            icon: mdiPackageVariant,
+            color: "bg-orange-500"
+          },
+          {
+            time: generateTimestamp(18),
+            title: "Sẵn sàng giao hàng",
+            message: "Kiện hàng của bạn đang ở cơ sở địa phương và sẵn sàng để giao hàng",
+            completed: true,
+            icon: mdiMapMarker,
+            color: "bg-purple-500"
+          },
+          {
+            time: generateTimestamp(24),
+            title: "Đang giao hàng",
+            message: "Kiện hàng của bạn đang được vận chuyển bằng xe GHN và sẽ được giao trong ngày hôm nay",
+            completed: true,
+            icon: mdiTruck,
+            color: "bg-indigo-500"
+          },
+          {
+            time: generateTimestamp(26),
+            title: "Đã đến khu vực",
+            message: "Kiện hàng của bạn đã đến cơ sở GHN tại khu vực của người nhận",
+            completed: true,
+            icon: mdiMapMarker,
+            color: "bg-teal-500"
+          },
+          {
+            time: generateTimestamp(28),
+            title: "Giao hàng thành công",
+            message: "Giao hàng thành công. Cảm ơn bạn đã sử dụng dịch vụ!",
+            completed: true,
+            icon: mdiCheckCircle,
+            color: "bg-emerald-500"
+          }
+        ];
+
+      case 'DA_HUY':
+        return [
+          {
+            time: generateTimestamp(0),
+            title: "Đơn hàng được tạo",
+            message: "Đơn hàng đã được tạo",
+            completed: true,
+            icon: mdiClockOutline,
+            color: "bg-blue-500"
+          },
+          {
+            time: generateTimestamp(2),
+            title: "Đơn hàng đã hủy",
+            message: "Đơn hàng đã bị hủy theo yêu cầu",
+            completed: true,
+            icon: mdiCancel,
+            color: "bg-red-500"
+          }
+        ];
+
+      default:
+        return baseProgress;
     }
   };
 
@@ -185,26 +377,9 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
         ) : orderData && orderData.data ? (
           <>
             <DialogHeader className="border-b pb-4">
-              <div className="flex justify-between items-center">
-                <DialogTitle className="text-xl font-bold">
-                  Chi tiết đơn hàng #{(orderData.data as any).code}
-                </DialogTitle>
-                <div className="flex items-center space-x-2">
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={() => window.print()}
-                    title="In hóa đơn"
-                  >
-                    <Icon path={mdiPrinter} size={0.9} />
-                  </Button>
-                  <DialogClose asChild>
-                    <Button variant="ghost" size="icon" title="Đóng">
-                      <Icon path={mdiClose} size={0.9} />
-                    </Button>
-                  </DialogClose>
-                </div>
-              </div>
+              <DialogTitle>
+                Chi tiết đơn hàng #{(orderData.data as any)?.code}
+              </DialogTitle>
               <DialogDescription className="mt-2">
                 Ngày đặt: {formatDate(orderData.data.createdAt)}
               </DialogDescription>
@@ -214,32 +389,12 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
             </DialogHeader>
 
             <div className="py-4 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Thông tin khách hàng */}
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base flex items-center">
-                      <Icon path={mdiAccount} size={0.8} className="mr-2" />
-                      Thông tin khách hàng
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4 text-sm">
-                    <div className="flex items-start">
-                      <span className="text-muted-foreground w-32">Họ và tên:</span>
-                      <span className="font-medium">{orderData.data.customer.fullName}</span>
-                    </div>
-                    <div className="flex items-start">
-                      <span className="text-muted-foreground w-32">Email:</span>
-                      <span>{orderData.data.customer.email}</span>
-                    </div>
-                  </CardContent>
-                </Card>
-
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 {/* Thông tin giao hàng */}
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-base flex items-center">
-                      <Icon path={mdiMapMarker} size={0.8} className="mr-2" />
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon path={mdiMapMarker} size={0.7} className="mr-2" />
                       Địa chỉ giao hàng
                     </CardTitle>
                   </CardHeader>
@@ -255,18 +410,47 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                     <div className="flex items-start">
                       <span className="text-muted-foreground w-32">Địa chỉ:</span>
                       <span>
-                        {orderData.data.shippingAddress.specificAddress}, {orderData.data.shippingAddress.wardId}, {orderData.data.shippingAddress.districtId}, {orderData.data.shippingAddress.provinceId}
+                        {orderData.data.shippingAddress.specificAddress}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+                {/* Thông tin thanh toán */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon path={mdiCreditCardOutline} size={0.7} className="mr-2" />
+                      Thông tin thanh toán
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4 text-sm">
+                    <div className="flex items-start">
+                      <span className="text-muted-foreground w-32">Phương thức:</span>
+                      <div className="flex items-center">
+                        <Icon
+                          path={orderData.data.paymentMethod === 'COD' ? mdiCashMultiple : mdiCreditCardOutline}
+                          size={0.7}
+                          className="mr-2 text-primary"
+                        />
+                        <span>{getPaymentMethodName(orderData.data.paymentMethod)}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <span className="text-muted-foreground w-32">Trạng thái:</span>
+                      <span>
+                        <Badge className={orderData.data.paymentStatus === 'PAID' ? 'bg-green-100 text-green-800 border-green-200' : '!bg-extra text-white'}>
+                          {getPaymentStatusName(orderData.data.paymentStatus)}
+                        </Badge>
                       </span>
                     </div>
                   </CardContent>
                 </Card>
               </div>
-
               {/* Thông tin đơn hàng */}
               <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center">
-                    <Icon path={mdiOrderBoolAscending} size={0.8} className="mr-2" />
+                  <CardTitle className="flex items-center gap-2">
+                    <Icon path={mdiOrderBoolAscending} size={0.7} className="mr-2" />
                     Chi tiết đơn hàng
                   </CardTitle>
                 </CardHeader>
@@ -274,6 +458,7 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead className="w-[100px]">Hình ảnh</TableHead>
                         <TableHead>Sản phẩm</TableHead>
                         <TableHead className="text-right">Đơn giá</TableHead>
                         <TableHead className="text-center">Số lượng</TableHead>
@@ -281,19 +466,47 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {orderData.data.items.map((item, index) => (
-                        <TableRow key={index}>
-                          <TableCell className="font-medium">
-                            {item.product ? (item.product as any).name || '' : ''}
-                            <div className="text-xs text-muted-foreground">
-                              Mã: {item.product ? (item.product as any).code || '' : ''}
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right">{formatPrice(item.price)}</TableCell>
-                          <TableCell className="text-center">{item.quantity}</TableCell>
-                          <TableCell className="text-right">{formatPrice(item.price * item.quantity)}</TableCell>
-                        </TableRow>
-                      ))}
+                      {orderData.data.items.map((item, index) => {
+                        const product = item.product as any;
+                        const variant = product?.variants?.[0];
+                        const imageUrl = variant?.images?.[0];
+
+                        return (
+                          <TableRow key={index}>
+                            <TableCell>
+                              {imageUrl ? (
+                                <img
+                                  src={imageUrl}
+                                  alt={product?.name || ''}
+                                  className="w-16 h-16 object-contain rounded-md"
+                                />
+                              ) : (
+                                <img
+                                  src={"/images/white-image.png"}
+                                  alt={product?.name || ''}
+                                  className="w-16 h-16 object-contain rounded-md"
+                                />
+                              )}
+                            </TableCell>
+                            <TableCell className="font-medium">
+                              <div>
+                                <div className="font-medium">{product?.name || 'Sản phẩm không xác định'}</div>
+                                <div className="text-xs text-muted-foreground">
+                                  Mã: {product?.code || 'N/A'}
+                                </div>
+                                {product?.brand && (
+                                  <div className="text-xs text-muted-foreground">
+                                    Thương hiệu: {product.brand.name}
+                                  </div>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-right">{formatPrice(item.price)}</TableCell>
+                            <TableCell className="text-center">{item.quantity}</TableCell>
+                            <TableCell className="text-right font-medium">{formatPrice(item.price * item.quantity)}</TableCell>
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
 
@@ -302,11 +515,17 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                       <span className="text-muted-foreground">Tạm tính:</span>
                       <span>{formatPrice(orderData.data.subTotal)}</span>
                     </div>
+                    {orderData.data.discount > 0 && (
+                      <div className="flex justify-between items-center text-green-600">
+                        <span>Giảm giá:</span>
+                        <span>-{formatPrice(orderData.data.discount)}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between items-center">
-                      <span className="text-muted-foreground">Giảm giá:</span>
-                      <span>{formatPrice(orderData.data.discount)}</span>
+                      <span className="text-muted-foreground">Phí vận chuyển:</span>
+                      <span>{formatPrice((orderData.data.total - orderData.data.subTotal + orderData.data.discount) || 0)}</span>
                     </div>
-                    <div className="flex justify-between items-center text-lg font-medium border-t pt-4">
+                    <div className="flex justify-between items-center text-lg font-bold border-t pt-3">
                       <span>Tổng tiền:</span>
                       <span className="text-primary">{formatPrice(orderData.data.total)}</span>
                     </div>
@@ -314,33 +533,50 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                 </CardContent>
               </Card>
 
-              {/* Thông tin thanh toán */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center">
-                    <Icon path={mdiCreditCardOutline} size={0.8} className="mr-2" />
-                    Thông tin thanh toán
+              {/* Tiến trình đơn hàng */}
+              <Card className="overflow-hidden">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Icon path={mdiTruck} size={0.8} className="mr-3 text-primary" />
+                    Tiến trình đơn hàng
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4 text-sm">
-                  <div className="flex items-start">
-                    <span className="text-muted-foreground w-32">Phương thức:</span>
-                    <div className="flex items-center">
-                      <Icon 
-                        path={orderData.data.paymentMethod === 'COD' ? mdiCashMultiple : mdiCreditCardOutline} 
-                        size={0.8} 
-                        className="mr-2 text-primary" 
-                      />
-                      <span>{getPaymentMethodName(orderData.data.paymentMethod)}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-start">
-                    <span className="text-muted-foreground w-32">Trạng thái:</span>
-                    <span>
-                      <Badge className={orderData.data.paymentStatus === 'PAID' ? 'bg-green-100 text-green-800 border-green-200' : '!bg-extra text-white'}>
-                        {getPaymentStatusName(orderData.data.paymentStatus)}
-                      </Badge>
-                    </span>
+                <CardContent className="p-6">
+                  <div className="relative">
+                    {getShippingProgress(orderData.data.orderStatus, orderData.data.createdAt).map((step, index, array) => (
+                      <div key={index} className="relative flex items-start pb-8 last:pb-0">
+                        {/* Timeline line */}
+                        {index < array.length - 1 && (
+                          <div className="absolute left-6 top-12 w-0.5 h-full bg-gradient-to-b from-gray-300 to-gray-200"></div>
+                        )}
+
+                        {/* Icon container */}
+                        <div className="relative flex-shrink-0 mr-4">
+                          <div className={`w-12 h-12 rounded-full ${step.color} flex items-center justify-center shadow-lg ring-4 ring-white`}>
+                            <Icon path={step.icon} size={0.7} className="text-white" />
+                          </div>
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1 min-w-0 bg-white rounded-lg border border-gray-100 p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="text-sm font-semibold text-gray-900">{step.title}</h4>
+                            <span className="text-xs text-muted-foreground bg-gray-50 px-2 py-1 rounded-full">
+                              {step.time}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-600 leading-relaxed">
+                            {step.message}
+                          </p>
+                          {step.completed && (
+                            <div className="mt-3 flex items-center text-xs text-green-600">
+                              <Icon path={mdiCheckCircle} size={0.5} className="mr-1" />
+                              Hoàn thành
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
@@ -368,7 +604,7 @@ const ProfileTab = () => {
   const userData = profile?.data;
   const { showToast } = useToast();
   const updateProfileMutation = useUpdateUserProfile();
-  
+
   // Form validation schema
   const formSchema = z.object({
     fullName: z.string().min(2, { message: "Họ và tên phải có ít nhất 2 ký tự" }),
@@ -427,7 +663,7 @@ const ProfileTab = () => {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Icon path={mdiAccountEdit} size={0.7} className='text-primary'/>
+          <Icon path={mdiAccountEdit} size={0.7} className='text-primary' />
           <span>Cập nhật thông tin cá nhân</span>
         </CardTitle>
       </CardHeader>
@@ -435,7 +671,7 @@ const ProfileTab = () => {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
-              <div className="sm:w-1/3 flex flex-col items-center space-y-3">
+              <div className="sm:w-1/3 flex flex-col items-center space-y-4">
                 <div className="h-32 w-32 rounded-full bg-primary/10 flex items-center justify-center text-primary text-4xl font-semibold">
                   {userData?.fullName?.charAt(0) || userData?.email?.charAt(0) || "U"}
                 </div>
@@ -443,7 +679,7 @@ const ProfileTab = () => {
                   Thay đổi ảnh
                 </Button>
               </div>
-              
+
               <div className="sm:w-2/3 space-y-4">
                 <FormField
                   control={form.control}
@@ -458,7 +694,7 @@ const ProfileTab = () => {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="email"
@@ -475,7 +711,7 @@ const ProfileTab = () => {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="phoneNumber"
@@ -491,13 +727,13 @@ const ProfileTab = () => {
                 />
               </div>
             </div>
-            
+
             <div className="flex justify-end space-x-2">
               <Button variant="outline" type="button" onClick={() => form.reset()}>
                 Hủy
               </Button>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={updateProfileMutation.isPending}
                 className="gap-2"
               >
@@ -520,7 +756,7 @@ const ProfileTab = () => {
 const PasswordTab = () => {
   const changePasswordMutation = useChangePassword();
   const { showToast } = useToast();
-  
+
   // Form validation schema
   const formSchema = z
     .object({
@@ -575,7 +811,7 @@ const PasswordTab = () => {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Icon path={mdiLock} size={0.7} className='text-primary'/>
+          <Icon path={mdiLock} size={0.7} className='text-primary' />
           <span>Đổi mật khẩu</span>
         </CardTitle>
         <CardDescription>
@@ -598,7 +834,7 @@ const PasswordTab = () => {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="newPassword"
@@ -615,7 +851,7 @@ const PasswordTab = () => {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="confirmPassword"
@@ -629,13 +865,13 @@ const PasswordTab = () => {
                 </FormItem>
               )}
             />
-            
+
             <div className="flex justify-end space-x-2 pt-4">
               <Button variant="outline" type="button" onClick={() => form.reset()}>
                 Hủy
               </Button>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={changePasswordMutation.isPending}
                 className="gap-2"
               >
@@ -658,7 +894,7 @@ const PasswordTab = () => {
 const VouchersTab = () => {
   const { profile } = useUser();
   const userId = profile?.data?._id;
-  const { data: vouchersData, isLoading, isError } = useAvailableVouchersForUser(userId || '', {}); 
+  const { data: vouchersData, isLoading, isError } = useAvailableVouchersForUser(userId || '', {});
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -702,7 +938,7 @@ const VouchersTab = () => {
               <Skeleton className="h-6 w-3/4" />
               <Skeleton className="h-4 w-1/2 mt-2" />
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-4">
               <Skeleton className="h-4 w-full" />
               <Skeleton className="h-4 w-2/3" />
               <Skeleton className="h-10 w-1/3 mt-2" />
@@ -736,7 +972,7 @@ const VouchersTab = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Icon path={mdiTicketPercentOutline} size={0.9} />
+            <Icon path={mdiTicketPercentOutline} size={0.7} />
             <span>Mã giảm giá</span>
           </CardTitle>
         </CardHeader>
@@ -751,96 +987,96 @@ const VouchersTab = () => {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-xl font-semibold">
-                <Icon path={mdiTicketPercentOutline} size={1} className="text-primary" />
-                <span>Mã giảm giá của bạn</span>
-            </CardTitle>
-            <CardDescription>
-                Danh sách các mã giảm giá bạn có thể sử dụng để tiết kiệm khi mua sắm.
-            </CardDescription>
+          <CardTitle className="flex items-center gap-2">
+            <Icon path={mdiTicketPercentOutline} size={0.7} className="text-primary" />
+            <span>Mã giảm giá của bạn</span>
+          </CardTitle>
+          <CardDescription>
+            Danh sách các mã giảm giá bạn có thể sử dụng để tiết kiệm khi mua sắm.
+          </CardDescription>
         </CardHeader>
         <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
             {vouchers.map((voucher: IVoucher) => (
-                <Card 
-                    key={voucher._id} 
-                    className={`relative overflow-hidden shadow-lg transition-all hover:shadow-xl group
-                                ${voucher.status === 'KHONG_HOAT_DONG' || new Date(voucher.endDate) < new Date() 
-                                    ? 'bg-muted/30 border-dashed' 
-                                    : 'bg-card border-primary/20 hover:border-primary/50'}`}
-                >
-                { (voucher.status === 'KHONG_HOAT_DONG' || new Date(voucher.endDate) < new Date()) && (
-                    <div className="absolute top-3 right-3 z-10">
-                        <Badge variant="destructive" className="text-xs px-2 py-1 rounded-full shadow-md">
-                            {new Date(voucher.endDate) < new Date() ? 'Đã hết hạn' : 'Ngừng hoạt động'}
-                        </Badge>
-                    </div>
+              <Card
+                key={voucher._id}
+                className={`relative overflow-hidden shadow-lg transition-all hover:shadow-xl group
+                                ${voucher.status === 'KHONG_HOAT_DONG' || new Date(voucher.endDate) < new Date()
+                    ? 'bg-muted/30 border-dashed'
+                    : 'bg-card border-primary/20 hover:border-primary/50'}`}
+              >
+                {(voucher.status === 'KHONG_HOAT_DONG' || new Date(voucher.endDate) < new Date()) && (
+                  <div className="absolute top-3 right-3 z-10">
+                    <Badge variant="destructive" className="text-xs px-2 py-1 rounded-full shadow-md">
+                      {new Date(voucher.endDate) < new Date() ? 'Đã hết hạn' : 'Ngừng hoạt động'}
+                    </Badge>
+                  </div>
                 )}
                 <CardHeader className="pb-3 relative">
-                    {!(voucher.status === 'KHONG_HOAT_DONG' || new Date(voucher.endDate) < new Date()) && (
-                         <div className="absolute -top-4 -left-5 w-16 h-16 bg-primary/10 rounded-full transform rotate-45 group-hover:scale-110 transition-transform duration-300"></div>
-                    )}
-                    <div className="relative z-0">
-                        <CardTitle className="text-lg font-bold flex items-center gap-2.5 text-primary tracking-wide">
-                            {voucher.name}
-                        </CardTitle>
-                        <CardDescription className="text-xs mt-1">
-                            Mã: <span className="font-semibold text-foreground tracking-wider bg-primary/10 px-1.5 py-0.5 rounded">{voucher.code}</span>
-                        </CardDescription>
-                    </div>
+                  {!(voucher.status === 'KHONG_HOAT_DONG' || new Date(voucher.endDate) < new Date()) && (
+                    <div className="absolute -top-4 -left-5 w-16 h-16 bg-primary/10 rounded-full transform rotate-45 group-hover:scale-110 transition-transform duration-300"></div>
+                  )}
+                  <div className="relative z-0">
+                    <CardTitle className="text-lg font-bold flex items-center gap-2.5 text-primary tracking-wide">
+                      {voucher.name}
+                    </CardTitle>
+                    <CardDescription className="text-xs mt-1">
+                      Mã: <span className="font-semibold text-foreground tracking-wider bg-primary/10 px-1.5 py-0.5 rounded">{voucher.code}</span>
+                    </CardDescription>
+                  </div>
                 </CardHeader>
-                <CardContent className="space-y-3.5 text-sm pt-2">
-                    <div className="border-t border-border pt-3 space-y-2">
-                        <div className="flex justify-between items-center">
-                            <span className="font-medium text-muted-foreground">Giá trị giảm:</span> 
-                            <span className="font-bold text-lg text-primary">{formatDiscountValue(voucher.type, voucher.value)}</span>
-                        </div>
-                        {voucher.type === 'PERCENTAGE' && voucher.maxDiscount && (
-                            <div className="flex justify-between items-center text-xs text-muted-foreground">
-                                <span>Tối đa:</span>
-                                <span>{formatPrice(voucher.maxDiscount)}</span>
-                            </div>
-                        )}
-                    </div>
+                <CardContent className="space-y-4.5 text-sm pt-2">
+                  <div className="border-t border-border pt-3 space-y-2">
                     <div className="flex justify-between items-center">
-                        <span className="font-medium text-muted-foreground">Đơn tối thiểu:</span> 
-                        <span className="font-semibold">{formatPrice(voucher.minOrderValue || 0)}</span>
+                      <span className="font-medium text-muted-foreground">Giá trị giảm:</span>
+                      <span className="font-bold text-lg text-primary">{formatDiscountValue(voucher.type, voucher.value)}</span>
                     </div>
-                    <div className="flex justify-between items-center">
-                        <span className="font-medium text-muted-foreground">Hiệu lực:</span> 
-                        <span className="font-semibold">{formatDate(voucher.startDate)} - {formatDate(voucher.endDate)}</span>
-                    </div>
-                     {voucher.quantity - voucher.usedCount > 0 && voucher.quantity < Infinity && (
-                        <div className="text-xs text-blue-600 flex justify-between items-center">
-                           <span className="font-medium text-muted-foreground">Lượt sử dụng còn lại:</span> 
-                           <span className="font-semibold">{voucher.quantity - voucher.usedCount}</span>
-                        </div>
+                    {voucher.type === 'PERCENTAGE' && voucher.maxDiscount && (
+                      <div className="flex justify-between items-center text-xs text-muted-foreground">
+                        <span>Tối đa:</span>
+                        <span>{formatPrice(voucher.maxDiscount)}</span>
+                      </div>
                     )}
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-muted-foreground">Đơn tối thiểu:</span>
+                    <span className="font-semibold">{formatPrice(voucher.minOrderValue || 0)}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-muted-foreground">Hiệu lực:</span>
+                    <span className="font-semibold">{formatDate(voucher.startDate)} - {formatDate(voucher.endDate)}</span>
+                  </div>
+                  {voucher.quantity - voucher.usedCount > 0 && voucher.quantity < Infinity && (
+                    <div className="text-xs text-blue-600 flex justify-between items-center">
+                      <span className="font-medium text-muted-foreground">Lượt sử dụng còn lại:</span>
+                      <span className="font-semibold">{voucher.quantity - voucher.usedCount}</span>
+                    </div>
+                  )}
 
-                    {(voucher.status === 'HOAT_DONG' && new Date(voucher.endDate) >= new Date()) ? (
-                        <Button 
-                            variant="default"
-                            size="sm" 
-                            className="w-full mt-4 bg-primary hover:bg-primary/80 text-primary-foreground gap-2 shadow-md hover:shadow-lg transition-shadow"
-                            onClick={() => copyToClipboard(voucher.code)}
-                        >
-                            <Icon path={mdiContentCopy} size={0.7} />
-                            Sao chép mã
-                        </Button>
-                    ) : (
-                        <Button 
-                            variant="outline"
-                            size="sm" 
-                            className="w-full mt-4 cursor-not-allowed"
-                            disabled
-                        >
-                            Không thể sử dụng
-                        </Button>
-                    )}
+                  {(voucher.status === 'HOAT_DONG' && new Date(voucher.endDate) >= new Date()) ? (
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="w-full mt-4 bg-primary hover:bg-primary/80 text-primary-foreground gap-2 shadow-md hover:shadow-lg transition-shadow"
+                      onClick={() => copyToClipboard(voucher.code)}
+                    >
+                      <Icon path={mdiContentCopy} size={0.7} />
+                      Sao chép mã
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full mt-4 cursor-not-allowed"
+                      disabled
+                    >
+                      Không thể sử dụng
+                    </Button>
+                  )}
                 </CardContent>
-                </Card>
+              </Card>
             ))}
-            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
@@ -863,7 +1099,7 @@ export default function GeneralManagementPage() {
       if (typeof window !== 'undefined' && window.location.hash === '#account-tabs') {
         const urlParams = new URLSearchParams(window.location.search);
         const tabParam = urlParams.get('tab');
-        
+
         if (tabParam && ['profile', 'password', 'settings', 'orders', 'vouchers'].includes(tabParam)) {
           setActiveTab(tabParam);
         } else {
@@ -873,7 +1109,7 @@ export default function GeneralManagementPage() {
     };
     updateActiveTabFromHash();
     window.addEventListener('hashchange', updateActiveTabFromHash);
-    
+
     return () => {
       window.removeEventListener('hashchange', updateActiveTabFromHash);
     };
@@ -968,21 +1204,21 @@ export default function GeneralManagementPage() {
   return (
     <AccountTabContext.Provider value={{ activeTab, setActiveTab }}>
       <div className="container mx-auto py-8 relative">
-      <Breadcrumb className="mb-4">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/" className="!text-maintext hover:!text-maintext">
-              Trang chủ
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator className="!text-maintext hover:!text-maintext" />
-          <BreadcrumbItem>
-            <BreadcrumbPage className="!text-maintext hover:!text-maintext">Quản lý chung</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+        <Breadcrumb className="mb-4">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/" className="!text-maintext hover:!text-maintext">
+                Trang chủ
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator className="!text-maintext hover:!text-maintext" />
+            <BreadcrumbItem>
+              <BreadcrumbPage className="!text-maintext hover:!text-maintext">Quản lý chung</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <motion.div 
+          <motion.div
             className="md:col-span-1"
             initial="hidden"
             animate="visible"
@@ -995,7 +1231,7 @@ export default function GeneralManagementPage() {
               <CardContent className="p-0">
                 <nav className="flex flex-col" id="account-sidebar-tabs">
                   {tabs.map((tab) => (
-                    <motion.div 
+                    <motion.div
                       key={tab.value}
                       whileHover={{ x: 5 }}
                       transition={{ duration: 0.2 }}
@@ -1003,9 +1239,8 @@ export default function GeneralManagementPage() {
                       <a
                         href={`#account-tabs?tab=${tab.value}`}
                         data-value={tab.value}
-                        className={`flex items-center justify-between px-4 py-3 hover:bg-muted ${
-                          activeTab === tab.value ? 'bg-muted text-primary font-medium' : ''
-                        }`}
+                        className={`flex items-center justify-between px-4 py-3 hover:bg-muted ${activeTab === tab.value ? 'bg-muted text-primary font-medium' : ''
+                          }`}
                         onClick={() => {
                           setActiveTab(tab.value);
                           const tabContentElement = document.getElementById('account-tabs');
@@ -1030,7 +1265,7 @@ export default function GeneralManagementPage() {
           </motion.div>
 
           {/* Content */}
-          <motion.div 
+          <motion.div
             className="md:col-span-3"
             initial="hidden"
             animate="visible"
@@ -1047,9 +1282,9 @@ export default function GeneralManagementPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle className='flex items-center gap-2'>
-                      <Icon path={mdiOrderBoolAscending} size={0.7} className='text-primary'/>
+                      <Icon path={mdiOrderBoolAscending} size={0.7} className='text-primary' />
                       <span>Đơn hàng của bạn</span>
-                      </CardTitle>
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     {isLoading ? (
