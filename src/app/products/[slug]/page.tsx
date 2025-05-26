@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import CartIcon from "@/components/ui/CartIcon"
 
 // Add custom styles for zoom cursor
 const zoomStyles = `
@@ -654,7 +655,7 @@ export default function ProductDetail() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="w-full lg:w-3/5">
             <Skeleton className="aspect-square w-full rounded-xl" />
@@ -704,14 +705,14 @@ export default function ProductDetail() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50/50 to-white">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto py-8">
         {/* Enhanced Breadcrumb */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Breadcrumb className="mb-8">
+          <Breadcrumb className="mb-4">
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink href="/" className="!text-maintext hover:!text-maintext transition-colors">
@@ -1245,6 +1246,9 @@ export default function ProductDetail() {
             </div>
           </motion.div> 
         )}
+      </div>
+      <div className="fixed bottom-6 right-6 z-50 shadow-lg rounded-full bg-primary p-2 hover:bg-primary/80 transition-all duration-300">
+        <CartIcon className="text-white" />
       </div>
     </div>
   );
