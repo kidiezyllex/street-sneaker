@@ -4,14 +4,18 @@ import {
   IReturnUpdate,
   IReturnStatusUpdate,
   IReturnSearchParams,
-  IReturnStatsParams
+  IReturnStatsParams,
+  IReturnableOrdersParams,
+  ICustomerReturnRequest,
+  IMyReturnsParams
 } from "@/interface/request/return";
 import {
   IReturnsResponse,
   IReturnResponse,
   IReturnSearchResponse,
   IReturnStatsResponse,
-  IActionResponse
+  IActionResponse,
+  IReturnableOrdersResponse
 } from "@/interface/response/return";
 import { sendGet, sendPost, sendPut, sendDelete } from "./axios";
 
@@ -54,4 +58,31 @@ export const searchReturn = async (params: IReturnSearchParams): Promise<IReturn
 export const getReturnStats = async (params: IReturnStatsParams): Promise<IReturnStatsResponse> => {
   const res = await sendGet("/returns/stats", params);
   return res as IReturnStatsResponse;
+};
+
+// === Customer Return API ===
+
+export const getReturnableOrders = async (params: IReturnableOrdersParams = {}): Promise<IReturnableOrdersResponse> => {
+  const res = await sendGet("/returns/returnable-orders", params);
+  return res as IReturnableOrdersResponse;
+};
+
+export const createReturnRequest = async (payload: ICustomerReturnRequest): Promise<IReturnResponse> => {
+  const res = await sendPost("/returns/request", payload);
+  return res as IReturnResponse;
+};
+
+export const getMyReturns = async (params: IMyReturnsParams = {}): Promise<IReturnsResponse> => {
+  const res = await sendGet("/returns/my", params);
+  return res as IReturnsResponse;
+};
+
+export const getMyReturnDetail = async (returnId: string): Promise<IReturnResponse> => {
+  const res = await sendGet(`/returns/my/${returnId}`);
+  return res as IReturnResponse;
+};
+
+export const cancelMyReturn = async (returnId: string): Promise<IActionResponse> => {
+  const res = await sendPut(`/returns/my/${returnId}/cancel`);
+  return res as IActionResponse;
 }; 

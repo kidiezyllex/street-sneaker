@@ -77,7 +77,21 @@ export default function CreatePromotionPage() {
       return;
     }
 
-    if (new Date(formData.startDate) >= new Date(formData.endDate)) {
+    const now = new Date();
+    const startDate = new Date(formData.startDate);
+    const endDate = new Date(formData.endDate);
+    
+    if (startDate <= now) {
+      toast.error('Thời gian bắt đầu phải sau thời điểm hiện tại');
+      return;
+    }
+
+    if (endDate <= now) {
+      toast.error('Thời gian kết thúc phải sau thời điểm hiện tại');
+      return;
+    }
+
+    if (startDate >= endDate) {
       toast.error('Thời gian kết thúc phải sau thời gian bắt đầu');
       return;
     }
@@ -199,6 +213,7 @@ export default function CreatePromotionPage() {
                     type="datetime-local"
                     value={typeof formData.startDate === 'string' ? formData.startDate : ''}
                     onChange={(e) => handleInputChange('startDate', e.target.value)}
+                    min={new Date().toISOString().slice(0, 16)}
                     required
                   />
                 </div>
@@ -210,6 +225,7 @@ export default function CreatePromotionPage() {
                     type="datetime-local"
                     value={typeof formData.endDate === 'string' ? formData.endDate : ''}
                     onChange={(e) => handleInputChange('endDate', e.target.value)}
+                    min={typeof formData.startDate === 'string' && formData.startDate ? formData.startDate : new Date().toISOString().slice(0, 16)}
                     required
                   />
                 </div>

@@ -23,6 +23,7 @@ export interface IReturnStaff {
 export interface IReturnOrder {
   _id: string;
   code: string;
+  createdAt?: string;
 }
 
 export interface IPopulatedReturnItem extends Omit<IReturnItem, 'product'> {
@@ -86,4 +87,41 @@ export interface IActionResponse {
   success: boolean;
   message: string;
   data?: any;
+}
+
+// === Customer Return Response Interfaces ===
+
+export interface IReturnableOrderItem {
+  product: {
+    _id: string;
+    name: string;
+    images: string[];
+    code: string;
+  };
+  variant: any;
+  quantity: number;
+  price: number;
+}
+
+export interface IReturnableOrder {
+  _id: string;
+  code: string;
+  orderStatus: 'HOAN_THANH';
+  items: IReturnableOrderItem[];
+  total: number;
+  createdAt: string;
+}
+
+export interface IReturnableOrdersResponse {
+  success: boolean;
+  message: string;
+  data: {
+    orders: IReturnableOrder[];
+    pagination: {
+      totalItems: number;
+      totalPages: number;
+      currentPage: number;
+      limit: number;
+    };
+  };
 } 

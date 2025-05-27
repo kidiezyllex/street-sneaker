@@ -48,13 +48,11 @@ export default function ProductsPage() {
   const { data: brandsData } = useBrands();
   const { data: categoriesData } = useCategories();
 
-  // Apply promotions to products
   const data = useMemo(() => {
     if (!rawData || !rawData.data || !rawData.data.products) return rawData;
     
     let products = [...rawData.data.products];
     
-    // Apply promotions to products
     if (promotionsData?.data?.promotions) {
       products = applyPromotionsToProducts(products, promotionsData.data.promotions);
     }

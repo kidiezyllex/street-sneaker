@@ -1,6 +1,8 @@
 export interface IReturnFilter {
   status?: 'CHO_XU_LY' | 'DA_HOAN_TIEN' | 'DA_HUY';
   customer?: string;
+  startDate?: string;
+  endDate?: string;
   page?: number;
   limit?: number;
 }
@@ -39,4 +41,29 @@ export interface IReturnSearchParams {
 export interface IReturnStatsParams {
   startDate?: string;
   endDate?: string;
+}
+
+// === Customer Return Interfaces ===
+
+export interface IReturnableOrdersParams {
+  page?: number;
+  limit?: number;
+}
+
+export interface ICustomerReturnRequest {
+  originalOrder: string;
+  items: {
+    product: string;
+    variant: {
+      colorId: string;
+      sizeId: string;
+    };
+    quantity: number;
+  }[];
+  reason: string;
+}
+
+export interface IMyReturnsParams {
+  page?: number;
+  limit?: number;
 } 

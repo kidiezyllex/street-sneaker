@@ -308,18 +308,28 @@ export default function ProductsPage() {
         {/* Products */}
         <div className="w-full lg:w-3/4 xl:w-4/5">
           <div className="flex flex-col sm:flex-row justify-between gap-4 mb-4">
-            <div className="relative flex-1">
-              <Icon
-                path={mdiMagnify}
-                size={0.7}
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext"
-              />
-              <Input
-                placeholder="Tìm kiếm sản phẩm..."
-                className="pl-10"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+            <div className="flex gap-2 flex-1">
+              <Button
+                variant="outline"
+                onClick={toggleFilter}
+                className="lg:hidden flex items-center gap-2"
+              >
+                <Icon path={mdiFilterOutline} size={0.7} />
+                Bộ lọc
+              </Button>
+              <div className="relative flex-1">
+                <Icon
+                  path={mdiMagnify}
+                  size={0.7}
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext"
+                />
+                <Input
+                  placeholder="Tìm kiếm sản phẩm..."
+                  className="pl-10"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
             </div>
             <Select defaultValue="default" value={sortOption} onValueChange={setSortOption}>
               <SelectTrigger className="w-full sm:w-[200px]">

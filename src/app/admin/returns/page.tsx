@@ -4,13 +4,13 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Icon } from '@mdi/react';
-import { mdiMagnify, mdiPlus, mdiPencilCircle, mdiDeleteCircle, mdiFilterOutline, mdiEye, mdiPrinter, mdiCancel, mdiCheck } from '@mdi/js';
+import { mdiMagnify, mdiPlus, mdiPencilCircle, mdiDeleteCircle, mdiFilterOutline, mdiEye, mdiPrinter, mdiCancel, mdiCheck, mdiCalendar, mdiDownload } from '@mdi/js';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useReturns, useDeleteReturn, useUpdateReturnStatus, useReturnStats } from '@/hooks/return';
-import { IReturnFilter } from '@/interface/request/return';
+import { useReturns, useDeleteReturn, useUpdateReturnStatus, useReturnStats, useSearchReturn } from '@/hooks/return';
+import { IReturnFilter, IReturnSearchParams } from '@/interface/request/return';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
@@ -23,6 +23,10 @@ import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Image from 'next/image';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import StatusUpdateModal from '@/components/admin/returns/StatusUpdateModal';
+import SearchReturnModal from '@/components/admin/returns/SearchReturnModal';
 
 export default function ReturnsPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -31,6 +35,7 @@ export default function ReturnsPage() {
     limit: 10
   });
   const [showFilters, setShowFilters] = useState(false);
+  const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
   const { data, isLoading, isError } = useReturns(filters);
   const deleteReturn = useDeleteReturn();
   const updateStatus = useUpdateReturnStatus();
@@ -41,6 +46,12 @@ export default function ReturnsPage() {
   const [selectedTab, setSelectedTab] = useState<string>('all');
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [selectedReturn, setSelectedReturn] = useState<string | null>(null);
+  const [statusUpdateModal, setStatusUpdateModal] = useState<{
+    isOpen: boolean;
+    returnId: string;
+    currentStatus: string;
+  }>({ isOpen: false, returnId: '', currentStatus: '' });
+  const [searchModal, setSearchModal] = useState(false);
 
   useEffect(() => {
     const debounce = setTimeout(() => {
@@ -83,6 +94,25 @@ export default function ReturnsPage() {
     }
   };
 
+  const handleDateRangeChange = (range: { from?: Date; to?: Date }) => {
+    setDateRange(range);
+    const newFilters = { ...filters };
+    
+    if (range.from) {
+      newFilters.startDate = format(range.from, 'yyyy-MM-dd');
+    } else {
+      delete newFilters.startDate;
+    }
+    
+    if (range.to) {
+      newFilters.endDate = format(range.to, 'yyyy-MM-dd');
+    } else {
+      delete newFilters.endDate;
+    }
+    
+    setFilters({ ...newFilters, page: 1 });
+  };
+
   const handleDeleteReturn = async (id: string) => {
     try {
       await deleteReturn.mutateAsync(id, {
@@ -109,6 +139,7 @@ export default function ReturnsPage() {
           queryClient.invalidateQueries({ queryKey: ['returns'] });
           queryClient.invalidateQueries({ queryKey: ['returnStats'] });
           queryClient.invalidateQueries({ queryKey: ['return', returnId] });
+          setStatusUpdateModal({ isOpen: false, returnId: '', currentStatus: '' });
         },
       });
     } catch (error) {
@@ -145,16 +176,34 @@ export default function ReturnsPage() {
     }
   };
 
-  const getReturnReasonLabel = (reason: string) => {
-    const reasonMap: Record<string, string> = {
-      'wrong_size': 'Sai kích cỡ',
-      'wrong_item': 'Sản phẩm không đúng',
-      'damaged': 'Sản phẩm bị hỏng',
-      'defective': 'Sản phẩm bị lỗi',
-      'changed_mind': 'Đổi ý',
-      'other': 'Lý do khác'
-    };
-    return reasonMap[reason] || reason;
+  const exportToCSV = () => {
+    if (!data?.data.returns.length) {
+      toast.error('Không có dữ liệu để xuất');
+      return;
+    }
+
+    const headers = ['Mã yêu cầu', 'Khách hàng', 'Đơn hàng gốc', 'Ngày tạo', 'Số tiền hoàn trả', 'Trạng thái'];
+    const csvContent = [
+      headers.join(','),
+      ...data.data.returns.map(returnItem => [
+        returnItem.code,
+        typeof returnItem.customer === 'string' ? returnItem.customer : returnItem.customer.fullName,
+        typeof returnItem.originalOrder === 'string' ? returnItem.originalOrder : returnItem.originalOrder.code,
+        formatDate(returnItem.createdAt),
+        returnItem.totalRefund,
+        returnItem.status
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `returns_${format(new Date(), 'yyyy-MM-dd')}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -171,12 +220,22 @@ export default function ReturnsPage() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <Link href="/admin/returns/create">
-          <Button className="flex items-center gap-2">
-            <Icon path={mdiPlus} size={0.7} />
-            Tạo yêu cầu trả hàng mới
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setSearchModal(true)}>
+            <Icon path={mdiMagnify} size={0.7} className="mr-2" />
+            Tìm kiếm nâng cao
           </Button>
-        </Link>
+          <Button variant="outline" onClick={exportToCSV}>
+            <Icon path={mdiDownload} size={0.7} className="mr-2" />
+            Xuất CSV
+          </Button>
+          <Link href="/admin/returns/create">
+            <Button className="flex items-center gap-2">
+              <Icon path={mdiPlus} size={0.7} />
+              Tạo yêu cầu trả hàng mới
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {statsData && (
@@ -255,9 +314,9 @@ export default function ReturnsPage() {
                 >
                   <Icon path={mdiFilterOutline} size={0.7} className="mr-2" />
                   Bộ lọc
-                  {(filters.customer) && (
+                  {(filters.customer || filters.startDate || filters.endDate) && (
                     <Badge className="ml-2 bg-primary h-5 w-5 p-0 flex items-center justify-center">
-                      1
+                      {[filters.customer, filters.startDate, filters.endDate].filter(Boolean).length}
                     </Badge>
                   )}
                 </Button>
@@ -282,6 +341,56 @@ export default function ReturnsPage() {
                         onChange={(e) => handleFilterChange('customer', e.target.value)}
                       />
                     </div>
+                    <div>
+                      <label className="text-sm font-medium mb-1 block">Từ ngày</label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="w-full justify-start text-left font-normal">
+                            <Icon path={mdiCalendar} size={0.7} className="mr-2" />
+                            {dateRange.from ? format(dateRange.from, 'dd/MM/yyyy') : 'Chọn ngày'}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={dateRange.from}
+                            onSelect={(date) => handleDateRangeChange({ ...dateRange, from: date })}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-1 block">Đến ngày</label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="w-full justify-start text-left font-normal">
+                            <Icon path={mdiCalendar} size={0.7} className="mr-2" />
+                            {dateRange.to ? format(dateRange.to, 'dd/MM/yyyy') : 'Chọn ngày'}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={dateRange.to}
+                            onSelect={(date) => handleDateRangeChange({ ...dateRange, to: date })}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mt-4">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        setDateRange({});
+                        setFilters({ page: 1, limit: 10 });
+                      }}
+                    >
+                      Xóa bộ lọc
+                    </Button>
                   </div>
                 </motion.div>
               )}
@@ -340,11 +449,6 @@ export default function ReturnsPage() {
                         <TableCell>{getReturnStatusBadge(returnItem.status)}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
-                            <Link href={`/admin/returns/edit/${returnItem._id}`}>
-                              <Button size="icon" variant="ghost">
-                                <Icon path={mdiPencilCircle} size={0.7} />
-                              </Button>
-                            </Link>
                             <Button
                               size="icon"
                               variant="ghost"
@@ -356,16 +460,34 @@ export default function ReturnsPage() {
                               <Icon path={mdiEye} size={0.7} />
                             </Button>
                             {returnItem.status === 'CHO_XU_LY' && (
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                onClick={() => {
-                                  setReturnToDelete(returnItem._id);
-                                  setIsDeleteDialogOpen(true);
-                                }}
-                              >
-                                <Icon path={mdiDeleteCircle} size={0.7} color="#ff4343" />
-                              </Button>
+                              <>
+                                <Link href={`/admin/returns/edit/${returnItem._id}`}>
+                                  <Button size="icon" variant="ghost">
+                                    <Icon path={mdiPencilCircle} size={0.7} />
+                                  </Button>
+                                </Link>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  onClick={() => setStatusUpdateModal({
+                                    isOpen: true,
+                                    returnId: returnItem._id,
+                                    currentStatus: returnItem.status
+                                  })}
+                                >
+                                  <Icon path={mdiCheck} size={0.7} className="text-green-600" />
+                                </Button>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  onClick={() => {
+                                    setReturnToDelete(returnItem._id);
+                                    setIsDeleteDialogOpen(true);
+                                  }}
+                                >
+                                  <Icon path={mdiDeleteCircle} size={0.7} color="#ff4343" />
+                                </Button>
+                              </>
                             )}
                           </div>
                         </TableCell>
@@ -409,6 +531,7 @@ export default function ReturnsPage() {
         </CardContent>
       </Card>
 
+      {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -446,6 +569,22 @@ export default function ReturnsPage() {
           />
         </DialogContent>
       </Dialog>
+
+      {/* Status Update Modal */}
+      <StatusUpdateModal
+        isOpen={statusUpdateModal.isOpen}
+        onClose={() => setStatusUpdateModal({ isOpen: false, returnId: '', currentStatus: '' })}
+        onConfirm={handleUpdateStatus}
+        returnId={statusUpdateModal.returnId}
+        currentStatus={statusUpdateModal.currentStatus}
+        isLoading={updateStatus.isPending}
+      />
+
+      {/* Search Modal */}
+      <SearchReturnModal
+        isOpen={searchModal}
+        onClose={() => setSearchModal(false)}
+      />
     </div>
   );
 }

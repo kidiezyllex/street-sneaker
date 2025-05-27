@@ -12,7 +12,12 @@ import {
   updateReturnStatus,
   deleteReturn,
   searchReturn,
-  getReturnStats
+  getReturnStats,
+  getReturnableOrders,
+  createReturnRequest,
+  getMyReturns,
+  getMyReturnDetail,
+  cancelMyReturn
 } from "@/api/return";
 import {
   IReturnFilter,
@@ -20,14 +25,18 @@ import {
   IReturnUpdate,
   IReturnStatusUpdate,
   IReturnSearchParams,
-  IReturnStatsParams
+  IReturnStatsParams,
+  IReturnableOrdersParams,
+  ICustomerReturnRequest,
+  IMyReturnsParams
 } from "@/interface/request/return";
 import {
   IReturnsResponse,
   IReturnResponse,
   IReturnSearchResponse,
   IReturnStatsResponse,
-  IActionResponse
+  IActionResponse,
+  IReturnableOrdersResponse
 } from "@/interface/response/return";
 
 // === Admin Return Hooks ===
@@ -91,5 +100,41 @@ export const useReturnStats = (params: IReturnStatsParams = {}): UseQueryResult<
   return useQuery<IReturnStatsResponse, Error>({
     queryKey: ["returnStats", params],
     queryFn: () => getReturnStats(params),
+  });
+};
+
+// === Customer Return Hooks ===
+
+export const useReturnableOrders = (params: IReturnableOrdersParams = {}): UseQueryResult<IReturnableOrdersResponse, Error> => {
+  return useQuery<IReturnableOrdersResponse, Error>({
+    queryKey: ["returnableOrders", params],
+    queryFn: () => getReturnableOrders(params),
+  });
+};
+
+export const useCreateReturnRequest = (): UseMutationResult<IReturnResponse, Error, ICustomerReturnRequest> => {
+  return useMutation<IReturnResponse, Error, ICustomerReturnRequest>({
+    mutationFn: (payload) => createReturnRequest(payload),
+  });
+};
+
+export const useMyReturns = (params: IMyReturnsParams = {}): UseQueryResult<IReturnsResponse, Error> => {
+  return useQuery<IReturnsResponse, Error>({
+    queryKey: ["myReturns", params],
+    queryFn: () => getMyReturns(params),
+  });
+};
+
+export const useMyReturnDetail = (returnId: string): UseQueryResult<IReturnResponse, Error> => {
+  return useQuery<IReturnResponse, Error>({
+    queryKey: ["myReturn", returnId],
+    queryFn: () => getMyReturnDetail(returnId),
+    enabled: !!returnId, // Chỉ fetch khi có returnId
+  });
+};
+
+export const useCancelMyReturn = (): UseMutationResult<IActionResponse, Error, string> => {
+  return useMutation<IActionResponse, Error, string>({
+    mutationFn: (returnId) => cancelMyReturn(returnId),
   });
 }; 

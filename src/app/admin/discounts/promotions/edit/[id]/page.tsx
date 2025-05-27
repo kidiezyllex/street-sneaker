@@ -111,7 +111,26 @@ export default function EditPromotionPage() {
       return;
     }
 
-    if (new Date(formData.startDate) >= new Date(formData.endDate)) {
+    const now = new Date();
+    const startDate = new Date(formData.startDate);
+    const endDate = new Date(formData.endDate);
+    const originalStartDate = new Date((promotionData as any).data.startDate);
+
+    // Nếu thay đổi thời gian bắt đầu, phải sau thời điểm hiện tại
+    if (startDate.getTime() !== originalStartDate.getTime()) {
+      if (startDate <= now) {
+        toast.error('Thời gian bắt đầu mới phải sau thời điểm hiện tại');
+        return;
+      }
+    }
+
+    // Thời gian kết thúc luôn phải sau thời điểm hiện tại
+    if (endDate <= now) {
+      toast.error('Thời gian kết thúc phải sau thời điểm hiện tại');
+      return;
+    }
+
+    if (startDate >= endDate) {
       toast.error('Thời gian kết thúc phải sau thời gian bắt đầu');
       return;
     }
@@ -272,6 +291,7 @@ export default function EditPromotionPage() {
                     type="datetime-local"
                     value={typeof formData.startDate === 'string' ? formData.startDate : ''}
                     onChange={(e) => handleInputChange('startDate', e.target.value)}
+                    min={new Date().toISOString().slice(0, 16)}
                     required
                   />
                 </div>
@@ -283,6 +303,7 @@ export default function EditPromotionPage() {
                     type="datetime-local"
                     value={typeof formData.endDate === 'string' ? formData.endDate : ''}
                     onChange={(e) => handleInputChange('endDate', e.target.value)}
+                    min={typeof formData.startDate === 'string' && formData.startDate ? formData.startDate : new Date().toISOString().slice(0, 16)}
                     required
                   />
                 </div>

@@ -192,7 +192,7 @@ export default function AddressManager() {
                       <div className="flex items-center gap-1">
                         {address.isDefault ? (
                           <div className="flex items-center text-xs text-primary bg-primary/10 px-2 py-1 rounded">
-                            <Icon path={mdiStar} size={0.6} className="mr-1" />
+                            <Icon path={mdiStar} size={0.7} className="mr-1" />
                             Mặc định
                           </div>
                         ) : (

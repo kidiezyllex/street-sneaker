@@ -1627,7 +1627,7 @@ export default function POSPage() {
 
 
               <div className="mt-4 text-xs text-maintext flex items-center justify-center">
-                <Icon path={mdiInformationOutline} size={0.6} className="mr-1 text-maintext" />
+                <Icon path={mdiInformationOutline} size={0.7} className="mr-1 text-maintext" />
                 <span>Alt+S: Tìm kiếm | Alt+C: Xóa giỏ hàng</span>
               </div>
             </div>

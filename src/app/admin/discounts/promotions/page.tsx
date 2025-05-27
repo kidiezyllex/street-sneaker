@@ -80,43 +80,49 @@ export default function PromotionsPage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Intl.DateTimeFormat('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    }).format(new Date(dateString));
-  };
-
-  const isPromotionActive = (startDate: string, endDate: string, status: string) => {
-    const now = new Date();
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    return status === 'HOAT_DONG' && now >= start && now <= end;
+    const date = new Date(dateString);
+    // Hiển thị theo UTC để khớp với dữ liệu từ API
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const year = date.getUTCFullYear();
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+    return `${hours}:${minutes} ${day}/${month}/${year}`;
   };
 
   const getPromotionStatusBadge = (promotion: any) => {
-    const isActive = isPromotionActive(promotion.startDate, promotion.endDate, promotion.status);
+    // Lấy thời gian hiện tại và convert tất cả về timestamp UTC để so sánh
     const now = new Date();
-    const start = new Date(promotion.startDate);
-    const end = new Date(promotion.endDate);
-
+    const nowUTC = Date.UTC(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      now.getHours(),
+      now.getMinutes(),
+      now.getSeconds()
+    );
+    
+    // Parse thời gian từ API và lấy timestamp UTC
+    const startUTC = new Date(promotion.startDate).getTime();
+    const endUTC = new Date(promotion.endDate).getTime();
+    
     if (promotion.status === 'KHONG_HOAT_DONG') {
       return <Badge variant="destructive">Không hoạt động</Badge>;
     }
 
-    if (now < start) {
-      return <Badge variant="secondary">Chưa bắt đầu</Badge>;
-    }
-
-    if (now > end) {
-      return <Badge variant="outline">Đã kết thúc</Badge>;
-    }
-
-    if (isActive) {
+    if (promotion.status === 'HOAT_DONG') {
+      if (nowUTC < startUTC) {
+        return <Badge variant="secondary">Chưa bắt đầu</Badge>;
+      }
+      
+      if (nowUTC > endUTC) {
+        return <Badge variant="outline">Đã kết thúc</Badge>;
+      }
+      
       return <Badge variant="default">Đang hoạt động</Badge>;
     }
 
-    return <Badge variant="secondary">Hoạt động</Badge>;
+    return <Badge variant="secondary">Không xác định</Badge>;
   };
 
   return (
@@ -299,7 +305,7 @@ export default function PromotionsPage() {
                       </TableCell>
                       <TableCell className="px-4 py-4 text-sm">
                         <div className="flex items-center gap-1">
-                          <Icon path={mdiPercent} size={0.6} className="text-primary" />
+                          <Icon path={mdiPercent} size={0.7} className="text-primary" />
                           <span className="font-medium text-primary">{promotion.discountPercent}%</span>
                         </div>
                       </TableCell>

@@ -143,7 +143,7 @@ export function Header() {
                                     className="object-contain mr-1"
                                 />
                                 <span className="mr-1">{currentLanguage.name}</span>
-                                <Icon path={mdiChevronDown} size={0.6} />
+                                <Icon path={mdiChevronDown} size={0.7} />
                             </div>
                         </Dropdown>
 
@@ -174,7 +174,7 @@ export function Header() {
                                 <span className="mr-1 text-maintext text-sm transition-all duration-300 hover:!text-white/80 font-bold">
                                     {currentCurrency.name} {currentCurrency.symbol}
                                 </span>
-                                <Icon path={mdiChevronDown} size={0.6} />
+                                <Icon path={mdiChevronDown} size={0.7} />
                             </div>
                         </Dropdown>
 

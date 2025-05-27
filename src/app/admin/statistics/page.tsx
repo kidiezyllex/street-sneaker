@@ -266,7 +266,7 @@ export default function StatisticsPage() {
               <div className="flex items-center mt-2">
                 <Icon
                   path={change >= 0 ? mdiTrendingUp : mdiTrendingUp}
-                  size={0.6}
+                  size={0.7}
                   className={change >= 0 ? 'text-primary' : 'text-red-600'}
                 />
                 <span className={`text-sm ml-1 ${change >= 0 ? 'text-primary' : 'text-red-600'}`}>

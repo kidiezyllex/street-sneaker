@@ -1,187 +1,139 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useCreateReturn } from '@/hooks/return';
-import { IReturnCreate, IReturnItem } from '@/interface/request/return';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { Icon } from '@mdi/react';
-import { mdiArrowLeft, mdiLoading, mdiMagnify, mdiPlus, mdiTrashCanOutline } from '@mdi/js';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useSearchReturn } from '@/hooks/return';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
+import { useCreateReturn } from '@/hooks/return';
+import { IReturnCreate } from '@/interface/request/return';
+import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
+import { Icon } from '@mdi/react';
+import { mdiArrowLeft, mdiPlus, mdiMinus, mdiAccountSearch, mdiPackageVariant } from '@mdi/js';
 import Image from 'next/image';
-import { AnimatePresence, motion } from 'framer-motion';
+import Link from 'next/link';
 
-const initialReturn: IReturnCreate = {
-  originalOrder: '',
-  customer: '',
-  items: [],
-  totalRefund: 0
-};
+interface Customer {
+  _id: string;
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+}
 
-const reasonOptions = [
-  { value: 'wrong_size', label: 'Sai kích cỡ' },
-  { value: 'wrong_item', label: 'Sản phẩm không đúng' },
-  { value: 'damaged', label: 'Sản phẩm bị hỏng' },
-  { value: 'defective', label: 'Sản phẩm bị lỗi' },
-  { value: 'changed_mind', label: 'Đổi ý' },
-  { value: 'other', label: 'Lý do khác' }
-];
+interface Order {
+  _id: string;
+  code: string;
+  totalAmount: number;
+  createdAt: string;
+  status: string;
+  items: OrderItem[];
+}
+
+interface OrderItem {
+  _id: string;
+  product: {
+    _id: string;
+    name: string;
+    code: string;
+    images: string[];
+  };
+  variant: {
+    colorId: string;
+    sizeId: string;
+    color?: { name: string };
+    size?: { name: string };
+  };
+  quantity: number;
+  price: number;
+}
+
+interface SelectedItem {
+  product: string;
+  variant: {
+    colorId: string;
+    sizeId: string;
+  };
+  quantity: number;
+  maxQuantity: number;
+  price: number;
+  reason: string;
+}
 
 export default function CreateReturnPage() {
-  const router = useRouter();
-  const [returnRequest, setReturnRequest] = useState<IReturnCreate>(initialReturn);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('order');
-  const [orderInfo, setOrderInfo] = useState<any>(null);
-  const [selectedProducts, setSelectedProducts] = useState<Array<any>>([]);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [selectedItems, setSelectedItems] = useState<SelectedItem[]>([]);
+  const [customerSearch, setCustomerSearch] = useState('');
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const createReturn = useCreateReturn();
-  const { data: searchResult, refetch: searchOrder } = useSearchReturn({ query: searchQuery });
+  const router = useRouter();
 
-  const handleSearchOrder = () => {
-    if (searchQuery.trim()) {
-      searchOrder();
-    } else {
-      toast.error('Vui lòng nhập mã đơn hàng để tìm kiếm');
-    }
-  };
+  // Mock data - replace with actual API calls
+  const mockCustomers: Customer[] = [
+    { _id: '1', fullName: 'Nguyễn Văn A', email: 'a@example.com', phoneNumber: '0123456789' },
+    { _id: '2', fullName: 'Trần Thị B', email: 'b@example.com', phoneNumber: '0987654321' },
+  ];
 
-  const handleSelectOrder = (order: any) => {
-    setOrderInfo(order);
-    setReturnRequest({
-      ...returnRequest,
-      originalOrder: order._id,
-      customer: order.customer._id
-    });
-    setActiveTab('items');
-  };
-
-  const handleAddProduct = (product: any) => {
-    const productExists = selectedProducts.some(
-      (p) => p.product._id === product._id && 
-             p.variant.colorId === product.variant.colorId && 
-             p.variant.sizeId === product.variant.sizeId
-    );
-
-    if (productExists) {
-      toast.error('Sản phẩm này đã được thêm vào danh sách trả hàng');
-      return;
-    }
-
-    setSelectedProducts([...selectedProducts, product]);
-  };
-
-  const handleRemoveProduct = (index: number) => {
-    setSelectedProducts(selectedProducts.filter((_, i) => i !== index));
-  };
-
-  const handleQuantityChange = (index: number, quantity: number) => {
-    const newProducts = [...selectedProducts];
-    newProducts[index].returnQuantity = quantity;
-    setSelectedProducts(newProducts);
-  };
-
-  const handleReasonChange = (index: number, reason: string) => {
-    const newProducts = [...selectedProducts];
-    newProducts[index].reason = reason;
-    setSelectedProducts(newProducts);
-  };
-
-  const calculateTotalRefund = () => {
-    return selectedProducts.reduce((total, product) => {
-      const quantity = product.returnQuantity || 1;
-      return total + (product.price * quantity);
-    }, 0);
-  };
-
-  useEffect(() => {
-    const totalRefund = calculateTotalRefund();
-    setReturnRequest({
-      ...returnRequest,
-      totalRefund: totalRefund
-    });
-  }, [selectedProducts]);
-
-  useEffect(() => {
-    const items: IReturnItem[] = selectedProducts.map(product => ({
-      product: product.product._id,
-      variant: {
-        colorId: product.variant.colorId,
-        sizeId: product.variant.sizeId
-      },
-      quantity: product.returnQuantity || 1,
-      price: product.price,
-      reason: product.reason
-    }));
-
-    setReturnRequest({
-      ...returnRequest,
-      items: items
-    });
-  }, [selectedProducts]);
-
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
-    
-    if (!returnRequest.originalOrder) {
-      newErrors.originalOrder = 'Vui lòng chọn đơn hàng';
-    }
-    
-    if (!returnRequest.customer) {
-      newErrors.customer = 'Thông tin khách hàng không được để trống';
-    }
-    
-    if (returnRequest.items.length === 0) {
-      newErrors.items = 'Vui lòng chọn ít nhất một sản phẩm để trả';
-    }
-
-    if (returnRequest.items.some(item => !item.reason)) {
-      newErrors.reason = 'Vui lòng chọn lý do trả hàng cho tất cả sản phẩm';
-    }
-    
-    if (returnRequest.totalRefund <= 0) {
-      newErrors.totalRefund = 'Tổng tiền hoàn trả phải lớn hơn 0';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      toast.error('Vui lòng điền đầy đủ thông tin');
-      return;
-    }
-    
-    try {
-      await createReturn.mutateAsync(returnRequest, {
-        onSuccess: () => {
-          toast.success('Tạo yêu cầu trả hàng thành công');
-          router.push('/admin/returns');
-        },
-        onError: (error) => {
-          console.error('Chi tiết lỗi:', error);
-          toast.error('Tạo yêu cầu trả hàng thất bại: ' + (error.message || 'Không xác định'));
+  const mockOrders: Order[] = [
+    {
+      _id: '1',
+      code: 'ORD001',
+      totalAmount: 1500000,
+      createdAt: '2024-01-15T10:00:00Z',
+      status: 'HOAN_THANH',
+      items: [
+        {
+          _id: '1',
+          product: {
+            _id: 'p1',
+            name: 'Giày thể thao Nike',
+            code: 'NIKE001',
+            images: ['/placeholder.jpg']
+          },
+          variant: {
+            colorId: 'red',
+            sizeId: '42',
+            color: { name: 'Đỏ' },
+            size: { name: '42' }
+          },
+          quantity: 2,
+          price: 750000
         }
-      });
-    } catch (error) {
-      console.error('Lỗi khi tạo yêu cầu trả hàng:', error);
-      toast.error('Tạo yêu cầu trả hàng thất bại');
+      ]
     }
-  };
+  ];
+
+  useEffect(() => {
+    // Mock customer search
+    if (customerSearch.trim()) {
+      const filtered = mockCustomers.filter(customer =>
+        customer.fullName.toLowerCase().includes(customerSearch.toLowerCase()) ||
+        customer.email.toLowerCase().includes(customerSearch.toLowerCase()) ||
+        customer.phoneNumber.includes(customerSearch)
+      );
+      setCustomers(filtered);
+    } else {
+      setCustomers([]);
+    }
+  }, [customerSearch]);
+
+  useEffect(() => {
+    // Mock order loading
+    if (selectedCustomer) {
+      setOrders(mockOrders);
+    } else {
+      setOrders([]);
+    }
+  }, [selectedCustomer]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -191,8 +143,107 @@ export default function CreateReturnPage() {
     }).format(amount);
   };
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('vi-VN');
+  };
+
+  const handleCustomerSelect = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setSelectedOrder(null);
+    setSelectedItems([]);
+    setCustomerSearch('');
+    setCustomers([]);
+  };
+
+  const handleOrderSelect = (orderId: string) => {
+    const order = orders.find(o => o._id === orderId);
+    setSelectedOrder(order || null);
+    setSelectedItems([]);
+  };
+
+  const handleItemSelect = (item: OrderItem, checked: boolean) => {
+    if (checked) {
+      const newItem: SelectedItem = {
+        product: item.product._id,
+        variant: item.variant,
+        quantity: 1,
+        maxQuantity: item.quantity,
+        price: item.price,
+        reason: ''
+      };
+      setSelectedItems(prev => [...prev, newItem]);
+    } else {
+      setSelectedItems(prev => prev.filter(selected => 
+        !(selected.product === item.product._id && 
+          selected.variant.colorId === item.variant.colorId && 
+          selected.variant.sizeId === item.variant.sizeId)
+      ));
+    }
+  };
+
+  const handleQuantityChange = (index: number, newQuantity: number) => {
+    setSelectedItems(prev => prev.map((item, i) => 
+      i === index ? { ...item, quantity: Math.max(1, Math.min(newQuantity, item.maxQuantity)) } : item
+    ));
+  };
+
+  const handleReasonChange = (index: number, reason: string) => {
+    setSelectedItems(prev => prev.map((item, i) => 
+      i === index ? { ...item, reason } : item
+    ));
+  };
+
+  const isItemSelected = (item: OrderItem) => {
+    return selectedItems.some(selected => 
+      selected.product === item.product._id && 
+      selected.variant.colorId === item.variant.colorId && 
+      selected.variant.sizeId === item.variant.sizeId
+    );
+  };
+
+  const getTotalRefund = () => {
+    return selectedItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+  };
+
+  const handleSubmit = async () => {
+    if (!selectedCustomer || !selectedOrder || selectedItems.length === 0) {
+      toast.error('Vui lòng chọn khách hàng, đơn hàng và sản phẩm cần trả');
+      return;
+    }
+
+    const hasEmptyReason = selectedItems.some(item => !item.reason.trim());
+    if (hasEmptyReason) {
+      toast.error('Vui lòng nhập lý do trả hàng cho tất cả sản phẩm');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const payload: IReturnCreate = {
+        originalOrder: selectedOrder._id,
+        customer: selectedCustomer._id,
+        items: selectedItems.map(item => ({
+          product: item.product,
+          variant: item.variant,
+          quantity: item.quantity,
+          price: item.price,
+          reason: item.reason
+        })),
+        totalRefund: getTotalRefund()
+      };
+
+      await createReturn.mutateAsync(payload);
+      toast.success('Tạo yêu cầu trả hàng thành công');
+      router.push('/admin/returns');
+    } catch (error) {
+      toast.error('Tạo yêu cầu trả hàng thất bại');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className='flex justify-between items-start'>
         <Breadcrumb>
           <BreadcrumbList>
@@ -209,351 +260,312 @@ export default function CreateReturnPage() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <Button
-          variant="outline"
-          onClick={() => router.back()}
-          className="flex items-center gap-2"
-        >
-          <Icon path={mdiArrowLeft} size={0.7} />
-          Quay lại
-        </Button>
+        <Link href="/admin/returns">
+          <Button variant="outline">
+            <Icon path={mdiArrowLeft} size={0.7} className="mr-2" />
+            Quay lại
+          </Button>
+        </Link>
       </div>
 
-      <form onSubmit={handleSubmit}>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full md:w-[400px] grid-cols-2">
-            <TabsTrigger value="order">Tìm đơn hàng</TabsTrigger>
-            <TabsTrigger value="items">Chọn sản phẩm trả</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="order" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Tìm kiếm đơn hàng</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Nhập mã đơn hàng hoặc quét mã QR"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="flex-1"
-                  />
-                  <Button 
-                    type="button" 
-                    onClick={handleSearchOrder}
-                    className="flex items-center gap-2"
-                  >
-                    <Icon path={mdiMagnify} size={0.7} />
-                    Tìm kiếm
-                  </Button>
+      {/* Customer Selection */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Icon path={mdiAccountSearch} size={1} />
+            Chọn khách hàng
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {selectedCustomer ? (
+            <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
+              <div>
+                <h3 className="font-semibold">{selectedCustomer.fullName}</h3>
+                <p className="text-sm text-gray-600">{selectedCustomer.email}</p>
+                <p className="text-sm text-gray-600">{selectedCustomer.phoneNumber}</p>
+              </div>
+              <Button variant="outline" onClick={() => setSelectedCustomer(null)}>
+                Thay đổi
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="relative">
+                <Input
+                  placeholder="Tìm khách hàng theo tên, email hoặc số điện thoại..."
+                  value={customerSearch}
+                  onChange={(e) => setCustomerSearch(e.target.value)}
+                />
+              </div>
+              
+              {customers.length > 0 && (
+                <div className="border rounded-lg max-h-60 overflow-y-auto">
+                  {customers.map((customer) => (
+                    <div
+                      key={customer._id}
+                      className="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
+                      onClick={() => handleCustomerSelect(customer)}
+                    >
+                      <h4 className="font-medium">{customer.fullName}</h4>
+                      <p className="text-sm text-gray-600">{customer.email}</p>
+                      <p className="text-sm text-gray-600">{customer.phoneNumber}</p>
+                    </div>
+                  ))}
                 </div>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-                {errors.originalOrder && (
-                  <p className="text-red-500 text-sm">{errors.originalOrder}</p>
-                )}
+      {/* Order Selection */}
+      {selectedCustomer && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Icon path={mdiPackageVariant} size={1} />
+              Chọn đơn hàng
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {selectedOrder ? (
+              <div className="flex items-center justify-between p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div>
+                  <h3 className="font-semibold">#{selectedOrder.code}</h3>
+                  <p className="text-sm text-gray-600">
+                    Ngày đặt: {formatDate(selectedOrder.createdAt)}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Tổng tiền: {formatCurrency(selectedOrder.totalAmount)}
+                  </p>
+                  <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200 mt-1">
+                    {selectedOrder.status}
+                  </Badge>
+                </div>
+                <Button variant="outline" onClick={() => setSelectedOrder(null)}>
+                  Thay đổi
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <Select onValueChange={handleOrderSelect}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn đơn hàng đã hoàn thành..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {orders.map((order) => (
+                      <SelectItem key={order._id} value={order._id}>
+                        <div className="flex flex-col">
+                          <span>#{order.code}</span>
+                          <span className="text-sm text-gray-600">
+                            {formatDate(order.createdAt)} - {formatCurrency(order.totalAmount)}
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
-                {searchResult && searchResult.data && searchResult.data.length > 0 ? (
-                  <div className="mt-4">
-                    <h3 className="font-medium mb-2">Kết quả tìm kiếm</h3>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Mã đơn hàng</TableHead>
-                          <TableHead>Khách hàng</TableHead>
-                          <TableHead>Ngày đặt</TableHead>
-                          <TableHead>Tổng tiền</TableHead>
-                          <TableHead>Trạng thái</TableHead>
-                          <TableHead></TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {searchResult.data.map((order: any) => (
-                          <TableRow key={order._id}>
-                            <TableCell className="font-medium">{order.code}</TableCell>
-                            <TableCell>{order.customer.fullName}</TableCell>
-                            <TableCell>{new Date(order.createdAt).toLocaleDateString('vi-VN')}</TableCell>
-                            <TableCell>{formatCurrency(order.totalAmount)}</TableCell>
-                            <TableCell>
-                              <Badge variant="outline" className="bg-green-50 text-primary border-green-200">
-                                {order.status}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <Button 
-                                size="sm" 
-                                onClick={() => handleSelectOrder(order)}
-                              >
-                                Chọn
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                ) : searchResult && searchResult.data && searchResult.data.length === 0 ? (
-                  <div className="text-center py-4">
-                    <p className="text-maintext">Không tìm thấy đơn hàng nào phù hợp</p>
-                  </div>
-                ) : null}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="items" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Thông tin đơn hàng</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {orderInfo ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <h3 className="font-medium mb-2">Thông tin đơn hàng</h3>
-                      <div className="space-y-2">
-                        <div className="flex justify-between">
-                          <span className="text-maintext">Mã đơn hàng:</span>
-                          <span className="font-medium">{orderInfo.code}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-maintext">Ngày đặt:</span>
-                          <span>{new Date(orderInfo.createdAt).toLocaleDateString('vi-VN')}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-maintext">Tổng tiền:</span>
-                          <span>{formatCurrency(orderInfo.totalAmount)}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <h3 className="font-medium mb-2">Thông tin khách hàng</h3>
-                      <div className="space-y-2">
-                        <div className="flex justify-between">
-                          <span className="text-maintext">Khách hàng:</span>
-                          <span className="font-medium">{orderInfo.customer.fullName}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-maintext">Email:</span>
-                          <span>{orderInfo.customer.email}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-maintext">Số điện thoại:</span>
-                          <span>{orderInfo.customer.phoneNumber}</span>
-                        </div>
-                      </div>
+      {/* Product Selection */}
+      {selectedOrder && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Chọn sản phẩm cần trả</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {selectedOrder.items.map((item, index) => (
+                <div key={index} className="border rounded-lg p-4">
+                  <div className="flex items-start gap-4">
+                    <Checkbox
+                      checked={isItemSelected(item)}
+                      onCheckedChange={(checked) => handleItemSelect(item, checked as boolean)}
+                    />
+                    <Image
+                      src={item.product.images[0] || '/placeholder.jpg'}
+                      alt={item.product.name}
+                      width={80}
+                      height={80}
+                      className="rounded-md object-cover"
+                    />
+                    <div className="flex-1">
+                      <h4 className="font-medium">{item.product.name}</h4>
+                      <p className="text-sm text-gray-600">SKU: {item.product.code}</p>
+                      <p className="text-sm text-gray-600">
+                        {item.variant.color?.name} - {item.variant.size?.name}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Đã mua: {item.quantity} | Giá: {formatCurrency(item.price)}
+                      </p>
                     </div>
                   </div>
-                ) : (
-                  <div className="text-center py-4">
-                    <p className="text-maintext">Vui lòng chọn đơn hàng trước</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {orderInfo && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Chọn sản phẩm trả</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <h3 className="font-medium">Sản phẩm trong đơn hàng</h3>
                   
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[100px]">Sản phẩm</TableHead>
-                        <TableHead>Tên sản phẩm</TableHead>
-                        <TableHead>Biến thể</TableHead>
-                        <TableHead>Giá</TableHead>
-                        <TableHead>Số lượng</TableHead>
-                        <TableHead></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {orderInfo.items.map((item: any, index: number) => (
-                        <TableRow key={index}>
-                          <TableCell>
-                            {item.product.images && item.product.images.length > 0 ? (
-                              <div className="relative h-16 w-16 rounded-[6px] overflow-hidden">
-                                <Image
-                                  src={item.product.images[0]}
-                                  alt={item.product.name}
-                                  fill
-                                  className="object-cover"
-                                />
-                              </div>
-                            ) : (
-                              <div className="h-16 w-16 bg-gray-100 rounded-[6px] flex items-center justify-center">
-                                <Icon path={mdiMagnify} size={1} className="text-maintext" />
-                              </div>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <div className="font-medium">{item.product.name}</div>
-                            <div className="text-sm text-maintext">SKU: {item.product.code}</div>
-                          </TableCell>
-                          <TableCell>
-                            <div>Màu: {item.variant.colorId}</div>
-                            <div>Size: {item.variant.sizeId}</div>
-                          </TableCell>
-                          <TableCell>{formatCurrency(item.price)}</TableCell>
-                          <TableCell>{item.quantity}</TableCell>
-                          <TableCell>
+                  {isItemSelected(item) && (
+                    <div className="mt-4 space-y-3 pl-8">
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">Số lượng trả:</span>
+                          <div className="flex items-center gap-1">
                             <Button
+                              variant="outline"
                               size="sm"
-                              onClick={() => handleAddProduct({
-                                product: item.product,
-                                variant: item.variant,
-                                price: item.price,
-                                maxQuantity: item.quantity,
-                                returnQuantity: 1
-                              })}
-                              className="flex items-center gap-1"
+                              onClick={() => {
+                                const selectedIndex = selectedItems.findIndex(selected => 
+                                  selected.product === item.product._id && 
+                                  selected.variant.colorId === item.variant.colorId && 
+                                  selected.variant.sizeId === item.variant.sizeId
+                                );
+                                if (selectedIndex !== -1) {
+                                  handleQuantityChange(selectedIndex, selectedItems[selectedIndex].quantity - 1);
+                                }
+                              }}
                             >
-                              <Icon path={mdiPlus} size={0.7} />
-                              Trả
+                              <Icon path={mdiMinus} size={0.5} />
                             </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-
-                  {errors.items && (
-                    <p className="text-red-500 text-sm">{errors.items}</p>
-                  )}
-
-                  <h3 className="font-medium mt-6">Sản phẩm trả lại</h3>
-                  
-                  <AnimatePresence>
-                    {selectedProducts.length > 0 ? (
-                      <div className="space-y-4">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead className="w-[100px]">Sản phẩm</TableHead>
-                              <TableHead>Tên sản phẩm</TableHead>
-                              <TableHead>Biến thể</TableHead>
-                              <TableHead>Số lượng</TableHead>
-                              <TableHead>Lý do trả</TableHead>
-                              <TableHead>Thành tiền</TableHead>
-                              <TableHead></TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {selectedProducts.map((item, index) => (
-                              <TableRow key={index}>
-                                <TableCell>
-                                  {item.product.images && item.product.images.length > 0 ? (
-                                    <div className="relative h-16 w-16 rounded-[6px] overflow-hidden">
-                                      <Image
-                                        src={item.product.images[0]}
-                                        alt={item.product.name}
-                                        fill
-                                        className="object-cover"
-                                      />
-                                    </div>
-                                  ) : (
-                                    <div className="h-16 w-16 bg-gray-100 rounded-[6px]"></div>
-                                  )}
-                                </TableCell>
-                                <TableCell>
-                                  <div className="font-medium">{item.product.name}</div>
-                                  <div className="text-sm text-maintext">SKU: {item.product.code}</div>
-                                </TableCell>
-                                <TableCell>
-                                  <div>Màu: {item.variant.colorId}</div>
-                                  <div>Size: {item.variant.sizeId}</div>
-                                </TableCell>
-                                <TableCell className="w-[120px]">
-                                  <Input
-                                    type="number"
-                                    min={1}
-                                    max={item.maxQuantity}
-                                    value={item.returnQuantity || 1}
-                                    onChange={(e) => handleQuantityChange(index, parseInt(e.target.value))}
-                                    className="w-16"
-                                  />
-                                </TableCell>
-                                <TableCell className="w-[200px]">
-                                  <Select
-                                    value={item.reason || ''}
-                                    onValueChange={(value) => handleReasonChange(index, value)}
-                                  >
-                                    <SelectTrigger className="w-full">
-                                      <SelectValue placeholder="Chọn lý do" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {reasonOptions.map((option) => (
-                                        <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                </TableCell>
-                                <TableCell>
-                                  {formatCurrency(item.price * (item.returnQuantity || 1))}
-                                </TableCell>
-                                <TableCell>
-                                  <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    onClick={() => handleRemoveProduct(index)}
-                                  >
-                                    <Icon path={mdiTrashCanOutline} size={0.7} />
-                                  </Button>
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-
-                        {errors.reason && (
-                          <p className="text-red-500 text-sm">{errors.reason}</p>
-                        )}
-
-                        <div className="bg-gray-50 p-4 rounded-[6px]">
-                          <div className="flex justify-between font-medium">
-                            <span>Tổng tiền hoàn trả:</span>
-                            <span className="text-primary text-lg">{formatCurrency(calculateTotalRefund())}</span>
+                            <Input
+                              type="number"
+                              min="1"
+                              max={item.quantity}
+                              value={selectedItems.find(selected => 
+                                selected.product === item.product._id && 
+                                selected.variant.colorId === item.variant.colorId && 
+                                selected.variant.sizeId === item.variant.sizeId
+                              )?.quantity || 1}
+                              onChange={(e) => {
+                                const selectedIndex = selectedItems.findIndex(selected => 
+                                  selected.product === item.product._id && 
+                                  selected.variant.colorId === item.variant.colorId && 
+                                  selected.variant.sizeId === item.variant.sizeId
+                                );
+                                if (selectedIndex !== -1) {
+                                  handleQuantityChange(selectedIndex, parseInt(e.target.value) || 1);
+                                }
+                              }}
+                              className="w-20 text-center"
+                            />
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                const selectedIndex = selectedItems.findIndex(selected => 
+                                  selected.product === item.product._id && 
+                                  selected.variant.colorId === item.variant.colorId && 
+                                  selected.variant.sizeId === item.variant.sizeId
+                                );
+                                if (selectedIndex !== -1) {
+                                  handleQuantityChange(selectedIndex, selectedItems[selectedIndex].quantity + 1);
+                                }
+                              }}
+                            >
+                              <Icon path={mdiPlus} size={0.5} />
+                            </Button>
                           </div>
                         </div>
                       </div>
-                    ) : (
-                      <div className="text-center py-4 bg-gray-50 rounded-[6px]">
-                        <p className="text-maintext">Chưa có sản phẩm nào được chọn</p>
+                      
+                      <div>
+                        <label className="text-sm font-medium mb-1 block">Lý do trả hàng *</label>
+                        <Textarea
+                          placeholder="Nhập lý do trả hàng..."
+                          value={selectedItems.find(selected => 
+                            selected.product === item.product._id && 
+                            selected.variant.colorId === item.variant.colorId && 
+                            selected.variant.sizeId === item.variant.sizeId
+                          )?.reason || ''}
+                          onChange={(e) => {
+                            const selectedIndex = selectedItems.findIndex(selected => 
+                              selected.product === item.product._id && 
+                              selected.variant.colorId === item.variant.colorId && 
+                              selected.variant.sizeId === item.variant.sizeId
+                            );
+                            if (selectedIndex !== -1) {
+                              handleReasonChange(selectedIndex, e.target.value);
+                            }
+                          }}
+                          rows={2}
+                        />
                       </div>
-                    )}
-                  </AnimatePresence>
-                </CardContent>
-                <CardFooter className="flex justify-end space-x-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setActiveTab('order')}
-                  >
-                    Quay lại
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={createReturn.isPending || selectedProducts.length === 0}
-                  >
-                    {createReturn.isPending ? (
-                      <>
-                        <Icon path={mdiLoading} size={0.7} className="mr-2 animate-spin" />
-                        Đang xử lý...
-                      </>
-                    ) : (
-                      'Tạo yêu cầu trả hàng'
-                    )}
-                  </Button>
-                </CardFooter>
-              </Card>
-            )}
-          </TabsContent>
-        </Tabs>
-      </form>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Summary */}
+      {selectedItems.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Tóm tắt yêu cầu trả hàng</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Sản phẩm</TableHead>
+                  <TableHead>Số lượng</TableHead>
+                  <TableHead>Đơn giá</TableHead>
+                  <TableHead>Thành tiền</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {selectedItems.map((item, index) => {
+                  const orderItem = selectedOrder?.items.find(oi => 
+                    oi.product._id === item.product &&
+                    oi.variant.colorId === item.variant.colorId &&
+                    oi.variant.sizeId === item.variant.sizeId
+                  );
+                  
+                  return (
+                    <TableRow key={index}>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">{orderItem?.product.name}</p>
+                          <p className="text-sm text-gray-600">
+                            {orderItem?.variant.color?.name} - {orderItem?.variant.size?.name}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>{item.quantity}</TableCell>
+                      <TableCell>{formatCurrency(item.price)}</TableCell>
+                      <TableCell>{formatCurrency(item.price * item.quantity)}</TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+            
+            <div className="border-t pt-4 mt-4">
+              <div className="flex justify-between items-center text-lg font-semibold">
+                <span>Tổng tiền hoàn trả:</span>
+                <span className="text-primary">{formatCurrency(getTotalRefund())}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Actions */}
+      <div className="flex justify-end gap-4">
+        <Link href="/admin/returns">
+          <Button variant="outline" disabled={isSubmitting}>
+            Hủy
+          </Button>
+        </Link>
+        <Button 
+          onClick={handleSubmit} 
+          disabled={isSubmitting || !selectedCustomer || !selectedOrder || selectedItems.length === 0}
+        >
+          {isSubmitting ? 'Đang tạo...' : 'Tạo yêu cầu trả hàng'}
+        </Button>
+      </div>
     </div>
   );
 } 

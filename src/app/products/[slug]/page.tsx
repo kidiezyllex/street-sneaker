@@ -205,7 +205,7 @@ const ImageZoom = ({ src, alt, className }: { src: string; alt: string; classNam
             }}
           />
           <div className="absolute top-3 left-3 bg-primary/90 text-white px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
-            <Icon path={mdiMagnify} size={0.6} className="inline mr-1" />
+            <Icon path={mdiMagnify} size={0.7} className="inline mr-1" />
             Zoom Preview
           </div>
           {/* Zoom indicator */}
@@ -336,7 +336,6 @@ const SimilarProductCard = ({ product }: { product: any }) => {
     >
       <Card className="group overflow-hidden border rounded-lg hover:shadow-2xl shadow-lg transition-all duration-500 h-full flex flex-col transform hover:-translate-y-3 bg-white relative backdrop-blur-sm">
         <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-lg z-10 pointer-events-none" />
-
         <div className="relative overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100 rounded-t-2xl">
           <Link href={`/products/${product.name.toLowerCase().replace(/\s+/g, "-")}-${product._id}`} className="block">
             <div className="aspect-square overflow-hidden relative flex items-center justify-center">
@@ -374,9 +373,10 @@ const SimilarProductCard = ({ product }: { product: any }) => {
                 initial={{ scale: 0, rotate: 180 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
-                className="bg-gradient-to-r from-red-500 via-pink-500 to-orange-400 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-xl border-2 border-white/50 backdrop-blur-sm animate-pulse"
+                className="bg-gradient-to-r from-green-500 via-emerald-500 to-lime-500 text-white text-xs font-bold px-3 rounded-full shadow-xl border border-white/50 backdrop-blur-sm animate-pulse flex-shrink-0 w-fit flex items-center justify-center gap-1"
               >
-                🔥 -{product.discountPercent}%
+                💥
+                <span className="text-base">-{product.discountPercent}%</span>
               </motion.div>
             )}
           </div>
@@ -457,16 +457,16 @@ const SimilarProductCard = ({ product }: { product: any }) => {
 
           <div className="mt-auto">
             {/* Enhanced pricing */}
-            <div className="flex items-end gap-4 mb-2">
+            <div className="flex items-center justify-between">
               <motion.div
-                className="font-extrabold text-xl text-active"
+                className="font-extrabold text-lg text-active"
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.2 }}
               >
                 {product.hasDiscount ? formatPrice(product.discountedPrice) : product.variants?.[0] && formatPrice(product.variants[0].price)}
               </motion.div>
               {product.hasDiscount && product.originalPrice && (
-                <div className="text-sm text-maintext line-through font-medium bg-gray-100 px-2 py-1 rounded-lg">
+                <div className="text-xs text-maintext line-through font-medium bg-gray-100 px-2 py-1 rounded-sm italic">
                   {formatPrice(product.originalPrice)}
                 </div>
               )}
@@ -474,9 +474,9 @@ const SimilarProductCard = ({ product }: { product: any }) => {
 
             {/* Enhanced color variants */}
             {product.variants && product.variants.length > 0 && (
-              <div className="flex items-center gap-2 justify-between">
-                <div className="flex items-center gap-1">
-                  <span className="text-sm text-maintext font-medium">Màu sắc:</span>
+              <div className="flex flex-col gap-1 items-start justify-start">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-maintext/70 font-semibold">Màu sắc:</span>
                   <div className="flex gap-1 text-sm">
                     {Array.from(
                       new Set(
@@ -491,10 +491,10 @@ const SimilarProductCard = ({ product }: { product: any }) => {
                         return (
                           <motion.div
                             key={index}
-                            className="w-3 h-3 rounded-full border-2 border-white shadow-lg ring-2 ring-gray-200 cursor-pointer"
+                            className="w-4 h-4 rounded-full border-2 border-white shadow-lg ring-2 ring-gray-200 cursor-pointer"
                             style={{ backgroundColor: color.code }}
                             title={color.name}
-                            whileHover={{ scale: 1, rotate: 360 }}
+                            whileHover={{ scale: 1.3, rotate: 360 }}
                             transition={{ duration: 0.3 }}
                           />
                         )
@@ -507,21 +507,21 @@ const SimilarProductCard = ({ product }: { product: any }) => {
                     ).length > 4 && (
                         <motion.span
                           className="text-xs text-maintext ml-1 bg-gray-100 px-2 py-1 rounded-full font-medium"
-                          whileHover={{ scale: 1 }}
+                          whileHover={{ scale: 1.1 }}
                         >
                           +{Array.from(new Set(product.variants.map((v: any) => v.colorId?._id).filter(Boolean))).length - 4}
                         </motion.span>
                       )}
                   </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-sm text-maintext font-medium">Size:</span>
-                  <div className="flex gap-1 text-maintext text-sm font-semibold">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-maintext/70 font-semibold">Kích thước:</span>
+                  <div className="flex gap-1 text-maintext text-sm">
                     {Array.from(
                       new Set(
                         product.variants.map((v: any) => (typeof v.sizeId === "object" ? v.sizeId.value : v.sizeId))
                       )
-                    ).slice(0, 2).join(", ")}
+                    ).join(", ")}
                   </div>
                 </div>
               </div>
@@ -583,7 +583,11 @@ export default function ProductDetail() {
         selectedVariant.price,
         promotionsData.data.promotions
       );
+      console.log('ProductDetail - Calculated discount:', discount);
       setProductDiscount(discount);
+    } else {
+      // Reset discount if no promotions or variant
+      setProductDiscount(null);
     }
   }, [productData, selectedVariant, promotionsData]);
 
@@ -627,11 +631,19 @@ export default function ProductDetail() {
   const handleAddToCart = () => {
     if (!selectedVariant || !productData?.data) return;
 
+    const finalPrice = productDiscount && productDiscount.discountPercent > 0 
+      ? productDiscount.discountedPrice 
+      : selectedVariant.price;
+    
+    const originalPrice = productDiscount && productDiscount.discountPercent > 0 
+      ? productDiscount.originalPrice 
+      : undefined;
+
     const cartItem = {
       id: selectedVariant._id,
       name: productData.data.name,
-      price: productDiscount && productDiscount.discountPercent > 0 ? productDiscount.discountedPrice : selectedVariant.price,
-      originalPrice: productDiscount && productDiscount.discountPercent > 0 ? productDiscount.originalPrice : undefined,
+      price: finalPrice,
+      originalPrice: originalPrice,
       image: selectedVariant.images?.[0] || '',
       quantity: quantity,
       slug: productData.data.code,
@@ -641,7 +653,7 @@ export default function ProductDetail() {
     };
 
     addToCart(cartItem, quantity);
-    toast.success('Đã thêm sản phẩm vào giỏ hàng');
+    toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng${originalPrice ? ' với giá ưu đãi' : ''}`);
   };
 
   // Xử lý chuyển ảnh
@@ -847,6 +859,9 @@ export default function ProductDetail() {
             {/* Product Header */}
             <div className="space-y-3">
               <div className="flex items-center gap-3">
+              <div className="font-mono border h-[22px] bg-gray-100 px-3 flex items-center justify-center text-primary text-sm font-medium rounded-full">
+                  {product.code}
+                </div>
                 <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
                   {brandName}
                 </Badge>
@@ -859,12 +874,7 @@ export default function ProductDetail() {
                 {product.name}
               </h1>
 
-              <div className="flex items-center gap-2 text-sm !text-maintext">
-                <span>Mã sản phẩm:</span>
-                <span className="font-mono bg-gray-100 px-2 py-1 rounded text-primary font-medium">
-                  {product.code}
-                </span>
-              </div>
+           
 
               {/* Rating placeholder */}
               <div className="flex items-center gap-2">
@@ -884,29 +894,57 @@ export default function ProductDetail() {
 
             {/* Enhanced Pricing */}
             <Card className="p-6 bg-gradient-to-r from-primary/5 to-secondary/5 border-primary/20">
-              <div className="space-y-2">
-                <div className="text-4xl font-bold text-primary">
-                  {selectedVariant && productDiscount && productDiscount.discountPercent > 0 
-                    ? formatPrice(productDiscount.discountedPrice)
-                    : selectedVariant && formatPrice(selectedVariant.price)
-                  }
-                </div>
+              <div className="space-y-4">
+                {/* Discount Badge */}
                 {productDiscount && productDiscount.discountPercent > 0 && (
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl text-maintext line-through">
+                  <motion.div
+                    initial={{ scale: 0, rotate: 180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="bg-gradient-to-r from-green-500 via-emerald-500 to-lime-500 text-white text-sm font-bold px-4 py-2 rounded-full shadow-xl border border-white/50 backdrop-blur-sm animate-pulse flex-shrink-0 w-fit flex items-center justify-center gap-2"
+                  >
+                    💥
+                    <span className="text-lg">-{productDiscount.discountPercent}%</span>
+                  </motion.div>
+                )}
+
+                {/* Price Display */}
+                <div className="flex items-center gap-4">
+                  <motion.div
+                    className="text-4xl font-bold text-primary"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {productDiscount && productDiscount.discountPercent > 0 
+                      ? formatPrice(productDiscount.discountedPrice)
+                      : selectedVariant && formatPrice(selectedVariant.price)
+                    }
+                  </motion.div>
+                  {productDiscount && productDiscount.discountPercent > 0 && (
+                    <div className="text-xl text-maintext line-through font-medium bg-gray-100 px-3 py-2 rounded-lg">
                       {formatPrice(productDiscount.originalPrice)}
-                    </span>
-                    <Badge variant="destructive" className="font-medium">
-                      -{productDiscount.discountPercent}%
-                    </Badge>
+                    </div>
+                  )}
+                </div>
+
+                {/* Price breakdown for clarity */}
+                {productDiscount && productDiscount.discountPercent > 0 && (
+                  <div className="text-sm text-green-600 font-medium space-y-1">
+                    <div>🎉 Áp dụng khuyến mãi: {productDiscount.appliedPromotion?.name}</div>
+                    <div className="flex items-center gap-2 text-xs text-gray-600">
+                      <span>Giá gốc: <span className="line-through">{formatPrice(productDiscount.originalPrice)}</span></span>
+                      <span>→</span>
+                      <span className="text-green-600 font-semibold">Giá sau giảm: {formatPrice(productDiscount.discountedPrice)}</span>
+                    </div>
                   </div>
                 )}
-                {productDiscount?.appliedPromotion && (
-                  <div className="text-sm text-green-600 font-medium">
-                    🎉 Áp dụng khuyến mãi: {productDiscount.appliedPromotion.name}
+
+                {/* Show original price info when no discount */}
+                {(!productDiscount || productDiscount.discountPercent === 0) && selectedVariant && (
+                  <div className="text-sm text-gray-600">
+                    Giá bán: {formatPrice(selectedVariant.price)}
                   </div>
                 )}
-                <p className="text-sm !text-maintext">Giá đã bao gồm VAT</p>
               </div>
             </Card>
 
@@ -933,7 +971,7 @@ export default function ProductDetail() {
                       key={variant.colorId._id}
                       onClick={() => handleColorSelect(variant.colorId._id)}
                       className={`
-                        relative group flex items-center justify-center w-14 h-14 rounded-full
+                        relative group flex items-center justify-center w-10 h-10 rounded-full
                         transition-all duration-300 border-2
                         ${selectedColor === variant.colorId._id
                           ? 'border-primary ring-4 ring-primary/20 scale-110'
@@ -1019,7 +1057,7 @@ export default function ProductDetail() {
                 >
                   -
                 </Button>
-                <div className="w-9 h-9 flex items-center justify-center border text-center text-xl font-semibold bg-gray-50 rounded-sm">
+                <div className="w-9 h-9 flex items-center justify-center border text-center text-lg font-semibold bg-gray-50 rounded-sm">
                   {quantity}
                 </div>
                 <Button
@@ -1118,32 +1156,23 @@ export default function ProductDetail() {
                   <span className="!text-maintext">Trọng lượng</span>
                   <span className="font-medium text-maintext">{product.weight}g</span>
                 </div>
-                <div className="flex justify-between items-center py-2">
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
                   <span className="!text-maintext">Mã sản phẩm</span>
                   <span className="font-mono font-medium text-primary">{product.code}</span>
                 </div>
+                {selectedVariant && (
+                  <div className="flex justify-between items-center py-2">
+                    <span className="!text-maintext">Giá hiện tại</span>
+                    <span className="font-medium text-primary">
+                      {productDiscount && productDiscount.discountPercent > 0 
+                        ? formatPrice(productDiscount.discountedPrice)
+                        : formatPrice(selectedVariant.price)
+                      }
+                    </span>
+                  </div>
+                )}
               </div>
             </Card>
-
-            {/* Share Section */}
-            <div className="flex items-center gap-3 pt-2">
-              <span className="!text-maintext">Chia sẻ:</span>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full hover:bg-primary/10 hover:text-primary"
-                onClick={() => {
-                  navigator.share?.({
-                    title: product.name,
-                    url: window.location.href
-                  }) || navigator.clipboard.writeText(window.location.href).then(() =>
-                    toast.success('Đã sao chép link sản phẩm')
-                  );
-                }}
-              >
-                <Icon path={mdiShareVariant} size={1} />
-              </Button>
-            </div>
           </motion.div>
         </div>
 

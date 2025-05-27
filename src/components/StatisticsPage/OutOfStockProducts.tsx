@@ -64,7 +64,7 @@ export const OutOfStockProducts = () => {
                   <div className="flex-1">
                     <p className="font-medium">{product.name}</p>
                     <div className="flex items-center text-sm text-red-500 mt-1">
-                      <Icon path={mdiAlert} size={0.6} className="mr-1" />
+                      <Icon path={mdiAlert} size={0.7} className="mr-1" />
                       <span>Hết hàng</span>
                     </div>
                   </div>
