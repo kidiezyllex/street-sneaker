@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/useToast';
 import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
-import { useAuth } from '@/hooks/useAuth';
 import { checkImageUrl } from '@/lib/utils';
 import { toast } from 'react-toastify';
 import { formatPrice } from '@/utils/formatters';
@@ -23,17 +22,36 @@ const CartSheet: React.FC<CartSheetProps> = ({ open, onOpenChange }) => {
   const { showToast } = useToast();
   const { 
     items, 
-    subtotal, 
-    tax, 
-    shipping, 
-    total, 
     removeFromCart, 
     updateQuantity,
   } = useCartStore();
+  
+  const calculatedSubtotal = React.useMemo(() => {
+    return items.reduce((total, item) => total + item.price * item.quantity, 0);
+  }, [items]);
+  
+  const calculatedTax = React.useMemo(() => {
+    return calculatedSubtotal * 0.1;
+  }, [calculatedSubtotal]);
+  
+  const calculatedShipping = React.useMemo(() => {
+    return calculatedSubtotal >= 500000 ? 0 : 30000;
+  }, [calculatedSubtotal]);
+  
+  const calculatedTotal = React.useMemo(() => {
+    return calculatedSubtotal + calculatedTax + calculatedShipping;
+  }, [calculatedSubtotal, calculatedTax, calculatedShipping]);
+  
+  // Use calculated values if store values are 0
+  const finalSubtotal =  calculatedSubtotal;
+  const finalTax =  calculatedTax;
+  const finalShipping =  calculatedShipping;
+  const finalTotal =  calculatedTotal;
+  
   const [voucher, setVoucher] = React.useState('');
   const [isProcessing, setIsProcessing] = React.useState(false);
 
-  const handleQuantityChange = (id: number, quantity: number) => {
+  const handleQuantityChange = (id: string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(id);
     } else {
@@ -123,12 +141,24 @@ const CartSheet: React.FC<CartSheetProps> = ({ open, onOpenChange }) => {
                           </button>
                         </div>
                         <div>
-                          {item.originalPrice && (
-                            <span className="text-sm line-through text-muted-foreground mr-2">
-                              {formatPrice(item.originalPrice)}
-                            </span>
+                          {item.hasDiscount && item.originalPrice && (
+                            <div className="text-right">
+                              <span className="text-xs line-through text-muted-foreground block">
+                                {formatPrice(item.originalPrice)}
+                              </span>
+                              <span className="font-medium text-green-600">
+                                {formatPrice(item.price)}
+                              </span>
+                              {item.discountPercent && (
+                                <span className="text-xs text-green-600 ml-1">
+                                  (-{item.discountPercent}%)
+                                </span>
+                              )}
+                            </div>
                           )}
-                          <span className="font-medium">{formatPrice(item.price)}</span>
+                          {!item.hasDiscount && (
+                            <span className="font-medium">{formatPrice(item.price)}</span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -150,20 +180,44 @@ const CartSheet: React.FC<CartSheetProps> = ({ open, onOpenChange }) => {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground text-sm font-semibold">Tạm tính</span>
-                    <span>{formatPrice(subtotal)}</span>
+                    <span>{formatPrice(finalSubtotal)}</span>
+                  </div>
+                  
+                  {/* Hiển thị tổng tiết kiệm từ khuyến mãi */}
+                  {(() => {
+                    const totalSavings = items.reduce((total, item) => {
+                      if (item.hasDiscount && item.originalPrice) {
+                        return total + (item.originalPrice - item.price) * item.quantity;
+                      }
+                      return total;
+                    }, 0);
+                    
+                    if (totalSavings > 0) {
+                      return (
+                        <div className="flex justify-between text-green-600">
+                          <span className="text-sm font-semibold">Tiết kiệm</span>
+                          <span>-{formatPrice(totalSavings)}</span>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
+                  
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground text-sm font-semibold">Thuế VAT (10%)</span>
+                    <span>{formatPrice(finalTax)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground text-sm font-semibold">Thuế</span>
-                    <span>{formatPrice(tax)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground text-sm font-semibold">Phí vận chuyển</span>
-                    <span>{formatPrice(shipping)}</span>
+                    <span className="text-muted-foreground text-sm font-semibold">
+                      Phí vận chuyển
+                      {finalShipping === 0 && <span className="text-green-600 ml-1">(Miễn phí)</span>}
+                    </span>
+                    <span>{formatPrice(finalShipping)}</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between font-medium">
                     <span className="text-sm font-semibold">Tổng</span>
-                    <span className="text-base font-semibold">{formatPrice(total)}</span>
+                    <span className="text-base font-semibold">{formatPrice(finalTotal)}</span>
                   </div>
                 </div>
 

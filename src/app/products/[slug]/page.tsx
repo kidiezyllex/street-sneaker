@@ -43,7 +43,7 @@ if (typeof document !== 'undefined') {
   document.head.appendChild(styleSheet);
 }
 import { useProductDetail, useProducts } from '@/hooks/product';
-import { useActivePromotions } from '@/hooks/promotion';
+import { usePromotions } from '@/hooks/promotion';
 import { calculateProductDiscount, formatPrice as formatPromotionPrice, applyPromotionsToProducts } from '@/lib/promotions';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
@@ -289,7 +289,7 @@ const ImageZoom = ({ src, alt, className }: { src: string; alt: string; classNam
 };
 
 // Similar Products Component
-const SimilarProductCard = ({ product }: { product: any }) => {
+const SimilarProductCard = ({ product, promotionsData }: { product: any; promotionsData?: any }) => {
   const { addToCart } = useCartStore();
   const [isHovered, setIsHovered] = useState(false);
 
@@ -301,11 +301,36 @@ const SimilarProductCard = ({ product }: { product: any }) => {
     if (!product.variants?.[0]) return;
 
     const firstVariant = product.variants[0];
+    
+    // Calculate discount from promotions data if available
+    let finalPrice = firstVariant.price;
+    let originalPrice = undefined;
+    let discountPercent = 0;
+    let hasDiscount = false;
+
+    // Check if promotions data is available and calculate discount
+    if (promotionsData?.data?.promotions) {
+      const discount = calculateProductDiscount(
+        product._id,
+        firstVariant.price,
+        promotionsData.data.promotions
+      );
+      
+      if (discount.discountPercent > 0) {
+        finalPrice = discount.discountedPrice;
+        originalPrice = discount.originalPrice;
+        discountPercent = discount.discountPercent;
+        hasDiscount = true;
+      }
+    }
+
     const cartItem = {
       id: firstVariant._id,
       name: product.name,
-      price: product.hasDiscount ? product.discountedPrice : firstVariant.price,
-      originalPrice: product.hasDiscount ? product.originalPrice : undefined,
+      price: finalPrice,
+      originalPrice: originalPrice,
+      discountPercent: discountPercent,
+      hasDiscount: hasDiscount,
       image: firstVariant.images?.[0] || '',
       quantity: 1,
       slug: product.code,
@@ -368,17 +393,31 @@ const SimilarProductCard = ({ product }: { product: any }) => {
                 ✨ Mới
               </motion.div>
             )}
-            {product.hasDiscount && (
-              <motion.div
-                initial={{ scale: 0, rotate: 180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                className="bg-gradient-to-r from-green-500 via-emerald-500 to-lime-500 text-white text-xs font-bold px-3 rounded-full shadow-xl border border-white/50 backdrop-blur-sm animate-pulse flex-shrink-0 w-fit flex items-center justify-center gap-1"
-              >
-                💥
-                <span className="text-base">-{product.discountPercent}%</span>
-              </motion.div>
-            )}
+            {(() => {
+              // Calculate discount from promotions data if available
+              if (promotionsData?.data?.promotions && product.variants?.[0]) {
+                const discount = calculateProductDiscount(
+                  product._id,
+                  product.variants[0].price,
+                  promotionsData.data.promotions
+                );
+                
+                if (discount.discountPercent > 0) {
+                  return (
+                    <motion.div
+                      initial={{ scale: 0, rotate: 180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ duration: 0.5, delay: 0.3 }}
+                      className="bg-gradient-to-r from-green-500 via-emerald-500 to-lime-500 text-white text-xs font-bold px-3 rounded-full shadow-xl border border-white/50 backdrop-blur-sm animate-pulse flex-shrink-0 w-fit flex items-center justify-center gap-1"
+                    >
+                      💥
+                      <span className="text-base">-{discount.discountPercent}%</span>
+                    </motion.div>
+                  );
+                }
+              }
+              return null;
+            })()}
           </div>
 
           {/* Enhanced quick action buttons */}
@@ -463,13 +502,42 @@ const SimilarProductCard = ({ product }: { product: any }) => {
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.2 }}
               >
-                {product.hasDiscount ? formatPrice(product.discountedPrice) : product.variants?.[0] && formatPrice(product.variants[0].price)}
+                {(() => {
+                  // Calculate discount from promotions data if available
+                  if (promotionsData?.data?.promotions && product.variants?.[0]) {
+                    const discount = calculateProductDiscount(
+                      product._id,
+                      product.variants[0].price,
+                      promotionsData.data.promotions
+                    );
+                    
+                    if (discount.discountPercent > 0) {
+                      return formatPrice(discount.discountedPrice);
+                    }
+                  }
+                  
+                  return product.variants?.[0] && formatPrice(product.variants[0].price);
+                })()}
               </motion.div>
-              {product.hasDiscount && product.originalPrice && (
-                <div className="text-xs text-maintext line-through font-medium bg-gray-100 px-2 py-1 rounded-sm italic">
-                  {formatPrice(product.originalPrice)}
-                </div>
-              )}
+              {(() => {
+                // Show original price if there's a discount
+                if (promotionsData?.data?.promotions && product.variants?.[0]) {
+                  const discount = calculateProductDiscount(
+                    product._id,
+                    product.variants[0].price,
+                    promotionsData.data.promotions
+                  );
+                  
+                  if (discount.discountPercent > 0) {
+                    return (
+                      <div className="text-xs text-maintext line-through font-medium bg-gray-100 px-2 py-1 rounded-sm italic">
+                        {formatPrice(discount.originalPrice)}
+                      </div>
+                    );
+                  }
+                }
+                return null;
+              })()}
             </div>
 
             {/* Enhanced color variants */}
@@ -542,7 +610,7 @@ export default function ProductDetail() {
   const [productId, setProductId] = useState<string>('');
   const { data: productData, isLoading } = useProductDetail(productId);
   const { data: allProductsData } = useProducts({ limit: 8 });
-  const { data: promotionsData } = useActivePromotions();
+  const { data: promotionsData } = usePromotions({ status: "HOAT_DONG" });
   const { addToCart } = useCartStore();
 
   const [selectedVariant, setSelectedVariant] = useState<IPopulatedProductVariant | null>(null);
@@ -578,12 +646,12 @@ export default function ProductDetail() {
   // Calculate product discount when promotions data is available
   useEffect(() => {
     if (productData?.data && selectedVariant && promotionsData?.data?.promotions) {
+      
       const discount = calculateProductDiscount(
         productData.data._id,
         selectedVariant.price,
         promotionsData.data.promotions
       );
-      console.log('ProductDetail - Calculated discount:', discount);
       setProductDiscount(discount);
     } else {
       // Reset discount if no promotions or variant
@@ -1304,7 +1372,7 @@ export default function ProductDetail() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
                   >
-                    <SimilarProductCard product={similarProduct} />
+                    <SimilarProductCard product={similarProduct} promotionsData={promotionsData} />
                   </motion.div>
                 ))}
               </AnimatePresence>

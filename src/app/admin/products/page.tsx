@@ -55,7 +55,7 @@ export default function ProductsPage() {
     
     if (promotionsData?.data?.promotions) {
       products = applyPromotionsToProducts(products, promotionsData.data.promotions);
-    }
+    } 
     
     return {
       ...rawData,

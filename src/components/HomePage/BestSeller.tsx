@@ -7,7 +7,6 @@ import { Icon } from '@mdi/react';
 import { mdiCartOutline, mdiHeartOutline, mdiStar, mdiEye, mdiArrowRight, mdiShoeSneaker } from '@mdi/js';
 import { InteractiveHoverButton } from '../Common/InteractiveHoverButton';
 
-//                                                                                                                     Dữ liệu sản phẩm bán chạy
 const bestSellerData = [
   {
     id: 1,

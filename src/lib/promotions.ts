@@ -7,14 +7,12 @@ export interface ProductWithDiscount {
   appliedPromotion?: IPromotion;
 }
 
-/**
- * Calculate the highest discount for a product based on active promotions
- */
 export const calculateProductDiscount = (
   productId: string,
   originalPrice: number,
   activePromotions: IPromotion[]
 ): ProductWithDiscount => {
+  
   if (!activePromotions || activePromotions.length === 0) {
     return {
       originalPrice,
@@ -25,26 +23,41 @@ export const calculateProductDiscount = (
 
   const now = new Date();
   
-  // Filter applicable promotions for this product
   const applicablePromotions = activePromotions.filter(promotion => {
-    // Check if promotion is active
-    if (promotion.status !== 'HOAT_DONG') return false;
     
+    if (promotion.status !== 'HOAT_DONG') {
+      return false;
+    }
+
     // Check if promotion is within date range
     const startDate = new Date(promotion.startDate);
     const endDate = new Date(promotion.endDate);
-    if (now < startDate || now > endDate) return false;
     
-    // Check if promotion applies to this product
-    // If products array is empty, it applies to all products
-    if (!promotion.products || promotion.products.length === 0) return true;
+    if (now < startDate || now > endDate) {
+      return false;
+    }
+
+    if (!promotion.products || promotion.products.length === 0) {
+      return true;
+    }
     
-    // Check if product is in the promotion's product list
-    return promotion.products.some((p: any) => {
-      const id = typeof p === 'string' ? p : p._id;
-      return id === productId;
+    const isApplicable = promotion.products.some((p: any) => {
+      let promotionProductId: string;
+      
+      if (typeof p === 'string') {
+        promotionProductId = p;
+      } else if (p && typeof p === 'object') {
+        promotionProductId = p._id || p.id;
+      } else {
+        return false;
+      }
+      
+      return promotionProductId === productId;
     });
+    
+    return isApplicable;
   });
+
 
   if (applicablePromotions.length === 0) {
     return {
@@ -54,20 +67,22 @@ export const calculateProductDiscount = (
     };
   }
 
-  // Find the promotion with the highest discount
   const bestPromotion = applicablePromotions.reduce((best, current) => {
     return current.discountPercent > best.discountPercent ? current : best;
   });
 
+
   const discountAmount = (originalPrice * bestPromotion.discountPercent) / 100;
   const discountedPrice = originalPrice - discountAmount;
 
-  return {
+  const result = {
     originalPrice,
-    discountedPrice: Math.max(0, discountedPrice), // Ensure price doesn't go below 0
+    discountedPrice: Math.max(0, Math.round(discountedPrice)), // Ensure price doesn't go below 0 and round to nearest integer
     discountPercent: bestPromotion.discountPercent,
     appliedPromotion: bestPromotion,
   };
+  
+  return result;
 };
 
 /**
@@ -77,9 +92,22 @@ export const applyPromotionsToProducts = (
   products: any[],
   activePromotions: IPromotion[]
 ): any[] => {
+  if (!activePromotions || activePromotions.length === 0) {
+    return products;
+  }
+  
   return products.map(product => {
-    // Get the base price from the first variant
     const basePrice = product.variants?.[0]?.price || 0;
+    
+    if (basePrice === 0) {
+      return {
+        ...product,
+        originalPrice: 0,
+        discountedPrice: 0,
+        discountPercent: 0,
+        hasDiscount: false,
+      };
+    }
     
     const discountInfo = calculateProductDiscount(
       product._id,
@@ -87,7 +115,7 @@ export const applyPromotionsToProducts = (
       activePromotions
     );
 
-    return {
+    const result = {
       ...product,
       originalPrice: discountInfo.originalPrice,
       discountedPrice: discountInfo.discountedPrice,
@@ -95,6 +123,8 @@ export const applyPromotionsToProducts = (
       appliedPromotion: discountInfo.appliedPromotion,
       hasDiscount: discountInfo.discountPercent > 0,
     };
+
+    return result;
   });
 };
 

@@ -11,8 +11,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { mdiCartOutline, mdiHeartOutline, mdiEye, mdiFilterOutline, mdiClose, mdiMagnify, mdiPercent } from "@mdi/js"
 import { useProducts, useSearchProducts } from "@/hooks/product"
-import { useActivePromotions, usePromotions } from "@/hooks/promotion"
-import { applyPromotionsToProducts } from "@/lib/promotions"
+import { usePromotions } from "@/hooks/promotion"
+import { applyPromotionsToProducts, calculateProductDiscount } from "@/lib/promotions"
 import type { IProductFilter } from "@/interface/request/product"
 import {
   Breadcrumb,
@@ -94,14 +94,16 @@ export default function ProductsPage() {
   const searchQuery2 = useSearchProducts(isSearching ? { keyword: searchQuery, status: "HOAT_DONG" } : { keyword: "" })
   const { data: rawData, isLoading, isError } = isSearching ? searchQuery2 : productsQuery
   const { data: promotionsData } = usePromotions({status: "HOAT_DONG"});
+  
   const data = useMemo(() => {
     if (!rawData || !rawData.data || !rawData.data.products) return rawData
     let filteredProducts = [...rawData.data.products]
-    
-    // Apply promotions to products
+    // Apply promotions first to get correct pricing
     if (promotionsData?.data?.promotions) {
       filteredProducts = applyPromotionsToProducts(filteredProducts, promotionsData.data.promotions)
-    }
+    } 
+
+    // Apply filters after promotions
     if (filters.brands && filters.brands.length > 0) {
       const brandsArray = Array.isArray(filters.brands) ? filters.brands : [filters.brands]
       filteredProducts = filteredProducts.filter((product) => {
@@ -140,17 +142,45 @@ export default function ProductsPage() {
       const minPrice = filters.minPrice !== undefined ? filters.minPrice : 0
       const maxPrice = filters.maxPrice !== undefined ? filters.maxPrice : Number.POSITIVE_INFINITY
 
-      filteredProducts = filteredProducts.filter((product) => {
-        const price = product.variants[0]?.price || 0
+      filteredProducts = filteredProducts.filter((product: any) => {
+        // Calculate discount from promotions data if available
+        let price = product.variants[0]?.price || 0;
+        
+        if (promotionsData?.data?.promotions) {
+          const discount = calculateProductDiscount(
+            product._id,
+            price,
+            promotionsData.data.promotions
+          );
+          
+          if (discount.discountPercent > 0) {
+            price = discount.discountedPrice;
+          }
+        }
+        
         return price >= minPrice && price <= maxPrice
       })
     }
 
     // Sắp xếp sản phẩm
     if (sortOption !== "default") {
-      filteredProducts.sort((a, b) => {
-        const priceA = a.variants[0]?.price || 0
-        const priceB = b.variants[0]?.price || 0
+      filteredProducts.sort((a: any, b: any) => {
+        // Calculate discount prices from promotions data if available
+        let priceA = a.variants[0]?.price || 0;
+        let priceB = b.variants[0]?.price || 0;
+        
+        if (promotionsData?.data?.promotions) {
+          const discountA = calculateProductDiscount(a._id, priceA, promotionsData.data.promotions);
+          const discountB = calculateProductDiscount(b._id, priceB, promotionsData.data.promotions);
+          
+          if (discountA.discountPercent > 0) {
+            priceA = discountA.discountedPrice;
+          }
+          if (discountB.discountPercent > 0) {
+            priceB = discountB.discountedPrice;
+          }
+        }
+        
         const dateA = new Date(a.createdAt).getTime()
         const dateB = new Date(b.createdAt).getTime()
 
@@ -210,11 +240,36 @@ export default function ProductsPage() {
     }
 
     const variant = product.variants[0]
+    
+    // Calculate discount from promotions data if available
+    let finalPrice = variant.price;
+    let originalPrice = undefined;
+    let discountPercent = 0;
+    let hasDiscount = false;
+
+    // Check if promotions data is available and calculate discount
+    if (promotionsData?.data?.promotions) {
+      const discount = calculateProductDiscount(
+        product._id,
+        variant.price,
+        promotionsData.data.promotions
+      );
+      
+      if (discount.discountPercent > 0) {
+        finalPrice = discount.discountedPrice;
+        originalPrice = discount.originalPrice;
+        discountPercent = discount.discountPercent;
+        hasDiscount = true;
+      }
+    }
+
     const productToAdd = {
       id: product._id,
       name: product.name,
-      price: product.hasDiscount ? product.discountedPrice : variant.price,
-      originalPrice: product.hasDiscount ? product.originalPrice : undefined,
+      price: finalPrice,
+      originalPrice: originalPrice,
+      discountPercent: discountPercent,
+      hasDiscount: hasDiscount,
       image: variant.images?.[0] || "",
       quantity: 1,
       slug: product.name.toLowerCase().replace(/\s+/g, "-") + "-" + product._id,
@@ -375,6 +430,7 @@ export default function ProductsPage() {
                   <ProductCard
                     key={product._id}
                     product={product}
+                    promotionsData={promotionsData}
                     onAddToCart={() => handleAddToCart(product)}
                     onQuickView={() => handleQuickView(product)}
                     onAddToWishlist={() => handleAddToWishlist(product)}
@@ -530,7 +586,7 @@ export default function ProductsPage() {
   )
 }
 
-const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: ProductCardProps) => {
+const ProductCard = ({ product, promotionsData, onAddToCart, onQuickView, onAddToWishlist }: ProductCardProps & { promotionsData?: any }) => {
   const [isHovered, setIsHovered] = useState(false)
 
   return (
@@ -574,17 +630,31 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
                 ✨ Mới
               </motion.div>
             )}
-            {product.hasDiscount && (
-              <motion.div
-                initial={{ scale: 0, rotate: 180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                className="bg-gradient-to-r from-green-500 via-emerald-500 to-lime-500 text-white text-xs font-bold px-3 rounded-full shadow-xl border border-white/50 backdrop-blur-sm animate-pulse flex-shrink-0 w-fit flex items-center justify-center gap-1"
-              >
-                💥
-                 <span className="text-base">-{product.discountPercent}%</span>
-              </motion.div>
-            )}
+            {(() => {
+              if (promotionsData?.data?.promotions && product.variants?.[0]) {
+                
+                const discount = calculateProductDiscount(
+                  product._id,
+                  product.variants[0].price,
+                  promotionsData.data.promotions
+                );
+                
+                if (discount.discountPercent > 0) {
+                  return (
+                    <motion.div
+                      initial={{ scale: 0, rotate: 180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ duration: 0.5, delay: 0.3 }}
+                      className="bg-gradient-to-r from-green-500 via-emerald-500 to-lime-500 text-white text-xs font-bold px-3 rounded-full shadow-xl border border-white/50 backdrop-blur-sm animate-pulse flex-shrink-0 w-fit flex items-center justify-center gap-1"
+                    >
+                      💥
+                      <span className="text-base">-{discount.discountPercent}%</span>
+                    </motion.div>
+                  );
+                }
+              }
+              return null;
+            })()}
           </div>
 
           {/* Enhanced quick action buttons */}
@@ -669,16 +739,43 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.2 }}
               >
-                {product.hasDiscount ? formatPrice(product.discountedPrice) : formatPrice(product.variants[0]?.price || 0)}
+                {(() => {
+                  // Calculate discount from promotions data if available
+                  if (promotionsData?.data?.promotions) {
+                    const discount = calculateProductDiscount(
+                      product._id,
+                      product.variants[0].price,
+                      promotionsData.data.promotions
+                    );
+                    
+                    if (discount.discountPercent > 0) {
+                      return formatPrice(discount.discountedPrice);
+                    }
+                  }
+                  
+                  return formatPrice(product.variants[0]?.price || 0);
+                })()}
               </motion.div>
-              {product.hasDiscount && (
-                <div className="text-xs text-maintext line-through font-medium bg-gray-100 px-2 py-1 rounded-sm italic">
-                  {formatPrice(product.originalPrice)}
-                </div>
-              )}
+              {(() => {
+                if (promotionsData?.data?.promotions) {
+                  const discount = calculateProductDiscount(
+                    product._id,
+                    product.variants[0].price,
+                    promotionsData.data.promotions
+                  );
+                  
+                  if (discount.discountPercent > 0) {
+                    return (
+                      <div className="text-xs text-maintext line-through font-medium bg-gray-100 px-2 py-1 rounded-sm italic">
+                        {formatPrice(discount.originalPrice)}
+                      </div>
+                    );
+                  }
+                }
+                return null;
+              })()}
             </div>
 
-            {/* Enhanced color variants */}
             {product.variants.length > 0 && (
               <div className="flex flex-col gap-1 items-start justify-start">
                 <div className="flex items-center gap-2">

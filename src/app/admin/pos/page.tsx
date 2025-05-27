@@ -289,13 +289,14 @@ export default function POSPage() {
   // Apply promotions to products
   const dataWithPromotions = useMemo(() => {
     if (!rawData || !rawData.data || !rawData.data.products) return rawData;
-
+    
     let products = [...rawData.data.products];
-
+    
+    // Apply promotions to get correct pricing with highest discount
     if (promotionsData?.data?.promotions) {
       products = applyPromotionsToProducts(products, promotionsData.data.promotions);
-    }
-
+    } 
+    
     return {
       ...rawData,
       data: {

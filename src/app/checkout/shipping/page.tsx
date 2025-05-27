@@ -42,6 +42,7 @@ import { useCreateNotification } from '@/hooks/notification';
 import { useUserProfile } from '@/hooks/account';
 import VNPayModal from '@/components/VNPayPayment/VNPayModal';
 import SuccessModal from '@/components/OrderSuccess/SuccessModal';
+import React from 'react';
 
 const shippingFormSchema = z.object({
   fullName: z.string().min(1, "Vui lòng nhập họ tên"),
@@ -78,7 +79,7 @@ interface Ward {
 export default function ShippingPage() {
   const router = useRouter();
   const { user } = useUser()
-  const { items, subtotal, tax, shipping, total, clearCart } = useCartStore();
+  const { items, clearCart } = useCartStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showVNPayModal, setShowVNPayModal] = useState(false);
@@ -115,6 +116,29 @@ export default function ShippingPage() {
       paymentMethod: "COD",
     },
   });
+
+  // Calculate order totals based on cart items (similar to CartSheet)
+  const calculatedSubtotal = React.useMemo(() => {
+    return items.reduce((total, item) => total + item.price * item.quantity, 0);
+  }, [items]);
+  
+  const calculatedTax = React.useMemo(() => {
+    return calculatedSubtotal * 0.1;
+  }, [calculatedSubtotal]);
+  
+  const calculatedShipping = React.useMemo(() => {
+    return calculatedSubtotal >= 500000 ? 0 : 30000;
+  }, [calculatedSubtotal]);
+  
+  const calculatedTotal = React.useMemo(() => {
+    return calculatedSubtotal + calculatedTax + calculatedShipping;
+  }, [calculatedSubtotal, calculatedTax, calculatedShipping]);
+  
+  // Use calculated values
+  const subtotal = calculatedSubtotal;
+  const tax = calculatedTax;
+  const shipping = calculatedShipping;
+  const total = calculatedTotal;
 
   // Watch province and district changes to load dependent data
   const selectedProvince = form.watch("province");

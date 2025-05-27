@@ -55,7 +55,13 @@ export const usePOSCartStore = create(
             return; // Don't add if exceeds stock
           }
         } else {
-          currentItems.push(newItem);
+          // Ensure discount information is properly set
+          const itemToAdd = {
+            ...newItem,
+            hasDiscount: Boolean(newItem.hasDiscount || (newItem.originalPrice && newItem.originalPrice > newItem.price)),
+            discountPercent: newItem.discountPercent || 0
+          };
+          currentItems.push(itemToAdd);
         }
         
         set({ items: currentItems });
