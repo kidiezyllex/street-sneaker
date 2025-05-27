@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@mdi/react';
-import { mdiUpload, mdiLoading, mdiTrashCanOutline, mdiImageOutline } from '@mdi/js';
+import { mdiUpload, mdiLoading, mdiTrashCanOutline, mdiImageOutline, mdiTransferRight } from '@mdi/js';
 import Image from 'next/image';
 import { checkImageUrl } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -73,6 +73,15 @@ const ProductVariantForm: React.FC<ProductVariantFormProps> = ({
     }
   };
 
+  const convertToVND = () => {
+    const dollarAmount = variant.price || 0;
+    const vndAmount = Math.round(dollarAmount * 25912.04 / 1000) * 1000; // Làm tròn đến hàng nghìn
+    onChange({
+      ...variant,
+      price: vndAmount
+    });
+  };
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -89,7 +98,13 @@ const ProductVariantForm: React.FC<ProductVariantFormProps> = ({
             <SelectContent>
               {(colorsData?.data || []).map(color => (
                 <SelectItem key={color._id} value={color._id}>
-                  {color.name}
+                  <div className="flex items-center justify-between w-full">
+                    <span>{color.name}</span>
+                    <div 
+                      className="w-4 h-4 rounded-full border border-gray-300 ml-2"
+                      style={{ backgroundColor: color.code }}
+                    />
+                  </div>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -118,16 +133,29 @@ const ProductVariantForm: React.FC<ProductVariantFormProps> = ({
 
         <div className="space-y-2">
           <Label htmlFor={`price-${variant.price}`}>Giá <span className="text-red-500">*</span></Label>
-          <Input
-            id={`price-${variant.price}`}
-            name="price"
-            type="number"
-            min="0"
-            value={variant.price || ''}
-            onChange={handleInputChange}
-            placeholder="Nhập giá"
-            required
-          />
+          <div className="flex gap-2">
+            <Input
+              id={`price-${variant.price}`}
+              name="price"
+              type="number"
+              min="0"
+              value={variant.price || ''}
+              onChange={handleInputChange}
+              placeholder="Nhập giá (đơn vị $ hoặc VNĐ)"
+              required
+              className="flex-1"
+            />
+            <Button
+              type="button"
+              variant="default"
+              className='gap-1'
+              onClick={convertToVND}
+              title="Chuyển đổi từ USD sang VNĐ (1 USD = 25,912.04 VNĐ)"
+            >
+              <Icon path={mdiTransferRight} size={0.7} className='text-white'/>
+              Chuyển sang đơn vị VNĐ
+            </Button>
+          </div>
         </div>
 
         <div className="space-y-2">

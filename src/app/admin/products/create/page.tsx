@@ -16,11 +16,11 @@ import { createFormData } from '@/utils/cloudinary';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Icon } from '@mdi/react';
-import { mdiPlus, mdiTrashCanOutline, mdiArrowLeft, mdiLoading } from '@mdi/js';
+import { mdiPlus, mdiTrashCanOutline, mdiArrowLeft, mdiLoading, mdiAutoFix } from '@mdi/js';
 import { AnimatePresence, motion } from 'framer-motion';
 import ProductVariantForm from '@/components/ProductPage/ProductVariantForm';
+import VariantGenerator from '@/components/ProductPage/VariantGenerator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import cookies from 'js-cookie';
 import { useBrands, useCategories, useColors, useMaterials, useSizes } from '@/hooks/attributes';
 
 const initialProduct: IProductCreate = {
@@ -46,6 +46,7 @@ export default function CreateProductPage() {
   const [product, setProduct] = useState<IProductCreate>(initialProduct);
   const [activeTab, setActiveTab] = useState('info');
   const [uploading, setUploading] = useState(false);
+  const [showVariantGenerator, setShowVariantGenerator] = useState(false);
   const createProduct = useCreateProduct();
   const uploadImage = useUploadImage();
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -153,7 +154,7 @@ export default function CreateProductPage() {
 
   const validateBasicInfo = () => {
     const missingFields = [];
-    
+
     if (!product.name.trim()) {
       missingFields.push('Tên sản phẩm');
     }
@@ -166,19 +167,30 @@ export default function CreateProductPage() {
     if (!product.material) {
       missingFields.push('Chất liệu');
     }
-    
+
     return missingFields;
   };
 
   const handleNextTab = () => {
     const missingFields = validateBasicInfo();
-    
+
     if (missingFields.length > 0) {
       toast.error(`Vui lòng điền đầy đủ thông tin: ${missingFields.join(', ')}`);
       return;
     }
-    
+
     setActiveTab('variants');
+  };
+
+  const handleGenerateVariants = (variants: IProductVariant[]) => {
+    setProduct({ ...product, variants });
+    setShowVariantGenerator(false);
+    toast.success(`Đã tạo ${variants.length} biến thể`);
+  };
+
+  const isFirstVariantComplete = () => {
+    const firstVariant = product.variants[0];
+    return firstVariant && firstVariant.colorId && firstVariant.sizeId && firstVariant.price > 0;
   };
 
   return (
@@ -336,16 +348,45 @@ export default function CreateProductPage() {
           <TabsContent value="variants" className="space-y-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Biến thể sản phẩm</CardTitle>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleAddVariant}
-                  className="flex items-center gap-1 mr-4"
-                >
-                  <Icon path={mdiPlus} size={0.7} />
-                  Thêm biến thể
-                </Button>
+                <CardTitle className='flex items-center justify-between w-full'>Biến thể sản phẩm
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setShowVariantGenerator(true)}
+                      disabled={!isFirstVariantComplete()}
+                      className="flex items-center gap-1"
+                      title={!isFirstVariantComplete() ? "Vui lòng hoàn thành biến thể đầu tiên" : ""}
+                    >
+                      <Icon path={mdiAutoFix} size={0.7} />
+                      Generate tất cả biến thể
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleAddVariant}
+                      className="flex items-center gap-1"
+                    >
+                      <Icon path={mdiPlus} size={0.7} />
+                      Thêm biến thể
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={!isFormValid() || createProduct.isPending}
+                      className="flex items-center gap-2"
+                    >
+                      {createProduct.isPending ? (
+                        <>
+                          <Icon path={mdiLoading} size={0.7} className="animate-spin" />
+                          Đang xử lý...
+                        </>
+                      ) : (
+                        'Tạo sản phẩm'
+                      )}
+                    </Button>
+                  </div>
+                </CardTitle>
+
               </CardHeader>
               <CardContent className="space-y-4 text-maintext">
                 <AnimatePresence>
@@ -393,25 +434,21 @@ export default function CreateProductPage() {
                 >
                   Quay lại
                 </Button>
-                <Button
-                  type="submit"
-                  disabled={!isFormValid() || createProduct.isPending}
-                  className="flex items-center gap-2"
-                >
-                  {createProduct.isPending ? (
-                    <>
-                      <Icon path={mdiLoading} size={0.7} className="animate-spin" />
-                      Đang xử lý...
-                    </>
-                  ) : (
-                    'Tạo sản phẩm'
-                  )}
-                </Button>
+
               </CardFooter>
             </Card>
           </TabsContent>
         </Tabs>
       </form>
+      <AnimatePresence>
+        {showVariantGenerator && (
+          <VariantGenerator
+            baseVariant={product.variants[0]}
+            onGenerate={handleGenerateVariants}
+            onClose={() => setShowVariantGenerator(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 } 

@@ -12,7 +12,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useProducts, useDeleteProduct } from '@/hooks/product';
 import { useBrands, useCategories } from '@/hooks/attributes';
-import { useActivePromotions, usePromotions } from '@/hooks/promotion';
+import { usePromotions } from '@/hooks/promotion';
 import { applyPromotionsToProducts, calculateProductDiscount } from '@/lib/promotions';
 import { IProductFilter } from '@/interface/request/product';
 import { useQueryClient } from '@tanstack/react-query';

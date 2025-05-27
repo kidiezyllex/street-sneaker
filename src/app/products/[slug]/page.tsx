@@ -873,7 +873,7 @@ export default function ProductDetail() {
                     <Icon
                       key={i}
                       path={i < 4 ? mdiStar : mdiStarOutline}
-                      size={0.8}
+                      size={0.7}
                       className={i < 4 ? "text-yellow-400" : "text-gray-300"}
                     />
                   ))}
@@ -914,7 +914,7 @@ export default function ProductDetail() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Icon path={mdiPalette} size={0.9} className="!text-maintext" />
+                  <Icon path={mdiPalette} size={1} className="!text-maintext" />
                   <span className="font-semibold text-maintext">Màu sắc</span>
                 </div>
                 {selectedVariant?.colorId && (
@@ -961,7 +961,7 @@ export default function ProductDetail() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Icon path={mdiRuler} size={0.9} className="!text-maintext" />
+                  <Icon path={mdiRuler} size={1} className="!text-maintext" />
                   <span className="font-semibold text-maintext">Kích thước</span>
                 </div>
                 {selectedVariant?.sizeId && (
@@ -1000,7 +1000,7 @@ export default function ProductDetail() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Icon path={mdiCartPlus} size={0.9} className="!text-maintext" />
+                  <Icon path={mdiCartPlus} size={1} className="!text-maintext" />
                   <span className="font-semibold text-maintext">Số lượng</span>
                 </div>
 
@@ -1058,7 +1058,7 @@ export default function ProductDetail() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                    <Icon path={mdiTruck} size={0.9} className="text-primary" />
+                    <Icon path={mdiTruck} size={1} className="text-primary" />
                   </div>
                   <div>
                     <p className="font-medium text-maintext">Miễn phí vận chuyển</p>
@@ -1067,7 +1067,7 @@ export default function ProductDetail() {
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                    <Icon path={mdiShield} size={0.9} className="text-primary" />
+                    <Icon path={mdiShield} size={1} className="text-primary" />
                   </div>
                   <div>
                     <p className="font-medium text-maintext">Bảo hành chính hãng</p>
@@ -1076,7 +1076,7 @@ export default function ProductDetail() {
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                    <Icon path={mdiRefresh} size={0.9} className="text-primary" />
+                    <Icon path={mdiRefresh} size={1} className="text-primary" />
                   </div>
                   <div>
                     <p className="font-medium text-maintext">Đổi trả dễ dàng</p>
@@ -1085,7 +1085,7 @@ export default function ProductDetail() {
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                    <Icon path={mdiCreditCard} size={0.9} className="text-primary" />
+                    <Icon path={mdiCreditCard} size={1} className="text-primary" />
                   </div>
                   <div>
                     <p className="font-medium text-maintext">Thanh toán an toàn</p>
@@ -1141,7 +1141,7 @@ export default function ProductDetail() {
                   );
                 }}
               >
-                <Icon path={mdiShareVariant} size={0.9} />
+                <Icon path={mdiShareVariant} size={1} />
               </Button>
             </div>
           </motion.div>
