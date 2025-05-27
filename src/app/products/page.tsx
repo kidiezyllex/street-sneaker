@@ -9,8 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Icon } from "@mdi/react"
 import Image from "next/image"
 import Link from "next/link"
-import { mdiCartOutline, mdiHeartOutline, mdiEye, mdiFilterOutline, mdiClose, mdiMagnify } from "@mdi/js"
+import { mdiCartOutline, mdiHeartOutline, mdiEye, mdiFilterOutline, mdiClose, mdiMagnify, mdiPercent } from "@mdi/js"
 import { useProducts, useSearchProducts } from "@/hooks/product"
+import { useActivePromotions, usePromotions } from "@/hooks/promotion"
+import { applyPromotionsToProducts } from "@/lib/promotions"
 import type { IProductFilter } from "@/interface/request/product"
 import {
   Breadcrumb,
@@ -91,9 +93,15 @@ export default function ProductsPage() {
   const productsQuery = useProducts(paginationParams)
   const searchQuery2 = useSearchProducts(isSearching ? { keyword: searchQuery, status: "HOAT_DONG" } : { keyword: "" })
   const { data: rawData, isLoading, isError } = isSearching ? searchQuery2 : productsQuery
+  const { data: promotionsData } = usePromotions({status: "HOAT_DONG"});
   const data = useMemo(() => {
     if (!rawData || !rawData.data || !rawData.data.products) return rawData
     let filteredProducts = [...rawData.data.products]
+    
+    // Apply promotions to products
+    if (promotionsData?.data?.promotions) {
+      filteredProducts = applyPromotionsToProducts(filteredProducts, promotionsData.data.promotions)
+    }
     if (filters.brands && filters.brands.length > 0) {
       const brandsArray = Array.isArray(filters.brands) ? filters.brands : [filters.brands]
       filteredProducts = filteredProducts.filter((product) => {
@@ -171,7 +179,7 @@ export default function ProductsPage() {
         products: filteredProducts,
       },
     }
-  }, [rawData, filters, sortOption, pagination])
+  }, [rawData, filters, sortOption, pagination, promotionsData])
 
   const handleFilterChange = (updatedFilters: Partial<IProductFilter>) => {
     setFilters((prev) => ({
@@ -205,7 +213,8 @@ export default function ProductsPage() {
     const productToAdd = {
       id: product._id,
       name: product.name,
-      price: variant.price,
+      price: product.hasDiscount ? product.discountedPrice : variant.price,
+      originalPrice: product.hasDiscount ? product.originalPrice : undefined,
       image: variant.images?.[0] || "",
       quantity: 1,
       slug: product.name.toLowerCase().replace(/\s+/g, "-") + "-" + product._id,
@@ -555,14 +564,15 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
                 ✨ Mới
               </motion.div>
             )}
-            {product.discount && (
+            {product.hasDiscount && (
               <motion.div
                 initial={{ scale: 0, rotate: 180 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
-                className="bg-gradient-to-r from-red-500 via-pink-500 to-orange-400 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-xl border-2 border-white/50 backdrop-blur-sm animate-pulse"
+                className="bg-gradient-to-r from-green-500 via-emerald-500 to-lime-500 text-white text-xs font-bold px-3 rounded-full shadow-xl border border-white/50 backdrop-blur-sm animate-pulse flex-shrink-0 w-fit flex items-center justify-center gap-1"
               >
-                🔥 -{product.discount}%
+                💥
+                 <span className="text-base">-{product.discountPercent}%</span>
               </motion.div>
             )}
           </div>
@@ -643,16 +653,16 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
 
           <div className="mt-auto">
             {/* Enhanced pricing */}
-            <div className="flex items-end gap-4 mb-2">
+            <div className="flex items-center justify-between">
               <motion.div
-                className="font-extrabold text-xl text-active"
+                className="font-extrabold text-lg text-active"
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.2 }}
               >
-                {formatPrice(product.variants[0]?.price || 0)}
+                {product.hasDiscount ? formatPrice(product.discountedPrice) : formatPrice(product.variants[0]?.price || 0)}
               </motion.div>
-              {product.originalPrice && (
-                <div className="text-sm text-maintext line-through font-medium bg-gray-100 px-2 py-1 rounded-lg">
+              {product.hasDiscount && (
+                <div className="text-xs text-maintext line-through font-medium bg-gray-100 px-2 py-1 rounded-sm italic">
                   {formatPrice(product.originalPrice)}
                 </div>
               )}
@@ -660,9 +670,9 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
 
             {/* Enhanced color variants */}
             {product.variants.length > 0 && (
-              <div className="flex items-center gap-2 justify-between">
-                <div className="flex items-center gap-1">
-                  <span className="text-sm text-maintext font-medium">Màu sắc:</span>
+              <div className="flex flex-col gap-1 items-start justify-start">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-maintext/70 font-semibold">Màu sắc:</span>
                   <div className="flex gap-1 text-sm">
                     {Array.from(
                       new Set(
@@ -707,14 +717,16 @@ const ProductCard = ({ product, onAddToCart, onQuickView, onAddToWishlist }: Pro
                       )}
                   </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-sm text-maintext font-medium">Kích thước:</span>
-                  <div className="flex gap-1 text-maintext text-sm font-semibold">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-maintext/70 font-semibold">Kích thước:</span>
+                  <div className="flex gap-1 text-maintext text-sm">
                     {Array.from(
                       new Set(
-                        product.variants.map((v: any) => (typeof v.sizeId === "object" ? v.sizeId.value : v.sizeId)),
-                      ),
-                    )}
+                        product.variants.map((v: any) =>
+                          typeof v.sizeId === "object" ? v.sizeId.value : v.sizeId
+                        )
+                      )
+                    ).join(", ")}
                   </div>
                 </div>
               </div>

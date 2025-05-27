@@ -74,7 +74,7 @@ export const Newsletter = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
             >
-              Hãy đăng ký để nhận thông tin về sản phẩm mới, khuyến mãi đặc biệt 
+              Hãy đăng ký để nhận thông tin về sản phẩm mới, Đợt khuyến mãi đặc biệt 
               và các sự kiện độc quyền từ StreetSneaker.
             </motion.p>
             

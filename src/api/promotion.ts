@@ -39,4 +39,9 @@ export const deletePromotion = async (promotionId: string): Promise<IActionRespo
 export const getProductPromotions = async (productId: string): Promise<IProductPromotionsResponse> => {
   const res = await sendGet(`/promotions/product/${productId}`);
   return res as IProductPromotionsResponse;
+};
+
+export const getActivePromotions = async (): Promise<IPromotionsResponse> => {
+  const res = await sendGet("/promotions/active");
+  return res as IPromotionsResponse;
 }; 

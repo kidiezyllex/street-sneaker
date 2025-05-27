@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
@@ -12,6 +12,8 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useProducts, useDeleteProduct } from '@/hooks/product';
 import { useBrands, useCategories } from '@/hooks/attributes';
+import { useActivePromotions, usePromotions } from '@/hooks/promotion';
+import { applyPromotionsToProducts, calculateProductDiscount } from '@/lib/promotions';
 import { IProductFilter } from '@/interface/request/product';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -32,8 +34,10 @@ export default function ProductsPage() {
     page: 1,
     limit: 10
   });
+  const { data: promotionsData } = usePromotions();
+  console.log(promotionsData)
   const [showFilters, setShowFilters] = useState(false);
-  const { data, isLoading, isError } = useProducts(filters);
+  const { data: rawData, isLoading, isError } = useProducts(filters);
   const deleteProduct = useDeleteProduct();
   const queryClient = useQueryClient();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -44,6 +48,26 @@ export default function ProductsPage() {
 
   const { data: brandsData } = useBrands();
   const { data: categoriesData } = useCategories();
+
+  // Apply promotions to products
+  const data = useMemo(() => {
+    if (!rawData || !rawData.data || !rawData.data.products) return rawData;
+    
+    let products = [...rawData.data.products];
+    
+    // Apply promotions to products
+    if (promotionsData?.data?.promotions) {
+      products = applyPromotionsToProducts(products, promotionsData.data.promotions);
+    }
+    
+    return {
+      ...rawData,
+      data: {
+        ...rawData.data,
+        products,
+      },
+    };
+  }, [rawData, promotionsData]);
 
   useEffect(() => {
     const debounce = setTimeout(() => {
@@ -130,7 +154,7 @@ export default function ProductsPage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="#">Quản lý sản phẩm</BreadcrumbLink>
+              <BreadcrumbLink href="/admin/products">Quản lý sản phẩm</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
@@ -281,6 +305,7 @@ export default function ProductsPage() {
                   <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Sản phẩm</TableHead>
                   <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Thương hiệu</TableHead>
                   <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Danh mục</TableHead>
+                  <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Giá</TableHead>
                   <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Trạng thái</TableHead>
                   <TableHead className="px-4 py-4 text-left text-sm font-medium text-maintext">Ngày cập nhật</TableHead>
                   <TableHead className="px-4 py-4 text-right text-sm font-medium text-maintext">Thao tác</TableHead>
@@ -315,6 +340,32 @@ export default function ProductsPage() {
                       </TableCell>
                       <TableCell className="px-4 py-4 whitespace-nowrap text-sm text-maintext">
                         {typeof product.category === 'string' ? product.category : product.category.name}
+                      </TableCell>
+                      <TableCell className="px-4 py-4 whitespace-nowrap text-sm">
+                        {(() => {
+                          const basePrice = product.variants[0]?.price || 0;
+                          const discount = promotionsData?.data?.promotions 
+                            ? calculateProductDiscount(product._id, basePrice, promotionsData.data.promotions)
+                            : { originalPrice: basePrice, discountedPrice: basePrice, discountPercent: 0 };
+                          
+                          return (
+                            <div className="space-y-1">
+                              <div className={`font-medium ${discount.discountPercent > 0 ? 'text-primary' : 'text-maintext'}`}>
+                                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(discount.discountedPrice)}
+                              </div>
+                              {discount.discountPercent > 0 && (
+                                <div className="text-xs text-maintext line-through">
+                                  {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(discount.originalPrice)}
+                                </div>
+                              )}
+                              {discount.discountPercent > 0 && (
+                                <div className="text-xs text-green-600 font-medium">
+                                  -{discount.discountPercent}% KM
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </TableCell>
                       <TableCell className="px-4 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 text-xs rounded-full ${product.status === 'HOAT_DONG'

@@ -151,7 +151,7 @@ export default function CreateVoucherPage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="/admin/discounts">Quản lý khuyến mãi</BreadcrumbLink>
+              <BreadcrumbLink href="/admin/discounts">Quản lý Đợt khuyến mãi</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
@@ -228,7 +228,7 @@ export default function CreateVoucherPage() {
                   name="name"
                   value={voucher.name}
                   onChange={handleInputChange}
-                  placeholder="VD: Khuyến mãi mùa hè 2024"
+                  placeholder="VD: Đợt khuyến mãi mùa hè 2024"
                   className={errors.name ? 'border-red-500' : ''}
                 />
                 {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}

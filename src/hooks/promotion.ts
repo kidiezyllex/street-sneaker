@@ -10,7 +10,8 @@ import {
   createPromotion,
   updatePromotion,
   deletePromotion,
-  getProductPromotions
+  getProductPromotions,
+  getActivePromotions
 } from "@/api/promotion";
 import {
   IPromotionFilter,
@@ -61,12 +62,19 @@ export const useDeletePromotion = (): UseMutationResult<IActionResponse, Error, 
   });
 };
 
-// === Product Promotion Hooks ===
-
 export const useProductPromotions = (productId: string): UseQueryResult<IProductPromotionsResponse, Error> => {
   return useQuery<IProductPromotionsResponse, Error>({
     queryKey: ["productPromotions", productId],
     queryFn: () => getProductPromotions(productId),
     enabled: !!productId, // Chỉ fetch khi có productId
+  });
+};
+
+export const useActivePromotions = () => {
+  return useQuery({
+    queryKey: ["activePromotions"],
+    queryFn: () => getActivePromotions(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 }; 

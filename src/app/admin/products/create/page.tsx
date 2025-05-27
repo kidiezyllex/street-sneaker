@@ -141,7 +141,7 @@ export default function CreateProductPage() {
         }
       });
     } catch (error) {
-      toast.error('Tên sản phẩm đã tồn tại');
+      toast.error('Vui lòng cung cấp đầy đủ thông tin sản phẩm');
     }
   };
 
@@ -151,6 +151,35 @@ export default function CreateProductPage() {
     return isBasicInfoValid && areVariantsValid;
   };
 
+  const validateBasicInfo = () => {
+    const missingFields = [];
+    
+    if (!product.name.trim()) {
+      missingFields.push('Tên sản phẩm');
+    }
+    if (!product.brand) {
+      missingFields.push('Thương hiệu');
+    }
+    if (!product.category) {
+      missingFields.push('Danh mục');
+    }
+    if (!product.material) {
+      missingFields.push('Chất liệu');
+    }
+    
+    return missingFields;
+  };
+
+  const handleNextTab = () => {
+    const missingFields = validateBasicInfo();
+    
+    if (missingFields.length > 0) {
+      toast.error(`Vui lòng điền đầy đủ thông tin: ${missingFields.join(', ')}`);
+      return;
+    }
+    
+    setActiveTab('variants');
+  };
 
   return (
     <div className="space-y-4">
@@ -158,11 +187,11 @@ export default function CreateProductPage() {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
+              <BreadcrumbLink href="/admin/statistics">Dashboard</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="#">Quản lý sản phẩm</BreadcrumbLink>
+              <BreadcrumbLink href="/admin/products">Quản lý sản phẩm</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
@@ -296,7 +325,7 @@ export default function CreateProductPage() {
                 </Button>
                 <Button
                   type="button"
-                  onClick={() => setActiveTab('variants')}
+                  onClick={handleNextTab}
                 >
                   Tiếp theo
                 </Button>

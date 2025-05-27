@@ -59,7 +59,7 @@ const mockDiscounts: Discount[] = [
   {
     id: '1',
     code: 'SUMMER2023',
-    name: 'Khuyến mãi hè 2023',
+    name: 'Đợt khuyến mãi hè 2023',
     description: 'Giảm giá cho tất cả sản phẩm mùa hè',
     discountType: 'percentage',
     discountValue: 20,

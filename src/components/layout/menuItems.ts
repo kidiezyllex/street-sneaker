@@ -85,7 +85,7 @@ export const menuItems: MenuItem[] = [
       },
       {
         id: 'discounts-promotions', 
-        name: 'Khuyến mãi',
+        name: 'Đợt khuyến mãi',
         path: '/admin/discounts/promotions',
       },
     ],

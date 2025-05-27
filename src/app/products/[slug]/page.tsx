@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import CartIcon from "@/components/ui/CartIcon"
 
 // Add custom styles for zoom cursor
@@ -43,6 +43,8 @@ if (typeof document !== 'undefined') {
   document.head.appendChild(styleSheet);
 }
 import { useProductDetail, useProducts } from '@/hooks/product';
+import { useActivePromotions } from '@/hooks/promotion';
+import { calculateProductDiscount, formatPrice as formatPromotionPrice, applyPromotionsToProducts } from '@/lib/promotions';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -80,8 +82,6 @@ import { checkImageUrl } from '@/lib/utils';
 import { useCartStore } from '@/stores/useCartStore';
 import { IProduct, IBrand, ICategory, IPopulatedProductVariant } from '@/interface/response/product';
 import { motion, AnimatePresence } from 'framer-motion';
-
-// Image Zoom Component
 const ImageZoom = ({ src, alt, className }: { src: string; alt: string; className?: string }) => {
   const [isZooming, setIsZooming] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -304,7 +304,8 @@ const SimilarProductCard = ({ product }: { product: any }) => {
     const cartItem = {
       id: firstVariant._id,
       name: product.name,
-      price: firstVariant.price,
+      price: product.hasDiscount ? product.discountedPrice : firstVariant.price,
+      originalPrice: product.hasDiscount ? product.originalPrice : undefined,
       image: firstVariant.images?.[0] || '',
       quantity: 1,
       slug: product.code,
@@ -368,14 +369,14 @@ const SimilarProductCard = ({ product }: { product: any }) => {
                 ✨ Mới
               </motion.div>
             )}
-            {product.discount && (
+            {product.hasDiscount && (
               <motion.div
                 initial={{ scale: 0, rotate: 180 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
                 className="bg-gradient-to-r from-red-500 via-pink-500 to-orange-400 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-xl border-2 border-white/50 backdrop-blur-sm animate-pulse"
               >
-                🔥 -{product.discount}%
+                🔥 -{product.discountPercent}%
               </motion.div>
             )}
           </div>
@@ -462,9 +463,9 @@ const SimilarProductCard = ({ product }: { product: any }) => {
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.2 }}
               >
-                {product.variants?.[0] && formatPrice(product.variants[0].price)}
+                {product.hasDiscount ? formatPrice(product.discountedPrice) : product.variants?.[0] && formatPrice(product.variants[0].price)}
               </motion.div>
-              {product.originalPrice && (
+              {product.hasDiscount && product.originalPrice && (
                 <div className="text-sm text-maintext line-through font-medium bg-gray-100 px-2 py-1 rounded-lg">
                   {formatPrice(product.originalPrice)}
                 </div>
@@ -541,6 +542,7 @@ export default function ProductDetail() {
   const [productId, setProductId] = useState<string>('');
   const { data: productData, isLoading } = useProductDetail(productId);
   const { data: allProductsData } = useProducts({ limit: 8 });
+  const { data: promotionsData } = useActivePromotions();
   const { addToCart } = useCartStore();
 
   const [selectedVariant, setSelectedVariant] = useState<IPopulatedProductVariant | null>(null);
@@ -548,6 +550,7 @@ export default function ProductDetail() {
   const [selectedSize, setSelectedSize] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [productDiscount, setProductDiscount] = useState<any>(null);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -571,6 +574,18 @@ export default function ProductDetail() {
       setSelectedSize(firstVariant.sizeId._id);
     }
   }, [productData]);
+
+  // Calculate product discount when promotions data is available
+  useEffect(() => {
+    if (productData?.data && selectedVariant && promotionsData?.data?.promotions) {
+      const discount = calculateProductDiscount(
+        productData.data._id,
+        selectedVariant.price,
+        promotionsData.data.promotions
+      );
+      setProductDiscount(discount);
+    }
+  }, [productData, selectedVariant, promotionsData]);
 
   // Xử lý chọn màu sắc
   const handleColorSelect = (colorId: string) => {
@@ -615,7 +630,8 @@ export default function ProductDetail() {
     const cartItem = {
       id: selectedVariant._id,
       name: productData.data.name,
-      price: selectedVariant.price,
+      price: productDiscount && productDiscount.discountPercent > 0 ? productDiscount.discountedPrice : selectedVariant.price,
+      originalPrice: productDiscount && productDiscount.discountPercent > 0 ? productDiscount.originalPrice : undefined,
       image: selectedVariant.images?.[0] || '',
       quantity: quantity,
       slug: productData.data.code,
@@ -652,6 +668,20 @@ export default function ProductDetail() {
     const maxQuantity = selectedVariant.stock || 0;
     setQuantity(Math.max(1, Math.min(newQuantity, maxQuantity)));
   };
+
+  // Get similar products (exclude current product) and apply promotions
+  const similarProducts = useMemo(() => {
+    if (!allProductsData?.data?.products || !productData?.data) return [];
+    
+    let filteredProducts = allProductsData.data.products.filter((p: IProduct) => p._id !== productData.data._id).slice(0, 4);
+    
+    // Apply promotions to similar products
+    if (promotionsData?.data?.promotions) {
+      filteredProducts = applyPromotionsToProducts(filteredProducts, promotionsData.data.promotions);
+    }
+    
+    return filteredProducts;
+  }, [allProductsData, productData?.data, promotionsData]);
 
   if (isLoading) {
     return (
@@ -699,9 +729,6 @@ export default function ProductDetail() {
   const brandSlug = typeof product.brand === 'string' ? product.brand : product.brand.name.toLowerCase().replace(/\s+/g, '-');
   const categoryName = typeof product.category === 'string' ? product.category : product.category.name;
   const materialName = typeof product.material === 'string' ? product.material : product.material.name;
-
-  // Get similar products (exclude current product)
-  const similarProducts = allProductsData?.data?.products?.filter((p: IProduct) => p._id !== product._id).slice(0, 4) || [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50/50 to-white">
@@ -859,16 +886,24 @@ export default function ProductDetail() {
             <Card className="p-6 bg-gradient-to-r from-primary/5 to-secondary/5 border-primary/20">
               <div className="space-y-2">
                 <div className="text-4xl font-bold text-primary">
-                  {selectedVariant && formatPrice(selectedVariant.price)}
+                  {selectedVariant && productDiscount && productDiscount.discountPercent > 0 
+                    ? formatPrice(productDiscount.discountedPrice)
+                    : selectedVariant && formatPrice(selectedVariant.price)
+                  }
                 </div>
-                {selectedVariant?.price && selectedVariant.price > selectedVariant.price && (
+                {productDiscount && productDiscount.discountPercent > 0 && (
                   <div className="flex items-center gap-3">
                     <span className="text-xl text-maintext line-through">
-                      {formatPrice(selectedVariant.price)}
+                      {formatPrice(productDiscount.originalPrice)}
                     </span>
                     <Badge variant="destructive" className="font-medium">
-                      -{Math.round(((selectedVariant.price - selectedVariant.price) / selectedVariant.price) * 100)}%
+                      -{productDiscount.discountPercent}%
                     </Badge>
+                  </div>
+                )}
+                {productDiscount?.appliedPromotion && (
+                  <div className="text-sm text-green-600 font-medium">
+                    🎉 Áp dụng khuyến mãi: {productDiscount.appliedPromotion.name}
                   </div>
                 )}
                 <p className="text-sm !text-maintext">Giá đã bao gồm VAT</p>
@@ -936,19 +971,28 @@ export default function ProductDetail() {
                 )}
               </div>
               <div className="flex flex-wrap gap-3">
-                {product.variants
-                  .filter((variant) => variant.colorId._id === selectedColor)
-                  .map((variant) => (
-                    <Button
-                      variant={selectedSize === variant.sizeId._id ? "default" : "outline"}
-                      size="icon"
-                      key={variant.sizeId._id}
-                      onClick={() => handleSizeSelect(variant.sizeId._id)}
-                      disabled={variant.stock === 0}
-                    >
-                      {(variant.sizeId as any).value}
-                    </Button>
-                  ))}
+                {Array.from(new Set(product.variants.map(v => v.sizeId._id)))
+                  .map(sizeId => {
+                    const sizeVariant = product.variants.find(v => v.sizeId._id === sizeId);
+                    const variantForColorAndSize = product.variants.find(
+                      v => v.colorId._id === selectedColor && v.sizeId._id === sizeId
+                    );
+                    const isAvailable = !!variantForColorAndSize && variantForColorAndSize.stock > 0;
+                    
+                    return (
+                      <Button
+                        variant={selectedSize === sizeId ? "default" : "outline"}
+                        size="icon"
+                        key={sizeId}
+                        onClick={() => handleSizeSelect(sizeId)}
+                        disabled={!isAvailable}
+                        className={!isAvailable ? "opacity-50 cursor-not-allowed" : ""}
+                        title={!isAvailable ? "Không có sẵn cho màu này" : ""}
+                      >
+                        {(sizeVariant?.sizeId as any)?.value}
+                      </Button>
+                    );
+                  })}
               </div>
             </div>
 

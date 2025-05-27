@@ -196,7 +196,7 @@ export default function EditVoucherPage() {
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbLink href="/admin/discounts">Quản lý khuyến mãi</BreadcrumbLink>
+                <BreadcrumbLink href="/admin/discounts">Quản lý Đợt khuyến mãi</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
@@ -243,7 +243,7 @@ export default function EditVoucherPage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="/admin/discounts">Quản lý khuyến mãi</BreadcrumbLink>
+              <BreadcrumbLink href="/admin/discounts">Quản lý Đợt khuyến mãi</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
