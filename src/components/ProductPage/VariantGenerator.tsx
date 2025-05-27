@@ -145,7 +145,7 @@ const VariantGenerator: React.FC<VariantGeneratorProps> = ({
               </div>
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+          <CardContent className="p-4 overflow-y-auto max-h-[calc(90vh-200px)]">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -163,7 +163,7 @@ const VariantGenerator: React.FC<VariantGeneratorProps> = ({
                 </div>
               </div>
 
-              <div className="grid gap-3">
+              <div className="grid gap-4">
                 <AnimatePresence>
                   {generatedVariants.map((variant, index) => {
                     const color = getColorById(variant.colorId);
@@ -188,7 +188,7 @@ const VariantGenerator: React.FC<VariantGeneratorProps> = ({
                             }
                           />
                           
-                          <div className="flex items-center gap-3 flex-1">
+                          <div className="flex items-center gap-4 flex-1">
                             <div className="flex items-center gap-2">
                               <div 
                                 className="w-6 h-6 rounded-full border border-gray-300"
@@ -235,11 +235,11 @@ const VariantGenerator: React.FC<VariantGeneratorProps> = ({
             </div>
           </CardContent>
 
-          <div className="border-t p-6 flex justify-between items-center">
+          <div className="border-t p-4 flex justify-between items-center">
             <div className="text-sm text-gray-600">
               Đã chọn {selectedCount} biến thể
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-4">
               <DialogClose asChild>
                 <Button variant="outline">
                   Hủy

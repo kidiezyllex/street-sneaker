@@ -541,7 +541,7 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                     Tiến trình đơn hàng
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-6">
+                <CardContent className="p-4">
                   <div className="relative">
                     {getShippingProgress(orderData.data.orderStatus, orderData.data.createdAt).map((step, index, array) => (
                       <div key={index} className="relative flex items-start pb-8 last:pb-0">

@@ -119,7 +119,7 @@ export default function CreatePromotionPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
         <Breadcrumb>
           <BreadcrumbList>
@@ -164,9 +164,9 @@ export default function CreatePromotionPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {/* Thông tin cơ bản */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Tên chiến dịch *</Label>
                   <Input
@@ -205,7 +205,7 @@ export default function CreatePromotionPage() {
               </div>
 
               {/* Thời gian */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="startDate">Thời gian bắt đầu *</Label>
                   <Input
@@ -300,7 +300,7 @@ export default function CreatePromotionPage() {
               {/* Thông tin tóm tắt */}
               <Card className="bg-blue-50 border-blue-200">
                 <CardContent className="pt-6">
-                  <div className="flex items-start gap-3">
+                  <div className="flex items-start gap-4">
                     <Icon path={mdiInformation} size={1} className="text-blue-600 mt-0.5" />
                     <div className="space-y-2">
                       <h4 className="font-semibold text-blue-900">Tóm tắt chiến dịch</h4>

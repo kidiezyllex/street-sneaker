@@ -154,7 +154,7 @@ export default function EditPromotionPage() {
 
   if (isLoadingPromotion) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div className="flex items-center justify-between">
           <Skeleton className="h-6 w-96" />
           <Skeleton className="h-10 w-24" />
@@ -163,13 +163,13 @@ export default function EditPromotionPage() {
           <CardHeader>
             <Skeleton className="h-8 w-64" />
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Skeleton className="h-20 w-full" />
               <Skeleton className="h-20 w-full" />
             </div>
             <Skeleton className="h-24 w-full" />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Skeleton className="h-20 w-full" />
               <Skeleton className="h-20 w-full" />
             </div>
@@ -181,7 +181,7 @@ export default function EditPromotionPage() {
 
   if (!promotionData?.data) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div className="text-center py-12">
           <p className="text-red-500">Không tìm thấy chiến dịch khuyến mãi</p>
           <Button
@@ -197,7 +197,7 @@ export default function EditPromotionPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
         <Breadcrumb>
           <BreadcrumbList>
@@ -242,9 +242,9 @@ export default function EditPromotionPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {/* Thông tin cơ bản */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Tên chiến dịch *</Label>
                   <Input
@@ -283,7 +283,7 @@ export default function EditPromotionPage() {
               </div>
 
               {/* Thời gian */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="startDate">Thời gian bắt đầu *</Label>
                   <Input
@@ -392,7 +392,7 @@ export default function EditPromotionPage() {
               {/* Thông tin tóm tắt */}
               <Card className="bg-blue-50 border-blue-200">
                 <CardContent className="pt-6">
-                  <div className="flex items-start gap-3">
+                  <div className="flex items-start gap-4">
                     <Icon path={mdiInformation} size={1} className="text-blue-600 mt-0.5" />
                     <div className="space-y-2">
                       <h4 className="font-semibold text-blue-900">Tóm tắt chiến dịch</h4>

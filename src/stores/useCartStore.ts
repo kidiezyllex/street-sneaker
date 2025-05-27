@@ -6,6 +6,8 @@ export interface CartItem {
   name: string;
   price: number;
   originalPrice?: number;
+  discountPercent?: number;
+  hasDiscount?: boolean;
   image: string;
   quantity: number;
   slug: string;
@@ -65,6 +67,8 @@ export const useCartStore = create(
             name: product.name,
             price: product.price,
             originalPrice: product.originalPrice,
+            discountPercent: product.discountPercent,
+            hasDiscount: product.hasDiscount,
             image: product.image,
             quantity: quantity,
             slug: product.slug,

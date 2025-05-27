@@ -141,7 +141,7 @@ export default function ReturnDetailModal({ returnItem }: ReturnDetailModalProps
           ))}
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Return Information */}
           <Card>
             <CardHeader>
@@ -203,7 +203,7 @@ export default function ReturnDetailModal({ returnItem }: ReturnDetailModalProps
                   {returnData.items.map((item, index) => (
                     <TableRow key={index}>
                       <TableCell>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-4">
                           <Image
                             src={'/placeholder.jpg'}
                             alt="Product"

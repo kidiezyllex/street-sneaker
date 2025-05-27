@@ -151,7 +151,7 @@ const ImageZoom = ({ src, alt, className }: { src: string; alt: string; classNam
           alt={alt}
           draggable={false}
           fill
-          className="object-contain p-6 transition-transform duration-300"
+          className="object-contain p-4 transition-transform duration-300"
           priority
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 50vw"
           quality={100}
@@ -724,7 +724,7 @@ export default function ProductDetail() {
                 <Skeleton key={index} className="h-12 w-16" />
               ))}
             </div>
-            <div className="pt-4 flex gap-3">
+            <div className="pt-4 flex gap-4">
               <Skeleton className="h-14 w-40" />
               <Skeleton className="h-14 w-full" />
             </div>
@@ -819,7 +819,7 @@ export default function ProductDetail() {
 
             {/* Thumbnail Images */}
             {selectedVariant && selectedVariant.images && selectedVariant.images.length > 1 && (
-              <div className="grid grid-cols-5 gap-3 mt-4">
+              <div className="grid grid-cols-5 gap-4 mt-4">
                 {selectedVariant.images.map((image: string, index: number) => (
                   <motion.div
                     key={index}
@@ -858,7 +858,7 @@ export default function ProductDetail() {
           >
             {/* Product Header */}
             <div className="space-y-3">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-4">
               <div className="font-mono border h-[22px] bg-gray-100 px-3 flex items-center justify-center text-primary text-sm font-medium rounded-full">
                   {product.code}
                 </div>
@@ -893,7 +893,7 @@ export default function ProductDetail() {
             </div>
 
             {/* Enhanced Pricing */}
-            <Card className="p-6 bg-gradient-to-r from-primary/5 to-secondary/5 border-primary/20">
+            <Card className="p-4 bg-gradient-to-r from-primary/5 to-secondary/5 border-primary/20">
               <div className="space-y-4">
                 {/* Discount Badge */}
                 {productDiscount && productDiscount.discountPercent > 0 && (
@@ -961,7 +961,7 @@ export default function ProductDetail() {
                   </span>
                 )}
               </div>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-4">
                 {product.variants
                   .filter((variant, index, self) =>
                     index === self.findIndex((v) => v.colorId._id === variant.colorId._id)
@@ -1008,7 +1008,7 @@ export default function ProductDetail() {
                   </span>
                 )}
               </div>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-4">
                 {Array.from(new Set(product.variants.map(v => v.sizeId._id)))
                   .map(sizeId => {
                     const sizeVariant = product.variants.find(v => v.sizeId._id === sizeId);
@@ -1092,9 +1092,9 @@ export default function ProductDetail() {
             </div>
 
             {/* Enhanced Product Features */}
-            <Card className="p-6 bg-gray-50/50">
+            <Card className="p-4 bg-gray-50/50">
               <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
                   <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
                     <Icon path={mdiTruck} size={1} className="text-primary" />
                   </div>
@@ -1103,7 +1103,7 @@ export default function ProductDetail() {
                     <p className="text-sm !text-maintext">Đơn hàng từ 500k</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
                   <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
                     <Icon path={mdiShield} size={1} className="text-primary" />
                   </div>
@@ -1112,7 +1112,7 @@ export default function ProductDetail() {
                     <p className="text-sm !text-maintext">12 tháng</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
                   <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
                     <Icon path={mdiRefresh} size={1} className="text-primary" />
                   </div>
@@ -1121,7 +1121,7 @@ export default function ProductDetail() {
                     <p className="text-sm !text-maintext">Trong 30 ngày</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
                   <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
                     <Icon path={mdiCreditCard} size={1} className="text-primary" />
                   </div>
@@ -1134,7 +1134,7 @@ export default function ProductDetail() {
             </Card>
 
             {/* Enhanced Product Information */}
-            <Card className="p-6">
+            <Card className="p-4">
               <h3 className="font-semibold text-maintext mb-4 flex items-center gap-2">
                 <Icon path={mdiInformation} size={1} className="text-primary" />
                 Thông tin sản phẩm

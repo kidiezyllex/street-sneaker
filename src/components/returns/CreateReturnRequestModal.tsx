@@ -137,7 +137,7 @@ export default function CreateReturnRequestModal({ order }: CreateReturnRequestM
         <DialogTitle>Tạo yêu cầu trả hàng</DialogTitle>
       </DialogHeader>
 
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Order Information */}
         <Card>
           <CardContent className="p-4">

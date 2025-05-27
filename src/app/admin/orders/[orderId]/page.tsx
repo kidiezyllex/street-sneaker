@@ -73,7 +73,7 @@ const OrderStepper = ({ currentStatus }: { currentStatus: string }) => {
     const currentStepIdx = getCurrentStep();
     return (
         <Card className="mb-4 overflow-hidden">
-            <CardContent className="p-6">
+            <CardContent className="p-4">
                 <div className="flex justify-between items-start relative">
                     {orderSteps.map((step, index) => {
                         const isCompleted = index < currentStepIdx;
@@ -302,7 +302,7 @@ export default function OrderDetailPage() {
 
                 {/* Order stepper skeleton */}
                 <Card className="mb-4 overflow-hidden">
-                    <CardContent className="p-6">
+                    <CardContent className="p-4">
                         <div className="flex justify-between items-start relative">
                             {[...Array(5)].map((_, index) => (
                                 <div key={index} className="flex flex-col items-center z-10 flex-1 min-w-0 px-1">

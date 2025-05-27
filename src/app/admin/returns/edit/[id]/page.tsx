@@ -140,7 +140,7 @@ export default function EditReturnPage({ params }: EditReturnPageProps) {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div className="h-8 bg-gray-200 rounded animate-pulse" />
         <div className="h-64 bg-gray-200 rounded animate-pulse" />
         <div className="h-64 bg-gray-200 rounded animate-pulse" />
@@ -171,7 +171,7 @@ export default function EditReturnPage({ params }: EditReturnPageProps) {
   const canEdit = returnInfo.status === 'CHO_XU_LY';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className='flex justify-between items-start'>
         <Breadcrumb>
           <BreadcrumbList>
@@ -218,7 +218,7 @@ export default function EditReturnPage({ params }: EditReturnPageProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-4">
               <h3 className="font-semibold">Thông tin yêu cầu</h3>
               <div className="grid grid-cols-2 gap-4 text-sm">

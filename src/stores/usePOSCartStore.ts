@@ -10,6 +10,9 @@ export interface POSCartItem {
   colorCode?: string; 
   sizeName: string; 
   price: number;
+  originalPrice?: number;
+  discountPercent?: number;
+  hasDiscount?: boolean;
   quantity: number;
   image: string; 
   stock: number; 
