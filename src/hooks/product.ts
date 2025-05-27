@@ -37,6 +37,8 @@ export const useProducts = (params: IProductFilter = {}): UseQueryResult<IProduc
   return useQuery<IProductsResponse, Error>({
     queryKey: ["products", params],
     queryFn: () => getAllProducts(params),
+    refetchInterval: 4000,
+    refetchIntervalInBackground: true,
   });
 };
 
@@ -110,7 +112,9 @@ export const useSearchProducts = (params: IProductSearchParams): UseQueryResult<
              !!params.color || 
              !!params.size || 
              !!params.minPrice || 
-             !!params.maxPrice, 
+             !!params.maxPrice,
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
   });
 }; 
 

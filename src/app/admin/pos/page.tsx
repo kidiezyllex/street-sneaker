@@ -13,8 +13,6 @@ import {
   mdiDelete,
   mdiCashRegister,
   mdiTag,
-  mdiQrcodeScan,
-  mdiCreditCardOutline,
   mdiCashMultiple,
   mdiReceiptOutline,
   mdiClockOutline,
@@ -90,7 +88,7 @@ import { getAllVouchers } from '@/api/voucher';
 import { IVouchersResponse } from "@/interface/response/voucher";
 import { useProducts, useSearchProducts } from '@/hooks/product';
 import { usePromotions } from '@/hooks/promotion';
-import { applyPromotionsToProducts, calculateProductDiscount } from '@/lib/promotions';
+import { applyPromotionsToProducts } from '@/lib/promotions';
 import { IProductFilter } from '@/interface/request/product';
 import { usePosStore } from '@/stores/posStore';
 import { useCreatePOSOrder } from '@/hooks/order';
@@ -105,6 +103,7 @@ import { toPng } from 'html-to-image';
 import { useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useRouter } from 'next/navigation';
 
 // QR Code Component
 const QRCodeComponent = ({ value, size = 200 }: { value: string; size?: number }) => {
@@ -231,11 +230,13 @@ export default function POSPage() {
 
   const { mutate: incrementVoucherUsageMutation } = useIncrementVoucherUsage();
 
-  const { data: usersData, isLoading: isLoadingUsers } = useAccounts({
-    role: 'CUSTOMER',
-    status: 'HOAT_DONG',
+  const accountsParams = useMemo(() => ({
+    role: 'CUSTOMER' as const,
+    status: 'HOAT_DONG' as const,
     limit: 100
-  });
+  }), []);
+  
+  const { data: usersData, isLoading: isLoadingUsers } = useAccounts(accountsParams);
 
   useEffect(() => {
     const timerId = setTimeout(() => {
@@ -262,15 +263,18 @@ export default function POSPage() {
     setPagination(prev => ({ ...prev, page: 1 }));
   }, [activeCategoryName]);
 
-  const productsHookParams: IProductFilter = {
+  const productsHookParams: IProductFilter = useMemo(() => ({
     ...pagination,
     ...filters,
-  };
+  }), [pagination, filters]);
 
   const productsQuery = useProducts(productsHookParams);
-  const searchQueryHook = useSearchProducts(
+  
+  const searchQueryParams = useMemo(() => 
     isSearching ? { keyword: searchQuery, status: 'HOAT_DONG', ...pagination, ...filters } : { keyword: '' }
-  );
+  , [isSearching, searchQuery, pagination, filters]);
+  
+  const searchQueryHook = useSearchProducts(searchQueryParams);
 
   const {
     data: rawData,
@@ -279,7 +283,8 @@ export default function POSPage() {
   } = isSearching ? searchQueryHook : productsQuery;
 
   // Get promotions data
-  const { data: promotionsData } = usePromotions({ status: 'HOAT_DONG' });
+  const promotionsParams = useMemo(() => ({ status: 'HOAT_DONG' as const }), []);
+  const { data: promotionsData } = usePromotions(promotionsParams);
 
   // Apply promotions to products
   const dataWithPromotions = useMemo(() => {
@@ -305,7 +310,6 @@ export default function POSPage() {
 
     if (sortOption !== 'default' && productsToProcess.length > 0) {
       productsToProcess = [...productsToProcess].sort((a, b) => {
-        // Use discounted price if available, otherwise use original price
         const priceA = (a as any).hasDiscount ? (a as any).discountedPrice : (a.variants[0]?.price || 0);
         const priceB = (b as any).hasDiscount ? (b as any).discountedPrice : (b.variants[0]?.price || 0);
         const dateA = new Date(a.createdAt).getTime();
@@ -974,7 +978,7 @@ export default function POSPage() {
 
 
           <div className="bg-white rounded-xl p-4 flex-1 shadow-lg border border-border/50 hover:shadow-xl transition-all duration-300 min-h-[400px]">
-            <div className='w-full flex items-center justify-between mb-4'>
+            {selectedProduct && <div className='w-full flex items-center justify-between mb-4'>
               <motion.button
                 className="text-sm text-primary font-medium flex items-center gap-2 hover:text-primary/80 transition-colors bg-primary/5 px-4 py-2 rounded-full"
                 onClick={() => {
@@ -987,13 +991,10 @@ export default function POSPage() {
                 <Icon path={mdiChevronLeft} size={0.7} />
                 Quay lại danh sách sản phẩm
               </motion.button>
-              {/* Enhanced Action Button */}
-
-            </div>
+            </div>}
             {selectedProduct && selectedApiVariant ? (
               <div className="mb-4">
                 <div className="flex flex-col lg:flex-row gap-8">
-                  {/* Enhanced Product Image Section */}
                   <motion.div
                     className="lg:w-1/2"
                     initial={{ opacity: 0, x: -20 }}
@@ -1170,11 +1171,11 @@ export default function POSPage() {
               <Tabs defaultValue="grid" className="w-full">
                 <div className="flex justify-between items-center mb-4">
                   <TabsList>
-                    <TabsTrigger value="grid" className="flex items-center gap-1">
+                    <TabsTrigger value="grid" className="flex items-center gap-1 text-maintext/70">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-maintext"><rect width="7" height="7" x="3" y="3" rx="1" /><rect width="7" height="7" x="14" y="3" rx="1" /><rect width="7" height="7" x="14" y="14" rx="1" /><rect width="7" height="7" x="3" y="14" rx="1" /></svg>
                       Lưới
                     </TabsTrigger>
-                    <TabsTrigger value="table" className="flex items-center gap-1">
+                    <TabsTrigger value="table" className="flex items-center gap-1 text-maintext/70">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-maintext"><path d="M3 3h18v18H3z" /><path d="M3 9h18" /><path d="M3 15h18" /><path d="M9 3v18" /><path d="M15 3v18" /></svg>
                       Bảng
                     </TabsTrigger>
@@ -2248,7 +2249,7 @@ const InvoiceDialog = ({
 }) => {
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const invoiceRef = useRef<HTMLDivElement>(null);
-
+  const router = useRouter();
   if (!invoiceData) return null;
 
   const handlePrintToPdf = async () => {
