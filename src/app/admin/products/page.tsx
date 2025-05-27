@@ -35,7 +35,6 @@ export default function ProductsPage() {
     limit: 10
   });
   const { data: promotionsData } = usePromotions();
-  console.log(promotionsData)
   const [showFilters, setShowFilters] = useState(false);
   const { data: rawData, isLoading, isError } = useProducts(filters);
   const deleteProduct = useDeleteProduct();
