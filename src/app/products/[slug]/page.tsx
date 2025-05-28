@@ -330,7 +330,7 @@ const SimilarProductCard = ({ product, promotionsData }: { product: any; promoti
     }
 
     const cartItem = {
-      id: firstVariant._id,
+      id: product._id,
       name: product.name,
       price: finalPrice,
       originalPrice: originalPrice,
@@ -725,7 +725,7 @@ export default function ProductDetail() {
       : undefined;
 
     const cartItem = {
-      id: selectedVariant._id,
+      id: productData.data._id,
       name: productData.data.name,
       price: finalPrice,
       originalPrice: originalPrice,

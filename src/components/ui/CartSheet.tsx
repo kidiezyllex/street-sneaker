@@ -208,6 +208,7 @@ const CartSheet: React.FC<CartSheetProps> = ({ open, onOpenChange }) => {
     shipping: finalShipping,
     total: finalTotal
   } = useCartStore();
+  console.log(items)
   const [voucher, setVoucher] = React.useState('');
   const [isProcessing, setIsProcessing] = React.useState(false);
   const [showVouchersDialog, setShowVouchersDialog] = React.useState(false);
