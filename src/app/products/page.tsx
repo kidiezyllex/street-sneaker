@@ -595,7 +595,12 @@ export default function ProductsPage() {
 
 const ProductCard = ({ product, promotionsData, onAddToCart, onQuickView, onAddToWishlist }: ProductCardProps & { promotionsData?: any }) => {
   const [isHovered, setIsHovered] = useState(false)
-
+  const discount = calculateProductDiscount(
+        product._id,
+        product.variants[0].price,
+        promotionsData.data.promotions
+      );
+      console.log(discount)
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -627,19 +632,8 @@ const ProductCard = ({ product, promotionsData, onAddToCart, onQuickView, onAddT
 
           {/* Enhanced badges */}
           <div className="absolute top-4 left-4 flex flex-col gap-2 z-20">
-            {product.isNew && (
-              <motion.div
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="bg-gradient-to-r from-emerald-500 to-teal-400 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-xl border-2 border-white/50 backdrop-blur-sm"
-              >
-                ✨ Mới
-              </motion.div>
-            )}
             {(() => {
               if (promotionsData?.data?.promotions && product.variants?.[0]) {
-                
                 const discount = calculateProductDiscount(
                   product._id,
                   product.variants[0].price,

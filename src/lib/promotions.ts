@@ -12,7 +12,6 @@ export const calculateProductDiscount = (
   originalPrice: number,
   activePromotions: IPromotion[]
 ): ProductWithDiscount => {
-  
   if (!activePromotions || activePromotions.length === 0) {
     return {
       originalPrice,
@@ -22,28 +21,29 @@ export const calculateProductDiscount = (
   }
 
   const now = new Date();
-  
+
   const applicablePromotions = activePromotions.filter(promotion => {
-    
     if (promotion.status !== 'HOAT_DONG') {
       return false;
     }
 
-    // Check if promotion is within date range
     const startDate = new Date(promotion.startDate);
     const endDate = new Date(promotion.endDate);
     
-    if (now < startDate || now > endDate) {
+    // Create new dates with 7 hours subtracted
+    const newStartDate = new Date(startDate.getTime() - 7 * 60 * 60 * 1000);
+    const newEndDate = new Date(endDate.getTime() - 7 * 60 * 60 * 1000);
+    if (now < newStartDate || now > newEndDate) {
       return false;
     }
 
     if (!promotion.products || promotion.products.length === 0) {
       return true;
     }
-    
+
     const isApplicable = promotion.products.some((p: any) => {
       let promotionProductId: string;
-      
+
       if (typeof p === 'string') {
         promotionProductId = p;
       } else if (p && typeof p === 'object') {
@@ -51,13 +51,12 @@ export const calculateProductDiscount = (
       } else {
         return false;
       }
-      
+
       return promotionProductId === productId;
     });
-    
+
     return isApplicable;
   });
-
 
   if (applicablePromotions.length === 0) {
     return {
@@ -71,13 +70,12 @@ export const calculateProductDiscount = (
     return current.discountPercent > best.discountPercent ? current : best;
   });
 
-
   const discountAmount = (originalPrice * bestPromotion.discountPercent) / 100;
   const discountedPrice = originalPrice - discountAmount;
-
+  
   const result = {
     originalPrice,
-    discountedPrice: Math.max(0, Math.round(discountedPrice)), // Ensure price doesn't go below 0 and round to nearest integer
+    discountedPrice: Math.max(0, Math.round(discountedPrice)),
     discountPercent: bestPromotion.discountPercent,
     appliedPromotion: bestPromotion,
   };
@@ -85,9 +83,6 @@ export const calculateProductDiscount = (
   return result;
 };
 
-/**
- * Apply promotions to a list of products
- */
 export const applyPromotionsToProducts = (
   products: any[],
   activePromotions: IPromotion[]
@@ -95,10 +90,10 @@ export const applyPromotionsToProducts = (
   if (!activePromotions || activePromotions.length === 0) {
     return products;
   }
-  
+
   return products.map(product => {
     const basePrice = product.variants?.[0]?.price || 0;
-    
+
     if (basePrice === 0) {
       return {
         ...product,
@@ -108,7 +103,7 @@ export const applyPromotionsToProducts = (
         hasDiscount: false,
       };
     }
-    
+
     const discountInfo = calculateProductDiscount(
       product._id,
       basePrice,
@@ -144,10 +139,15 @@ export const formatPrice = (price: number): string => {
  */
 export const isPromotionActive = (promotion: IPromotion): boolean => {
   if (promotion.status !== 'HOAT_DONG') return false;
-  
+
   const now = new Date();
+  
   const startDate = new Date(promotion.startDate);
   const endDate = new Date(promotion.endDate);
   
-  return now >= startDate && now <= endDate;
+  // Create dates in Vietnam timezone by using toLocaleString
+  const startDateVietnam = new Date(startDate.toLocaleString("en-US", {timeZone: "Asia/Ho_Chi_Minh"}));
+  const endDateVietnam = new Date(endDate.toLocaleString("en-US", {timeZone: "Asia/Ho_Chi_Minh"}));
+
+  return now >= startDateVietnam && now <= endDateVietnam;
 }; 
