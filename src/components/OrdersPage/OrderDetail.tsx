@@ -233,8 +233,7 @@ export const OrderDetail: React.FC<OrderDetailProps> = ({ order, onClose }) => {
                           {order.deliveryAddress.fullName}, {order.deliveryAddress.phone}
                         </p>
                         <p className="text-maintext">
-                          {order.deliveryAddress.address}, {order.deliveryAddress.ward},{' '}
-                          {order.deliveryAddress.district}, {order.deliveryAddress.province}
+                          {order.deliveryAddress.address}
                         </p>
                       </div>
                     )}

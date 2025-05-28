@@ -600,11 +600,8 @@ export default function OrderDetailPage() {
                                             {order.shippingAddress.name && <p className="text-maintext">Người nhận: {order.shippingAddress.name}</p>}
                                             {order.shippingAddress.phoneNumber && <p className="text-maintext">Số điện thoại: {order.shippingAddress.phoneNumber}</p>}
                                             <p className="text-maintext">
-                                                Địa chỉ:
+                                                Địa chỉ:{' '}
                                                 {order.shippingAddress.specificAddress && `${order.shippingAddress.specificAddress}`}
-                                                {`, ${order.shippingAddress.wardName}` && `${order.shippingAddress.wardName}`}
-                                                {`, ${order.shippingAddress.districtName}` && `${order.shippingAddress.districtName}`}
-                                                {`, ${order.shippingAddress.provinceName}` && `${order.shippingAddress.provinceName}`}
                                             </p>
                                         </>
                                     )}
@@ -633,34 +630,47 @@ export default function OrderDetailPage() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {order.items.map((item: any, index: number) => (
-                                        <TableRow key={index}>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    {item.product?.imageUrl && (
-                                                        <div className="w-10 h-10 rounded border overflow-hidden bg-gray-100">
-                                                            <img
-                                                                src={item.product.imageUrl || "/placeholder.svg"}
-                                                                alt={item.product.name || "Sản phẩm"}
-                                                                className="w-full h-full object-cover"
-                                                            />
-                                                        </div>
-                                                    )}
-                                                    <div>
-                                                        <div className="font-medium text-sm">{item.product?.name || "Sản phẩm không rõ"}</div>
-                                                        <div className="text-xs text-maintext">
-                                                            {item.variant?.colorName && item.variant?.sizeName
-                                                                ? `${item.variant.colorName} / ${item.variant.sizeName}`
-                                                                : (item.variant?.colorName || item.variant?.sizeName)}
+                                    {order.items.map((item: any, index: number) => {
+                                        // Find the matching variant from the product variants
+                                        const matchingVariant = item.product?.variants?.find((v: any) => 
+                                            v.colorId === item.variant?.colorId && v.sizeId === item.variant?.sizeId
+                                        );
+                                        
+                                        return (
+                                            <TableRow key={index}>
+                                                <TableCell>
+                                                    <div className="flex items- flex-col gap-2">
+                                                        {matchingVariant?.images?.[0] && (
+                                                            <div className="w-40 h-40 rounded border overflow-hidden bg-gray-100 flex-shrink-0">
+                                                                <img
+                                                                    draggable={false}
+                                                                    src={matchingVariant.images[0]}
+                                                                    alt={item.product?.name || "Sản phẩm"}
+                                                                    className="w-full h-full object-cover"
+                                                                />
+                                                            </div>
+                                                        )}
+                                                        <div className="min-w-0 flex-1">
+                                                            <div className="font-semibold text-sm text-maintext/70 line-clamp-2">
+                                                                {item.product?.name || "Sản phẩm không rõ"}
+                                                            </div>
+                                                            {item.product?.brand && (
+                                                                <div className="text-sm text-maintext/70 mt-0.5">
+                                                                    Thương hiệu: {item.product.brand.name}
+                                                                </div>
+                                                            )}
+                                                            <div className="text-sm text-maintext/70 mt-0.5">
+                                                                Mã: {item.product?.code || "N/A"}
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-right">{formatCurrency(item.price)}</TableCell>
-                                            <TableCell className="text-right">{item.quantity}</TableCell>
-                                            <TableCell className="text-right">{formatCurrency(item.price * item.quantity)}</TableCell>
-                                        </TableRow>
-                                    ))}
+                                                </TableCell>
+                                                <TableCell className="text-right">{formatCurrency(item.price)}</TableCell>
+                                                <TableCell className="text-right">{item.quantity}</TableCell>
+                                                <TableCell className="text-right font-medium">{formatCurrency(item.price * item.quantity)}</TableCell>
+                                            </TableRow>
+                                        );
+                                    })}
                                 </TableBody>
                             </Table>
                         </CardContent>
@@ -812,10 +822,8 @@ export default function OrderDetailPage() {
                                                 {order.shippingAddress.name && <p>Người nhận: {order.shippingAddress.name}</p>}
                                                 {order.shippingAddress.phoneNumber && <p>Số điện thoại: {order.shippingAddress.phoneNumber}</p>}
                                                 <p>
-                                                    {order.shippingAddress.specificAddress && `${order.shippingAddress.specificAddress}, `}
-                                                    {order.shippingAddress.wardName && `${order.shippingAddress.wardName}, `}
-                                                    {order.shippingAddress.districtName && `${order.shippingAddress.districtName}, `}
-                                                    {order.shippingAddress.provinceName && `${order.shippingAddress.provinceName}`}
+                                                    Địa chỉ:
+                                                    {order.shippingAddress.specificAddress}
                                                 </p>
                                             </>
                                         )}
@@ -836,23 +844,46 @@ export default function OrderDetailPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {order.items.map((item: any, index: number) => (
-                                    <TableRow key={index}>
-                                        <TableCell>
-                                            <div>
-                                                <div className="font-medium">{item.product?.name || "Sản phẩm không rõ"}</div>
-                                                <div className="text-sm text-maintext">
-                                                    {item.variant?.colorName && item.variant?.sizeName
-                                                        ? `${item.variant.colorName} / ${item.variant.sizeName}`
-                                                        : (item.variant?.colorName || item.variant?.sizeName)}
+                                {order.items.map((item: any, index: number) => {
+                                    // Find the matching variant from the product variants
+                                    const matchingVariant = item.product?.variants?.find((v: any) => 
+                                        v.colorId === item.variant?.colorId && v.sizeId === item.variant?.sizeId
+                                    );
+                                    
+                                    return (
+                                        <TableRow key={index}>
+                                            <TableCell>
+                                                <div className="flex items-center gap-3">
+                                                    {matchingVariant?.images?.[0] && (
+                                                        <div className="w-10 h-10 rounded border overflow-hidden bg-gray-100 flex-shrink-0">
+                                                            <img
+                                                                src={matchingVariant.images[0]}
+                                                                alt={item.product?.name || "Sản phẩm"}
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    <div className="min-w-0 flex-1">
+                                                        <div className="font-medium text-sm">
+                                                            {item.product?.name || "Sản phẩm không rõ"}
+                                                        </div>
+                                                        {item.product?.brand && (
+                                                            <div className="text-xs text-maintext/70 mt-0.5">
+                                                                {item.product.brand.name}
+                                                            </div>
+                                                        )}
+                                                        <div className="text-xs text-maintext/70 mt-0.5">
+                                                            Mã: {item.product?.code || "N/A"}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="text-right">{formatCurrency(item.price)}</TableCell>
-                                        <TableCell className="text-right">{item.quantity}</TableCell>
-                                        <TableCell className="text-right">{formatCurrency(item.price * item.quantity)}</TableCell>
-                                    </TableRow>
-                                ))}
+                                            </TableCell>
+                                            <TableCell className="text-right">{formatCurrency(item.price)}</TableCell>
+                                            <TableCell className="text-right">{item.quantity}</TableCell>
+                                            <TableCell className="text-right">{formatCurrency(item.price * item.quantity)}</TableCell>
+                                        </TableRow>
+                                    );
+                                })}
                             </TableBody>
                         </Table>
 
