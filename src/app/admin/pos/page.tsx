@@ -633,8 +633,12 @@ export default function POSPage() {
 
     if (voucherFetchError) {
       toast.error('Có lỗi xảy ra khi tìm mã giảm giá.');
-      setVoucher(null);
-      setDiscount(0);
+      if (activeCartId) {
+        setPendingCartDiscount(activeCartId, 0, null, '');
+      } else {
+        setVoucher(null);
+        setDiscount(0);
+      }
       return;
     }
 
@@ -644,22 +648,34 @@ export default function POSPage() {
       const subtotal = calculateCartSubtotal();
       if (subtotal < voucher.minOrderValue) {
         toast.error(`Đơn hàng chưa đạt giá trị tối thiểu ${formatCurrency(voucher.minOrderValue)} để áp dụng mã này.`);
-        setVoucher(null);
-        setDiscount(0);
+        if (activeCartId) {
+          setPendingCartDiscount(activeCartId, 0, null, '');
+        } else {
+          setVoucher(null);
+          setDiscount(0);
+        }
         return;
       }
 
       if (voucher.quantity <= voucher.usedCount) {
         toast.error('Mã giảm giá này đã hết lượt sử dụng.');
-        setVoucher(null);
-        setDiscount(0);
+        if (activeCartId) {
+          setPendingCartDiscount(activeCartId, 0, null, '');
+        } else {
+          setVoucher(null);
+          setDiscount(0);
+        }
         return;
       }
 
       if (new Date(voucher.endDate) < new Date()) {
         toast.error('Mã giảm giá đã hết hạn.');
-        setVoucher(null);
-        setDiscount(0);
+        if (activeCartId) {
+          setPendingCartDiscount(activeCartId, 0, null, '');
+        } else {
+          setVoucher(null);
+          setDiscount(0);
+        }
         return;
       }
 
@@ -675,13 +691,23 @@ export default function POSPage() {
 
       discountAmount = Math.min(discountAmount, subtotal);
 
-      setDiscount(discountAmount);
-      setVoucher(voucher);
+      // Update the correct cart store based on whether there's an active pending cart
+      if (activeCartId) {
+        setPendingCartDiscount(activeCartId, discountAmount, voucher, couponCode);
+      } else {
+        setDiscount(discountAmount);
+        setVoucher(voucher);
+      }
+      
       toast.success(`Đã áp dụng mã giảm giá "${voucher.code}".`);
     } else {
       toast.error('Mã giảm giá không hợp lệ hoặc không tìm thấy.');
-      setVoucher(null);
-      setDiscount(0);
+      if (activeCartId) {
+        setPendingCartDiscount(activeCartId, 0, null, '');
+      } else {
+        setVoucher(null);
+        setDiscount(0);
+      }
     }
   };
 
@@ -1054,96 +1080,10 @@ export default function POSPage() {
             </BreadcrumbList>
           </Breadcrumb>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-          <div className="bg-white rounded-[6px] p-4 shadow-sm border border-border hover:shadow-md transition-shadow duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-maintext mb-1">Doanh số hôm nay</p>
-                <p className="text-xl font-semibold text-maintext">{formatCurrency(stats.dailySales)}</p>
-              </div>
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <Icon path={mdiCashRegister} size={1} className="text-primary" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-[6px] p-4 shadow-sm border border-border hover:shadow-md transition-shadow duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-maintext mb-1">Tổng đơn hàng</p>
-                <p className="text-xl font-semibold text-maintext">{stats.totalOrders} đơn</p>
-              </div>
-              <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
-                <Icon path={mdiReceiptOutline} size={1} className="text-blue-500" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-[6px] p-4 shadow-sm border border-border hover:shadow-md transition-shadow duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-maintext mb-1">Giá trị trung bình</p>
-                <p className="text-xl font-semibold text-maintext">{formatCurrency(stats.averageOrder)}</p>
-              </div>
-              <div className="h-10 w-10 rounded-full bg-green-50 flex items-center justify-center">
-                <Icon path={mdiTag} size={1} className="text-green-500" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-[6px] p-4 shadow-sm border border-border hover:shadow-md transition-shadow duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-maintext mb-1">Đơn chờ xử lý</p>
-                <p className="text-xl font-semibold text-maintext">{stats.pendingOrders} đơn</p>
-              </div>
-              <div className="h-10 w-10 rounded-full bg-amber-50 flex items-center justify-center">
-                <Icon path={mdiClockOutline} size={1} className="text-amber-500" />
-              </div>
-            </div>
-          </div>
-        </div>
+      
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 overflow-hidden flex flex-col">
-          <div className="bg-white rounded-[6px] p-4 mb-4 shadow-sm border border-border hover:shadow-md transition-shadow duration-300">
-            <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
-              <div className="relative flex-1">
-                <Icon path={mdiMagnify} size={1} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext" />
-                <Input
-                  id="product-search"
-                  type="text"
-                  placeholder="Tìm kiếm sản phẩm..."
-                  className="w-full pl-10 pr-4 py-2.5 rounded-[6px] border border-border focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="flex overflow-x-auto pb-2 scrollbar-thin gap-2">
-              {dynamicCategories.map((category) => (
-                <button
-                  key={category._id}
-                  className={cn(
-                    'whitespace-nowrap px-4 py-2 rounded-[6px] text-sm font-medium transition-all duration-200',
-                    activeCategoryName === category.name
-                      ? 'bg-primary text-white shadow-sm'
-                      : 'bg-gray-50 text-maintext hover:bg-gray-100 hover:text-primary'
-                  )}
-                  onClick={() => {
-                    setActiveCategoryName(category.name);
-                    setSelectedProduct(null);
-                    setSelectedApiVariant(null);
-                  }}
-                >
-                  {category.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Pending Carts Tabs */}
-          <div className='bg-white rounded-[6px] p-4 mb-4 shadow-sm border border-border'>
+        {/* Pending Carts Tabs */}
+        <div className='bg-white rounded-[6px] p-4 mb-4 shadow-sm border border-border'>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-maintext flex items-center gap-2">
                 <Icon path={mdiCart} size={1} className="text-primary" />
@@ -1152,8 +1092,6 @@ export default function POSPage() {
               <Button
                 onClick={handleCreateNewCart}
                 disabled={pendingCarts.length >= 5}
-                size="sm"
-                className="flex items-center gap-2"
               >
                 <Icon path={mdiInvoicePlus} size={0.7} />
                 Thêm mới
@@ -1162,7 +1100,7 @@ export default function POSPage() {
             
             {pendingCarts.length > 0 && (
               <div className="flex gap-2 overflow-x-auto pb-2">
-                {pendingCarts.slice(0, 4).map((cart, index) => (
+                {pendingCarts.slice(0, 5).map((cart, index) => (
                   <motion.button
                     key={cart.id}
                     initial={{ opacity: 0, scale: 0.9 }}
@@ -1195,7 +1133,7 @@ export default function POSPage() {
                   </motion.button>
                 ))}
                 
-                {pendingCarts.length > 4 && (
+                {pendingCarts.length > 5 && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" size="sm" className="min-w-[100px] h-[46px] border-2 border-primary/50 flex items-center justify-center text-sm">
@@ -1239,6 +1177,45 @@ export default function POSPage() {
               </div>
             )}
           </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2 overflow-hidden flex flex-col">
+          <div className="bg-white rounded-[6px] p-4 mb-4 shadow-sm border border-border hover:shadow-md transition-shadow duration-300">
+            <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
+              <div className="relative flex-1">
+                <Icon path={mdiMagnify} size={1} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext" />
+                <Input
+                  id="product-search"
+                  type="text"
+                  placeholder="Tìm kiếm sản phẩm..."
+                  className="w-full pl-10 pr-4 py-2.5 rounded-[6px] border border-border focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="flex overflow-x-auto pb-2 scrollbar-thin gap-2">
+              {dynamicCategories.map((category) => (
+                <button
+                  key={category._id}
+                  className={cn(
+                    'whitespace-nowrap px-4 py-2 rounded-[6px] text-sm font-medium transition-all duration-200',
+                    activeCategoryName === category.name
+                      ? 'bg-primary text-white shadow-sm'
+                      : 'bg-gray-50 text-maintext hover:bg-gray-100 hover:text-primary'
+                  )}
+                  onClick={() => {
+                    setActiveCategoryName(category.name);
+                    setSelectedProduct(null);
+                    setSelectedApiVariant(null);
+                  }}
+                >
+                  {category.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+        
 
           <div className="bg-white rounded-xl p-4 flex-1 shadow-lg border border-border/50 hover:shadow-xl transition-all duration-300 min-h-[400px]">
             {selectedProduct && <div className='w-full flex items-center justify-between mb-4'>
@@ -2013,19 +1990,11 @@ export default function POSPage() {
                       className="flex-1"
                     />
                     <Button
-                      variant="outline"
-                      size="sm"
+                      variant="default"
                       onClick={applyCoupon}
                       disabled={!couponCode || isFetchingVoucher}
                     >
                       {isFetchingVoucher ? 'Đang kiểm tra...' : 'Áp dụng'}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowVouchersDialog(true)}
-                    >
-                      <Icon path={mdiTag} size={0.7} />
                     </Button>
                   </div>
                   <Button

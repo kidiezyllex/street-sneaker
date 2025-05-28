@@ -683,6 +683,7 @@ export default function OrdersPage() {
                 <TableHead className="w-[120px]">Mã đơn hàng</TableHead>
                 <TableHead>Khách hàng</TableHead>
                 <TableHead className="hidden md:table-cell">Ngày tạo</TableHead>
+                <TableHead className="hidden lg:table-cell">Loại đơn hàng</TableHead>
                 <TableHead className="text-right">Tổng tiền</TableHead>
                 <TableHead className="hidden md:table-cell">Trạng thái đơn hàng</TableHead>
                 <TableHead className="hidden md:table-cell">Trạng thái thanh toán</TableHead>
@@ -700,6 +701,9 @@ export default function OrdersPage() {
                     </div>
                   </TableCell>
                   <TableCell className="hidden md:table-cell">{formatDate(order.createdAt)}</TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    <OrderTypeBadge orderCode={order.code} />
+                  </TableCell>
                   <TableCell className="text-right font-medium">{formatCurrency(order.total)}</TableCell>
                   <TableCell className="hidden md:table-cell">
                     <OrderStatusBadge status={order.orderStatus} />
@@ -830,6 +834,22 @@ const PaymentStatusBadge = ({ status }: { status: string }) => {
   }
 
   const config = getStatusConfig(status)
+
+  return <Badge className={config.className}>{config.label}</Badge>
+}
+
+const OrderTypeBadge = ({ orderCode }: { orderCode: string }) => {
+  const getOrderType = (code: string) => {
+    if (code && code.includes("POS")) {
+      return { label: "Tại quầy", className: "!bg-purple-50 !text-purple-500 !border-purple-500" }
+    } else if (code && code.includes("DH")) {
+      return { label: "Online", className: "!bg-cyan-50 !text-cyan-500 !border-cyan-500" }
+    } else {
+      return { label: "Không xác định", className: "!bg-gray-50 !text-maintext !border-gray-500" }
+    }
+  }
+
+  const config = getOrderType(orderCode)
 
   return <Badge className={config.className}>{config.label}</Badge>
 }
@@ -985,9 +1005,9 @@ const OrderDetailDialog = ({
                                 {item.product && item.product.imageUrl && (
                                   <div className="w-10 h-10 rounded border overflow-hidden bg-gray-100">
                                     <img
-                                      src={item.product.imageUrl || "/placeholder.svg"}
+                                      src={item.product.imageUrl}
                                       alt={item.product.name}
-                                      className="w-full h-full object-cover"
+                                      className="w-full h-full object-contain"
                                     />
                                   </div>
                                 )}

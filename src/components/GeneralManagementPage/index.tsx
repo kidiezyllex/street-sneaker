@@ -1960,7 +1960,7 @@ export default function GeneralManagementPage() {
                                   </Badge>
                                 </TableCell>
                                 <TableCell className="text-center px-3 py-2">
-                                  <div className="flex items-center justify-center space-x-2">
+                                  <div className="flex items-center justify-start space-x-2">
                                     <Button
                                       variant="outline"
                                       size="icon"

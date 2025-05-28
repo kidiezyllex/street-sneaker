@@ -646,7 +646,7 @@ export default function OrderDetailPage() {
                                                                     draggable={false}
                                                                     src={matchingVariant.images[0]}
                                                                     alt={item.product?.name || "Sản phẩm"}
-                                                                    className="w-full h-full object-cover"
+                                                                    className="w-full h-full object-contain"
                                                                 />
                                                             </div>
                                                         )}
