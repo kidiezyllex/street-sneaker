@@ -397,7 +397,7 @@ export default function ShippingPage() {
       }
       
       const orderData = {
-        orderId: `HD${new Date().getFullYear()}${Date.now().toString().slice(-6)}`,
+        orderId: `DH${new Date().getFullYear()}${Date.now().toString().slice(-6)}`,
         customer: user?._id || '000000000000000000000000',
         items: items.map(item => ({
           product: item.productId || item.id, // Use productId if available, fallback to id
@@ -453,7 +453,7 @@ export default function ShippingPage() {
       const formValues = form.getValues();
       
       const orderData = {
-        orderId: `HD${new Date().getFullYear()}-${Date.now().toString().slice(-6)}`,
+        orderId: `DH${new Date().getFullYear()}-${Date.now().toString().slice(-6)}`,
         customer: user?._id || '000000000000000000000000',
         items: items.map(item => ({
           product: item.productId || item.id, // Use productId if available, fallback to id

@@ -930,7 +930,7 @@ export default function TempPage() {
               ))}
             </div>
           </div>
-          {/* Đây là tab list giỏ hàng chờ*/}
+          {/* Đây là tab list Hoá đơn chờ*/}
           {/*  */}
           <div className='bg-red-500 h-10 w-full'>
             abc
@@ -1591,7 +1591,7 @@ export default function TempPage() {
           <CardHeader>
             {/* Giỏ hàng thứ n tương ứng với tab giỏ hàng thứ n được chọn */}
             <CardTitle className="flex items-center gap-2 w-full justify-between">
-              Giỏ hàng
+              Đơn hàng
               <Button>
                 Thêm mới 
                 <Icon path={mdiInvoicePlus} size={0.7} className='text-white'/>

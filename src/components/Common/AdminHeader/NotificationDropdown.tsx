@@ -30,7 +30,7 @@ const mockNotifications: Notification[] = [
   {
     id: '1',
     title: 'Đơn hàng mới',
-    content: 'Bạn có đơn hàng mới #HD12345 cần xử lý',
+    content: 'Bạn có đơn hàng mới #DH12345 cần xử lý',
     time: '5 phút trước',
     type: 'info',
     read: false,

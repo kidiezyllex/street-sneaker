@@ -993,7 +993,7 @@ export default function POSPage() {
   const handleCreateNewCart = () => {
     const newCartId = createNewCart();
     if (!newCartId) {
-      toast.warn('Không thể tạo thêm giỏ hàng. Tối đa 5 giỏ hàng chờ!');
+      toast.warn('Không thể tạo thêm giỏ hàng. Tối đa 5 Hoá đơn chờ!');
       return;
     }
     toast.success(`Đã tạo giỏ hàng mới: Giỏ hàng ${pendingCarts.length + 1}`);
@@ -1087,7 +1087,7 @@ export default function POSPage() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-maintext flex items-center gap-2">
                 <Icon path={mdiCart} size={1} className="text-primary" />
-                Giỏ hàng chờ ({pendingCarts.length}/5)
+                Hoá đơn chờ ({pendingCarts.length}/5)
               </h3>
               <Button
                 onClick={handleCreateNewCart}
