@@ -280,8 +280,8 @@ export default function CreateReturnPage() {
             <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
               <div>
                 <h3 className="font-semibold">{selectedCustomer.fullName}</h3>
-                <p className="text-sm text-gray-600">{selectedCustomer.email}</p>
-                <p className="text-sm text-gray-600">{selectedCustomer.phoneNumber}</p>
+                <p className="text-sm text-maintext">{selectedCustomer.email}</p>
+                <p className="text-sm text-maintext">{selectedCustomer.phoneNumber}</p>
               </div>
               <Button variant="outline" onClick={() => setSelectedCustomer(null)}>
                 Thay đổi
@@ -306,8 +306,8 @@ export default function CreateReturnPage() {
                       onClick={() => handleCustomerSelect(customer)}
                     >
                       <h4 className="font-medium">{customer.fullName}</h4>
-                      <p className="text-sm text-gray-600">{customer.email}</p>
-                      <p className="text-sm text-gray-600">{customer.phoneNumber}</p>
+                      <p className="text-sm text-maintext">{customer.email}</p>
+                      <p className="text-sm text-maintext">{customer.phoneNumber}</p>
                     </div>
                   ))}
                 </div>
@@ -331,10 +331,10 @@ export default function CreateReturnPage() {
               <div className="flex items-center justify-between p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 <div>
                   <h3 className="font-semibold">#{selectedOrder.code}</h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-maintext">
                     Ngày đặt: {formatDate(selectedOrder.createdAt)}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-maintext">
                     Tổng tiền: {formatCurrency(selectedOrder.totalAmount)}
                   </p>
                   <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200 mt-1">
@@ -356,7 +356,7 @@ export default function CreateReturnPage() {
                       <SelectItem key={order._id} value={order._id}>
                         <div className="flex flex-col">
                           <span>#{order.code}</span>
-                          <span className="text-sm text-gray-600">
+                          <span className="text-sm text-maintext">
                             {formatDate(order.createdAt)} - {formatCurrency(order.totalAmount)}
                           </span>
                         </div>
@@ -394,11 +394,11 @@ export default function CreateReturnPage() {
                     />
                     <div className="flex-1">
                       <h4 className="font-medium">{item.product.name}</h4>
-                      <p className="text-sm text-gray-600">SKU: {item.product.code}</p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-maintext">SKU: {item.product.code}</p>
+                      <p className="text-sm text-maintext">
                         {item.variant.color?.name} - {item.variant.size?.name}
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-maintext">
                         Đã mua: {item.quantity} | Giá: {formatCurrency(item.price)}
                       </p>
                     </div>
@@ -424,7 +424,7 @@ export default function CreateReturnPage() {
                                 }
                               }}
                             >
-                              <Icon path={mdiMinus} size={0.5} />
+                              <Icon path={mdiMinus} size={0.7} />
                             </Button>
                             <Input
                               type="number"
@@ -461,7 +461,7 @@ export default function CreateReturnPage() {
                                 }
                               }}
                             >
-                              <Icon path={mdiPlus} size={0.5} />
+                              <Icon path={mdiPlus} size={0.7} />
                             </Button>
                           </div>
                         </div>
@@ -527,7 +527,7 @@ export default function CreateReturnPage() {
                       <TableCell>
                         <div>
                           <p className="font-medium">{orderItem?.product.name}</p>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-maintext">
                             {orderItem?.variant.color?.name} - {orderItem?.variant.size?.name}
                           </p>
                         </div>

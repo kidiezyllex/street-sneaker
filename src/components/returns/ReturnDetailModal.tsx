@@ -45,21 +45,21 @@ export default function ReturnDetailModal({ returnItem }: ReturnDetailModalProps
       case 'CHO_XU_LY':
         return (
           <Badge variant="outline" className="bg-yellow-50 text-yellow-600 border-yellow-200">
-            <Icon path={mdiClockOutline} size={0.5} className="mr-1" />
+            <Icon path={mdiClockOutline} size={0.7} className="mr-1" />
             Chờ xử lý
           </Badge>
         );
       case 'DA_HOAN_TIEN':
         return (
           <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">
-            <Icon path={mdiCheckCircle} size={0.5} className="mr-1" />
+            <Icon path={mdiCheckCircle} size={0.7} className="mr-1" />
             Đã hoàn tiền
           </Badge>
         );
       case 'DA_HUY':
         return (
           <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200">
-            <Icon path={mdiCancel} size={0.5} className="mr-1" />
+            <Icon path={mdiCancel} size={0.7} className="mr-1" />
             Đã hủy
           </Badge>
         );
@@ -84,7 +84,7 @@ export default function ReturnDetailModal({ returnItem }: ReturnDetailModalProps
           return (
             <div key={step.key} className="flex items-center gap-4">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                isCompleted ? 'bg-primary text-white' : 'bg-gray-200 text-gray-500'
+                isCompleted ? 'bg-primary text-white' : 'bg-gray-200 text-maintext'
               }`}>
                 {isCompleted ? (
                   <Icon path={mdiCheckCircle} size={0.7} />
@@ -93,11 +93,11 @@ export default function ReturnDetailModal({ returnItem }: ReturnDetailModalProps
                 )}
               </div>
               <div className="flex-1">
-                <p className={`font-medium ${isCompleted ? 'text-gray-900' : 'text-gray-500'}`}>
+                <p className={`font-medium ${isCompleted ? 'text-gray-900' : 'text-maintext'}`}>
                   {step.label}
                 </p>
                 {step.date && (
-                  <p className="text-sm text-gray-600">{formatDate(step.date)}</p>
+                  <p className="text-sm text-maintext">{formatDate(step.date)}</p>
                 )}
               </div>
             </div>
@@ -150,11 +150,11 @@ export default function ReturnDetailModal({ returnItem }: ReturnDetailModalProps
             <CardContent>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-gray-600">Mã yêu cầu:</span>
+                  <span className="text-maintext">Mã yêu cầu:</span>
                   <span className="ml-2 font-medium">#{returnData.code}</span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Đơn hàng gốc:</span>
+                  <span className="text-maintext">Đơn hàng gốc:</span>
                   <span className="ml-2 font-medium">
                     #{typeof returnData.originalOrder === 'string' 
                       ? returnData.originalOrder 
@@ -162,11 +162,11 @@ export default function ReturnDetailModal({ returnItem }: ReturnDetailModalProps
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Ngày tạo:</span>
+                  <span className="text-maintext">Ngày tạo:</span>
                   <span className="ml-2 font-medium">{formatDate(returnData.createdAt)}</span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Tổng tiền hoàn trả:</span>
+                  <span className="text-maintext">Tổng tiền hoàn trả:</span>
                   <span className="ml-2 font-medium text-primary">{formatCurrency(returnData.totalRefund)}</span>
                 </div>
               </div>
@@ -217,7 +217,7 @@ export default function ReturnDetailModal({ returnItem }: ReturnDetailModalProps
                                 ? item.product.name 
                                 : 'Sản phẩm'}
                             </p>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-maintext">
                               {typeof item === 'object' && 'product' in item && typeof item.product === 'object' 
                                 ? item.product.code 
                                 : ''}

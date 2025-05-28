@@ -57,7 +57,7 @@ export default function CustomerReturnsPage() {
         <div className="flex justify-between items-start mb-3">
           <div>
             <h3 className="font-semibold text-lg">#{order.code}</h3>
-            <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
+            <div className="flex items-center gap-4 text-sm text-maintext mt-1">
               <div className="flex items-center gap-1">
                 <Icon path={mdiCalendar} size={0.7} />
                 {formatDate(order.createdAt)}
@@ -96,7 +96,7 @@ export default function CustomerReturnsPage() {
             </div>
           ))}
           {order.items.length > 3 && (
-            <div className="flex-shrink-0 w-15 h-15 bg-gray-100 rounded-md flex items-center justify-center text-sm text-gray-600">
+            <div className="flex-shrink-0 w-15 h-15 bg-gray-100 rounded-md flex items-center justify-center text-sm text-maintext">
               +{order.items.length - 3}
             </div>
           )}
@@ -111,10 +111,10 @@ export default function CustomerReturnsPage() {
         <div className="flex justify-between items-start mb-3">
           <div>
             <h3 className="font-semibold text-lg">#{returnItem.code}</h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-maintext">
               Đơn gốc: #{typeof returnItem.originalOrder === 'string' ? returnItem.originalOrder : returnItem.originalOrder.code}
             </p>
-            <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
+            <div className="flex items-center gap-4 text-sm text-maintext mt-1">
               <div className="flex items-center gap-1">
                 <Icon path={mdiCalendar} size={0.7} />
                 {formatDate(returnItem.createdAt)}
@@ -163,7 +163,7 @@ export default function CustomerReturnsPage() {
             </div>
           ))}
           {returnItem.items.length > 3 && (
-            <div className="flex-shrink-0 w-15 h-15 bg-gray-100 rounded-md flex items-center justify-center text-sm text-gray-600">
+            <div className="flex-shrink-0 w-15 h-15 bg-gray-100 rounded-md flex items-center justify-center text-sm text-maintext">
               +{returnItem.items.length - 3}
             </div>
           )}
@@ -176,7 +176,7 @@ export default function CustomerReturnsPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6">
         <h1 className="text-3xl font-bold mb-2">Quản lý trả hàng</h1>
-        <p className="text-gray-600">Xem đơn hàng có thể trả và quản lý yêu cầu trả hàng của bạn</p>
+        <p className="text-maintext">Xem đơn hàng có thể trả và quản lý yêu cầu trả hàng của bạn</p>
       </div>
 
       <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
@@ -189,7 +189,7 @@ export default function CustomerReturnsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Đơn hàng có thể trả hàng</CardTitle>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-maintext">
                 Chỉ hiển thị đơn hàng đã hoàn thành trong vòng 7 ngày qua
               </p>
             </CardHeader>
@@ -203,7 +203,7 @@ export default function CustomerReturnsPage() {
               ) : returnableOrders?.data.orders.length === 0 ? (
                 <div className="text-center py-8">
                   <Icon path={mdiPackageVariant} size={2} className="mx-auto text-gray-400 mb-4" />
-                  <p className="text-gray-600">Không có đơn hàng nào có thể trả</p>
+                  <p className="text-maintext">Không có đơn hàng nào có thể trả</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -220,7 +220,7 @@ export default function CustomerReturnsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Yêu cầu trả hàng của tôi</CardTitle>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-maintext">
                 Theo dõi trạng thái các yêu cầu trả hàng đã gửi
               </p>
             </CardHeader>
@@ -234,7 +234,7 @@ export default function CustomerReturnsPage() {
               ) : myReturns?.data.returns.length === 0 ? (
                 <div className="text-center py-8">
                   <Icon path={mdiPackageVariant} size={2} className="mx-auto text-gray-400 mb-4" />
-                  <p className="text-gray-600">Bạn chưa có yêu cầu trả hàng nào</p>
+                  <p className="text-maintext">Bạn chưa có yêu cầu trả hàng nào</p>
                 </div>
               ) : (
                 <div className="space-y-4">

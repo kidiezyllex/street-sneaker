@@ -22,7 +22,7 @@ export default function ConfirmCancelModal({ onConfirm, onCancel, isLoading = fa
       </DialogHeader>
 
       <div className="py-4">
-        <p className="text-gray-700">
+        <p className="text-maintext">
           Bạn có chắc chắn muốn hủy yêu cầu trả hàng này không? 
           Hành động này không thể hoàn tác.
         </p>

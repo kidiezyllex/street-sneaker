@@ -567,12 +567,12 @@ const OrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                               {step.time}
                             </span>
                           </div>
-                          <p className="text-sm text-gray-600 leading-relaxed">
+                          <p className="text-sm text-maintext leading-relaxed">
                             {step.message}
                           </p>
                           {step.completed && (
                             <div className="mt-3 flex items-center text-xs text-green-600">
-                              <Icon path={mdiCheckCircle} size={0.5} className="mr-1" />
+                              <Icon path={mdiCheckCircle} size={0.7} className="mr-1" />
                               Hoàn thành
                             </div>
                           )}
@@ -803,7 +803,7 @@ const CreateReturnDialog: React.FC<CreateReturnDialogProps> = ({
                       onClick={() => handleAddItem(item)}
                       className="gap-2"
                     >
-                      <Icon path={mdiPlus} size={0.5} />
+                      <Icon path={mdiPlus} size={0.7} />
                       Thêm
                     </Button>
                   </div>
@@ -832,7 +832,7 @@ const CreateReturnDialog: React.FC<CreateReturnDialogProps> = ({
                         onClick={() => handleRemoveItem(index)}
                         className="gap-1"
                       >
-                        <Icon path={mdiMinus} size={0.5} />
+                        <Icon path={mdiMinus} size={0.7} />
                       </Button>
                       <Button
                         variant="outline"
@@ -844,7 +844,7 @@ const CreateReturnDialog: React.FC<CreateReturnDialogProps> = ({
                         }}
                         className="gap-1 text-red-600 hover:text-red-700"
                       >
-                        <Icon path={mdiDelete} size={0.5} />
+                        <Icon path={mdiDelete} size={0.7} />
                       </Button>
                     </div>
                   </div>

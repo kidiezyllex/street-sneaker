@@ -78,7 +78,7 @@ export default function StatusUpdateModal({
 
         <div className="space-y-4">
           <div>
-            <p className="text-sm text-gray-600 mb-2">Trạng thái hiện tại:</p>
+            <p className="text-sm text-maintext mb-2">Trạng thái hiện tại:</p>
             <Badge variant="outline" className="bg-yellow-50 text-yellow-600 border-yellow-200">
               Chờ xử lý
             </Badge>
@@ -116,7 +116,7 @@ export default function StatusUpdateModal({
                 {statusInfo.description}
                 {selectedStatus === 'DA_HOAN_TIEN' && (
                   <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-blue-700">
-                    <Icon path={mdiCurrencyUsd} size={0.5} className="inline mr-1" />
+                    <Icon path={mdiCurrencyUsd} size={0.7} className="inline mr-1" />
                     <strong>Lưu ý:</strong> Khi phê duyệt hoàn tiền, hệ thống sẽ tự động cộng lại số lượng sản phẩm vào kho.
                   </div>
                 )}

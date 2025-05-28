@@ -30,10 +30,7 @@ import {
   mdiPackageVariant,
   mdiCartPlus,
   mdiBarcode,
-  mdiInvoicePlus,
-  mdiClose,
-  mdiCart,
-  mdiChevronDown
+  mdiInvoicePlus
 } from '@mdi/js';
 import { checkImageUrl, cn } from '@/lib/utils';
 import {
@@ -71,12 +68,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -104,7 +95,6 @@ import { usePosStore } from '@/stores/posStore';
 import { useCreatePOSOrder } from '@/hooks/order';
 import { IPOSOrderCreateRequest } from '@/interface/request/order';
 import { usePOSCartStore, POSCartItem } from '@/stores/usePOSCartStore';
-import { usePendingCartsStore, PendingCart } from '@/stores/usePendingCartsStore';
 import { useAccounts } from '@/hooks/account';
 import { IAccount } from '@/interface/response/account';
 
@@ -130,25 +120,6 @@ const QRCodeComponent = ({ value, size = 200 }: { value: string; size?: number }
     />
   );
 };
-
-// Card Skeleton Component
-const CardSkeleton = () => (
-  <div className="bg-white rounded-[6px] border border-border shadow-sm overflow-hidden">
-    <Skeleton className="h-48 w-full" />
-    <div className="p-4">
-      <Skeleton className="h-4 w-3/4 mb-2" />
-      <Skeleton className="h-3 w-1/2 mb-2" />
-      <div className="flex justify-between items-center">
-        <Skeleton className="h-4 w-1/3" />
-        <div className="flex -space-x-1">
-          <Skeleton className="h-5 w-5 rounded-full" />
-          <Skeleton className="h-5 w-5 rounded-full" />
-        </div>
-      </div>
-      <Skeleton className="h-8 w-full mt-3" />
-    </div>
-  </div>
-);
 
 interface ApiVariant {
   _id: string;
@@ -208,41 +179,16 @@ interface InvoiceData {
   paymentMethod: string;
 }
 
-export default function POSPage() {
+export default function TempPage() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedProduct, setSelectedProduct] = useState<ApiProduct | null>(null);
   const [selectedApiVariant, setSelectedApiVariant] = useState<ApiVariant | null>(null);
 
-  // Pending carts store
   const {
-    carts: pendingCarts,
-    activeCartId,
-    createNewCart,
-    deleteCart,
-    setActiveCart,
-    addItemToCart: addItemToPendingCart,
-    removeItemFromCart: removeItemFromPendingCart,
-    updateItemQuantityInCart: updateItemQuantityInPendingCart,
-    clearCartItems: clearPendingCartItems,
-    setCartDiscount: setPendingCartDiscount,
-    getActiveCart,
-  } = usePendingCartsStore();
-
-  // Get active cart data
-  const activeCart = getActiveCart();
-
-  // Use active cart data or fallback to main cart store
-  const cartItems = activeCart?.items || [];
-  const appliedDiscount = activeCart?.appliedDiscount || 0;
-  const appliedVoucher = activeCart?.appliedVoucher || null;
-  const couponCode = activeCart?.couponCode || '';
-
-  // Main cart store (for backward compatibility and checkout)
-  const {
-    items: mainCartItems,
-    appliedDiscount: mainAppliedDiscount,
-    appliedVoucher: mainAppliedVoucher,
-    couponCode: mainCouponCode,
+    items: cartItems,
+    appliedDiscount,
+    appliedVoucher,
+    couponCode,
     addToCart: addToCartStore,
     removeFromCart: removeFromCartStore,
     updateQuantity: updateQuantityStore,
@@ -272,10 +218,6 @@ export default function POSPage() {
   const [cashReceived, setCashReceived] = useState<number | string>('');
   const [showInvoiceDialog, setShowInvoiceDialog] = useState<boolean>(false);
   const [currentInvoiceData, setCurrentInvoiceData] = useState<InvoiceData | null>(null);
-  const [showDeleteCartDialog, setShowDeleteCartDialog] = useState<boolean>(false);
-  const [cartToDelete, setCartToDelete] = useState<string | null>(null);
-  const [showCartItemsDialog, setShowCartItemsDialog] = useState<boolean>(false);
-  const [selectedCartForView, setSelectedCartForView] = useState<string | null>(null);
 
   const stats = usePosStore((state) => state.stats);
   const updateStatsOnCheckout = usePosStore((state) => state.updateStatsOnCheckout);
@@ -448,63 +390,6 @@ export default function POSPage() {
     }
   };
 
-  // Helper function to add item to the correct cart (pending or main)
-  const addItemToCorrectCart = (product: ApiProduct, variant: ApiVariant) => {
-    const cartItemId = `${product._id}-${variant._id}`;
-    const finalPrice = (product as any).hasDiscount ? (product as any).discountedPrice : variant.price;
-
-    const newItem: POSCartItem = {
-      id: cartItemId,
-      productId: product._id,
-      variantId: variant._id,
-      name: product.name,
-      colorName: variant.colorId?.name || 'N/A',
-      colorCode: variant.colorId?.code,
-      sizeName: variant.sizeId?.name || variant.sizeId?.value || 'N/A',
-      price: finalPrice,
-      originalPrice: (product as any).hasDiscount ? (product as any).originalPrice : undefined,
-      discountPercent: (product as any).hasDiscount ? (product as any).discountPercent : undefined,
-      hasDiscount: (product as any).hasDiscount || false,
-      quantity: 1,
-      image: variant.images?.[0] || product.variants[0]?.images?.[0] || '/placeholder.svg',
-      stock: variant.stock,
-      actualColorId: variant.colorId?._id,
-      actualSizeId: variant.sizeId?._id,
-    };
-
-    if (activeCartId) {
-      // Add to pending cart
-      const existingItem = cartItems.find(item => item.id === cartItemId);
-      const activeCartName = pendingCarts.find(cart => cart.id === activeCartId)?.name || 'Giỏ hàng';
-      
-      if (existingItem) {
-        if (existingItem.quantity < variant.stock) {
-          updateItemQuantityInPendingCart(activeCartId, cartItemId, 1);
-          toast.success(`Đã cập nhật số lượng sản phẩm trong ${activeCartName}.`);
-        } else {
-          toast.warn('Số lượng sản phẩm trong kho không đủ.');
-        }
-      } else {
-        addItemToPendingCart(activeCartId, newItem);
-        toast.success(`Đã thêm sản phẩm vào ${activeCartName}`);
-      }
-    } else {
-      // Fallback to main cart if no pending cart is active
-      const existingItem = mainCartItems.find(item => item.id === cartItemId);
-      if (existingItem) {
-        if (existingItem.quantity < variant.stock) {
-          updateQuantityStore(cartItemId, 1);
-          toast.success('Đã cập nhật số lượng sản phẩm.');
-        } else {
-          toast.warn('Số lượng sản phẩm trong kho không đủ.');
-        }
-      } else {
-        addToCartStore(newItem);
-        toast.success('Đã thêm sản phẩm vào giỏ hàng');
-      }
-    }
-  };
-
   const addToCart = () => {
     if (!selectedProduct || !selectedApiVariant) {
       toast.error('Vui lòng chọn sản phẩm, màu và kích thước.');
@@ -516,103 +401,116 @@ export default function POSPage() {
       return;
     }
 
-    addItemToCorrectCart(selectedProduct, selectedApiVariant);
+    const { _id: productId, name: productName } = selectedProduct;
+    const { _id: variantId, price, stock, colorId, sizeId, images } = selectedApiVariant;
 
+    // Use discounted price if available
+    const finalPrice = (selectedProduct as any).hasDiscount ? (selectedProduct as any).discountedPrice : price;
+
+    const cartItemId = `${productId}-${variantId}`;
+    const existingItem = cartItems.find(item => item.id === cartItemId);
+
+    if (existingItem) {
+      if (existingItem.quantity < stock) {
+        updateQuantityStore(cartItemId, 1);
+        toast.success('Đã cập nhật số lượng sản phẩm.');
+      } else {
+        toast.warn('Số lượng sản phẩm trong kho không đủ.');
+        return;
+      }
+    } else {
+      if (1 > stock) {
+        toast.warn('Số lượng sản phẩm trong kho không đủ.');
+        return;
+      }
+      const newItem: POSCartItem = {
+        id: cartItemId,
+        productId: productId,
+        variantId: variantId,
+        name: productName,
+        colorName: colorId?.name || 'N/A',
+        colorCode: colorId?.code,
+        sizeName: sizeId?.name || sizeId?.value || 'N/A',
+        price: finalPrice,
+        originalPrice: (selectedProduct as any).hasDiscount ? (selectedProduct as any).originalPrice : undefined,
+        discountPercent: (selectedProduct as any).hasDiscount ? (selectedProduct as any).discountPercent : undefined,
+        hasDiscount: (selectedProduct as any).hasDiscount || false,
+        quantity: 1,
+        image: images?.[0] || selectedProduct.variants[0]?.images?.[0] || '/placeholder.svg',
+        stock: stock,
+        actualColorId: colorId?._id,
+        actualSizeId: sizeId?._id,
+      };
+      addToCartStore(newItem);
+      toast.success('Đã thêm sản phẩm vào giỏ hàng');
+    }
     setSelectedProduct(null);
     setSelectedApiVariant(null);
   };
 
   const updateCartItemQuantity = (id: string, amount: number) => {
-    if (activeCartId) {
-      const item = cartItems.find(item => item.id === id);
-      if (!item) return;
+    const item = cartItems.find(item => item.id === id);
+    if (!item) return;
 
-      const newQuantity = item.quantity + amount;
-      if (newQuantity <= 0) {
-        removeItemFromPendingCart(activeCartId, id);
-        return;
-      }
+    const newQuantity = item.quantity + amount;
+    if (newQuantity <= 0) {
+      removeFromCartStore(id);
+      return;
+    }
 
-      if (newQuantity > item.stock) {
-        toast.warn(`Chỉ còn ${item.stock} sản phẩm trong kho.`);
-        return;
-      }
+    if (newQuantity > item.stock) {
+      toast.warn(`Chỉ còn ${item.stock} sản phẩm trong kho.`);
+      return;
+    }
 
-      updateItemQuantityInPendingCart(activeCartId, id, amount);
+    updateQuantityStore(id, amount);
 
-      // Check voucher validity after quantity update
-      if (appliedVoucher) {
-        const subtotal = calculateCartSubtotal();
-        if (subtotal < appliedVoucher.minOrderValue) {
-          toast.warn(`Đơn hàng không còn đủ điều kiện cho mã "${appliedVoucher.code}". Đã xóa mã.`);
-          setPendingCartDiscount(activeCartId, 0, null, '');
-        } else {
-          let newDiscountAmount = 0;
-          if (appliedVoucher.type === 'PERCENTAGE') {
-            newDiscountAmount = (subtotal * appliedVoucher.value) / 100;
-            if ((appliedVoucher as any).maxValue && newDiscountAmount > (appliedVoucher as any).maxValue) {
-              newDiscountAmount = (appliedVoucher as any).maxValue;
-            }
-          } else if (appliedVoucher.type === 'FIXED_AMOUNT') {
-            newDiscountAmount = appliedVoucher.value;
+    // Check voucher validity after quantity update
+    if (appliedVoucher) {
+      const subtotal = calculateSubtotal();
+      if (subtotal < appliedVoucher.minOrderValue) {
+        toast.warn(`Đơn hàng không còn đủ điều kiện cho mã "${appliedVoucher.code}". Đã xóa mã.`);
+        setVoucher(null);
+        setDiscount(0);
+      } else {
+        let newDiscountAmount = 0;
+        if (appliedVoucher.type === 'PERCENTAGE') {
+          newDiscountAmount = (subtotal * appliedVoucher.value) / 100;
+          if ((appliedVoucher as any).maxValue && newDiscountAmount > (appliedVoucher as any).maxValue) {
+            newDiscountAmount = (appliedVoucher as any).maxValue;
           }
-          newDiscountAmount = Math.min(newDiscountAmount, subtotal);
-          setPendingCartDiscount(activeCartId, newDiscountAmount, appliedVoucher, couponCode);
+        } else if (appliedVoucher.type === 'FIXED_AMOUNT') {
+          newDiscountAmount = appliedVoucher.value;
         }
+        newDiscountAmount = Math.min(newDiscountAmount, subtotal);
+        setDiscount(newDiscountAmount);
       }
-    } else {
-      // Fallback to main cart
-      const item = mainCartItems.find(item => item.id === id);
-      if (!item) return;
-
-      const newQuantity = item.quantity + amount;
-      if (newQuantity <= 0) {
-        removeFromCartStore(id);
-        return;
-      }
-
-      if (newQuantity > item.stock) {
-        toast.warn(`Chỉ còn ${item.stock} sản phẩm trong kho.`);
-        return;
-      }
-
-      updateQuantityStore(id, amount);
     }
   };
 
   const removeCartItem = (id: string) => {
-    if (activeCartId) {
-      removeItemFromPendingCart(activeCartId, id);
-      toast.success('Đã xóa sản phẩm khỏi giỏ hàng');
+    removeFromCartStore(id);
+    toast.success('Đã xóa sản phẩm khỏi giỏ hàng');
 
-      // Check voucher validity after item removal
-      if (appliedVoucher) {
-        const subtotal = calculateCartSubtotal();
-        if (subtotal < appliedVoucher.minOrderValue || cartItems.length <= 1) {
-          toast.warn(`Đơn hàng không còn đủ điều kiện cho mã "${appliedVoucher.code}" hoặc giỏ hàng trống. Đã xóa mã.`);
-          setPendingCartDiscount(activeCartId, 0, null, '');
-        }
-      }
-    } else {
-      removeFromCartStore(id);
-      toast.success('Đã xóa sản phẩm khỏi giỏ hàng');
-    }
-  };
-
-  // New function to remove item from any specific cart
-  const removeItemFromSpecificCart = (cartId: string, itemId: string) => {
-    const cart = pendingCarts.find(c => c.id === cartId);
-    if (!cart) return;
-
-    removeItemFromPendingCart(cartId, itemId);
-    toast.success(`Đã xóa sản phẩm khỏi ${cart.name}`);
-
-    // Check voucher validity after item removal if this is the active cart
-    if (cartId === activeCartId && appliedVoucher) {
-      const subtotal = calculateCartSubtotal();
+    // Check voucher validity after item removal
+    if (appliedVoucher) {
+      const subtotal = calculateSubtotal();
       if (subtotal < appliedVoucher.minOrderValue || cartItems.length <= 1) {
         toast.warn(`Đơn hàng không còn đủ điều kiện cho mã "${appliedVoucher.code}" hoặc giỏ hàng trống. Đã xóa mã.`);
-        setPendingCartDiscount(cartId, 0, null, '');
+        setVoucher(null);
+        setDiscount(0);
+      } else {
+        let newDiscountAmount = 0;
+        if (appliedVoucher.type === 'PERCENTAGE') {
+          newDiscountAmount = (subtotal * appliedVoucher.value) / 100;
+          if ((appliedVoucher as any).maxValue && newDiscountAmount > (appliedVoucher as any).maxValue) {
+            newDiscountAmount = (appliedVoucher as any).maxValue;
+          }
+        } else if (appliedVoucher.type === 'FIXED_AMOUNT') {
+          newDiscountAmount = appliedVoucher.value;
+        }
+        newDiscountAmount = Math.min(newDiscountAmount, subtotal);
+        setDiscount(newDiscountAmount);
       }
     }
   };
@@ -641,7 +539,7 @@ export default function POSPage() {
     const voucher = voucherDataResult?.data?.vouchers?.[0];
 
     if (voucher) {
-      const subtotal = calculateCartSubtotal();
+      const subtotal = calculateSubtotal();
       if (subtotal < voucher.minOrderValue) {
         toast.error(`Đơn hàng chưa đạt giá trị tối thiểu ${formatCurrency(voucher.minOrderValue)} để áp dụng mã này.`);
         setVoucher(null);
@@ -712,7 +610,7 @@ export default function POSPage() {
       toast.error('Giỏ hàng đang trống');
       return;
     }
-    const totalAmount = calculateCartTotal();
+    const totalAmount = calculateTotal();
     const cashReceivedNum = parseFloat(cashReceived.toString());
 
     if (paymentMethod === 'cash' && (isNaN(cashReceivedNum) || cashReceivedNum < totalAmount)) {
@@ -741,7 +639,7 @@ export default function POSPage() {
           sizeId: item.actualSizeId || '',
         }
       })),
-      subTotal: calculateCartSubtotal(),
+      subTotal: calculateSubtotal(),
       total: totalAmount,
       shippingAddress: {
         name: customerName || 'Khách lẻ',
@@ -812,7 +710,7 @@ export default function POSPage() {
             color: item.colorName,
             size: item.sizeName,
           })),
-          subTotal: calculateCartSubtotal(),
+          subTotal: calculateSubtotal(),
           discount: appliedDiscount,
           voucherCode: appliedVoucher?.code,
           total: totalAmount,
@@ -825,12 +723,6 @@ export default function POSPage() {
 
 
         clearCartStore();
-        
-        // Clear active pending cart if exists
-        if (activeCartId) {
-          clearPendingCartItems(activeCartId);
-        }
-        
         setCustomerName('');
         setCustomerPhone('');
         setSelectedUserId('guest');
@@ -850,15 +742,10 @@ export default function POSPage() {
   };
 
   const handleProceedToCheckout = () => {
-    const itemsToCheck = activeCart?.items || mainCartItems;
-    if (itemsToCheck.length === 0) {
+    if (cartItems.length === 0) {
       toast.error('Giỏ hàng đang trống');
       return;
     }
-    
-    // Sync active cart to main cart for checkout
-    syncActiveCartToMainCart();
-    
     setCashReceived('');
     setSelectedUserId('guest');
     setCustomerName('');
@@ -889,14 +776,7 @@ export default function POSPage() {
 
       if (e.altKey && e.key === 'c') {
         if (cartItems.length > 0 || appliedVoucher) {
-          // Clear main cart
           clearCartStore();
-          
-          // Clear active pending cart if exists
-          if (activeCartId) {
-            clearPendingCartItems(activeCartId);
-          }
-          
           setSelectedProduct(null);
           setSelectedApiVariant(null);
           toast.success('Đã xóa giỏ hàng và mã giảm giá.');
@@ -942,100 +822,9 @@ export default function POSPage() {
     return Array.from(sizeMap.values()).filter(Boolean) as NonNullable<ApiVariant['sizeId']>[];
   }, [selectedProduct, selectedApiVariant]);
 
-  // Helper functions for cart calculations
-  const calculateCartSubtotal = () => {
-    return cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  };
-
-  const calculateCartTotal = () => {
-    const subtotal = calculateCartSubtotal();
-    return Math.max(0, subtotal - appliedDiscount);
-  };
-
-  const totalAmount = calculateCartTotal();
+  const totalAmount = calculateTotal();
   const cashReceivedNum = parseFloat(cashReceived.toString());
-  const changeDue = useMemo(() => {
-    if (paymentMethod === 'cash' && cashReceived) {
-      const cashReceivedNum = parseFloat(cashReceived.toString());
-      const total = calculateCartTotal();
-      return !isNaN(cashReceivedNum) && cashReceivedNum >= total ? cashReceivedNum - total : 0;
-    }
-    return 0;
-  }, [paymentMethod, cashReceived, calculateCartTotal]);
-
-  // Handle creating new pending cart
-  const handleCreateNewCart = () => {
-    const newCartId = createNewCart();
-    if (!newCartId) {
-      toast.warn('Không thể tạo thêm giỏ hàng. Tối đa 5 giỏ hàng chờ!');
-      return;
-    }
-    toast.success(`Đã tạo giỏ hàng mới: Giỏ hàng ${pendingCarts.length + 1}`);
-  };
-
-  // Handle deleting a pending cart
-  const handleDeleteCart = (cartId: string) => {
-    setCartToDelete(cartId);
-    setShowDeleteCartDialog(true);
-  };
-
-  // Confirm delete cart
-  const confirmDeleteCart = () => {
-    if (cartToDelete) {
-      const cartToDeleteData = pendingCarts.find(cart => cart.id === cartToDelete);
-      if (cartToDeleteData) {
-        deleteCart(cartToDelete);
-        toast.success(`Đã xóa ${cartToDeleteData.name}`);
-      }
-      setCartToDelete(null);
-      setShowDeleteCartDialog(false);
-    }
-  };
-
-  // Cancel delete cart
-  const cancelDeleteCart = () => {
-    setCartToDelete(null);
-    setShowDeleteCartDialog(false);
-  };
-
-  // Handle switching active cart
-  const handleSwitchCart = (cartId: string) => {
-    setActiveCart(cartId);
-    const cart = pendingCarts.find(c => c.id === cartId);
-    if (cart) {
-      toast.info(`Đã chuyển sang ${cart.name}`);
-    }
-  };
-
-  // Sync active cart to main cart before checkout
-  const syncActiveCartToMainCart = () => {
-    if (activeCart) {
-      // Clear main cart first
-      clearCartStore();
-      
-      // Add all items from active cart to main cart
-      activeCart.items.forEach(item => {
-        addToCartStore(item);
-      });
-      
-      // Set discount and voucher
-      setDiscount(activeCart.appliedDiscount);
-      setVoucher(activeCart.appliedVoucher);
-      setCouponCode(activeCart.couponCode);
-    }
-  };
-
-  // Handle viewing cart items
-  const handleViewCartItems = (cartId: string) => {
-    setSelectedCartForView(cartId);
-    setShowCartItemsDialog(true);
-  };
-
-  // Close cart items dialog
-  const closeCartItemsDialog = () => {
-    setShowCartItemsDialog(false);
-    setSelectedCartForView(null);
-  };
+  const changeDue = paymentMethod === 'cash' && !isNaN(cashReceivedNum) && cashReceivedNum >= totalAmount ? cashReceivedNum - totalAmount : 0;
 
   return (
     <div className="h-full">
@@ -1141,103 +930,10 @@ export default function POSPage() {
               ))}
             </div>
           </div>
-
-          {/* Pending Carts Tabs */}
-          <div className='bg-white rounded-[6px] p-4 mb-4 shadow-sm border border-border'>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-maintext flex items-center gap-2">
-                <Icon path={mdiCart} size={1} className="text-primary" />
-                Giỏ hàng chờ ({pendingCarts.length}/5)
-              </h3>
-              <Button
-                onClick={handleCreateNewCart}
-                disabled={pendingCarts.length >= 5}
-                size="sm"
-                className="flex items-center gap-2"
-              >
-                <Icon path={mdiInvoicePlus} size={0.7} />
-                Thêm mới
-              </Button>
-            </div>
-            
-            {pendingCarts.length > 0 && (
-              <div className="flex gap-2 overflow-x-auto pb-2">
-                {pendingCarts.slice(0, 4).map((cart, index) => (
-                  <motion.button
-                    key={cart.id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    className={cn(
-                      'relative flex items-center gap-2 p-2 rounded-sm border-2 transition-all duration-200 min-w-[140px] group',
-                      activeCartId === cart.id
-                        ? 'border-primary bg-primary/5 text-primary shadow-md'
-                        : 'border-border bg-white text-maintext hover:border-primary/50 hover:bg-primary/5'
-                    )}
-                    onClick={() => handleSwitchCart(cart.id)}
-                  >
-                    <div className="flex items-center gap-1 flex-1">
-                      <div className={cn(
-                        'w-2 h-2 rounded-full',
-                        cart.items.length > 0 ? 'bg-green-500' : 'bg-gray-300'
-                      )} />
-                      <span className="text-sm font-medium truncate">{cart.name} <span className="text-sm text-maintext/70 font-semibold">({cart.items.reduce((sum, item) => sum + item.quantity, 0)})</span></span>
-                    </div>
-                    <button
-                      className="opacity-0 group-hover:opacity-100 transition-opacity border border-red-500/70 p-1 hover:bg-red-400 bg-red-400 rounded-full hover:!text-white text-white"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteCart(cart.id);
-                      }}
-                    >
-                      <Icon path={mdiClose} size={0.7} className="hover:!text-white" />
-                    </button>
-                  </motion.button>
-                ))}
-                
-                {pendingCarts.length > 4 && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="min-w-[100px] h-[46px] border-2 border-primary/50 flex items-center justify-center text-sm">
-                        +{pendingCarts.length - 4} khác
-                        <Icon path={mdiChevronDown} size={0.7} className="ml-1" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56">
-                      {pendingCarts.slice(4).map((cart) => (
-                        <DropdownMenuItem
-                          key={cart.id}
-                          className="flex items-center justify-between"
-                          onClick={() => handleSwitchCart(cart.id)}
-                        >
-                          <div className="flex items-center gap-2">
-                            <div className={cn(
-                              'w-2 h-2 rounded-full',
-                              cart.items.length > 0 ? 'bg-green-500' : 'bg-gray-300'
-                            )} />
-                            <span>{cart.name}</span>
-                            {cart.items.length > 0 && (
-                              <Badge variant="secondary" className="text-xs">
-                                {cart.items.reduce((sum, item) => sum + item.quantity, 0)}
-                              </Badge>
-                            )}
-                          </div>
-                          <button
-                            className="p-1 hover:bg-red-100 rounded"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteCart(cart.id);
-                            }}
-                          >
-                            <Icon path={mdiClose} size={0.4} className="text-red-500" />
-                          </button>
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
-              </div>
-            )}
+          {/* Đây là tab list giỏ hàng chờ*/}
+          {/*  */}
+          <div className='bg-red-500 h-10 w-full'>
+            abc
           </div>
 
           <div className="bg-white rounded-xl p-4 flex-1 shadow-lg border border-border/50 hover:shadow-xl transition-all duration-300 min-h-[400px]">
@@ -1536,10 +1232,44 @@ export default function POSPage() {
                                     e.stopPropagation();
                                     const firstAvailableVariant = product.variants.find(v => v.stock > 0) || product.variants[0];
                                     if (firstAvailableVariant) {
-                                      if (firstAvailableVariant.stock > 0) {
-                                        addItemToCorrectCart(product, firstAvailableVariant);
+                                      const cartItemId = `${product._id}-${firstAvailableVariant._id}`;
+                                      const existingItemIndex = cartItems.findIndex(item => item.id === cartItemId);
+
+                                      if (existingItemIndex >= 0) {
+                                        if (cartItems[existingItemIndex].quantity < firstAvailableVariant.stock) {
+                                          updateQuantityStore(cartItemId, 1);
+                                          toast.success('Đã cập nhật số lượng sản phẩm.');
+                                        } else {
+                                          toast.warn('Số lượng sản phẩm trong kho không đủ.');
+                                        }
                                       } else {
-                                        toast.warn('Sản phẩm này đã hết hàng.');
+                                        if (firstAvailableVariant.stock > 0) {
+                                          // Use discounted price if available
+                                          const finalPrice = (product as any).hasDiscount ? (product as any).discountedPrice : firstAvailableVariant.price;
+
+                                          const newItem: POSCartItem = {
+                                            id: cartItemId,
+                                            productId: product._id,
+                                            variantId: firstAvailableVariant._id,
+                                            name: product.name,
+                                            colorName: firstAvailableVariant.colorId?.name || 'N/A',
+                                            colorCode: firstAvailableVariant.colorId?.code,
+                                            sizeName: firstAvailableVariant.sizeId?.name || firstAvailableVariant.sizeId?.value || 'N/A',
+                                            price: finalPrice,
+                                            originalPrice: (product as any).hasDiscount ? (product as any).originalPrice : undefined,
+                                            discountPercent: (product as any).hasDiscount ? (product as any).discountPercent : undefined,
+                                            hasDiscount: (product as any).hasDiscount || false,
+                                            quantity: 1,
+                                            image: firstAvailableVariant.images?.[0] || product.variants[0]?.images?.[0] || '/placeholder.svg',
+                                            stock: firstAvailableVariant.stock,
+                                            actualColorId: firstAvailableVariant.colorId?._id,
+                                            actualSizeId: firstAvailableVariant.sizeId?._id,
+                                          };
+                                          addToCartStore(newItem);
+                                          toast.success('Đã thêm sản phẩm vào giỏ hàng');
+                                        } else {
+                                          toast.warn('Sản phẩm này đã hết hàng.');
+                                        }
                                       }
                                     } else {
                                       toast.warn('Sản phẩm này không có biến thể hoặc đã hết hàng.');
@@ -1665,10 +1395,44 @@ export default function POSPage() {
                                               onClick={(e) => {
                                                 e.stopPropagation();
                                                 if (firstAvailableVariant) {
-                                                  if (firstAvailableVariant.stock > 0) {
-                                                    addItemToCorrectCart(product, firstAvailableVariant);
+                                                  const cartItemId = `${product._id}-${firstAvailableVariant._id}`;
+                                                  const existingItemIndex = cartItems.findIndex(item => item.id === cartItemId);
+
+                                                  if (existingItemIndex >= 0) {
+                                                    if (cartItems[existingItemIndex].quantity < firstAvailableVariant.stock) {
+                                                      updateQuantityStore(cartItemId, 1);
+                                                      toast.success('Đã cập nhật số lượng sản phẩm.');
+                                                    } else {
+                                                      toast.warn('Số lượng sản phẩm trong kho không đủ.');
+                                                    }
                                                   } else {
-                                                    toast.warn('Sản phẩm này đã hết hàng.');
+                                                    if (firstAvailableVariant.stock > 0) {
+                                                      // Use discounted price if available
+                                                      const finalPrice = (product as any).hasDiscount ? (product as any).discountedPrice : firstAvailableVariant.price;
+
+                                                      const newItem: POSCartItem = {
+                                                        id: cartItemId,
+                                                        productId: product._id,
+                                                        variantId: firstAvailableVariant._id,
+                                                        name: product.name,
+                                                        colorName: firstAvailableVariant.colorId?.name || 'N/A',
+                                                        colorCode: firstAvailableVariant.colorId?.code,
+                                                        sizeName: firstAvailableVariant.sizeId?.name || firstAvailableVariant.sizeId?.value || 'N/A',
+                                                        price: finalPrice,
+                                                        originalPrice: (product as any).hasDiscount ? (product as any).originalPrice : undefined,
+                                                        discountPercent: (product as any).hasDiscount ? (product as any).discountPercent : undefined,
+                                                        hasDiscount: (product as any).hasDiscount || false,
+                                                        quantity: 1,
+                                                        image: firstAvailableVariant.images?.[0] || product.variants[0]?.images?.[0] || '/placeholder.svg',
+                                                        stock: firstAvailableVariant.stock,
+                                                        actualColorId: firstAvailableVariant.colorId?._id,
+                                                        actualSizeId: firstAvailableVariant.sizeId?._id,
+                                                      };
+                                                      addToCartStore(newItem);
+                                                      toast.success('Đã thêm sản phẩm vào giỏ hàng');
+                                                    } else {
+                                                      toast.warn('Sản phẩm này đã hết hàng.');
+                                                    }
                                                   }
                                                 }
                                               }}
@@ -1760,6 +1524,7 @@ export default function POSPage() {
                                   startPage = Math.max(2, totalPages - 2);
                                 }
 
+
                                 for (let i = startPage; i <= endPage; i++) {
                                   pages.push(
                                     <PaginationItem key={i}>
@@ -1821,285 +1586,160 @@ export default function POSPage() {
           </div>
         </div>
 
-        {/* Cart Section */}
+{/* Đây là Giỏ hàng thứ n, select*/}
         <Card>
           <CardHeader>
+            {/* Giỏ hàng thứ n tương ứng với tab giỏ hàng thứ n được chọn */}
             <CardTitle className="flex items-center gap-2 w-full justify-between">
-              {activeCart ? (
-                <div className="flex items-center gap-2">
-                  <span>{activeCart.name}</span>
-                  <Badge variant="secondary" className="text-xs">
-                    {cartItems.reduce((sum, item) => sum + item.quantity, 0)} sản phẩm
-                  </Badge>
+              Giỏ hàng
+              <Button>
+                Thêm mới 
+                <Icon path={mdiInvoicePlus} size={0.7} className='text-white'/>
+              </Button>
+              </CardTitle> 
+          </CardHeader>
+          <CardContent>
+            <div className="flex-1 overflow-y-auto scrollbar-thin">
+              {cartItems.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-40">
+                  <div className="h-16 w-16 rounded-full bg-gray-50 flex items-center justify-center mb-4">
+                    <Icon path={mdiCashRegister} size={1} className="text-maintext" />
+                  </div>
+                  <p className="text-maintext mb-2 font-semibold">Giỏ hàng trống</p>
+                  <p className="text-sm text-maintext">Thêm sản phẩm để bắt đầu đơn hàng</p>
                 </div>
               ) : (
-                'Giỏ hàng chính'
-              )}
-              
-              {pendingCarts.length > 4 && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <Icon path={mdiCart} size={0.7} />
-                      <Icon path={mdiChevronDown} size={0.7} className="ml-1" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    {pendingCarts.map((cart) => (
-                      <DropdownMenuItem
-                        key={cart.id}
-                        className="flex items-center justify-between"
-                        onClick={() => handleSwitchCart(cart.id)}
-                      >
-                        <div className="flex items-center gap-2">
-                          <div className={cn(
-                            'w-2 h-2 rounded-full',
-                            cart.items.length > 0 ? 'bg-green-500' : 'bg-gray-300'
-                          )} />
-                          <span>{cart.name}</span>
-                          {cart.items.length > 0 && (
-                            <Badge variant="secondary" className="text-xs">
-                              {cart.items.reduce((sum, item) => sum + item.quantity, 0)}
-                            </Badge>
-                          )}
-                        </div>
-                        <button
-                          className="p-1 hover:bg-red-100 rounded"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteCart(cart.id);
-                          }}
-                        >
-                          <Icon path={mdiClose} size={0.4} className="text-red-500" />
-                        </button>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {cartItems.length === 0 ? (
-              <div className="text-center py-8 text-maintext">
-                <Icon path={mdiCart} size={2} className="mx-auto mb-2 text-gray-300" />
-                <p>Giỏ hàng trống</p>
-                <p className="text-sm text-maintext">Thêm sản phẩm để bắt đầu</p>
-              </div>
-            ) : (
-              <>
-                <ScrollArea className="h-[300px]">
-                  <div className="space-y-3">
+                <div className="space-y-4">
+                  <AnimatePresence initial={false}>
                     {cartItems.map((item) => (
                       <motion.div
                         key={item.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        className="flex items-center gap-2"
+                        className="flex gap-4 pb-4 border-b border-border"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.2 }}
                       >
-                        <div className="relative h-20 w-20 flex-shrink-0 rounded-md overflow-hidden bg-white">
+                        <div className="relative h-20 w-20 overflow-hidden rounded-[6px] bg-gray-50 group">
                           <Image
-                            src={checkImageUrl(item.image)}
+                            src={item.image}
                             alt={item.name}
-                            height={100}
-                            width={100}
-                            draggable={false}
-                            className="object-contain h-full w-full flex-shrink-0"
+                            fill
+                            className="object-contain transition-transform duration-300 group-hover:scale-105"
                           />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-sm text-maintext truncate text-wrap">{item.name}</h4>
-                          <p className="text-xs text-maintext">
-                            {item.colorName} / {item.sizeName}
-                          </p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-lg text-primary font-semibold">
-                              {formatCurrency(item.price)}
-                            </span>
-                            {item.hasDiscount && item.originalPrice && (
-                              <span className="text-sm text-maintext line-through">
-                                {formatCurrency(item.originalPrice)}
-                              </span>
-                            )}
+                        <div className="flex-1">
+                          <div className="flex justify-between">
+                            <h3 className="font-medium text-maintext truncate max-w-[150px]">{item.name}</h3>
+                            <button
+                              className="text-red-500 hover:text-red-600 transition-colors"
+                              onClick={() => removeCartItem(item.id)}
+                            >
+                              <Icon path={mdiDelete} size={0.7} />
+                            </button>
                           </div>
-                          <div className="flex items-center gap-2 mt-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            onClick={() => updateCartItemQuantity(item.id, -1)}
-                          >
-                            <Icon path={mdiMinus} size={0.7} />
-                          </Button>
-                          <Input
-                            type="number"
-                            value={item.quantity}
-                            onChange={(e) => {
-                              const newQuantity = parseInt(e.target.value) || 0;
-                              if (newQuantity < 0) {
-                                toast.warn('Số lượng không được âm.');
-                                return;
-                              }
-                              if (newQuantity > item.stock) {
-                                toast.warn(`Chỉ còn ${item.stock} sản phẩm trong kho.`);
-                                return;
-                              }
-                              if (newQuantity === 0) {
-                                removeCartItem(item.id);
-                                return;
-                              }
-                              // Calculate the difference and update
-                              const difference = newQuantity - item.quantity;
-                              if (difference !== 0) {
-                                updateCartItemQuantity(item.id, difference);
-                              }
-                            }}
-                            onBlur={(e) => {
-                              // Ensure we have a valid number on blur
-                              const value = e.target.value;
-                              if (value === '' || isNaN(parseInt(value))) {
-                                // Reset to current quantity if invalid
-                                e.target.value = item.quantity.toString();
-                              }
-                            }}
-                            className="w-16 h-8 text-center text-sm"
-                            min="1"
-                            max={item.stock}
-                          />
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            onClick={() => updateCartItemQuantity(item.id, 1)}
-                            disabled={item.quantity >= item.stock}
-                          >
-                            <Icon path={mdiPlus} size={0.7} />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 bg-red-50 border border-red-500"
-                            onClick={() => removeCartItem(item.id)}
-                          >
-                            <Icon path={mdiDelete} size={0.7} />
-                          </Button>
-                        </div>
+                          <div className="text-sm text-maintext">
+                            <span>Size: {item.sizeName}</span> •{' '}
+                            <span className="flex items-center">Màu: {item.colorCode && <div className="w-3 h-3 rounded-full mr-1.5 ml-1" style={{ backgroundColor: item.colorCode }}></div>} {item.colorName}</span>
+                          </div>
+                          <div className="flex justify-between items-center mt-3">
+                            <div className="flex items-center border border-border rounded-[6px]">
+                              <button
+                                className="px-3 py-1.5 text-maintext hover:text-primary transition-colors"
+                                onClick={() => updateCartItemQuantity(item.id, -1)}
+                              >
+                                <Icon path={mdiMinus} size={0.7} />
+                              </button>
+                              <span className="px-3 min-w-[30px] text-center">{item.quantity}</span>
+                              <button
+                                className="px-3 py-1.5 text-maintext hover:text-primary transition-colors"
+                                onClick={() => updateCartItemQuantity(item.id, 1)}
+                              >
+                                <Icon path={mdiPlus} size={0.7} />
+                              </button>
+                            </div>
+                            <span className="font-medium text-primary">{formatCurrency(item.price * item.quantity)}</span>
+                          </div>
                         </div>
                       </motion.div>
                     ))}
-                  </div>
-                </ScrollArea>
+                  </AnimatePresence>
+                </div>
+              )}
+            </div>
 
-                <Separator />
+            <div className="border-t border-border pt-4">
 
-                {/* Voucher Section */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
+              <div className="mb-4">
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Icon path={mdiTag} size={0.7} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext" />
                     <Input
-                      placeholder="Nhập mã giảm giá..."
+                      type="text"
+                      placeholder="Mã giảm giá"
+                      className="w-full pl-10 pr-4 py-2.5 rounded-[6px] border border-border focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
                       value={couponCode}
-                      onChange={(e) => {
-                        if (activeCartId) {
-                          // Update coupon code in pending cart
-                          const activeCart = getActiveCart();
-                          if (activeCart) {
-                            setPendingCartDiscount(activeCartId, activeCart.appliedDiscount, activeCart.appliedVoucher, e.target.value);
-                          }
-                        } else {
-                          setCouponCode(e.target.value);
-                        }
-                      }}
-                      className="flex-1"
+                      onChange={(e) => setCouponCode(e.target.value)}
                     />
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={applyCoupon}
-                      disabled={!couponCode || isFetchingVoucher}
-                    >
-                      {isFetchingVoucher ? 'Đang kiểm tra...' : 'Áp dụng'}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowVouchersDialog(true)}
-                    >
-                      <Icon path={mdiTag} size={0.7} />
-                    </Button>
                   </div>
                   <Button
-                    variant="link"
-                    className="text-sm text-primary mt-1 px-0"
-                    onClick={() => setShowVouchersDialog(true)}
+                    variant="secondary"
+                    className="px-4 py-2.5 font-semibold text-white"
+                    onClick={applyCoupon}
+                    disabled={isFetchingVoucher}
                   >
-                    Xem danh sách mã giảm giá
+                    {isFetchingVoucher ? 'Đang kiểm tra...' : 'Áp dụng'}
                   </Button>
-
-                  {appliedVoucher && (
-                    <div className="flex items-center justify-between p-2 bg-green-50 rounded-lg border border-green-200">
-                      <div className="flex items-center gap-2">
-                        <Icon path={mdiTag} size={0.7} className="text-green-600" />
-                        <span className="text-sm font-medium text-green-800">
-                          Mã: {appliedVoucher.code}
-                        </span>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0 text-green-600 hover:text-green-800"
-                        onClick={() => {
-                          if (activeCartId) {
-                            setPendingCartDiscount(activeCartId, 0, null, '');
-                          } else {
-                            setDiscount(0);
-                            setVoucher(null);
-                            setCouponCode('');
-                          }
-                        }}
-                      >
-                        <Icon path={mdiClose} size={0.7} />
-                      </Button>
-                    </div>
-                  )}
                 </div>
-
-                <Separator />
-
-                {/* Order Summary */}
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Tạm tính:</span>
-                    <span>{formatCurrency(calculateCartSubtotal())}</span>
-                  </div>
-                  {appliedDiscount > 0 && (
-                    <div className="flex justify-between text-sm text-green-600">
-                      <span>Giảm giá:</span>
-                      <span>-{formatCurrency(appliedDiscount)}</span>
-                    </div>
-                  )}
-                  <Separator />
-                  <div className="flex justify-between text-lg font-semibold">
-                    <span>Tổng cộng:</span>
-                    <span className="text-primary">{formatCurrency(calculateCartTotal())}</span>
-                  </div>
-                </div>
-
                 <Button
-                  className="w-full"
-                  onClick={handleProceedToCheckout}
-                  disabled={cartItems.length === 0}
+                  variant="link"
+                  className="text-sm text-primary mt-1 px-0"
+                  onClick={() => setShowVouchersDialog(true)}
                 >
-                  <Icon path={mdiCashRegister} size={0.7} className="mr-2" />
-                  Thanh toán ({formatCurrency(calculateCartTotal())})
+                  Xem danh sách mã giảm giá
                 </Button>
-              </>
-            )}
+              </div>
+
+
+              <div className="space-y-4 mb-4">
+                <div className="flex justify-between text-maintext">
+                  <span>Tạm tính:</span>
+                  <span>{formatCurrency(calculateSubtotal())}</span>
+                </div>
+                {appliedVoucher && appliedDiscount > 0 && (
+                  <div className="flex justify-between text-primary">
+                    <span>Giảm giá ({appliedVoucher.code}):</span>
+                    <span>-{formatCurrency(calculateDiscount())}</span>
+                  </div>
+                )}
+                <div className="flex justify-between font-medium text-lg pt-3 border-t border-border">
+                  <span className="text-maintext">Tổng:</span>
+                  <span className="text-primary">{formatCurrency(calculateTotal())}</span>
+                </div>
+              </div>
+
+
+              <Button
+                className="w-full py-4 text-base flex items-center justify-center gap-2"
+                onClick={handleProceedToCheckout}
+                disabled={cartItems.length === 0}
+              >
+                <Icon path={mdiCashRegister} size={1} />
+                Thanh toán
+                <span className="text-xs opacity-70 ml-1">(Alt+P)</span>
+              </Button>
+
+
+              <div className="mt-4 text-xs text-maintext flex items-center justify-center">
+                <Icon path={mdiInformationOutline} size={0.7} className="mr-1 text-maintext" />
+                <span>Alt+S: Tìm kiếm | Alt+C: Xóa giỏ hàng</span>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Checkout Dialog */}
+
       <Dialog open={showCheckoutDialog} onOpenChange={setShowCheckoutDialog}>
         <DialogContent className="sm:max-w-4xl">
           <ScrollArea className="max-h-[70vh] p-1">
@@ -2241,7 +1881,7 @@ export default function POSPage() {
                     setPaymentMethod(value);
                     setTransferPaymentCompleted(false);
                     if (value === 'transfer') {
-                      setCashReceived(calculateCartTotal().toString());
+                      setCashReceived(totalAmount.toString());
                     } else {
                       setCashReceived('');
                     }
@@ -2300,7 +1940,7 @@ export default function POSPage() {
                     <div className="flex justify-center mb-4">
                       <div className="bg-white p-4 rounded-lg shadow-sm border">
                         <QRCodeComponent
-                          value={`BANK_TRANSFER|970415|0123456789|STREET SNEAKER|${calculateCartTotal()}|Thanh toan don hang ${new Date().getTime()}`}
+                          value={`BANK_TRANSFER|970415|0123456789|STREET SNEAKER|${totalAmount}|Thanh toan don hang ${new Date().getTime()}`}
                           size={200}
                         />
                       </div>
@@ -2309,7 +1949,7 @@ export default function POSPage() {
                       <p><strong>Ngân hàng:</strong> Vietcombank</p>
                       <p><strong>Số tài khoản:</strong> 0123456789</p>
                       <p><strong>Chủ tài khoản:</strong> STREET SNEAKER</p>
-                      <p><strong>Số tiền:</strong> {formatCurrency(calculateCartTotal())}</p>
+                      <p><strong>Số tiền:</strong> {formatCurrency(totalAmount)}</p>
                       <p><strong>Nội dung:</strong> Thanh toan don hang {new Date().getTime()}</p>
                     </div>
                     {transferPaymentCompleted && (
@@ -2332,19 +1972,19 @@ export default function POSPage() {
                 </div>
                 <div className="flex justify-between text-sm text-maintext">
                   <span className="text-base">Tạm tính:</span>
-                  <span className="text-base">{formatCurrency(calculateCartSubtotal())}</span>
+                  <span className="text-base">{formatCurrency(calculateSubtotal())}</span>
                 </div>
-                {appliedDiscount > 0 && (
+                {appliedVoucher && appliedDiscount > 0 && (
                   <div className="flex justify-between text-sm text-primary">
-                    <span>Giảm giá ({appliedVoucher?.code || 'KM'}):</span>
-                    <span>-{formatCurrency(appliedDiscount)}</span>
+                    <span>Giảm giá ({appliedVoucher.code}):</span>
+                    <span>-{formatCurrency(calculateDiscount())}</span>
                   </div>
                 )}
                 <div className="flex justify-between font-medium text-base pt-2 border-t border-border">
                   <span className="text-maintext font-semibold">Tổng thanh toán:</span>
-                  <span className="text-primary font-semibold">{formatCurrency(calculateCartTotal())}</span>
+                  <span className="text-primary font-semibold">{formatCurrency(totalAmount)}</span>
                 </div>
-                {paymentMethod === 'cash' && !isNaN(parseFloat(cashReceived.toString())) && parseFloat(cashReceived.toString()) >= calculateCartTotal() && changeDue >= 0 && (
+                {paymentMethod === 'cash' && !isNaN(cashReceivedNum) && cashReceivedNum >= totalAmount && changeDue >= 0 && (
                   <div className="flex justify-between font-medium text-base pt-2">
                     <span className="text-maintext font-semibold">Tiền thừa trả khách:</span>
                     <span className="text-primary font-semibold">{formatCurrency(changeDue)}</span>
@@ -2360,7 +2000,7 @@ export default function POSPage() {
               <Button
                 onClick={handleCheckout}
                 disabled={checkoutIsLoading ||
-                  (paymentMethod === 'cash' && (cashReceived.toString() === '' || parseFloat(cashReceived.toString()) < calculateCartTotal() || isNaN(parseFloat(cashReceived.toString())))) ||
+                  (paymentMethod === 'cash' && (cashReceived.toString() === '' || parseFloat(cashReceived.toString()) < totalAmount || isNaN(parseFloat(cashReceived.toString())))) ||
                   (paymentMethod === 'transfer' && !transferPaymentCompleted)}
               >
                 {checkoutIsLoading ? (
@@ -2383,63 +2023,21 @@ export default function POSPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Invoice Dialog */}
-      {showInvoiceDialog && currentInvoiceData && (
-        <InvoiceDialog
-          open={showInvoiceDialog}
-          onOpenChange={setShowInvoiceDialog}
-          invoiceData={currentInvoiceData}
-          formatCurrency={formatCurrency}
-          formatDateTimeForInvoice={formatDateTimeForInvoice}
-        />
-      )}
+      <VouchersListDialog
+        open={showVouchersDialog}
+        onOpenChange={setShowVouchersDialog}
+        onSelectVoucher={(code) => {
+          setCouponCode(code);
+        }}
+      />
 
-      {/* Vouchers Dialog */}
-      {showVouchersDialog && (
-        <VouchersDialog
-          open={showVouchersDialog}
-          onOpenChange={setShowVouchersDialog}
-          onVoucherSelect={(code: string) => {
-            if (activeCartId) {
-              const activeCart = getActiveCart();
-              if (activeCart) {
-                setPendingCartDiscount(activeCartId, activeCart.appliedDiscount, activeCart.appliedVoucher, code);
-              }
-            } else {
-              setCouponCode(code);
-            }
-            applyCoupon();
-          }}
-          formatCurrency={formatCurrency}
-        />
-      )}
-
-      {/* Delete Cart Confirmation Dialog */}
-      <Dialog open={showDeleteCartDialog} onOpenChange={setShowDeleteCartDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Xác nhận xóa giỏ hàng</DialogTitle>
-            <DialogDescription>
-              {cartToDelete && (
-                <>
-                  Bạn có chắc chắn muốn xóa "{pendingCarts.find(cart => cart.id === cartToDelete)?.name}"?
-                  <br />
-                  <span className="text-red-600 font-medium">Hành động này không thể hoàn tác.</span>
-                </>
-              )}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={cancelDeleteCart}>
-              Hủy
-            </Button>
-            <Button variant="destructive" onClick={confirmDeleteCart}>
-              <Icon path={mdiDelete} size={0.7} className="mr-2" />
-              Xóa giỏ hàng
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <InvoiceDialog
+        open={showInvoiceDialog}
+        onOpenChange={setShowInvoiceDialog}
+        invoiceData={currentInvoiceData}
+        formatCurrency={formatCurrency}
+        formatDateTimeForInvoice={formatDateTimeForInvoice}
+      />
 
       {/* Payment Success Modal */}
       <Dialog open={showPaymentSuccessModal} onOpenChange={setShowPaymentSuccessModal}>
@@ -2461,7 +2059,7 @@ export default function POSPage() {
               <div className="text-sm space-y-1">
                 <div className="flex justify-between">
                   <span>Số tiền:</span>
-                  <span className="font-medium">{formatCurrency(calculateCartTotal())}</span>
+                  <span className="font-medium">{formatCurrency(totalAmount)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Phương thức:</span>
@@ -2488,28 +2086,41 @@ export default function POSPage() {
   );
 }
 
-// Vouchers Dialog Component
-const VouchersDialog = ({
-  open,
-  onOpenChange,
-  onVoucherSelect,
-  formatCurrency,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onVoucherSelect: (code: string) => void;
-  formatCurrency: (amount: number) => string;
-}) => {
+
+const CardSkeleton = () => (
+  <div className="bg-white rounded-[6px] border border-border shadow-sm overflow-hidden">
+    <Skeleton className="h-48 w-full" />
+    <div className="p-4 space-y-2">
+      <Skeleton className="h-4 w-3/4" />
+      <Skeleton className="h-3 w-1/2" />
+      <div className="flex justify-between items-center">
+        <Skeleton className="h-6 w-1/3" />
+        <Skeleton className="h-5 w-10" />
+      </div>
+    </div>
+  </div>
+);
+
+
+const VouchersListDialog = ({ open, onOpenChange, onSelectVoucher }: { open: boolean, onOpenChange: (open: boolean) => void, onSelectVoucher: (code: string) => void }) => {
   const { data: vouchersData, isLoading, isError } = useVouchers({ page: 1, limit: 100, status: 'HOAT_DONG' });
 
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code).then(() => {
       toast.success(`Đã sao chép mã: ${code}`);
-      onVoucherSelect(code);
+      onSelectVoucher(code);
       onOpenChange(false);
     }).catch(err => {
       toast.error('Không thể sao chép mã.');
     });
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+      maximumFractionDigits: 0,
+    }).format(amount);
   };
 
   const formatDate = (dateString: string) => {
@@ -2826,7 +2437,6 @@ const VouchersDialog = ({
   );
 };
 
-// Invoice Dialog Component
 const InvoiceDialog = ({
   open,
   onOpenChange,
@@ -2842,12 +2452,27 @@ const InvoiceDialog = ({
 }) => {
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const invoiceRef = useRef<HTMLDivElement>(null);
-
+  const router = useRouter();
   if (!invoiceData) return null;
 
   const handlePrintToPdf = async () => {
     try {
       setIsProcessing(true);
+
+      const processingMsg = document.createElement("div");
+      processingMsg.style.position = "fixed";
+      processingMsg.style.top = "50%";
+      processingMsg.style.left = "50%";
+      processingMsg.style.transform = "translate(-50%, -50%)";
+      processingMsg.style.padding = "20px";
+      processingMsg.style.background = "rgba(0,0,0,0.7)";
+      processingMsg.style.color = "white";
+      processingMsg.style.borderRadius = "5px";
+      processingMsg.style.zIndex = "9999";
+      processingMsg.textContent = "Đang tạo PDF...";
+      document.body.appendChild(processingMsg);
+
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       const input = invoiceRef.current;
       if (!input) throw new Error("Invoice element not found");
@@ -2859,6 +2484,7 @@ const InvoiceDialog = ({
         cacheBust: true,
       });
 
+      // Create PDF from image
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
@@ -2871,15 +2497,37 @@ const InvoiceDialog = ({
       const imgHeight = (imgProps.height * pageWidth) / imgProps.width;
 
       pdf.addImage(canvas, 'PNG', 0, 0, pageWidth, imgHeight);
+
+      // Handle multi-page content if necessary
+      if (imgHeight > pdf.internal.pageSize.getHeight()) {
+        let heightLeft = imgHeight;
+        let position = 0;
+        let page = 1;
+
+        while (heightLeft >= 0) {
+          position = -pdf.internal.pageSize.getHeight() * page;
+          pdf.addPage();
+          pdf.addImage(canvas, 'PNG', 0, position, pageWidth, imgHeight);
+          heightLeft -= pdf.internal.pageSize.getHeight();
+          page++;
+        }
+      }
+
+      // Save PDF
       pdf.save(`HoaDon_${invoiceData.orderId.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
-      
       toast.success("Đã lưu hoá đơn PDF thành công!");
+
     } catch (error) {
       toast.error("Lỗi khi in hoá đơn PDF.");
     } finally {
+      const processingMsg = document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]');
+      if (processingMsg && processingMsg.parentNode) {
+        processingMsg.parentNode.removeChild(processingMsg);
+      }
       setIsProcessing(false);
     }
   };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -2888,17 +2536,12 @@ const InvoiceDialog = ({
           <DialogTitle className="text-maintext text-center text-2xl font-semibold">Hoá đơn bán hàng</DialogTitle>
         </DialogHeader>
         <CustomScrollArea className="flex-1 min-h-0 p-4 overflow-y-auto">
-          <div ref={invoiceRef} className="p-4 bg-white" id="invoice-content">
+          <div ref={invoiceRef} className="p-4 bg-white" id="invoice-content" data-loaded={!!invoiceData}>
             <div className='w-full justify-center mb-4'>
               <Image
                 quality={100}
                 draggable={false}
-                src="/images/logo.svg" 
-                alt="logo" 
-                width={100} 
-                height={100} 
-                className="w-auto mx-auto h-20" 
-              />
+                src="/images/logo.svg" alt="logo" width={100} height={100} className="w-auto mx-auto h-20" />
             </div>
             <div className="text-center mb-4">
               <h2 className="text-xl font-bold">{invoiceData.shopInfo.name}</h2>
@@ -2984,7 +2627,17 @@ const InvoiceDialog = ({
           <Button variant="outline" onClick={() => onOpenChange(false)}>Đóng</Button>
           <Button onClick={handlePrintToPdf} disabled={isProcessing}>
             <Icon path={mdiPrinter} size={0.7} className="mr-2" />
-            {isProcessing ? 'Đang xử lý...' : 'Lưu PDF & In'}
+            {isProcessing ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Đang xử lý...
+              </>
+            ) : (
+              'Lưu PDF & In'
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -102,7 +102,7 @@ export default function SearchReturnModal({ isOpen, onClose }: SearchReturnModal
                 </Button>
               </div>
               
-              <div className="mt-3 text-sm text-gray-600">
+              <div className="mt-3 text-sm text-maintext">
                 <p><strong>Gợi ý tìm kiếm:</strong></p>
                 <ul className="list-disc list-inside mt-1 space-y-1">
                   <li>Nhập mã yêu cầu trả hàng (ví dụ: RT001)</li>
@@ -127,14 +127,14 @@ export default function SearchReturnModal({ isOpen, onClose }: SearchReturnModal
                 ) : searchResults?.data.length === 0 ? (
                   <div className="text-center py-8">
                     <Icon path={mdiMagnify} size={2} className="mx-auto text-gray-400 mb-4" />
-                    <p className="text-gray-600">Không tìm thấy yêu cầu trả hàng nào phù hợp</p>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-maintext">Không tìm thấy yêu cầu trả hàng nào phù hợp</p>
+                    <p className="text-sm text-maintext mt-1">
                       Thử tìm kiếm với từ khóa khác hoặc kiểm tra lại mã yêu cầu
                     </p>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-maintext">
                       Tìm thấy <strong>{searchResults?.data.length}</strong> kết quả cho "{searchQuery}"
                     </p>
                     

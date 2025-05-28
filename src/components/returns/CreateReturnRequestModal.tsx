@@ -144,19 +144,19 @@ export default function CreateReturnRequestModal({ order }: CreateReturnRequestM
             <h3 className="font-semibold mb-2">Thông tin đơn hàng</h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="text-gray-600">Mã đơn hàng:</span>
+                <span className="text-maintext">Mã đơn hàng:</span>
                 <span className="ml-2 font-medium">#{order.code}</span>
               </div>
               <div>
-                <span className="text-gray-600">Tổng tiền:</span>
+                <span className="text-maintext">Tổng tiền:</span>
                 <span className="ml-2 font-medium">{formatCurrency(order.total)}</span>
               </div>
               <div>
-                <span className="text-gray-600">Ngày đặt:</span>
+                <span className="text-maintext">Ngày đặt:</span>
                 <span className="ml-2 font-medium">{new Date(order.createdAt).toLocaleDateString('vi-VN')}</span>
               </div>
               <div>
-                <span className="text-gray-600">Trạng thái:</span>
+                <span className="text-maintext">Trạng thái:</span>
                 <span className="ml-2 font-medium text-green-600">Đã hoàn thành</span>
               </div>
             </div>
@@ -184,10 +184,10 @@ export default function CreateReturnRequestModal({ order }: CreateReturnRequestM
                     />
                     <div className="flex-1">
                       <h4 className="font-medium">{item.product.name}</h4>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-maintext">
                         {item.variant.color?.name} - {item.variant.size?.name}
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-maintext">
                         Đã mua: {item.quantity} | Giá: {formatCurrency(item.price)}
                       </p>
                     </div>
@@ -209,7 +209,7 @@ export default function CreateReturnRequestModal({ order }: CreateReturnRequestM
                               }
                             }}
                           >
-                            <Icon path={mdiMinus} size={0.5} />
+                            <Icon path={mdiMinus} size={0.7} />
                           </Button>
                           <Input
                             type="number"
@@ -246,7 +246,7 @@ export default function CreateReturnRequestModal({ order }: CreateReturnRequestM
                               }
                             }}
                           >
-                            <Icon path={mdiPlus} size={0.5} />
+                            <Icon path={mdiPlus} size={0.7} />
                           </Button>
                         </div>
                       </div>

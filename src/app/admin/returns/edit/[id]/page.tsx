@@ -223,19 +223,19 @@ export default function EditReturnPage({ params }: EditReturnPageProps) {
               <h3 className="font-semibold">Thông tin yêu cầu</h3>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-gray-600">Mã yêu cầu:</span>
+                  <span className="text-maintext">Mã yêu cầu:</span>
                   <span className="ml-2 font-medium">#{returnInfo.code}</span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Ngày tạo:</span>
+                  <span className="text-maintext">Ngày tạo:</span>
                   <span className="ml-2 font-medium">{formatDate(returnInfo.createdAt)}</span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Đơn hàng gốc:</span>
+                  <span className="text-maintext">Đơn hàng gốc:</span>
                   <span className="ml-2 font-medium">#{order.code}</span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Tổng tiền hiện tại:</span>
+                  <span className="text-maintext">Tổng tiền hiện tại:</span>
                   <span className="ml-2 font-medium text-primary">{formatCurrency(returnInfo.totalRefund)}</span>
                 </div>
               </div>
@@ -245,15 +245,15 @@ export default function EditReturnPage({ params }: EditReturnPageProps) {
               <h3 className="font-semibold">Thông tin khách hàng</h3>
               <div className="grid grid-cols-1 gap-4 text-sm">
                 <div>
-                  <span className="text-gray-600">Tên khách hàng:</span>
+                  <span className="text-maintext">Tên khách hàng:</span>
                   <span className="ml-2 font-medium">{customer.fullName}</span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Email:</span>
+                  <span className="text-maintext">Email:</span>
                   <span className="ml-2 font-medium">{customer.email || 'Không có'}</span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Số điện thoại:</span>
+                  <span className="text-maintext">Số điện thoại:</span>
                   <span className="ml-2 font-medium">{customer.phoneNumber || 'Không có'}</span>
                 </div>
               </div>
@@ -267,7 +267,7 @@ export default function EditReturnPage({ params }: EditReturnPageProps) {
         <CardHeader>
           <CardTitle>Sản phẩm trả hàng</CardTitle>
           {canEdit && (
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-maintext">
               Bạn có thể chỉnh sửa số lượng và lý do trả hàng cho từng sản phẩm
             </p>
           )}
@@ -286,9 +286,9 @@ export default function EditReturnPage({ params }: EditReturnPageProps) {
                   />
                   <div className="flex-1">
                     <h4 className="font-medium">{item.productName}</h4>
-                    <p className="text-sm text-gray-600">SKU: {item.productCode}</p>
-                    <p className="text-sm text-gray-600">{item.variantInfo}</p>
-                    <p className="text-sm text-gray-600">Giá: {formatCurrency(item.price)}</p>
+                    <p className="text-sm text-maintext">SKU: {item.productCode}</p>
+                    <p className="text-sm text-maintext">{item.variantInfo}</p>
+                    <p className="text-sm text-maintext">Giá: {formatCurrency(item.price)}</p>
                   </div>
                   
                   {canEdit && (
@@ -301,7 +301,7 @@ export default function EditReturnPage({ params }: EditReturnPageProps) {
                           onClick={() => handleQuantityChange(index, item.quantity - 1)}
                           disabled={item.quantity <= 1}
                         >
-                          <Icon path={mdiMinus} size={0.5} />
+                          <Icon path={mdiMinus} size={0.7} />
                         </Button>
                         <Input
                           type="number"
@@ -317,7 +317,7 @@ export default function EditReturnPage({ params }: EditReturnPageProps) {
                           onClick={() => handleQuantityChange(index, item.quantity + 1)}
                           disabled={item.quantity >= item.maxQuantity}
                         >
-                          <Icon path={mdiPlus} size={0.5} />
+                          <Icon path={mdiPlus} size={0.7} />
                         </Button>
                       </div>
                     </div>
@@ -325,7 +325,7 @@ export default function EditReturnPage({ params }: EditReturnPageProps) {
                   
                   {!canEdit && (
                     <div className="text-right">
-                      <p className="text-sm text-gray-600">Số lượng</p>
+                      <p className="text-sm text-maintext">Số lượng</p>
                       <p className="font-medium">{item.quantity}</p>
                     </div>
                   )}
@@ -346,13 +346,13 @@ export default function EditReturnPage({ params }: EditReturnPageProps) {
                 {!canEdit && item.reason && (
                   <div className="mt-4">
                     <label className="text-sm font-medium mb-1 block">Lý do trả hàng</label>
-                    <p className="text-sm text-gray-700 p-2 bg-gray-50 rounded">{item.reason}</p>
+                    <p className="text-sm text-maintext p-2 bg-gray-50 rounded">{item.reason}</p>
                   </div>
                 )}
                 
                 <div className="mt-2 pt-2 border-t">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Thành tiền:</span>
+                    <span className="text-sm text-maintext">Thành tiền:</span>
                     <span className="font-medium">{formatCurrency(item.price * item.quantity)}</span>
                   </div>
                 </div>
@@ -383,7 +383,7 @@ export default function EditReturnPage({ params }: EditReturnPageProps) {
                   <TableCell>
                     <div>
                       <p className="font-medium">{item.productName}</p>
-                      <p className="text-sm text-gray-600">{item.variantInfo}</p>
+                      <p className="text-sm text-maintext">{item.variantInfo}</p>
                     </div>
                   </TableCell>
                   <TableCell>{item.quantity}</TableCell>
@@ -400,7 +400,7 @@ export default function EditReturnPage({ params }: EditReturnPageProps) {
               <span className="text-primary">{formatCurrency(getTotalRefund())}</span>
             </div>
             {getTotalRefund() !== returnInfo.totalRefund && (
-              <div className="flex justify-between items-center text-sm text-gray-600 mt-1">
+              <div className="flex justify-between items-center text-sm text-maintext mt-1">
                 <span>Tổng tiền cũ:</span>
                 <span>{formatCurrency(returnInfo.totalRefund)}</span>
               </div>

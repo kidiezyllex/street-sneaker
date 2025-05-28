@@ -267,7 +267,7 @@ const ImageZoom = ({ src, alt, className }: { src: string; alt: string; classNam
            animate={{ opacity: 0.7, y: 0 }}
            transition={{ delay: 1, duration: 0.5 }}
          >
-           <Icon path={mdiMagnify} size={0.5} className="inline mr-1" />
+           <Icon path={mdiMagnify} size={0.7} className="inline mr-1" />
            Nhấn để phóng to
          </motion.div>
        )}
@@ -280,7 +280,7 @@ const ImageZoom = ({ src, alt, className }: { src: string; alt: string; classNam
            animate={{ opacity: 0, y: 0 }}
            whileHover={{ opacity: 0.7 }}
          >
-           <Icon path={mdiMagnify} size={0.5} className="inline mr-1" />
+           <Icon path={mdiMagnify} size={0.7} className="inline mr-1" />
            Hover để phóng to
          </motion.div>
        )}
@@ -1019,7 +1019,7 @@ export default function ProductDetail() {
                 {productDiscount && productDiscount.discountPercent > 0 && (
                   <div className="text-sm text-green-600 font-medium space-y-1">
                     <div>🎉 Áp dụng khuyến mãi: {productDiscount.appliedPromotion?.name}</div>
-                    <div className="flex items-center gap-2 text-xs text-gray-600">
+                    <div className="flex items-center gap-2 text-xs text-maintext">
                       <span>Giá gốc: <span className="line-through">{formatPrice(productDiscount.originalPrice)}</span></span>
                       <span>→</span>
                       <span className="text-green-600 font-semibold">Giá sau giảm: {formatPrice(productDiscount.discountedPrice)}</span>
@@ -1029,7 +1029,7 @@ export default function ProductDetail() {
 
                 {/* Show original price info when no discount */}
                 {(!productDiscount || productDiscount.discountPercent === 0) && selectedVariant && (
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-maintext">
                     Giá bán: {formatPrice(selectedVariant.price)}
                   </div>
                 )}
