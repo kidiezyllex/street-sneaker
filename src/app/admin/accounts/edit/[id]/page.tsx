@@ -37,23 +37,29 @@ export default function EditAccountPage({ params }: Props) {
     fullName: '',
     email: '',
     phoneNumber: '',
-    gender: 'male',
+    gender: undefined,
     status: 'HOAT_DONG'
   });
+
+  const [displayGender, setDisplayGender] = useState<string>('Khác'); // Default display value
 
   useEffect(() => {
     if (accountData?.data) {
       const account = accountData.data;
+      const formGender = account.gender === 'Nam' ? true : account.gender === 'Nữ' ? false : undefined;
+
       setFormData({
         fullName: account.fullName,
         email: account.email,
         phoneNumber: account.phoneNumber,
-        gender: account.gender as 'male' | 'female' | 'other' || 'male',
+        gender: formGender,
         birthday: account.birthday,
         citizenId: account.citizenId,
         avatar: account.avatar,
         status: account.status
       });
+
+      setDisplayGender(account.gender === 'Nam' ? 'Nam' : account.gender === 'Nữ' ? 'Nữ' : 'Khác');
     }
   }, [accountData]);
 
@@ -84,7 +90,9 @@ export default function EditAccountPage({ params }: Props) {
     }
 
     try {
-      await updateAccount.mutateAsync(formData, {
+      await updateAccount.mutateAsync({
+        ...formData
+      }, {
         onSuccess: () => {
           toast.success('Cập nhật tài khoản thành công');
         },
@@ -206,8 +214,8 @@ export default function EditAccountPage({ params }: Props) {
       <form onSubmit={handleSubmit} className="bg-white p-4 rounded-[6px] shadow-md">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 bg-white">
           <TabsList className="grid w-full md:w-[400px] grid-cols-2">
-            <TabsTrigger value="info">Thông tin cơ bản</TabsTrigger>
-            <TabsTrigger value="advanced">Thông tin bổ sung</TabsTrigger>
+            <TabsTrigger value="info" className="text-maintext">Thông tin cơ bản</TabsTrigger>
+            <TabsTrigger value="advanced" className="text-maintext">Thông tin bổ sung</TabsTrigger>
           </TabsList>
 
           <TabsContent value="info" className="space-y-4">
@@ -257,8 +265,13 @@ export default function EditAccountPage({ params }: Props) {
                   <div className="space-y-2">
                     <Label>Giới tính</Label>
                     <RadioGroup 
-                      value={formData.gender || 'Nam'} 
-                      onValueChange={(value) => handleSelectChange('gender', value)}
+                      value={displayGender}
+                      onValueChange={(value) => {
+                        setDisplayGender(value);
+                        // Map display gender string to boolean/undefined for formData
+                        const apiGender = value === 'Nam' ? true : value === 'Nữ' ? false : undefined;
+                        setFormData((prev) => ({ ...prev, gender: apiGender }));
+                      }}
                       className="flex space-x-4"
                     >
                       <div className="flex items-center space-x-2">

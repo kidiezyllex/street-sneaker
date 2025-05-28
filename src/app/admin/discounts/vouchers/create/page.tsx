@@ -193,9 +193,7 @@ export default function CreateVoucherPage() {
                   />
                   <Button type="button" variant="default" onClick={() => {
                     function randomVoucherCode() {
-                      // Sinh 4 ký tự chữ in hoa
                       const letters = Array.from({ length: 4 }, () => String.fromCharCode(65 + Math.floor(Math.random() * 26))).join('');
-                      // Lấy ngày và tháng hiện tại
                       const now = new Date();
                       let day, month;
                       do {
@@ -205,7 +203,6 @@ export default function CreateVoucherPage() {
                         month < now.getMonth() + 1 ||
                         (month === now.getMonth() + 1 && day <= now.getDate())
                       );
-                      // Đảm bảo 2 chữ số cho ngày và tháng
                       const dayStr = day.toString().padStart(2, '0');
                       const monthStr = month.toString().padStart(2, '0');
                       return `${letters}${dayStr}${monthStr}`;

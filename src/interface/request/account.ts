@@ -21,7 +21,7 @@ export interface IAccountUpdate {
   fullName?: string;
   email?: string;
   phoneNumber?: string;
-  gender?: 'male' | 'female' | 'other';
+  gender?: boolean;
   birthday?: string | Date;
   citizenId?: string;
   avatar?: string;

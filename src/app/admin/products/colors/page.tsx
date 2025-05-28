@@ -326,7 +326,6 @@ export default function ColorsPage() {
     );
 }
 
-// Edit Color Dialog Component
 interface EditColorDialogProps {
     colorId: string;
     isOpen: boolean;
@@ -363,7 +362,6 @@ function EditColorDialog({ colorId, isOpen, onClose }: EditColorDialogProps) {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
 
-        // Clear error when user types
         if (errors[name as keyof typeof errors]) {
             setErrors((prev) => ({ ...prev, [name]: '' }));
         }
@@ -401,7 +399,6 @@ function EditColorDialog({ colorId, isOpen, onClose }: EditColorDialogProps) {
             code: randomColor
         }));
 
-        // Clear any errors
         setErrors({
             name: '',
             code: ''
@@ -563,7 +560,6 @@ function EditColorDialog({ colorId, isOpen, onClose }: EditColorDialogProps) {
     );
 }
 
-// Create Color Dialog Component
 interface CreateColorDialogProps {
     isOpen: boolean;
     onClose: () => void;
@@ -588,7 +584,6 @@ function CreateColorDialog({ isOpen, onClose }: CreateColorDialogProps) {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
 
-        // Clear error when user types
         if (errors[name as keyof typeof errors]) {
             setErrors((prev) => ({ ...prev, [name]: '' }));
         }

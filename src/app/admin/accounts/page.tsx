@@ -20,6 +20,7 @@ import {
   mdiPhone,
   mdiFilterOutline,
   mdiLoading,
+  mdiDotsVertical,
 } from '@mdi/js';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -378,24 +379,24 @@ export default function AccountsPage() {
                                 size="icon"
                                 variant="outline"
                               >
-                                <Icon path={mdiAccountKey} size={0.7} />
+                                <Icon path={mdiDotsVertical} size={0.7} />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <Link href={`/admin/accounts/edit/${account._id}`} passHref>
                                 <DropdownMenuItem className="cursor-pointer text-maintext">
                                   <Icon path={mdiPencil} size={0.7} className="mr-2" />
-                                  Chỉnh sửa
+                                  <span className="text-maintext">Chỉnh sửa</span>
                                 </DropdownMenuItem>
                               </Link>
-
+                              <DropdownMenuSeparator />
                               {account.status === 'HOAT_DONG' ? (
                                 <DropdownMenuItem
                                   className="cursor-pointer text-maintext"
                                   onClick={() => handleUpdateStatus(account, 'KHONG_HOAT_DONG')}
                                 >
                                   <Icon path={mdiLock} size={0.7} className="mr-2" />
-                                  Vô hiệu hóa
+                                  <span className="text-maintext">Vô hiệu hóa</span>
                                 </DropdownMenuItem>
                               ) : (
                                 <DropdownMenuItem
@@ -403,7 +404,7 @@ export default function AccountsPage() {
                                   onClick={() => handleUpdateStatus(account, 'HOAT_DONG')}
                                 >
                                   <Icon path={mdiLockReset} size={0.7} className="mr-2" />
-                                  Kích hoạt
+                                  <span className="text-maintext">Kích hoạt</span>
                                 </DropdownMenuItem>
                               )}
 
@@ -413,7 +414,7 @@ export default function AccountsPage() {
                                 onClick={() => handleDeleteAccount(account)}
                               >
                                 <Icon path={mdiDelete} size={0.7} className="mr-2" />
-                                Xóa tài khoản
+                                <span className="text-red-600">Xóa tài khoản</span>
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>

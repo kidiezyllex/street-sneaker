@@ -68,7 +68,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 'returns',
-    name: 'Trả hàng',
+    name: 'Quản lý trả hàng',
     path: '/admin/returns',
     icon: mdiRestart,
   },

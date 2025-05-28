@@ -17,7 +17,6 @@ import { Separator } from '@/components/ui/separator';
 import { Icon } from '@mdi/react';
 import { mdiArrowLeft, mdiPlus, mdiTrashCanOutline } from '@mdi/js';
 import { useCreateOrder } from '@/hooks/order';
-import { IOrderCreate } from '@/interface/request/order';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {
@@ -31,8 +30,6 @@ import {
 import { useProducts } from '@/hooks/product';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-
-// Define OrderItemType to match the structure required by IOrderCreate
 interface OrderItemType {
   product: string;
   variant: {
@@ -72,18 +69,14 @@ export default function CreateOrderPage() {
   });
 
   useEffect(() => {
-    // Calculate totals
     const newSubTotal = selectedProducts.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     setSubTotal(newSubTotal);
     
-    // For now, we'll just pass the discount as 0, in a real app you'd validate voucher code
     setDiscount(0);
     setTotal(newSubTotal - discount);
   }, [selectedProducts, discount]);
 
   const handleAddProduct = (product: any) => {
-    // In a real app, you would need to select color/size variant first
-    // For simplicity, we're just adding the product directly
     const newProduct: OrderItemType = {
       product: product._id,
       variant: {

@@ -81,7 +81,6 @@ export default function PromotionsPage() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    // Hiển thị theo UTC để khớp với dữ liệu từ API
     const day = String(date.getUTCDate()).padStart(2, '0');
     const month = String(date.getUTCMonth() + 1).padStart(2, '0');
     const year = date.getUTCFullYear();
@@ -91,7 +90,6 @@ export default function PromotionsPage() {
   };
 
   const getPromotionStatusBadge = (promotion: any) => {
-    // Lấy thời gian hiện tại và convert tất cả về timestamp UTC để so sánh
     const now = new Date();
     const nowUTC = Date.UTC(
       now.getFullYear(),
@@ -102,7 +100,6 @@ export default function PromotionsPage() {
       now.getSeconds()
     );
     
-    // Parse thời gian từ API và lấy timestamp UTC
     const startUTC = new Date(promotion.startDate).getTime();
     const endUTC = new Date(promotion.endDate).getTime();
     

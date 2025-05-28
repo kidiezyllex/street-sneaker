@@ -77,7 +77,6 @@ export default function CreateReturnPage() {
   const createReturn = useCreateReturn();
   const router = useRouter();
 
-  // Mock data - replace with actual API calls
   const mockCustomers: Customer[] = [
     { _id: '1', fullName: 'Nguyễn Văn A', email: 'a@example.com', phoneNumber: '0123456789' },
     { _id: '2', fullName: 'Trần Thị B', email: 'b@example.com', phoneNumber: '0987654321' },
