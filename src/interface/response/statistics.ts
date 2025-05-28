@@ -43,7 +43,9 @@ export interface IStatisticsDetail extends IStatisticsItem {
 
 export interface IRevenueSeries {
   date: string;
-  revenue: number;
+  totalRevenue: number;
+  totalOrders: number;
+  averageOrderValue: number;
 }
 
 export interface IPreviousPeriod {
@@ -77,10 +79,16 @@ export interface ITopProduct {
 
 export interface IStatisticsResponse {
   success: boolean;
-  count: number;
-  totalPages: number;
-  currentPage: number;
-  data: IStatisticsItem[];
+  message: string;
+  data: {
+    statistics: IStatisticsItem[];
+    pagination: {
+      totalItems: number;
+      totalPages: number;
+      currentPage: number;
+      limit: number;
+    };
+  };
 }
 
 export interface IStatisticsDetailResponse {
@@ -90,11 +98,13 @@ export interface IStatisticsDetailResponse {
 
 export interface IRevenueReportResponse {
   success: boolean;
-  data: IRevenueReport;
+  message: string;
+  data: IRevenueSeries[];
 }
 
 export interface ITopProductsResponse {
   success: boolean;
+  message: string;
   data: ITopProduct[];
 }
 
