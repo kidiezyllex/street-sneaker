@@ -595,12 +595,6 @@ export default function ProductsPage() {
 
 const ProductCard = ({ product, promotionsData, onAddToCart, onQuickView, onAddToWishlist }: ProductCardProps & { promotionsData?: any }) => {
   const [isHovered, setIsHovered] = useState(false)
-  const discount = calculateProductDiscount(
-        product._id,
-        product.variants[0].price,
-        promotionsData.data.promotions
-      );
-      console.log(discount)
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -609,15 +603,19 @@ const ProductCard = ({ product, promotionsData, onAddToCart, onQuickView, onAddT
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
     >
-      <Card className="group overflow-hidden border rounded-lg hover:shadow-2xl shadow-lg transition-all duration-500 h-full flex flex-col transform hover:-translate-y-3 bg-white relative backdrop-blur-sm">
+      <Card className="group overflow-visible border rounded-lg hover:shadow-2xl shadow-lg transition-all duration-500 h-full flex flex-col transform hover:-translate-y-3 bg-white relative backdrop-blur-sm">
         <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-lg z-10 pointer-events-none" />
 
-        <div className="relative overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100 rounded-t-2xl">
+        <div className="relative overflow-visible bg-gradient-to-br from-gray-50 via-white to-gray-100 rounded-t-2xl">
           <Link href={`/products/${product.name.toLowerCase().replace(/\s+/g, "-")}-${product._id}`} className="block">
-            <div className="aspect-square overflow-hidden relative flex items-center justify-center">
+            <div className="aspect-square overflow-visible relative flex items-center justify-center">
               <motion.div
-                className="w-full h-full relative"
-                whileHover={{ scale: 1.1 }}
+                className="w-full h-full relative z-20"
+                whileHover={{ 
+                  scale: 1.3, 
+                  rotate: 15,
+                  zIndex: 50
+                }}
                 transition={{ duration: 0.6, ease: "easeOut" }}
               >
                 <Image
@@ -688,7 +686,7 @@ const ProductCard = ({ product, promotionsData, onAddToCart, onQuickView, onAddT
 
           {/* Enhanced quick action buttons */}
           <motion.div
-            className="absolute right-2 top-2 transform -translate-y-1/2 flex flex-col gap-4 z-30"
+            className="absolute right-2 top-2 transform -translate-y-1/2 flex flex-col gap-4 z-50"
             initial={{ x: 60, opacity: 0 }}
             animate={{
               x: isHovered ? 0 : 60,
@@ -705,7 +703,6 @@ const ProductCard = ({ product, promotionsData, onAddToCart, onQuickView, onAddT
                   e.preventDefault()
                   onAddToCart()
                 }}
-                disabled={product.variants[0]?.stock === 0}
                 aria-label="Thêm vào giỏ hàng"
               >
                 <Icon path={mdiCartOutline} size={0.7} className="group-hover/btn:animate-bounce" />
@@ -756,13 +753,12 @@ const ProductCard = ({ product, promotionsData, onAddToCart, onQuickView, onAddT
             href={`/products/${product.name.toLowerCase().replace(/\s+/g, "-")}-${product._id}`}
             className="hover:text-primary transition-colors group/link"
           >
-            <h3 className="font-bold text-base mb-3 line-clamp-2 leading-tight group-hover:text-primary/90 transition-colors duration-300 text-maintext group-hover/link:underline decoration-primary/50 underline-offset-2">
+            <h3 className="font-bold text-base mb-2 line-clamp-2 leading-tight group-hover:text-primary/90 transition-colors duration-300 text-maintext group-hover/link:underline decoration-primary/50 underline-offset-2">
               {product.name}
             </h3>
           </Link>
 
-          <div className="mt-auto">
-            {/* Enhanced pricing */}
+          <div>
             <div className="flex items-center justify-between">
               <motion.div
                 className="font-extrabold text-lg text-active"
@@ -807,10 +803,10 @@ const ProductCard = ({ product, promotionsData, onAddToCart, onQuickView, onAddT
             </div>
 
             {product.variants.length > 0 && (
-              <div className="flex flex-col gap-1 items-start justify-start">
+              <div className="flex flex-col gap-1 items-start justify-start mt-2">
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-maintext/70 font-semibold">Màu sắc:</span>
-                  <div className="flex gap-1 text-sm">
+                  <div className="flex gap-1 text-sm items-center">
                     {Array.from(
                       new Set(
                         product.variants.map((v: any) => (typeof v.colorId === "object" ? v.colorId._id : v.colorId)),
@@ -826,7 +822,7 @@ const ProductCard = ({ product, promotionsData, onAddToCart, onQuickView, onAddT
                         return (
                           <motion.div
                             key={index}
-                            className="w-4 h-4 rounded-full border-2 border-white shadow-lg ring-2 ring-gray-200 cursor-pointer"
+                            className="w-4 h-4 flex-shrink-0 rounded-full border-2 border-white shadow-lg ring-2 ring-gray-200 cursor-pointer"
                             style={{ backgroundColor: color.code }}
                             title={color.name}
                             whileHover={{ scale: 1.3, rotate: 360 }}
@@ -841,7 +837,7 @@ const ProductCard = ({ product, promotionsData, onAddToCart, onQuickView, onAddT
                       ),
                     ).length > 4 && (
                         <motion.span
-                          className="text-xs text-maintext ml-1 bg-gray-100 px-2 py-1 rounded-full font-medium"
+                          className="text-xs border text-maintext ml-1 bg-gray-100 px-3 py-0.5 rounded-full font-medium"
                           whileHover={{ scale: 1.1 }}
                         >
                           +
@@ -871,7 +867,7 @@ const ProductCard = ({ product, promotionsData, onAddToCart, onQuickView, onAddT
           </div>
 
           {/* Decorative bottom border */}
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/20 via-pink-400/20 to-orange-400/20 rounded-b-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-b-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
         </div>
       </Card>
     </motion.div>
