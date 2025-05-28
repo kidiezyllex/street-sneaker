@@ -4,19 +4,18 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Icon } from '@mdi/react';
-import { mdiMagnify, mdiPlus, mdiPencilCircle, mdiDeleteCircle, mdiFilterOutline, mdiEye, mdiPrinter, mdiCancel, mdiCheck, mdiCalendar, mdiDownload } from '@mdi/js';
+import { mdiMagnify, mdiPlus, mdiPencilCircle, mdiDeleteCircle, mdiFilterOutline, mdiEye, mdiPrinter, mdiCancel, mdiCheck, mdiCalendar, mdiDownload, mdiDotsVertical, mdiCheckCircle } from '@mdi/js';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useReturns, useDeleteReturn, useUpdateReturnStatus, useReturnStats, useSearchReturn } from '@/hooks/return';
-import { IReturnFilter, IReturnSearchParams } from '@/interface/request/return';
+import { IReturnFilter } from '@/interface/request/return';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Table, TableHeader, TableBody, TableRow, TableCell, TableHead } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
@@ -27,6 +26,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import StatusUpdateModal from '@/components/admin/returns/StatusUpdateModal';
 import SearchReturnModal from '@/components/admin/returns/SearchReturnModal';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 
 export default function ReturnsPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -448,48 +448,62 @@ export default function ReturnsPage() {
                         <TableCell>{formatCurrency(returnItem.totalRefund)}</TableCell>
                         <TableCell>{getReturnStatusBadge(returnItem.status)}</TableCell>
                         <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              onClick={() => {
-                                setSelectedReturn(returnItem._id);
-                                setIsDetailDialogOpen(true);
-                              }}
-                            >
-                              <Icon path={mdiEye} size={0.7} />
-                            </Button>
-                            {returnItem.status === 'CHO_XU_LY' && (
-                              <>
-                                <Link href={`/admin/returns/edit/${returnItem._id}`}>
-                                  <Button size="icon" variant="ghost">
-                                    <Icon path={mdiPencilCircle} size={0.7} />
-                                  </Button>
-                                </Link>
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  onClick={() => setStatusUpdateModal({
-                                    isOpen: true,
-                                    returnId: returnItem._id,
-                                    currentStatus: returnItem.status
-                                  })}
-                                >
-                                  <Icon path={mdiCheck} size={0.7} className="text-green-600" />
-                                </Button>
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  onClick={() => {
-                                    setReturnToDelete(returnItem._id);
-                                    setIsDeleteDialogOpen(true);
-                                  }}
-                                >
-                                  <Icon path={mdiDeleteCircle} size={0.7} color="#ff4343" />
-                                </Button>
-                              </>
-                            )}
-                          </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                size="icon"
+                                variant="outline"
+                              >
+                                <Icon path={mdiDotsVertical} size={0.7} />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem 
+                                className="cursor-pointer text-maintext"
+                                onClick={() => {
+                                  setSelectedReturn(returnItem._id);
+                                  setIsDetailDialogOpen(true);
+                                }}
+                              >
+                                <Icon path={mdiEye} size={0.7} className="mr-2" />
+                                <span className="text-maintext text-sm">Xem chi tiết</span>
+                              </DropdownMenuItem>
+                              {returnItem.status === 'CHO_XU_LY' && (
+                                <>
+                                  <DropdownMenuSeparator />
+                                  <Link href={`/admin/returns/edit/${returnItem._id}`} passHref>
+                                    <DropdownMenuItem className="cursor-pointer text-maintext">
+                                      <Icon path={mdiPencilCircle} size={0.7} className="mr-2 text-blue-400" />
+                                      <span className="text-maintext text-sm">Chỉnh sửa</span>
+                                    </DropdownMenuItem>
+                                  </Link>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    className="cursor-pointer text-green-600"
+                                    onClick={() => setStatusUpdateModal({
+                                      isOpen: true,
+                                      returnId: returnItem._id,
+                                      currentStatus: returnItem.status
+                                    })}
+                                  >
+                                    <Icon path={mdiCheckCircle} size={0.7} className="mr-2 text-green-400 " />
+                                    <span className="text-sm text-maintext">Cập nhật trạng thái</span>
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    className="cursor-pointer text-red-600"
+                                    onClick={() => {
+                                      setReturnToDelete(returnItem._id);
+                                      setIsDeleteDialogOpen(true);
+                                    }}
+                                  >
+                                    <Icon path={mdiDeleteCircle} size={0.7} className="mr-2 text-red-400 " />
+                                    <span className="text-sm text-maintext">Xóa yêu cầu</span>
+                                  </DropdownMenuItem>
+                                </>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </TableCell>
                       </TableRow>
                     ))}
