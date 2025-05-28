@@ -302,6 +302,11 @@ const SimilarProductCard = ({ product, promotionsData }: { product: any; promoti
 
     const firstVariant = product.variants[0];
     
+    if (firstVariant.stock === 0) {
+      toast.error('Sản phẩm đã hết hàng');
+      return;
+    }
+    
     // Calculate discount from promotions data if available
     let finalPrice = firstVariant.price;
     let originalPrice = undefined;
@@ -336,7 +341,8 @@ const SimilarProductCard = ({ product, promotionsData }: { product: any; promoti
       slug: product.code,
       brand: typeof product.brand === 'string' ? product.brand : product.brand.name,
       size: firstVariant.sizeId?.code,
-      colors: [firstVariant.colorId?.name || 'Default']
+      colors: [firstVariant.colorId?.name || 'Default'],
+      stock: firstVariant.stock // Add stock information
     };
 
     addToCart(cartItem, 1);
@@ -699,6 +705,17 @@ export default function ProductDetail() {
   const handleAddToCart = () => {
     if (!selectedVariant || !productData?.data) return;
 
+    // Check stock availability
+    if (selectedVariant.stock === 0) {
+      toast.error('Sản phẩm đã hết hàng');
+      return;
+    }
+
+    if (quantity > selectedVariant.stock) {
+      toast.error(`Chỉ còn ${selectedVariant.stock} sản phẩm trong kho`);
+      return;
+    }
+
     const finalPrice = productDiscount && productDiscount.discountPercent > 0 
       ? productDiscount.discountedPrice 
       : selectedVariant.price;
@@ -712,12 +729,15 @@ export default function ProductDetail() {
       name: productData.data.name,
       price: finalPrice,
       originalPrice: originalPrice,
+      discountPercent: productDiscount?.discountPercent || 0,
+      hasDiscount: Boolean(productDiscount && productDiscount.discountPercent > 0),
       image: selectedVariant.images?.[0] || '',
       quantity: quantity,
       slug: productData.data.code,
       brand: typeof productData.data.brand === 'string' ? productData.data.brand : productData.data.brand.name,
       size: selectedVariant.sizeId.code,
-      colors: [selectedVariant.colorId.name]
+      colors: [selectedVariant.colorId.name],
+      stock: selectedVariant.stock // Add stock information
     };
 
     addToCart(cartItem, quantity);

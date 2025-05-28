@@ -257,16 +257,14 @@ export default function OrdersPage() {
     }
     const fileName = `${fileNamePrefix}_${dateStr}.pdf`
 
-    // Create new jsPDF instance with UTF-8 support
     const doc = new jsPDF({
       orientation: "portrait",
       unit: "mm",
       format: "a4",
       putOnlyUsedFonts: true,
-      floatPrecision: 16, // or "smart", preserves precision for calculations
+      floatPrecision: 16,
     })
 
-    // Helper function for Order Status Label
     const getOrderStatusLabelLocal = (status: string): string => {
       switch (status) {
         case "CHO_XAC_NHAN":
@@ -286,7 +284,6 @@ export default function OrdersPage() {
       }
     }
 
-    // Helper function for Payment Status Label
     const getPaymentStatusLabelLocal = (status: string): string => {
       switch (status) {
         case "PENDING":
@@ -300,7 +297,6 @@ export default function OrdersPage() {
       }
     }
 
-    // Add a custom font that supports Vietnamese characters
     try {
       if (RobotoRegular && typeof RobotoRegular === "string" && RobotoRegular.length > 0) {
         doc.addFileToVFS("Roboto-Regular.ttf", RobotoRegular)
@@ -311,7 +307,6 @@ export default function OrdersPage() {
       toast.error("Lỗi khi tải font tùy chỉnh cho PDF, sử dụng font mặc định.")
     }
 
-    // Set title
     doc.setFontSize(18)
     doc.text("Danh sách Đơn hàng", 14, 22)
     doc.setFontSize(11)
@@ -327,7 +322,6 @@ export default function OrdersPage() {
       getPaymentStatusLabelLocal(order.paymentStatus),
     ])
 
-    // Use autoTable with UTF-8 support
     autoTable(doc, {
       startY: 30,
       head: [tableColumn],
@@ -339,9 +333,7 @@ export default function OrdersPage() {
         fontStyle: "bold",
       },
       didDrawCell: (data) => {
-        // This is needed for proper UTF-8 rendering
       },
-      // Enable UTF-8 support
       styles: {
         font: doc.getFont().fontName,
         fontSize: 9,
@@ -384,7 +376,7 @@ export default function OrdersPage() {
               <TabsList className="h-9">
                 <TabsTrigger
                   value="all"
-                  className="px-4"
+                  className="px-4 text-maintext/70"
                   onClick={() => {
                     setDateRange(undefined)
                     setSelectedTab("all")
@@ -394,7 +386,7 @@ export default function OrdersPage() {
                 </TabsTrigger>
                 <TabsTrigger
                   value="today"
-                  className="px-4"
+                  className="px-4 text-maintext/70"
                   onClick={() => {
                     setDateRange(undefined)
                     setSelectedTab("today")
@@ -404,7 +396,7 @@ export default function OrdersPage() {
                 </TabsTrigger>
                 <TabsTrigger
                   value="week"
-                  className="px-4"
+                  className="px-4 text-maintext/70"
                   onClick={() => {
                     setDateRange(undefined)
                     setSelectedTab("week")
@@ -414,7 +406,7 @@ export default function OrdersPage() {
                 </TabsTrigger>
                 <TabsTrigger
                   value="month"
-                  className="px-4"
+                  className="px-4 text-maintext/70"
                   onClick={() => {
                     setDateRange(undefined)
                     setSelectedTab("month")

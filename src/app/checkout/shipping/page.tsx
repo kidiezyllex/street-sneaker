@@ -79,7 +79,17 @@ interface Ward {
 export default function ShippingPage() {
   const router = useRouter();
   const { user } = useUser()
-  const { items, clearCart } = useCartStore();
+  const { 
+    items, 
+    clearCart, 
+    appliedVoucher, 
+    voucherDiscount, 
+    removeVoucher,
+    subtotal: storeSubtotal,
+    tax: storeTax,
+    shipping: storeShipping,
+    total: storeTotal
+  } = useCartStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showVNPayModal, setShowVNPayModal] = useState(false);
@@ -117,28 +127,11 @@ export default function ShippingPage() {
     },
   });
 
-  // Calculate order totals based on cart items (similar to CartSheet)
-  const calculatedSubtotal = React.useMemo(() => {
-    return items.reduce((total, item) => total + item.price * item.quantity, 0);
-  }, [items]);
-  
-  const calculatedTax = React.useMemo(() => {
-    return calculatedSubtotal * 0.1;
-  }, [calculatedSubtotal]);
-  
-  const calculatedShipping = React.useMemo(() => {
-    return calculatedSubtotal >= 500000 ? 0 : 30000;
-  }, [calculatedSubtotal]);
-  
-  const calculatedTotal = React.useMemo(() => {
-    return calculatedSubtotal + calculatedTax + calculatedShipping;
-  }, [calculatedSubtotal, calculatedTax, calculatedShipping]);
-  
-  // Use calculated values
-  const subtotal = calculatedSubtotal;
-  const tax = calculatedTax;
-  const shipping = calculatedShipping;
-  const total = calculatedTotal;
+  // Use values from store (which already include voucher calculations)
+  const subtotal = storeSubtotal;
+  const tax = storeTax;
+  const shipping = storeShipping;
+  const total = storeTotal;
 
   // Watch province and district changes to load dependent data
   const selectedProvince = form.watch("province");
@@ -334,8 +327,14 @@ export default function ShippingPage() {
             <tfoot>
               <tr>
                 <td colspan="2" style="padding: 10px; text-align: right; font-weight: bold;">Tạm tính:</td>
-                <td style="padding: 10px; text-align: right;">${formatPrice(subtotal)}</td>
+                <td style="padding: 10px; text-align: right;">${formatPrice(subtotal + voucherDiscount)}</td>
               </tr>
+              ${appliedVoucher && voucherDiscount > 0 ? `
+              <tr>
+                <td colspan="2" style="padding: 10px; text-align: right; font-weight: bold; color: #16a34a;">Giảm giá voucher (${appliedVoucher.code}):</td>
+                <td style="padding: 10px; text-align: right; color: #16a34a;">-${formatPrice(voucherDiscount)}</td>
+              </tr>
+              ` : ''}
               <tr>
                 <td colspan="2" style="padding: 10px; text-align: right; font-weight: bold;">Thuế:</td>
                 <td style="padding: 10px; text-align: right;">${formatPrice(tax)}</td>
@@ -415,11 +414,22 @@ export default function ShippingPage() {
           phoneNumber: values.phoneNumber,
           specificAddress: `${values.address}, ${selectedWardName}, ${selectedDistrictName}, ${selectedProvinceName}, Việt Nam`
         },
-        paymentMethod: values.paymentMethod
+        paymentMethod: values.paymentMethod,
+        ...(appliedVoucher && {
+          voucher: {
+            voucherId: appliedVoucher.voucherId,
+            code: appliedVoucher.code,
+            discount: voucherDiscount
+          }
+        })
       };
       const response = await createOrderMutation.mutateAsync(orderData as any);
       if (response && response.success && response.data) {
         clearCart();
+        // Clear voucher after successful order
+        if (appliedVoucher) {
+          removeVoucher();
+        }
         toast.success('Đặt hàng thành công!');
         
         // Gửi email xác nhận đơn hàng
@@ -463,12 +473,23 @@ export default function ShippingPage() {
           specificAddress: `${formValues.address}, ${selectedWardName}, ${selectedDistrictName}, ${selectedProvinceName}, Việt Nam`
         },
         paymentMethod: 'BANK_TRANSFER',
-        paymentInfo: paymentData
+        paymentInfo: paymentData,
+        ...(appliedVoucher && {
+          voucher: {
+            voucherId: appliedVoucher.voucherId,
+            code: appliedVoucher.code,
+            discount: voucherDiscount
+          }
+        })
       };
       
       const response = await createOrderMutation.mutateAsync(orderData as any);
       if (response && response.success && response.data) {
         clearCart();
+        // Clear voucher after successful order
+        if (appliedVoucher) {
+          removeVoucher();
+        }
         toast.success('Thanh toán và đặt hàng thành công!');
         
         // Gửi email xác nhận đơn hàng
@@ -803,15 +824,24 @@ export default function ShippingPage() {
             </CardContent>
             <CardFooter className="flex flex-col space-y-2">
               <div className="flex justify-between w-full">
-                <span className="text-muted-foreground">Tạm tính</span>
-                <span className='text-maintext'>{formatPrice(subtotal)}</span>
+                <span className="text-muted-foreground font-semibold text-sm">Tạm tính</span>
+                <span className='text-maintext'>{formatPrice(subtotal + voucherDiscount)}</span>
               </div>
+              
+              {/* Hiển thị giảm giá từ voucher */}
+              {appliedVoucher && voucherDiscount > 0 && (
+                <div className="flex justify-between w-full text-green-600">
+                  <span className="text-sm font-semibold">Giảm giá voucher ({appliedVoucher.code})</span>
+                  <span>-{formatPrice(voucherDiscount)}</span>
+                </div>
+              )}
+              
               <div className="flex justify-between w-full">
-                <span className="text-muted-foreground">Thuế</span>
+                <span className="text-muted-foreground font-semibold text-sm">Thuế</span>
                 <span className='text-maintext'>{formatPrice(tax)}</span>
               </div>
               <div className="flex justify-between w-full">
-                <span className="text-muted-foreground">Phí vận chuyển</span>
+                <span className="text-muted-foreground font-semibold text-sm">Phí vận chuyển</span>
                 <span className='text-maintext'>{formatPrice(shipping)}</span>
               </div>
               <div className="flex justify-between w-full text-base font-semibold text-maintext pt-2 border-t">

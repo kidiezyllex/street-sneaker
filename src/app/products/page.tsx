@@ -241,6 +241,12 @@ export default function ProductsPage() {
 
     const variant = product.variants[0]
     
+    // Check stock availability
+    if (variant.stock === 0) {
+      toast.error('Sản phẩm đã hết hàng');
+      return;
+    }
+    
     // Calculate discount from promotions data if available
     let finalPrice = variant.price;
     let originalPrice = undefined;
@@ -276,6 +282,7 @@ export default function ProductsPage() {
       brand: typeof product.brand === "string" ? product.brand : product.brand.name,
       colors: [typeof variant.colorId === "object" ? variant.colorId.name : variant.colorId],
       size: typeof variant.sizeId === "object" ? variant.sizeId.name : variant.sizeId,
+      stock: variant.stock // Add stock information
     }
 
     addToCart(productToAdd, 1)
@@ -655,6 +662,34 @@ const ProductCard = ({ product, promotionsData, onAddToCart, onQuickView, onAddT
               }
               return null;
             })()}
+            {/* Stock badge */}
+            {(() => {
+              const totalStock = product.variants.reduce((sum: number, variant: any) => sum + (variant.stock || 0), 0);
+              if (totalStock === 0) {
+                return (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 0.5, delay: 0.4 }}
+                    className="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-xl border-2 border-white/50 backdrop-blur-sm"
+                  >
+                    Hết hàng
+                  </motion.div>
+                );
+              } else if (totalStock <= 5) {
+                return (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 0.5, delay: 0.4 }}
+                    className="bg-orange-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-xl border-2 border-white/50 backdrop-blur-sm"
+                  >
+                    Sắp hết
+                  </motion.div>
+                );
+              }
+              return null;
+            })()}
           </div>
 
           {/* Enhanced quick action buttons */}
@@ -676,6 +711,7 @@ const ProductCard = ({ product, promotionsData, onAddToCart, onQuickView, onAddT
                   e.preventDefault()
                   onAddToCart()
                 }}
+                disabled={product.variants[0]?.stock === 0}
                 aria-label="Thêm vào giỏ hàng"
               >
                 <Icon path={mdiCartOutline} size={0.7} className="group-hover/btn:animate-bounce" />

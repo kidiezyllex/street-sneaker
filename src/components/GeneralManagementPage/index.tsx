@@ -5,22 +5,15 @@ import { useRouter, usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Icon } from '@mdi/react';
 import {
-  mdiAccount,
   mdiLock,
   mdiAccountEdit,
-  mdiCog,
   mdiChevronRight,
   mdiOrderBoolAscending,
   mdiEye,
-  mdiPrinter,
-  mdiClose,
   mdiMapMarker,
-  mdiPhone,
-  mdiEmail,
   mdiCreditCardOutline,
   mdiCashMultiple,
   mdiAlertCircleOutline,
-  mdiBellOutline,
   mdiContentSaveOutline,
   mdiTicketPercentOutline,
   mdiContentCopy,
@@ -30,10 +23,9 @@ import {
   mdiClockOutline,
   mdiCancel,
   mdiKeyboardReturn,
-  mdiArrowLeft,
   mdiPlus,
-  mdiMinus,
-  mdiDelete
+  mdiDelete,
+  mdiMinus
 } from '@mdi/js';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -1312,7 +1304,6 @@ const VouchersTab = () => {
   const { profile } = useUser();
   const userId = profile?.data?._id;
   const { data: vouchersData, isLoading, isError } = useAvailableVouchersForUser(userId || '', {});
-
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
       toast.success(`Đã sao chép mã: ${text}`, {
@@ -1383,6 +1374,7 @@ const VouchersTab = () => {
   }
 
   const vouchers = vouchersData?.data?.vouchers;
+  console.log(vouchers)
 
   if (!vouchers || vouchers.length === 0) {
     return (
