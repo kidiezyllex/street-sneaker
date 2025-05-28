@@ -617,7 +617,6 @@ const ReturnStatusBadge = ({ status }: { status: string }) => {
   );
 };
 
-// Create Return Request Dialog
 interface CreateReturnDialogProps {
   orderId: string | null;
   open: boolean;
@@ -634,6 +633,9 @@ const CreateReturnDialog: React.FC<CreateReturnDialogProps> = ({
   const { showToast } = useToast();
   const createReturnMutation = useCreateReturnRequest();
   const { data: returnableOrdersData } = useReturnableOrders();
+  const { profile } = useUser();
+  const userId = profile?.data?._id;
+  const { data: ordersData } = useOrdersByUser(userId || '');
   
   const [selectedItems, setSelectedItems] = useState<Array<{
     product: string;
@@ -645,13 +647,29 @@ const CreateReturnDialog: React.FC<CreateReturnDialogProps> = ({
   }>>([]);
   const [reason, setReason] = useState('');
 
-  const order = returnableOrdersData?.data?.orders?.find(o => o._id === orderId);
+  const returnableOrder = returnableOrdersData?.data?.orders?.find(o => o._id === orderId);
+  const displayOrder = ordersData?.data?.orders?.find(o => o._id === orderId);
+  const order = displayOrder || returnableOrder;
 
   const handleAddItem = (item: any) => {
+    if (!item.product) return;
+
+    const product = item.product as any;
+    const variant = product?.variants?.[0];
+    
+    if (!variant) {
+      showToast({
+        title: "Lỗi",
+        message: "Không thể xác định thông tin variant của sản phẩm",
+        type: "error"
+      });
+      return;
+    }
+
     const existingIndex = selectedItems.findIndex(
-      si => si.product === item.product._id && 
-           si.variant.colorId === item.variant.colorId && 
-           si.variant.sizeId === item.variant.sizeId
+      si => si.product === product._id && 
+           si.variant.colorId === variant.colorId && 
+           si.variant.sizeId === variant.sizeId
     );
 
     if (existingIndex >= 0) {
@@ -662,14 +680,14 @@ const CreateReturnDialog: React.FC<CreateReturnDialogProps> = ({
       }
     } else {
       setSelectedItems([...selectedItems, {
-        product: item.product._id,
+        product: product._id, // This is already correct - using product._id
         variant: {
-          colorId: item.variant.colorId,
-          sizeId: item.variant.sizeId
+          colorId: variant.colorId,
+          sizeId: variant.sizeId
         },
         quantity: 1,
         maxQuantity: item.quantity,
-        productName: item.product.name,
+        productName: product.name,
         price: item.price
       }]);
     }
@@ -698,7 +716,7 @@ const CreateReturnDialog: React.FC<CreateReturnDialogProps> = ({
     const payload: ICustomerReturnRequest = {
       originalOrder: orderId,
       items: selectedItems.map(item => ({
-        product: item.product,
+        product: item.product, // This should already be the product._id from handleAddItem
         variant: item.variant,
         quantity: item.quantity
       })),
@@ -740,36 +758,74 @@ const CreateReturnDialog: React.FC<CreateReturnDialogProps> = ({
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Danh sách sản phẩm có thể trả */}
           <div>
             <h4 className="font-medium mb-3">Sản phẩm trong đơn hàng:</h4>
             <div className="space-y-2 max-h-60 overflow-y-auto">
-              {order.items.map((item, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <img
-                      src={item.product?.images?.[0] || "/images/white-image.png"}
-                      alt={item.product?.name || ''}
-                      className="w-12 h-12 object-contain rounded"
-                    />
-                    <div>
-                      <p className="font-medium">{item.product?.name || 'Sản phẩm không xác định'}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Số lượng: {item.quantity} | Giá: {formatPrice(item.price)}
-                      </p>
+              {order.items.map((item, index) => {
+                const product = item.product as any;
+                const variant = product?.variants?.[0];
+                const imageUrl = variant?.images?.[0];
+                
+                if (!product) {
+                  return (
+                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg bg-muted/50">
+                      <div className="flex items-center space-x-3">
+                        <img
+                          src="/images/white-image.png"
+                          alt="Sản phẩm không xác định"
+                          className="w-12 h-12 object-contain rounded"
+                        />
+                        <div>
+                          <p className="font-medium text-muted-foreground">Sản phẩm không xác định</p>
+                          <p className="text-sm text-muted-foreground">
+                            Số lượng: {item.quantity} | Giá: {formatPrice(item.price)}
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled
+                        className="gap-2"
+                      >
+                        Không thể trả
+                      </Button>
                     </div>
+                  );
+                }
+
+                return (
+                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <img
+                        src={imageUrl || "/images/white-image.png"}
+                        alt={product?.name || 'Sản phẩm'}
+                        className="w-12 h-12 object-contain rounded"
+                      />
+                      <div>
+                        <p className="font-medium">{product?.name || 'Sản phẩm không xác định'}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Số lượng: {item.quantity} | Giá: {formatPrice(item.price)}
+                        </p>
+                        {product?.code && (
+                          <p className="text-xs text-muted-foreground">
+                            Mã: {product.code}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleAddItem(item)}
+                      className="gap-2"
+                    >
+                      <Icon path={mdiPlus} size={0.5} />
+                      Thêm
+                    </Button>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleAddItem(item)}
-                    className="gap-2"
-                  >
-                    <Icon path={mdiPlus} size={0.5} />
-                    Thêm
-                  </Button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -938,26 +994,37 @@ const ReturnDetailDialog: React.FC<ReturnDetailDialogProps> = ({
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {returnData.data.items.map((item: any, index) => (
-                      <div key={index} className="flex items-center space-x-3 p-3 border rounded-lg">
-                        <img
-                          src={item.product?.images?.[0] || "/images/white-image.png"}
-                          alt={item.product?.name || ''}
-                          className="w-12 h-12 object-contain rounded"
-                        />
-                        <div className="flex-1">
-                          <p className="font-medium">{item.product?.name || 'Sản phẩm không xác định'}</p>
-                          <p className="text-sm text-muted-foreground">
-                            Số lượng: {item.quantity} | Giá: {formatPrice(item.price)}
-                          </p>
-                          {item.reason && (
+                    {returnData.data.items.map((item: any, index) => {
+                      const product = item.product as any;
+                      const variant = product?.variants?.[0];
+                      const imageUrl = variant?.images?.[0];
+
+                      return (
+                        <div key={index} className="flex items-center space-x-3 p-3 border rounded-lg">
+                          <img
+                            src={imageUrl || "/images/white-image.png"}
+                            alt={product?.name || 'Sản phẩm'}
+                            className="w-12 h-12 object-contain rounded"
+                          />
+                          <div className="flex-1">
+                            <p className="font-medium">{product?.name || 'Sản phẩm không xác định'}</p>
                             <p className="text-sm text-muted-foreground">
-                              Lý do: {item.reason}
+                              Số lượng: {item.quantity} | Giá: {formatPrice(item.price)}
                             </p>
-                          )}
+                            {product?.code && (
+                              <p className="text-xs text-muted-foreground">
+                                Mã: {product.code}
+                              </p>
+                            )}
+                            {item.reason && (
+                              <p className="text-sm text-muted-foreground">
+                                Lý do: {item.reason}
+                              </p>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>
@@ -1374,8 +1441,6 @@ const VouchersTab = () => {
   }
 
   const vouchers = vouchersData?.data?.vouchers;
-  console.log(vouchers)
-
   if (!vouchers || vouchers.length === 0) {
     return (
       <Card>
@@ -1772,9 +1837,9 @@ export default function GeneralManagementPage() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
           <motion.div
-            className="md:col-span-1"
+            className="md:col-span-3"
             initial="hidden"
             animate="visible"
             variants={sidebarAnimation}
@@ -1821,7 +1886,7 @@ export default function GeneralManagementPage() {
 
           {/* Content */}
           <motion.div
-            className="md:col-span-3"
+            className="md:col-span-9"
             initial="hidden"
             animate="visible"
             variants={contentAnimation}
@@ -1858,52 +1923,68 @@ export default function GeneralManagementPage() {
                         </Button>
                       </div>
                     ) : (
-                      <div>
-                        <Table>
+                      <div className="overflow-x-auto">
+                        <Table className="min-w-[1200px]">
                           <TableHeader>
                             <TableRow>
-                              <TableHead className="w-[120px] px-3 py-2">Mã đơn hàng</TableHead>
-                              <TableHead className="px-3 py-2">Ngày đặt</TableHead>
-                              <TableHead className="px-3 py-2">Sản phẩm</TableHead>
-                              <TableHead className="text-right px-3 py-2">Tổng tiền</TableHead>
-                              <TableHead className="px-3 py-2">Trạng thái đơn hàng</TableHead>
-                              <TableHead className="px-3 py-2">Phương thức thanh toán</TableHead>
-                              <TableHead className="px-3 py-2">Trạng thái thanh toán</TableHead>
-                              <TableHead className="text-center px-3 py-2">Thao tác</TableHead>
+                              <TableHead className="w-[120px] px-3 py-2 whitespace-nowrap">Mã đơn hàng</TableHead>
+                              <TableHead className="w-[180px] px-3 py-2 whitespace-nowrap">Ngày đặt</TableHead>
+                              <TableHead className="w-[200px] px-3 py-2 whitespace-nowrap">Sản phẩm</TableHead>
+                              <TableHead className="w-[120px] text-right px-3 py-2 whitespace-nowrap">Tổng tiền</TableHead>
+                              <TableHead className="w-[140px] px-3 py-2 whitespace-nowrap">Trạng thái đơn hàng</TableHead>
+                              <TableHead className="w-[180px] px-3 py-2 whitespace-nowrap">Phương thức thanh toán</TableHead>
+                              <TableHead className="w-[140px] px-3 py-2 whitespace-nowrap">Trạng thái thanh toán</TableHead>
+                              <TableHead className="w-[120px] text-center px-3 py-2 whitespace-nowrap">Thao tác</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             {ordersData.data.orders.map((order: IOrder) => (
                               <TableRow key={order._id}>
-                                <TableCell className="font-medium px-3 py-2">{order.code}</TableCell>
-                                <TableCell className="px-3 py-2">{formatDate(order.createdAt)}</TableCell>
+                                <TableCell className="font-medium px-3 py-2 whitespace-nowrap text-maintext">{order.code}</TableCell>
+                                <TableCell className="px-3 py-2 whitespace-nowrap text-maintext">
+                                  {format(new Date(order.createdAt), 'dd/MM/yyyy HH:mm', { locale: vi })}
+                                </TableCell>
                                 <TableCell className="px-3 py-2">
-                                  <div className="flex flex-col gap-1">
-                                    {order.items.slice(0, 2).map((item, index) => (
-                                      <div key={index} className="text-xs">
-                                        {item.product ? (item.product as any).name || '' : ''} x{item.quantity}
-                                      </div>
-                                    ))}
-                                    {order.items.length > 2 && (
-                                      <div className="text-xs text-muted-foreground">
-                                        +{order.items.length - 2} sản phẩm khác
+                                  <div className="flex gap-1 flex-wrap">
+                                    {order.items.slice(0, 3).map((item, index) => {
+                                      const product = item.product as any;
+                                      const variant = product?.variants?.[0];
+                                      const imageUrl = variant?.images?.[0];
+                                      
+                                      return (
+                                        <div key={index} className="relative">
+                                          <img
+                                            src={imageUrl || "/images/white-image.png"}
+                                            alt={product?.name || 'Sản phẩm'}
+                                            className="w-12 h-12 object-contain rounded border"
+                                            title={product?.name || 'Sản phẩm không xác định'}
+                                          />
+                                          <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                                            {item.quantity}
+                                          </span>
+                                        </div>
+                                      );
+                                    })}
+                                    {order.items.length > 3 && (
+                                      <div className="w-12 h-12 bg-muted rounded border flex items-center justify-center text-xs text-muted-foreground">
+                                        +{order.items.length - 3}
                                       </div>
                                     )}
                                   </div>
                                 </TableCell>
-                                <TableCell className="text-right font-medium px-3 py-2">
+                                <TableCell className="text-right font-medium px-3 py-2 whitespace-nowrap text-maintext">
                                   {formatPrice(order.total)}
                                 </TableCell>
-                                <TableCell className="px-3 py-2">
+                                <TableCell className="px-3 py-2 ">
                                   <OrderStatusBadge status={order.orderStatus} />
                                 </TableCell>
-                                <TableCell className="px-3 py-2">
+                                <TableCell className="px-3 py-2 whitespace-nowrap text-maintext">
                                   {getPaymentMethodName(order.paymentMethod)}
                                 </TableCell>
                                 <TableCell className="px-3 py-2">
-                                  <span className={order.paymentStatus === 'PAID' ? 'bg-green-100 text-nowrap text-green-800 border-green-200 px-2 py-1 rounded' : '!bg-extra text-nowrap text-white px-2 py-1 rounded'}>
+                                  <Badge className={order.paymentStatus === 'PAID' ? '!bg-emerald-400 !text-white !border-emerald-500 text-nowrap !rounded' : '!bg-extra text-nowrap text-white px-2 py-1 rounded'}>
                                     {getPaymentStatusName(order.paymentStatus)}
-                                  </span>
+                                  </Badge>
                                 </TableCell>
                                 <TableCell className="text-center px-3 py-2">
                                   <div className="flex items-center justify-center space-x-2">
@@ -1921,7 +2002,6 @@ export default function GeneralManagementPage() {
                                         size="icon"
                                         onClick={() => handleCreateReturn(order._id)}
                                         title="Yêu cầu trả hàng"
-                                        className="text-orange-600 hover:text-orange-700"
                                       >
                                         <Icon path={mdiKeyboardReturn} size={0.7} />
                                       </Button>

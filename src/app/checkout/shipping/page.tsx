@@ -398,15 +398,23 @@ export default function ShippingPage() {
       
       const orderData = {
         customer: user?._id || '000000000000000000000000',
-        items: items.map(item => ({
-          product: item.id.toString(),
-          quantity: item.quantity,
-          price: item.price,
-          variant: {
-            colorId: undefined,
-            sizeId: undefined
+        items: items.map(item => {
+          let productId = item.id; // Default to item.id (which is variant ID)
+          if (item.slug && item.slug.includes('-')) {
+            const slugParts = item.slug.split('-');
+            const lastPart = slugParts[slugParts.length - 1];
+            if (lastPart && lastPart.length === 24 && /^[0-9a-fA-F]{24}$/.test(lastPart)) {
+              productId = lastPart;
+            }
           }
-        })),
+          
+          return {
+            product: productId,
+            variant: item.id, // Use the variant ID directly since item.id is the variant ID
+            quantity: item.quantity,
+            price: item.price
+          };
+        }),
         subTotal: Number(subtotal.toFixed(2)),
         total: Number(total.toFixed(2)),
         shippingAddress: {
@@ -416,23 +424,17 @@ export default function ShippingPage() {
         },
         paymentMethod: values.paymentMethod,
         ...(appliedVoucher && {
-          voucher: {
-            voucherId: appliedVoucher.voucherId,
-            code: appliedVoucher.code,
-            discount: voucherDiscount
-          }
+          voucher: appliedVoucher.voucherId
         })
       };
       const response = await createOrderMutation.mutateAsync(orderData as any);
       if (response && response.success && response.data) {
         clearCart();
-        // Clear voucher after successful order
         if (appliedVoucher) {
           removeVoucher();
         }
         toast.success('Đặt hàng thành công!');
         
-        // Gửi email xác nhận đơn hàng
         await sendOrderConfirmationEmail(response.data._id, response.data, values.email);
         
         setOrderResult(response.data);
@@ -456,15 +458,23 @@ export default function ShippingPage() {
       
       const orderData = {
         customer: user?._id || '000000000000000000000000',
-        items: items.map(item => ({
-          product: item.id.toString(),
-          quantity: item.quantity,
-          price: item.price,
-          variant: {
-            colorId: undefined,
-            sizeId: undefined
+        items: items.map(item => {
+          let productId = item.id; // Default to item.id (which is variant ID)
+          if (item.slug && item.slug.includes('-')) {
+            const slugParts = item.slug.split('-');
+            const lastPart = slugParts[slugParts.length - 1];
+            if (lastPart && lastPart.length === 24 && /^[0-9a-fA-F]{24}$/.test(lastPart)) {
+              productId = lastPart;
+            }
           }
-        })),
+          
+          return {
+            product: productId,
+            variant: item.id, // Use the variant ID directly since item.id is the variant ID
+            quantity: item.quantity,
+            price: item.price
+          };
+        }),
         subTotal: Number(subtotal.toFixed(2)),
         total: Number(total.toFixed(2)),
         shippingAddress: {
@@ -475,11 +485,7 @@ export default function ShippingPage() {
         paymentMethod: 'BANK_TRANSFER',
         paymentInfo: paymentData,
         ...(appliedVoucher && {
-          voucher: {
-            voucherId: appliedVoucher.voucherId,
-            code: appliedVoucher.code,
-            discount: voucherDiscount
-          }
+          voucher: appliedVoucher.voucherId
         })
       };
       
