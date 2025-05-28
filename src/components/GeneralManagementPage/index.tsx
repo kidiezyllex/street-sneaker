@@ -630,7 +630,6 @@ const CreateReturnDialog: React.FC<CreateReturnDialogProps> = ({
   onOpenChange,
   onSuccess
 }) => {
-  const { showToast } = useToast();
   const createReturnMutation = useCreateReturnRequest();
   const { data: returnableOrdersData } = useReturnableOrders();
   const { profile } = useUser();
@@ -658,11 +657,7 @@ const CreateReturnDialog: React.FC<CreateReturnDialogProps> = ({
     const variant = product?.variants?.[0];
     
     if (!variant) {
-      showToast({
-        title: "Lỗi",
-        message: "Không thể xác định thông tin variant của sản phẩm",
-        type: "error"
-      });
+      toast.error("Không thể xác định thông tin variant của sản phẩm");
       return;
     }
 
@@ -705,11 +700,7 @@ const CreateReturnDialog: React.FC<CreateReturnDialogProps> = ({
 
   const handleSubmit = () => {
     if (!orderId || selectedItems.length === 0 || !reason.trim()) {
-      showToast({
-        title: "Lỗi",
-        message: "Vui lòng chọn sản phẩm và nhập lý do trả hàng",
-        type: "error"
-      });
+      toast.error("Vui lòng chọn sản phẩm và nhập lý do trả hàng");
       return;
     }
 
@@ -725,22 +716,14 @@ const CreateReturnDialog: React.FC<CreateReturnDialogProps> = ({
 
     createReturnMutation.mutate(payload, {
       onSuccess: () => {
-        showToast({
-          title: "Thành công",
-          message: "Yêu cầu trả hàng đã được gửi thành công",
-          type: "success"
-        });
+        toast.success("Yêu cầu trả hàng đã được gửi thành công");
         setSelectedItems([]);
         setReason('');
         onOpenChange(false);
         onSuccess?.();
       },
       onError: (error) => {
-        showToast({
-          title: "Lỗi",
-          message: error.message || "Đã xảy ra lỗi khi tạo yêu cầu trả hàng",
-          type: "error"
-        });
+        toast.error("Đã xảy ra lỗi khi tạo yêu cầu trả hàng");
       }
     });
   };
@@ -920,27 +903,18 @@ const ReturnDetailDialog: React.FC<ReturnDetailDialogProps> = ({
 }) => {
   const { data: returnData, isLoading, isError } = useMyReturnDetail(returnId || '');
   const cancelReturnMutation = useCancelMyReturn();
-  const { showToast } = useToast();
 
   const handleCancelReturn = () => {
     if (!returnId) return;
 
     cancelReturnMutation.mutate(returnId, {
       onSuccess: () => {
-        showToast({
-          title: "Thành công",
-          message: "Đã hủy yêu cầu trả hàng",
-          type: "success"
-        });
+        toast.success("Đã hủy yêu cầu trả hàng");
         onCancel?.();
         onOpenChange(false);
       },
       onError: (error) => {
-        showToast({
-          title: "Lỗi",
-          message: error.message || "Đã xảy ra lỗi khi hủy yêu cầu",
-          type: "error"
-        });
+        toast.error("Đã xảy ra lỗi khi hủy yêu cầu");
       }
     });
   };
@@ -1371,31 +1345,6 @@ const VouchersTab = () => {
   const { profile } = useUser();
   const userId = profile?.data?._id;
   const { data: vouchersData, isLoading, isError } = useAvailableVouchersForUser(userId || '', {});
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text).then(() => {
-      toast.success(`Đã sao chép mã: ${text}`, {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-    }).catch(err => {
-      toast.error("Không thể sao chép mã giảm giá.", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-    });
-  };
 
   const formatDiscountValue = (type: 'PERCENTAGE' | 'FIXED_AMOUNT', value: number) => {
     if (type === 'PERCENTAGE') {
@@ -1532,7 +1481,31 @@ const VouchersTab = () => {
                       variant="default"
                       size="sm"
                       className="w-full mt-4 bg-primary hover:bg-primary/80 text-primary-foreground gap-2 shadow-md hover:shadow-lg transition-shadow"
-                      onClick={() => copyToClipboard(voucher.code)}
+                      onClick={() => {
+                        navigator.clipboard.writeText(voucher.code).then(() => {
+                          toast.success(`Đã sao chép mã: ${voucher.code}`, {
+                            position: "top-right",
+                            autoClose: 3000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                            theme: "light",
+                          });
+                        }).catch(err => {
+                          toast.error("Không thể sao chép mã giảm giá.", {
+                            position: "top-right",
+                            autoClose: 3000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                            theme: "light",
+                          });
+                        });
+                      }}
                     >
                       <Icon path={mdiContentCopy} size={0.7} />
                       Sao chép mã

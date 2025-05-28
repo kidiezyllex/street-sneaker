@@ -288,7 +288,7 @@ export default function EditAccountPage({ params }: Props) {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="citizenId">CCCD/CMND</Label>
+                    <Label htmlFor="citizenId">CCCD/CMND (Tuỳ chọn)</Label>
                     <Input
                       id="citizenId"
                       name="citizenId"

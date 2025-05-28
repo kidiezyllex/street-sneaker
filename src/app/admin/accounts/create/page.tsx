@@ -15,6 +15,7 @@ import { Icon } from '@mdi/react';
 import { mdiArrowLeft, mdiLoading } from '@mdi/js';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useRegister } from '@/hooks/authentication';
+import { Eye, EyeOff } from "lucide-react";
 
 const initialAccount: IAccountCreate = {
   fullName: '',
@@ -32,6 +33,8 @@ export default function CreateAccountPage() {
   const [account, setAccount] = useState<IAccountCreate>(initialAccount);
   const [confirmPassword, setConfirmPassword] = useState('');
   const createAccount = useRegister();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -40,6 +43,14 @@ export default function CreateAccountPage() {
 
   const handleSelectChange = (name: string, value: string) => {
     setAccount({ ...account, [name]: value });
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -157,28 +168,48 @@ export default function CreateAccountPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="password">Mật khẩu <span className="text-red-500">*</span></Label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  value={account.password}
-                  onChange={handleInputChange}
-                  placeholder="Nhập mật khẩu"
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    value={account.password}
+                    onChange={handleInputChange}
+                    placeholder="Nhập mật khẩu"
+                    required
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-maintext hover:text-maintext focus:outline-none"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Xác nhận mật khẩu <span className="text-red-500">*</span></Label>
-                <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Xác nhận mật khẩu"
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Xác nhận mật khẩu"
+                    required
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={toggleConfirmPasswordVisibility}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-maintext hover:text-maintext focus:outline-none"
+                  >
+                    {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -210,7 +241,7 @@ export default function CreateAccountPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="citizenId">CCCD/CMND</Label>
+                <Label htmlFor="citizenId">CCCD/CMND (Tuỳ chọn)</Label>
                 <Input
                   id="citizenId"
                   name="citizenId"
