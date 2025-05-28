@@ -716,7 +716,7 @@ const CreateReturnDialog: React.FC<CreateReturnDialogProps> = ({
     const payload: ICustomerReturnRequest = {
       originalOrder: orderId,
       items: selectedItems.map(item => ({
-        product: item.product, // This should already be the product._id from handleAddItem
+        product: item.product,
         variant: item.variant,
         quantity: item.quantity
       })),
