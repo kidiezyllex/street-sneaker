@@ -449,7 +449,7 @@ export default function AddressManager() {
 
       {/* Confirm Delete Dialog */}
       <Dialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-4xl">
           <DialogHeader>
             <DialogTitle className="text-center">Xác nhận xóa địa chỉ</DialogTitle>
             <DialogDescription className="text-center">

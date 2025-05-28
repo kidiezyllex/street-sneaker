@@ -419,7 +419,7 @@ const CartSheet: React.FC<CartSheetProps> = ({ open, onOpenChange }) => {
   return (
     <>
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent className="w-full sm:max-w-md flex flex-col text-maintext p-4 pr-3" side="right">
+        <SheetContent className="w-full sm:max-w-4xl flex flex-col text-maintext p-4 pr-3" side="right">
           <SheetHeader className="border-b pb-4">
             <SheetTitle>Giỏ hàng của bạn ({items.length})</SheetTitle>
           </SheetHeader>

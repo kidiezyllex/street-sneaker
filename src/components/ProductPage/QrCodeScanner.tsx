@@ -74,7 +74,7 @@ const QrCodeScanner = ({ onQrCodeDetected }: QrCodeScannerProps) => {
       </Button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-4xl">
           <DialogHeader>
             <DialogTitle>Quét mã QR</DialogTitle>
             <DialogDescription>

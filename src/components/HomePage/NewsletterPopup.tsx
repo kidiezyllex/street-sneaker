@@ -58,7 +58,7 @@ export const NewsletterPopup = () => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ type: 'spring', damping: 20 }}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-md w-full bg-white rounded-[6px] shadow-2xl z-50 overflow-hidden"
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-4xl w-full bg-white rounded-[6px] shadow-2xl z-50 overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Nút đóng */}

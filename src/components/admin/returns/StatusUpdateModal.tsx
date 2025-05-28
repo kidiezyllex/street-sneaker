@@ -68,7 +68,7 @@ export default function StatusUpdateModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-4xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Icon path={mdiAlertCircle} size={1} className="text-orange-500" />

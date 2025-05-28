@@ -80,7 +80,7 @@ export const Newsletter = () => {
             
             <motion.form 
               onSubmit={handleSubmit}
-              className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto"
+              className="flex flex-col sm:flex-row gap-2 max-w-4xl mx-auto"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}

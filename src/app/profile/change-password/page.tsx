@@ -267,7 +267,7 @@ export default function ChangePasswordPage() {
       >
         <div className="mb-8 flex flex-col items-center text-center">
           <h1 className="text-3xl font-bold text-maintext dark:text-white mb-2">Đổi mật khẩu</h1>
-          <p className="text-maintext dark:text-maintext max-w-md">
+          <p className="text-maintext dark:text-maintext max-w-4xl">
             Cập nhật mật khẩu mới để bảo vệ tài khoản của bạn
           </p>
         </div>

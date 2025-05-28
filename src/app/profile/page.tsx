@@ -248,7 +248,7 @@ export default function ProfilePage() {
                 <div className="flex flex-col items-center justify-center py-8">
                   <Icon path={mdiShieldAccount} size={3} className="text-primary mb-4 opacity-80" />
                   <h3 className="text-xl font-medium mb-2">Thay đổi mật khẩu tài khoản</h3>
-                  <p className="text-maintext dark:text-maintext text-center mb-4 max-w-md">
+                  <p className="text-maintext dark:text-maintext text-center mb-4 max-w-4xl">
                     Cập nhật mật khẩu mới để bảo vệ tài khoản của bạn khỏi các truy cập trái phép
                   </p>
                   <Link href="/profile/change-password">

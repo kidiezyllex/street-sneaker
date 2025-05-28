@@ -13,7 +13,7 @@ export default function SearchBar() {
   return (
     <form 
       onSubmit={handleSearch}
-      className="relative w-full max-w-md"
+      className="relative w-full max-w-4xl"
     >
       <div className="relative">
         <IconSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-maintext" size={18} />

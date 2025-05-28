@@ -69,7 +69,7 @@ function VNPayCallbackContent() {
   }, [router, searchParams, showToast]);
 
   return (
-    <div className="container max-w-md py-8">
+    <div className="container max-w-4xl py-8">
       <Card>
         <CardHeader>
           <CardTitle className="text-center">Xử lý thanh toán</CardTitle>

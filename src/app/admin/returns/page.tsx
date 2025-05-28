@@ -280,16 +280,16 @@ export default function ReturnsPage() {
           <Tabs defaultValue="all" onValueChange={setSelectedTab}>
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-4">
               <TabsList className="h-9">
-                <TabsTrigger value="all" className="px-4">
+                <TabsTrigger value="all" className="px-4 text-maintext">
                   Tất cả
                 </TabsTrigger>
-                <TabsTrigger value="pending" className="px-4">
+                <TabsTrigger value="pending" className="px-4 text-maintext">
                   Chờ xử lý
                 </TabsTrigger>
-                <TabsTrigger value="refunded" className="px-4">
+                <TabsTrigger value="refunded" className="px-4 text-maintext">
                   Đã hoàn tiền
                 </TabsTrigger>
-                <TabsTrigger value="cancelled" className="px-4">
+                <TabsTrigger value="cancelled" className="px-4 text-maintext">
                   Đã hủy
                 </TabsTrigger>
               </TabsList>
@@ -547,7 +547,7 @@ export default function ReturnsPage() {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-4xl">
           <DialogHeader>
             <DialogTitle>Xác nhận xóa yêu cầu trả hàng</DialogTitle>
           </DialogHeader>

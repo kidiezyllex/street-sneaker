@@ -302,7 +302,7 @@ export default function StatisticsPage() {
       </div>
 
       <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid grid-cols-3 w-full max-w-md">
+        <TabsList className="grid grid-cols-3 w-full max-w-4xl">
           <TabsTrigger value="overview">Tổng quan</TabsTrigger>
           <TabsTrigger value="revenue">Doanh thu</TabsTrigger>
           <TabsTrigger value="products">Sản phẩm</TabsTrigger>

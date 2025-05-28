@@ -75,14 +75,12 @@ export default function EditAccountPage({ params }: Props) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email || '')) {
       toast.error('Email không hợp lệ');
       return;
     }
 
-    // Phone number validation (Vietnamese format)
     const phoneRegex = /(84|0[3|5|7|8|9])+([0-9]{8})\b/;
     if (formData.phoneNumber && !phoneRegex.test(formData.phoneNumber)) {
       toast.error('Số điện thoại không hợp lệ');
@@ -125,7 +123,6 @@ export default function EditAccountPage({ params }: Props) {
     }
   };
 
-  // Hàm lấy chữ cái đầu tiên của họ tên
   const getInitials = (name: string) => {
     return name
       .split(' ')

@@ -28,7 +28,7 @@ export default function SuccessModal({ isOpen, onClose, orderId, orderCode }: Su
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle className="sr-only">Đặt hàng thành công</DialogTitle>
         </DialogHeader>
