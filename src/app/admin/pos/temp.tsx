@@ -642,7 +642,7 @@ export default function TempPage() {
       subTotal: calculateSubtotal(),
       total: totalAmount,
       shippingAddress: {
-        name: customerName || 'Khách lẻ',
+        name: customerName || 'Khách vãng lai',
         phoneNumber: customerPhone || 'N/A',
         provinceId: 'N/A',
         districtId: 'N/A',
@@ -665,7 +665,7 @@ export default function TempPage() {
         updateStatsOnCheckout(totalAmount);
         const newTransaction = {
           id: orderCode,
-          customer: customerName || 'Khách lẻ',
+          customer: customerName || 'Khách vãng lai',
           amount: totalAmount,
           time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
           status: 'completed'
@@ -696,7 +696,7 @@ export default function TempPage() {
             email: 'info@street-sneaker.com'
           },
           customerInfo: {
-            name: customerName || 'Khách lẻ',
+            name: customerName || 'Khách vãng lai',
             phone: customerPhone || 'N/A',
           },
           orderId: orderCode,
@@ -1780,7 +1780,7 @@ export default function TempPage() {
                       <div className="flex items-center gap-4 py-1">
                         <Icon path={mdiAccount} size={0.7} className="text-gray-400" />
                         <div className="flex flex-col items-start">
-                          <span className="text-xs text-maintext font-semibold">Khách lẻ</span>
+                          <span className="text-xs text-maintext font-semibold">Khách vãng lai</span>
                           <span className="text-xs text-maintext">Nhập thông tin thủ công</span>
                         </div>
                       </div>

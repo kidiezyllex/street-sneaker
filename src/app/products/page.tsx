@@ -240,9 +240,8 @@ export default function ProductsPage() {
     }
 
     const variant = product.variants[0]
-    
-    // Check stock availability
-    if (variant.stock === 0) {
+    const allVariantsOutOfStock = product.variants.every((v: any) => v.stock === 0);
+    if (allVariantsOutOfStock) {
       toast.error('Sản phẩm đã hết hàng');
       return;
     }
