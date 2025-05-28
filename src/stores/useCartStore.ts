@@ -131,7 +131,6 @@ export const useCartStore = create(
         } else {
           // Check stock for new item
           if (product.stock && quantity > product.stock) {
-            console.warn(`Cannot add ${quantity} items. Stock limit: ${product.stock}`);
             return; // Don't add if exceeds stock
           }
           
@@ -192,10 +191,8 @@ export const useCartStore = create(
         
         if (itemIndex !== -1) {
           const item = currentItems[itemIndex];
-          
           // Check stock limit
           if (item.stock && quantity > item.stock) {
-            console.warn(`Cannot set quantity to ${quantity}. Stock limit: ${item.stock}`);
             currentItems[itemIndex].quantity = item.stock; // Set to max available stock
           } else if (quantity <= 0) {
             // Remove item if quantity is 0 or negative

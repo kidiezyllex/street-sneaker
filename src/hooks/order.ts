@@ -11,7 +11,6 @@ import {
   updateOrder,
   updateOrderStatus,
   cancelOrder,
-  getMyOrders,
   getOrdersByUser,
   createPOSOrder
 } from "@/api/order";
@@ -32,6 +31,8 @@ export const useOrders = (params: IOrderFilter = {}): UseQueryResult<IOrdersResp
   return useQuery<IOrdersResponse, Error>({
     queryKey: ["orders", params],
     queryFn: () => getAllOrders(params),
+    refetchInterval: 4000,
+    refetchIntervalInBackground: true,
   });
 };
 
@@ -40,6 +41,8 @@ export const useOrderDetail = (orderId: string): UseQueryResult<IOrderResponse, 
     queryKey: ["order", orderId],
     queryFn: () => getOrderById(orderId),
     enabled: !!orderId, // Chỉ fetch khi có orderId
+    refetchInterval: 4000,
+    refetchIntervalInBackground: true,
   });
 };
 
@@ -75,13 +78,6 @@ export const useCancelOrder = (): UseMutationResult<IOrderResponse, Error, strin
   });
 };
 
-export const useMyOrders = (params: IOrderFilter = {}): UseQueryResult<IOrdersResponse, Error> => {
-  return useQuery<IOrdersResponse, Error>({
-    queryKey: ["myOrders", params],
-    queryFn: () => getMyOrders(params),
-  });
-};
-
 export const useOrdersByUser = (
   userId: string,
   params: { orderStatus?: string; page?: number; limit?: number } = {}
@@ -90,6 +86,8 @@ export const useOrdersByUser = (
     queryKey: ["ordersByUser", userId, params],
     queryFn: () => getOrdersByUser(userId, params),
     enabled: !!userId,
+    refetchInterval: 4000,
+    refetchIntervalInBackground: true,
   });
 };
 

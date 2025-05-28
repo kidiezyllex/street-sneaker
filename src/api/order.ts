@@ -44,12 +44,6 @@ export const cancelOrder = async (orderId: string): Promise<IOrderResponse> => {
   return res as IOrderResponse;
 };
 
-// === User Order API ===
-export const getMyOrders = async (params: IOrderFilter = {}): Promise<IOrdersResponse> => {
-  const res = await sendGet("/orders/my-orders", params);
-  return res as IOrdersResponse;
-};
-
 export const getOrdersByUser = async (
   userId: string,
   params: { orderStatus?: string; page?: number; limit?: number } = {}
@@ -58,11 +52,6 @@ export const getOrdersByUser = async (
   return res as IOrdersResponse;
 };
 
-/**
- * 4.x. Create POS Order
- * Endpoint: POST /api/orders/pos
- * Authorization: staff, admin
- */
 export const createPOSOrder = async (
   payload: IPOSOrderCreateRequest
 ): Promise<IPOSOrderCreateResponse> => {
