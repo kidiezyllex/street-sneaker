@@ -47,6 +47,8 @@ export const useProductDetail = (productId: string): UseQueryResult<IProductResp
     queryKey: ["product", productId],
     queryFn: () => getProductById(productId),
     enabled: !!productId, 
+    refetchInterval: 4000,
+    refetchIntervalInBackground: true,
   });
 };
 
