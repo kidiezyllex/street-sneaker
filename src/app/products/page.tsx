@@ -234,20 +234,17 @@ export default function ProductsPage() {
   }
 
   const handleAddToCart = (product: any) => {
-    if (!product || !product.variants || product.variants.length === 0) {
-      toast.error("Không thể thêm sản phẩm này vào giỏ hàng")
-      return
-    }
+    if (!product.variants?.[0]) return;
 
-    const variant = product.variants[0]
-    const allVariantsOutOfStock = product.variants.every((v: any) => v.stock === 0);
-    if (allVariantsOutOfStock) {
+    const firstVariant = product.variants[0];
+    
+    if (firstVariant.stock === 0) {
       toast.error('Sản phẩm đã hết hàng');
       return;
     }
     
     // Calculate discount from promotions data if available
-    let finalPrice = variant.price;
+    let finalPrice = firstVariant.price;
     let originalPrice = undefined;
     let discountPercent = 0;
     let hasDiscount = false;
@@ -256,7 +253,7 @@ export default function ProductsPage() {
     if (promotionsData?.data?.promotions) {
       const discount = calculateProductDiscount(
         product._id,
-        variant.price,
+        firstVariant.price,
         promotionsData.data.promotions
       );
       
@@ -268,25 +265,31 @@ export default function ProductsPage() {
       }
     }
 
-    const productToAdd = {
-      id: product._id,
+    const cartItem = {
+      id: firstVariant._id, // Use variant ID as main ID
+      productId: product._id, // Separate product ID
       name: product.name,
       price: finalPrice,
       originalPrice: originalPrice,
       discountPercent: discountPercent,
       hasDiscount: hasDiscount,
-      image: variant.images?.[0] || "",
+      image: firstVariant.images?.[0] || '',
       quantity: 1,
-      slug: product.name.toLowerCase().replace(/\s+/g, "-") + "-" + product._id,
-      brand: typeof product.brand === "string" ? product.brand : product.brand.name,
-      colors: [typeof variant.colorId === "object" ? variant.colorId.name : variant.colorId],
-      size: typeof variant.sizeId === "object" ? variant.sizeId.name : variant.sizeId,
-      stock: variant.stock // Add stock information
-    }
+      slug: product.code,
+      brand: typeof product.brand === 'string' ? product.brand : product.brand.name,
+      size: firstVariant.sizeId?.code,
+      colors: [firstVariant.colorId?.name || 'Default'],
+      stock: firstVariant.stock,
+      // New variant information
+      colorId: firstVariant.colorId?._id || '',
+      sizeId: firstVariant.sizeId?._id || '',
+      colorName: firstVariant.colorId?.name || 'Default',
+      sizeName: firstVariant.sizeId?.value || firstVariant.sizeId?.code || ''
+    };
 
-    addToCart(productToAdd, 1)
-    toast.success("Đã thêm sản phẩm vào giỏ hàng")
-  }
+    addToCart(cartItem, 1);
+    toast.success('Đã thêm sản phẩm vào giỏ hàng');
+  };
 
   const handleQuickView = (product: any) => {
     window.location.href = `/products/${product.name.toLowerCase().replace(/\s+/g, "-")}-${product._id}`

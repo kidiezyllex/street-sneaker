@@ -32,7 +32,8 @@ import {
   useMutation,
   useQuery,
   type UseMutationResult,
-  type UseQueryResult
+  type UseQueryResult,
+  useQueryClient
 } from "@tanstack/react-query";
 
 /**
@@ -126,8 +127,12 @@ export const useUpdateUserProfile = (): UseMutationResult<
   Error,
   IProfileUpdate
 > => {
+  const queryClient = useQueryClient();
   return useMutation<IProfileResponse, Error, IProfileUpdate>({
-    mutationFn: (data: IProfileUpdate) => updateProfile(data)
+    mutationFn: (data: IProfileUpdate) => updateProfile(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+    },
   });
 };
 

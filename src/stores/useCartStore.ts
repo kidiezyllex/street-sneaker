@@ -2,7 +2,8 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export interface CartItem {
-  id: string;
+  id: string; // variant ID
+  productId: string; // product ID
   name: string;
   price: number;
   originalPrice?: number;
@@ -15,6 +16,11 @@ export interface CartItem {
   colors?: string[];
   size?: string;
   stock?: number;
+  // New variant information
+  colorId: string;
+  sizeId: string;
+  colorName?: string;
+  sizeName?: string;
 }
 
 export interface AppliedVoucher {
@@ -136,6 +142,7 @@ export const useCartStore = create(
           
           currentItems.push({
             id: product.id,
+            productId: product.productId || product.id, // Default to id if productId not provided
             name: product.name,
             price: product.price,
             originalPrice: product.originalPrice,
@@ -148,6 +155,10 @@ export const useCartStore = create(
             colors: product.colors,
             size: product.size,
             stock: product.stock,
+            colorId: product.colorId || '',
+            sizeId: product.sizeId || '',
+            colorName: product.colorName || '',
+            sizeName: product.sizeName || '',
           });
         }
         

@@ -397,36 +397,32 @@ export default function ShippingPage() {
       }
       
       const orderData = {
+        orderId: `HD${new Date().getFullYear()}${Date.now().toString().slice(-6)}`,
         customer: user?._id || '000000000000000000000000',
-        items: items.map(item => {
-          let productId = item.id; // Default to item.id (which is variant ID)
-          if (item.slug && item.slug.includes('-')) {
-            const slugParts = item.slug.split('-');
-            const lastPart = slugParts[slugParts.length - 1];
-            if (lastPart && lastPart.length === 24 && /^[0-9a-fA-F]{24}$/.test(lastPart)) {
-              productId = lastPart;
-            }
-          }
-          
-          return {
-            product: productId,
-            variant: item.id, // Use the variant ID directly since item.id is the variant ID
-            quantity: item.quantity,
-            price: item.price
-          };
-        }),
+        items: items.map(item => ({
+          product: item.productId || item.id, // Use productId if available, fallback to id
+          variant: {
+            colorId: item.colorId,
+            sizeId: item.sizeId
+          },
+          quantity: item.quantity,
+          price: item.price
+        })),
+        voucher: appliedVoucher?.voucherId,
         subTotal: Number(subtotal.toFixed(2)),
+        discount: Number(voucherDiscount.toFixed(2)),
         total: Number(total.toFixed(2)),
         shippingAddress: {
           name: values.fullName,
           phoneNumber: values.phoneNumber,
+          provinceId: selectedProvince,
+          districtId: selectedDistrict,
+          wardId: selectedWard,
           specificAddress: `${values.address}, ${selectedWardName}, ${selectedDistrictName}, ${selectedProvinceName}, Việt Nam`
         },
-        paymentMethod: values.paymentMethod,
-        ...(appliedVoucher && {
-          voucher: appliedVoucher.voucherId
-        })
+        paymentMethod: values.paymentMethod
       };
+      
       const response = await createOrderMutation.mutateAsync(orderData as any);
       if (response && response.success && response.data) {
         clearCart();
@@ -457,36 +453,31 @@ export default function ShippingPage() {
       const formValues = form.getValues();
       
       const orderData = {
+        orderId: `HD${new Date().getFullYear()}-${Date.now().toString().slice(-6)}`,
         customer: user?._id || '000000000000000000000000',
-        items: items.map(item => {
-          let productId = item.id; // Default to item.id (which is variant ID)
-          if (item.slug && item.slug.includes('-')) {
-            const slugParts = item.slug.split('-');
-            const lastPart = slugParts[slugParts.length - 1];
-            if (lastPart && lastPart.length === 24 && /^[0-9a-fA-F]{24}$/.test(lastPart)) {
-              productId = lastPart;
-            }
-          }
-          
-          return {
-            product: productId,
-            variant: item.id, // Use the variant ID directly since item.id is the variant ID
-            quantity: item.quantity,
-            price: item.price
-          };
-        }),
+        items: items.map(item => ({
+          product: item.productId || item.id, // Use productId if available, fallback to id
+          variant: {
+            colorId: item.colorId,
+            sizeId: item.sizeId
+          },
+          quantity: item.quantity,
+          price: item.price
+        })),
+        voucher: appliedVoucher?.voucherId,
         subTotal: Number(subtotal.toFixed(2)),
+        discount: Number(voucherDiscount.toFixed(2)),
         total: Number(total.toFixed(2)),
         shippingAddress: {
           name: formValues.fullName,
           phoneNumber: formValues.phoneNumber,
+          provinceId: selectedProvince,
+          districtId: selectedDistrict,
+          wardId: selectedWard,
           specificAddress: `${formValues.address}, ${selectedWardName}, ${selectedDistrictName}, ${selectedProvinceName}, Việt Nam`
         },
         paymentMethod: 'BANK_TRANSFER',
-        paymentInfo: paymentData,
-        ...(appliedVoucher && {
-          voucher: appliedVoucher.voucherId
-        })
+        paymentInfo: paymentData
       };
       
       const response = await createOrderMutation.mutateAsync(orderData as any);

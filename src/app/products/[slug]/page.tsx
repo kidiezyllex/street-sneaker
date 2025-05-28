@@ -330,7 +330,8 @@ const SimilarProductCard = ({ product, promotionsData }: { product: any; promoti
     }
 
     const cartItem = {
-      id: product._id,
+      id: firstVariant._id, // Use variant ID as main ID
+      productId: product._id, // Separate product ID
       name: product.name,
       price: finalPrice,
       originalPrice: originalPrice,
@@ -342,7 +343,12 @@ const SimilarProductCard = ({ product, promotionsData }: { product: any; promoti
       brand: typeof product.brand === 'string' ? product.brand : product.brand.name,
       size: firstVariant.sizeId?.code,
       colors: [firstVariant.colorId?.name || 'Default'],
-      stock: firstVariant.stock // Add stock information
+      stock: firstVariant.stock,
+      // New variant information
+      colorId: firstVariant.colorId?._id || '',
+      sizeId: firstVariant.sizeId?._id || '',
+      colorName: firstVariant.colorId?.name || 'Default',
+      sizeName: firstVariant.sizeId?.name || firstVariant.sizeId?.code || ''
     };
 
     addToCart(cartItem, 1);
@@ -725,7 +731,8 @@ export default function ProductDetail() {
       : undefined;
 
     const cartItem = {
-      id: productData.data._id,
+      id: selectedVariant._id, // Use variant ID as main ID
+      productId: productData.data._id, // Separate product ID
       name: productData.data.name,
       price: finalPrice,
       originalPrice: originalPrice,
@@ -737,7 +744,12 @@ export default function ProductDetail() {
       brand: typeof productData.data.brand === 'string' ? productData.data.brand : productData.data.brand.name,
       size: selectedVariant.sizeId.code,
       colors: [selectedVariant.colorId.name],
-      stock: selectedVariant.stock // Add stock information
+      stock: selectedVariant.stock,
+      // New variant information
+      colorId: selectedVariant.colorId._id,
+      sizeId: selectedVariant.sizeId._id,
+      colorName: selectedVariant.colorId.name,
+      sizeName: selectedVariant.sizeId.name || selectedVariant.sizeId.code || ''
     };
 
     addToCart(cartItem, quantity);

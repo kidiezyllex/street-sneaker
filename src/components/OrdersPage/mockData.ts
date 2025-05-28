@@ -71,7 +71,7 @@ export interface Order {
 export const mockOrders: Order[] = [
   {
     id: '1',
-    code: 'ORD-2023-00001',
+    code: 'HD2023-00001',
     customer: {
       id: 'cus-1',
       fullName: 'Nguyễn Văn An',
@@ -146,7 +146,7 @@ export const mockOrders: Order[] = [
   },
   {
     id: '2',
-    code: 'ORD-2023-00002',
+    code: 'HD2023-00002',
     customer: {
       id: 'cus-2',
       fullName: 'Trần Thị Bình',
@@ -190,7 +190,7 @@ export const mockOrders: Order[] = [
   },
   {
     id: '3',
-    code: 'ORD-2023-00003',
+    code: 'HD2023-00003',
     customer: {
       id: 'cus-3',
       fullName: 'Lê Minh Cường',
@@ -261,7 +261,7 @@ export const mockOrders: Order[] = [
   },
   {
     id: '4',
-    code: 'ORD-2023-00004',
+    code: 'HD2023-00004',
     customer: {
       id: 'cus-4',
       fullName: 'Phạm Thị Dung',
@@ -320,7 +320,7 @@ export const mockOrders: Order[] = [
   },
   {
     id: '5',
-    code: 'ORD-2023-00005',
+    code: 'HD2023-00005',
     customer: {
       id: 'cus-5',
       fullName: 'Hoàng Minh Tuấn',
@@ -380,7 +380,7 @@ export const mockOrders: Order[] = [
   },
   {
     id: '6',
-    code: 'ORD-2023-00006',
+    code: 'HD2023-00006',
     customer: {
       id: 'cus-1',
       fullName: 'Nguyễn Văn An',
@@ -449,7 +449,7 @@ export const mockOrders: Order[] = [
   },
   {
     id: '7',
-    code: 'ORD-2023-00007',
+    code: 'HD2023-00007',
     customer: {
       id: 'cus-6',
       fullName: 'Trương Văn Giáp',
@@ -498,7 +498,7 @@ export const mockOrders: Order[] = [
   },
   {
     id: '8',
-    code: 'ORD-2023-00008',
+    code: 'HD2023-00008',
     customer: {
       id: 'cus-7',
       fullName: 'Đỗ Thị Hạnh',
@@ -557,7 +557,7 @@ export const mockOrders: Order[] = [
   },
   {
     id: '9',
-    code: 'ORD-2023-00009',
+    code: 'HD2023-00009',
     customer: {
       id: 'cus-8',
       fullName: 'Vũ Đức Minh',
@@ -623,7 +623,7 @@ export const mockOrders: Order[] = [
   },
   {
     id: '10',
-    code: 'ORD-2023-00010',
+    code: 'HD2023-00010',
     customer: {
       id: 'cus-9',
       fullName: 'Ngô Thị Mai',

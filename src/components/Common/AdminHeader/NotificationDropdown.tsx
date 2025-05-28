@@ -30,7 +30,7 @@ const mockNotifications: Notification[] = [
   {
     id: '1',
     title: 'Đơn hàng mới',
-    content: 'Bạn có đơn hàng mới #ORD-12345 cần xử lý',
+    content: 'Bạn có đơn hàng mới #HD12345 cần xử lý',
     time: '5 phút trước',
     type: 'info',
     read: false,
@@ -54,7 +54,7 @@ const mockNotifications: Notification[] = [
   {
     id: '4',
     title: 'Lỗi thanh toán',
-    content: 'Đơn hàng #ORD-6789 gặp lỗi khi thanh toán',
+    content: 'Đơn hàng #HD6789 gặp lỗi khi thanh toán',
     time: '1 ngày trước',
     type: 'error',
     read: true,

@@ -256,6 +256,25 @@ export default function OrderDetailPage() {
         return format(new Date(dateString), "dd/MM/yyyy HH:mm", { locale: vi });
     };
 
+    // Helper function to get variant image for both online and POS orders
+    const getVariantImage = (item: any) => {
+        // For POS orders: item has variant field with colorId and sizeId
+        if (item.variant && item.variant.colorId && item.variant.sizeId) {
+            const matchingVariant = item.product?.variants?.find((v: any) => 
+                v.colorId === item.variant.colorId && v.sizeId === item.variant.sizeId
+            );
+            return matchingVariant?.images?.[0] || null;
+        }
+        
+        // For online orders: item doesn't have variant field, use first variant with image
+        if (item.product?.variants) {
+            const variantWithImage = item.product.variants.find((v: any) => v.images && v.images.length > 0);
+            return variantWithImage?.images?.[0] || null;
+        }
+        
+        return null;
+    };
+
     const getPaymentMethodName = (method: string) => {
         switch (method) {
             case "CASH":
@@ -631,20 +650,17 @@ export default function OrderDetailPage() {
                                 </TableHeader>
                                 <TableBody>
                                     {order.items.map((item: any, index: number) => {
-                                        // Find the matching variant from the product variants
-                                        const matchingVariant = item.product?.variants?.find((v: any) => 
-                                            v.colorId === item.variant?.colorId && v.sizeId === item.variant?.sizeId
-                                        );
+                                        const variantImage = getVariantImage(item);
                                         
                                         return (
                                             <TableRow key={index}>
                                                 <TableCell>
                                                     <div className="flex items- flex-col gap-2">
-                                                        {matchingVariant?.images?.[0] && (
+                                                        {variantImage && (
                                                             <div className="w-40 h-40 rounded border overflow-hidden bg-gray-100 flex-shrink-0">
                                                                 <img
                                                                     draggable={false}
-                                                                    src={matchingVariant.images[0]}
+                                                                    src={variantImage}
                                                                     alt={item.product?.name || "Sản phẩm"}
                                                                     className="w-full h-full object-contain"
                                                                 />
@@ -845,19 +861,16 @@ export default function OrderDetailPage() {
                             </TableHeader>
                             <TableBody>
                                 {order.items.map((item: any, index: number) => {
-                                    // Find the matching variant from the product variants
-                                    const matchingVariant = item.product?.variants?.find((v: any) => 
-                                        v.colorId === item.variant?.colorId && v.sizeId === item.variant?.sizeId
-                                    );
+                                    const variantImage = getVariantImage(item);
                                     
                                     return (
                                         <TableRow key={index}>
                                             <TableCell>
                                                 <div className="flex items-center gap-3">
-                                                    {matchingVariant?.images?.[0] && (
+                                                    {variantImage && (
                                                         <div className="w-10 h-10 rounded border overflow-hidden bg-gray-100 flex-shrink-0">
                                                             <img
-                                                                src={matchingVariant.images[0]}
+                                                                src={variantImage}
                                                                 alt={item.product?.name || "Sản phẩm"}
                                                                 className="w-full h-full object-cover"
                                                             />
